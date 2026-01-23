@@ -1,0 +1,10 @@
+flask
+langchain
+langchain-community
+faiss-cpu
+ollama
+beautifulsoup4
+python-dotenv
+requests
+pydantic>=2.0
+pydantic-settings
