@@ -53,73 +53,8 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const totalAgentsEl = document.getElementById('totalAgents');
-            const topCategoryEl = document.getElementById('topCategory');
-            const totalStarsEl = document.getElementById('totalStars');
-            const grid = document.getElementById('allAgentsGrid');
-
-            try {
-                // Fetch All Agents
-                const response = await fetch('/api/agents');
-                const agents = await response.json();
-
-                // Calculate Stats
-                totalAgentsEl.textContent = agents.length;
-
-                const categories = {};
-                let stars = 0;
-                agents.forEach(a => {
-                    const cat = a.metadata.category || 'Uncategorized';
-                    categories[cat] = (categories[cat] || 0) + 1;
-                    stars += (a.metadata.stars || 0);
-                });
-
-                const sortedCats = Object.entries(categories).sort((a, b) => b[1] - a[1]);
-                topCategoryEl.textContent = sortedCats.length > 0 ? sortedCats[0][0] : 'N/A';
-
-                totalStarsEl.textContent = stars >= 1000000 ? (stars / 1000000).toFixed(1) + 'M+' : (stars / 1000).toFixed(1) + 'k';
-
-                // Render Grid
-                grid.innerHTML = '';
-                agents.forEach(agent => {
-                    // Similar card logic
-                    const card = document.createElement('div');
-                    card.className = 'agent-card';
-
-                    let stack = agent.metadata.stack;
-                    if (typeof stack === 'string') stack = stack.split(',');
-                    const stackHtml = stack.map(tech => `<span class="tech-item">${tech.trim()}</span>`).join('');
-
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <div class="agent-name">${agent.metadata.name}</div>
-                            <div class="agent-category">${agent.metadata.category}</div>
-                        </div>
-                         <div class="agent-description">
-                            ${agent.metadata.description || 'No description available.'}
-                        </div>
-                        <div class="tech-stack">
-                            ${stackHtml}
-                        </div>
-                        <div class="card-footer">
-                            <div class="stars">
-                                <ion-icon name="star"></ion-icon>
-                                <span>${agent.metadata.stars}</span>
-                            </div>
-                            <a href="${agent.metadata.url}" target="_blank" class="view-btn">View &rarr;</a>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-
-            } catch (error) {
-                console.error(error);
-                grid.innerHTML = '<p>Error loading dashboard data.</p>';
-            }
-        });
-    </script>
+    <script src="/static/js/agent-card.js"></script>
+    <script src="/static/js/dashboard.js"></script>
 </body>
 
 </html>
