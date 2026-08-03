@@ -4,14 +4,13 @@ from langchain_core.documents import Document
 from typing import List, Dict
 from models import Agent
 from embeddings import get_embeddings
-from dotenv import load_dotenv
 
-load_dotenv()
+import config
 
 class VectorStore:
-    def __init__(self):
-        self.persist_directory = os.getenv("FAISS_DIR", "../data/faiss_index")
-        self.embedding_function = get_embeddings()
+    def __init__(self, persist_directory=None, embedding_function=None):
+        self.persist_directory = str(persist_directory or config.FAISS_DIR)
+        self.embedding_function = embedding_function or get_embeddings()
         self.vector_store = None
         self.load_store()
 
@@ -19,7 +18,7 @@ class VectorStore:
         try:
             if os.path.exists(self.persist_directory) and os.path.exists(os.path.join(self.persist_directory, "index.faiss")):
                 self.vector_store = FAISS.load_local(
-                    self.persist_directory, 
+                    self.persist_directory,
                     self.embedding_function,
                     allow_dangerous_deserialization=True # Local execution, safe.
                 )
