@@ -1,0 +1,76 @@
+import json
+
+import config
+from vectorstore import VectorStore
+
+
+def test_search_ranks_by_descending_score(store):
+    results = store.search("agent", limit=3)
+    assert [r["score"] for r in results] == sorted((r["score"] for r in results), reverse=True)
+    assert results[0]["score"] == 1.0  # distance 0
+
+
+def test_search_overfetches_when_filtering_by_category(store):
+    store.search("agent", limit=2, category="Research")
+    assert store.vector_store.last_k == 2 * VectorStore.CATEGORY_OVERFETCH
+
+
+def test_category_filter_is_case_insensitive(store):
+    assert store.search("agent", category="code generation")
+    assert store.search("agent", category="CODE GENERATION")
+
+
+def test_unknown_category_returns_nothing(store):
+    assert store.search("agent", category="Nonexistent") == []
+
+
+def test_search_never_exceeds_the_limit(store):
+    assert len(store.search("agent", limit=1, category="Code Generation")) == 1
+
+
+def test_search_on_an_empty_store_returns_nothing(tmp_path):
+    vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
+    assert vs.vector_store is None
+    assert vs.search("anything") == []
+    assert vs.get_stats() == {"count": 0}
+
+
+def test_get_all_agents_is_sorted_by_name(store):
+    names = [a["name"] for a in store.get_all_agents()]
+    assert names == sorted(names, key=str.lower)
+
+
+def test_get_categories_orders_by_count_then_name(store):
+    assert store.get_categories() == [
+        {"name": "Code Generation", "count": 2},
+        {"name": "Research", "count": 1},
+    ]
+
+
+def test_falls_back_to_json_when_the_docstore_is_unreadable(store, agents_json):
+    """A changed FAISS internal layout must not look like an empty index."""
+    del store.vector_store.docstore._dict  # force AttributeError
+    store.vector_store.docstore = object()
+
+    agents = store.get_all_agents()
+    assert [a["name"] for a in agents] == ["Aider", "Cursor", "GPT Researcher"]
+
+
+def test_json_fallback_survives_a_corrupt_file(store, agents_json):
+    store.vector_store.docstore = object()
+    agents_json.write_text("{ not valid json")
+    assert store.get_all_agents() == []
+
+
+def test_json_fallback_tolerates_unknown_fields(store, agents_json):
+    store.vector_store.docstore = object()
+    records = json.loads(agents_json.read_text())
+    records[0]["added_by"] = "someone"
+    agents_json.write_text(json.dumps(records))
+    assert len(store.get_all_agents()) == 3
+
+
+def test_add_agents_ignores_an_empty_list(store):
+    before = store.vector_store
+    store.add_agents([])
+    assert store.vector_store is before

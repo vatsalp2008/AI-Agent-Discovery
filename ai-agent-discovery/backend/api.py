@@ -151,13 +151,12 @@ def health():
     }
 
     try:
-        store = get_store()
+        payload["indexed_agents"] = get_store().get_stats().get("count", 0)
     except Exception as e:
-        logger.exception("Health check could not initialize the vector store")
+        logger.exception("Health check could not reach the vector store")
         payload.update(status="error", detail=str(e))
         return jsonify(payload), 503
 
-    payload["indexed_agents"] = store.get_stats().get("count", 0)
     if payload["indexed_agents"] == 0:
         payload.update(status="degraded", detail="No agents indexed. Run seed.py to populate the vector store.")
         return jsonify(payload), 503
