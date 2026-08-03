@@ -66,6 +66,17 @@ def _parse_limit(payload):
     return min(limit, config.SEARCH_MAX_LIMIT)
 
 
+def _parse_category(payload):
+    """Validate the optional category filter."""
+    category = payload.get('category')
+    if category is None:
+        return None
+    if not isinstance(category, str):
+        raise BadRequest("'category' must be a string")
+    category = category.strip()
+    return category or None
+
+
 @api_bp.route('/agents', methods=['GET'])
 def get_agents():
     try:
@@ -82,12 +93,13 @@ def search_agents():
     try:
         query = _parse_query(payload)
         limit = _parse_limit(payload)
+        category = _parse_category(payload)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
     start_time = time.time()
     try:
-        results = get_store().search(query, limit=limit)
+        results = get_store().search(query, limit=limit, category=category)
     except Exception as e:
         logger.exception("Search failed for query %r", query)
         return jsonify({"error": str(e)}), 500
@@ -98,9 +110,19 @@ def search_agents():
         "metadata": {
             "count": len(results),
             "limit": limit,
+            "category": category,
             "duration": f"{duration:.2f}s"
         }
     }), 200
+
+
+@api_bp.route('/categories', methods=['GET'])
+def get_categories():
+    try:
+        return jsonify(get_store().get_categories()), 200
+    except Exception as e:
+        logger.exception("Failed to list categories")
+        return jsonify({"error": str(e)}), 500
 
 
 @api_bp.route('/stats', methods=['GET'])

@@ -2,7 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
     const resultsArea = document.getElementById('resultsArea');
-    const filterTags = document.querySelectorAll('.filter-tag');
+    const filters = document.getElementById('filters');
+
+    // Category chips act as a real server-side filter, not just a canned query.
+    let activeCategory = null;
 
     function showMessage(text, isError) {
         const p = document.createElement('p');
@@ -26,13 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showLoading();
 
+        const body = { query };
+        if (activeCategory) body.category = activeCategory;
+
         try {
             const response = await fetch('/api/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ query })
+                body: JSON.stringify(body)
             });
 
             const data = await response.json();
@@ -44,12 +50,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Array.isArray(data.results) && data.results.length > 0) {
                 AgentCard.renderGrid(resultsArea, data.results);
+            } else if (activeCategory) {
+                showMessage(`No agents in "${activeCategory}" match your query.`);
             } else {
                 showMessage('No agents found matching your query.');
             }
         } catch (error) {
             console.error('Error:', error);
             showMessage('An error occurred while searching.', true);
+        }
+    }
+
+    function makeChip(name, count) {
+        const chip = document.createElement('span');
+        chip.className = 'filter-tag';
+        chip.textContent = count === undefined ? name : `${name} (${count})`;
+        chip.dataset.category = name;
+        chip.addEventListener('click', () => {
+            const wasActive = chip.classList.contains('active');
+            filters.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+
+            if (wasActive) {
+                activeCategory = null;
+            } else {
+                activeCategory = name;
+                chip.classList.add('active');
+            }
+
+            if (searchInput.value.trim()) {
+                performSearch(searchInput.value);
+            }
+        });
+        return chip;
+    }
+
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            if (!response.ok) return;
+            const categories = await response.json();
+            if (!Array.isArray(categories) || categories.length === 0) return;
+            categories.forEach(c => filters.appendChild(makeChip(c.name, c.count)));
+        } catch (error) {
+            console.error('Could not load categories:', error);
         }
     }
 
@@ -64,15 +107,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    filterTags.forEach(tag => {
-        tag.addEventListener('click', () => {
-            const query = tag.dataset.query;
-            searchInput.value = query;
-            performSearch(query);
-
-            // Active state
-            filterTags.forEach(t => t.classList.remove('active'));
-            tag.classList.add('active');
-        });
-    });
+    loadCategories();
 });

@@ -52,17 +52,30 @@ class VectorStore:
         self.vector_store.save_local(self.persist_directory)
         logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
-    def search(self, query: str, limit: int = None) -> List[Dict]:
-        """Semantic search for agents, best match first."""
+    # When filtering by category we over-fetch, since the nearest neighbours
+    # overall may all belong to other categories.
+    CATEGORY_OVERFETCH = 5
+
+    def search(self, query: str, limit: int = None, category: str = None) -> List[Dict]:
+        """Semantic search for agents, best match first.
+
+        When `category` is given, only agents in that category are returned
+        (case-insensitive).
+        """
         if not self.vector_store:
             return []
 
         limit = limit or config.SEARCH_DEFAULT_LIMIT
-        results = self.vector_store.similarity_search_with_score(query, k=limit)
+        k = limit * self.CATEGORY_OVERFETCH if category else limit
+        results = self.vector_store.similarity_search_with_score(query, k=k)
+
+        wanted = category.strip().casefold() if category else None
 
         # Format results
         agents = []
         for doc, distance in results:
+            if wanted and (doc.metadata.get("category") or "").casefold() != wanted:
+                continue
             agents.append({
                 "name": doc.metadata.get("name"),
                 "description": doc.page_content,
@@ -72,7 +85,18 @@ class VectorStore:
             })
 
         agents.sort(key=lambda agent: agent["score"], reverse=True)
-        return agents
+        return agents[:limit]
+
+    def get_categories(self) -> List[Dict]:
+        """Return the indexed categories with agent counts, most common first."""
+        counts = {}
+        for agent in self.get_all_agents():
+            category = agent["metadata"].get("category") or "Uncategorized"
+            counts[category] = counts.get(category, 0) + 1
+        return [
+            {"name": name, "count": count}
+            for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+        ]
 
     def get_all_agents(self) -> List[Dict]:
         """Retrieve every indexed agent, sorted by name.
