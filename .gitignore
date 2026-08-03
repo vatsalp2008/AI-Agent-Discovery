@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment configuration (use .env.example as the template)
+.env
+.env.local
+
+# Generated vector store
+data/faiss_index/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
