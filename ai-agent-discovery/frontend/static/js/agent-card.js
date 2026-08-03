@@ -57,6 +57,12 @@ const AgentCard = (() => {
         header.appendChild(el('div', 'agent-category', meta.category || 'Uncategorized'));
         card.appendChild(header);
 
+        if (typeof agent.score === 'number') {
+            const match = el('div', 'match-score', `${Math.round(agent.score * 100)}% match`);
+            match.title = 'Semantic relevance to your query';
+            card.appendChild(match);
+        }
+
         const description = meta.description || extractDescription(agent.description) || 'No description available.';
         card.appendChild(el('div', 'agent-description', description));
 

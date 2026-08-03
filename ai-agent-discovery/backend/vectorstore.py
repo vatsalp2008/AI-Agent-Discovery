@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 from typing import List, Dict
 from models import Agent
 from embeddings import get_embeddings
+from scoring import relevance_score
 
 import config
 
@@ -51,23 +52,26 @@ class VectorStore:
         self.vector_store.save_local(self.persist_directory)
         logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
-    def search(self, query: str, limit: int = 10) -> List[Dict]:
-        """Semantic search for agents"""
+    def search(self, query: str, limit: int = None) -> List[Dict]:
+        """Semantic search for agents, best match first."""
         if not self.vector_store:
             return []
 
+        limit = limit or config.SEARCH_DEFAULT_LIMIT
         results = self.vector_store.similarity_search_with_score(query, k=limit)
-        
+
         # Format results
         agents = []
-        for doc, score in results:
+        for doc, distance in results:
             agents.append({
                 "name": doc.metadata.get("name"),
-                "description": doc.page_content, 
+                "description": doc.page_content,
                 "metadata": doc.metadata,
-                "distance": float(score)
+                "distance": float(distance),
+                "score": relevance_score(distance)
             })
-        
+
+        agents.sort(key=lambda agent: agent["score"], reverse=True)
         return agents
 
     def get_all_agents(self) -> List[Dict]:

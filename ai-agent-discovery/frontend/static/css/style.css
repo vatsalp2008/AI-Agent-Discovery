@@ -308,3 +308,15 @@ nav a:hover, nav a.active {
     opacity: 0.5;
     pointer-events: none;
 }
+
+/* Relevance badge shown on search results */
+.match-score {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    background: rgba(59, 130, 246, 0.12);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    margin-bottom: 0.5rem;
+}
