@@ -292,3 +292,19 @@ nav a:hover, nav a.active {
 .stat-label {
     color: var(--text-secondary);
 }
+
+/* Inline status messages (empty results, errors) */
+.result-message {
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.result-message.error {
+    color: #ef4444;
+}
+
+/* Agent links are disabled when the record has no safe http(s) URL */
+.view-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
