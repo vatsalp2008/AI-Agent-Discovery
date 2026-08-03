@@ -9,7 +9,28 @@ from vectorstore import VectorStore
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
-vs = VectorStore()
+
+_store = None
+
+
+def get_store() -> VectorStore:
+    """Return the shared VectorStore, constructing it on first use.
+
+    Building the store contacts Ollama and reads the FAISS index, so it is
+    deferred until a request actually needs it. Otherwise importing this
+    module — during tests, or when Ollama simply is not running yet — would
+    fail before the app can serve anything.
+    """
+    global _store
+    if _store is None:
+        _store = VectorStore()
+    return _store
+
+
+def set_store(store) -> None:
+    """Override the shared store. Used by tests."""
+    global _store
+    _store = store
 
 
 class BadRequest(Exception):
@@ -48,7 +69,7 @@ def _parse_limit(payload):
 @api_bp.route('/agents', methods=['GET'])
 def get_agents():
     try:
-        agents = vs.get_all_agents()
+        agents = get_store().get_all_agents()
         return jsonify(agents), 200
     except Exception as e:
         logger.exception("Failed to list agents")
@@ -66,7 +87,7 @@ def search_agents():
 
     start_time = time.time()
     try:
-        results = vs.search(query, limit=limit)
+        results = get_store().search(query, limit=limit)
     except Exception as e:
         logger.exception("Search failed for query %r", query)
         return jsonify({"error": str(e)}), 500
@@ -85,8 +106,38 @@ def search_agents():
 @api_bp.route('/stats', methods=['GET'])
 def get_stats():
     try:
-        stats = vs.get_stats()
+        stats = get_store().get_stats()
         return jsonify(stats), 200
     except Exception as e:
         logger.exception("Failed to compute stats")
         return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route('/health', methods=['GET'])
+def health():
+    """Readiness probe: reports whether the index is actually usable.
+
+    Returns 503 when the store cannot be built or holds no vectors, so a
+    "running but unseeded" app is distinguishable from a healthy one.
+    """
+    payload = {
+        "status": "ok",
+        "model": config.MODEL_NAME,
+        "ollama_url": config.OLLAMA_BASE_URL,
+        "index_path": str(config.FAISS_DIR),
+        "indexed_agents": 0,
+    }
+
+    try:
+        store = get_store()
+    except Exception as e:
+        logger.exception("Health check could not initialize the vector store")
+        payload.update(status="error", detail=str(e))
+        return jsonify(payload), 503
+
+    payload["indexed_agents"] = store.get_stats().get("count", 0)
+    if payload["indexed_agents"] == 0:
+        payload.update(status="degraded", detail="No agents indexed. Run seed.py to populate the vector store.")
+        return jsonify(payload), 503
+
+    return jsonify(payload), 200
