@@ -9,4 +9,6 @@ from scraper import seed_data
 
 if __name__ == '__main__':
     configure()
-    seed_data()
+    # --append keeps the existing index and adds on top of it; the default
+    # rebuilds so repeated runs stay idempotent.
+    seed_data(rebuild='--append' not in sys.argv)

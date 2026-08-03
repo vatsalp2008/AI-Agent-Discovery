@@ -5,6 +5,8 @@ import json
 import logging
 import os
 
+import config
+
 logger = logging.getLogger(__name__)
 
 SAMPLE_AGENTS = [
@@ -212,21 +214,48 @@ SAMPLE_AGENTS = [
     )
 ]
 
-def seed_data():
-    """Seeds the database with sample agents."""
+def load_agents() -> List[Agent]:
+    """Load the agent catalogue.
+
+    data/agents.json is the source of truth once it exists, so hand-edits
+    survive re-seeding. SAMPLE_AGENTS only bootstraps a fresh checkout.
+    """
+    if os.path.exists(config.AGENTS_JSON):
+        with open(config.AGENTS_JSON) as f:
+            records = json.load(f)
+        if records:
+            logger.info("Loaded %d agents from %s", len(records), config.AGENTS_JSON)
+            return [Agent.from_dict(record) for record in records]
+        logger.warning("%s is empty; using the built-in sample agents.", config.AGENTS_JSON)
+
+    logger.info("Using %d built-in sample agents.", len(SAMPLE_AGENTS))
+    return list(SAMPLE_AGENTS)
+
+
+def write_agents_json(agents: List[Agent]) -> None:
+    """Persist the catalogue back to data/agents.json."""
+    config.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with open(config.AGENTS_JSON, 'w') as f:
+        json.dump([agent.to_dict() for agent in agents], f, indent=2)
+
+
+def seed_data(rebuild: bool = True):
+    """Index the agent catalogue into the vector store.
+
+    Rebuilds by default: `add_agents` appends, so re-running the seed script
+    against an existing index would otherwise duplicate every agent.
+    """
     logger.info("Seeding data...")
+    agents = load_agents()
     vs = VectorStore()
-    
-    # Check if data exists? For now, we just upsert.
-    vs.add_agents(SAMPLE_AGENTS)
-    
-    # Also save to JSON for backup/reference
-    agents_dict = [agent.to_dict() for agent in SAMPLE_AGENTS]
-    os.makedirs('../data', exist_ok=True)
-    with open('../data/agents.json', 'w') as f:
-        json.dump(agents_dict, f, indent=2)
-    
-    logger.info("Seeding complete.")
+
+    if rebuild:
+        vs.replace_agents(agents)
+    else:
+        vs.add_agents(agents)
+
+    write_agents_json(agents)
+    logger.info("Seeding complete: %d agents indexed.", len(agents))
 
 if __name__ == "__main__":
     from logging_setup import configure

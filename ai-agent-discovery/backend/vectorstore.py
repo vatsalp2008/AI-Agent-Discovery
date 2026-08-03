@@ -33,8 +33,17 @@ class VectorStore:
             logger.warning("Could not load vector store from %s: %s", self.persist_directory, e)
             self.vector_store = None
 
+    def replace_agents(self, agents: List[Agent]):
+        """Rebuild the index from scratch so re-seeding cannot duplicate entries."""
+        self.vector_store = None
+        self.add_agents(agents)
+
     def add_agents(self, agents: List[Agent]):
         """Adds a list of agents to the vector store"""
+        if not agents:
+            logger.warning("No agents to index; leaving the vector store unchanged.")
+            return
+
         documents = []
         for agent in agents:
             doc = Document(
