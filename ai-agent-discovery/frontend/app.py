@@ -6,8 +6,11 @@ from flask import Flask, render_template
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 from api import api_bp
+from logging_setup import configure
 
-app = Flask(__name__, 
+configure()
+
+app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 

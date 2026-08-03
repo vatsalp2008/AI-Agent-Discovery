@@ -1,3 +1,4 @@
+import logging
 import os
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -6,6 +7,8 @@ from models import Agent
 from embeddings import get_embeddings
 
 import config
+
+logger = logging.getLogger(__name__)
 
 class VectorStore:
     def __init__(self, persist_directory=None, embedding_function=None):
@@ -25,7 +28,7 @@ class VectorStore:
             else:
                 self.vector_store = None
         except Exception as e:
-            print(f"Error loading vector store: {e}")
+            logger.warning("Could not load vector store from %s: %s", self.persist_directory, e)
             self.vector_store = None
 
     def add_agents(self, agents: List[Agent]):
@@ -45,7 +48,7 @@ class VectorStore:
         
         # Save locally
         self.vector_store.save_local(self.persist_directory)
-        print(f"Added {len(agents)} agents to vector store.")
+        logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
     def search(self, query: str, limit: int = 10) -> List[Dict]:
         """Semantic search for agents"""

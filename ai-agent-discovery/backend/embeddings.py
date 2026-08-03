@@ -1,6 +1,10 @@
+import logging
+
 from langchain_community.embeddings import OllamaEmbeddings
 
 import config
+
+logger = logging.getLogger(__name__)
 
 
 class EmbeddingService:
@@ -9,7 +13,7 @@ class EmbeddingService:
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            print(f"Initializing Embeddings with model={config.MODEL_NAME} at {config.OLLAMA_BASE_URL}")
+            logger.info("Initializing embeddings with model=%s at %s", config.MODEL_NAME, config.OLLAMA_BASE_URL)
             cls._instance = OllamaEmbeddings(
                 base_url=config.OLLAMA_BASE_URL,
                 model=config.MODEL_NAME

@@ -2,7 +2,10 @@ from typing import List
 from models import Agent
 from vectorstore import VectorStore
 import json
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 SAMPLE_AGENTS = [
     # Code Generation
@@ -211,7 +214,7 @@ SAMPLE_AGENTS = [
 
 def seed_data():
     """Seeds the database with sample agents."""
-    print("Seeding data...")
+    logger.info("Seeding data...")
     vs = VectorStore()
     
     # Check if data exists? For now, we just upsert.
@@ -223,7 +226,10 @@ def seed_data():
     with open('../data/agents.json', 'w') as f:
         json.dump(agents_dict, f, indent=2)
     
-    print("Seeding complete.")
+    logger.info("Seeding complete.")
 
 if __name__ == "__main__":
+    from logging_setup import configure
+
+    configure()
     seed_data()
