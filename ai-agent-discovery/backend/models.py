@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from typing import List, Optional
 
 @dataclass
@@ -10,9 +10,19 @@ class Agent:
     github_stars: Optional[int] = 0
     url: Optional[str] = ""
     use_case: Optional[str] = ""
-    
+
     def to_dict(self):
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, record: dict) -> "Agent":
+        """Build an Agent from a JSON record, ignoring unknown keys.
+
+        agents.json is meant to be hand-edited, so extra fields should not
+        break loading.
+        """
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in record.items() if k in known})
 
     @property
     def metadata(self):

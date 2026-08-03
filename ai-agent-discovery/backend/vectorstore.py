@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from langchain_community.vectorstores import FAISS
@@ -70,28 +71,57 @@ class VectorStore:
         return agents
 
     def get_all_agents(self) -> List[Dict]:
-        """Retrieve all agents (limit to 100 for now)"""
+        """Retrieve every indexed agent, sorted by name.
+
+        FAISS has no public "list everything" API, so this walks the backing
+        docstore. If that internal layout ever changes, fall back to the
+        seeded JSON file rather than pretending the index is empty.
+        """
+        documents = self._iter_documents()
+        if documents is None:
+            return self._agents_from_json()
+
+        agents = [
+            {
+                "name": doc.metadata.get("name"),
+                "description": doc.metadata.get("description", ""),
+                "metadata": doc.metadata,
+            }
+            for doc in documents
+        ]
+        agents.sort(key=lambda agent: (agent["name"] or "").lower())
+        return agents
+
+    def _iter_documents(self):
+        """Return the indexed documents, or None if the docstore is unreadable."""
         if not self.vector_store:
-            return []
-        
-        # FAISS doesn't support "get all" easily without iterating info.
-        # We can reconstruct from docstore if needed, but for now validation,
-        # let's rely on the backing docstore if simple, or just return empty/load from JSON if request.
-        # However, to support the dashboard, let's try to fetch from docstore.
-        
-        agents = []
-        # Accessing private docstore is hacky but common in FAISS wrapper usage for this.
-        # Alternatively, we should use the JSON file for "get_all".
+            return None
         try:
-            for doc_id, doc in self.vector_store.docstore._dict.items():
-                agents.append({
-                    "name": doc.metadata.get("name"),
-                    "metadata": doc.metadata
-                })
-        except:
-             # Fallback if docstore access fails
-             pass
-             
+            return list(self.vector_store.docstore._dict.values())
+        except AttributeError as e:
+            logger.warning("Could not read FAISS docstore (%s); falling back to %s", e, config.AGENTS_JSON)
+            return None
+
+    def _agents_from_json(self) -> List[Dict]:
+        """Load agents straight from the seeded JSON file."""
+        if not os.path.exists(config.AGENTS_JSON):
+            return []
+        try:
+            with open(config.AGENTS_JSON) as f:
+                records = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            logger.error("Could not read %s: %s", config.AGENTS_JSON, e)
+            return []
+
+        agents = [
+            {
+                "name": record.get("name"),
+                "description": record.get("description", ""),
+                "metadata": Agent.from_dict(record).metadata,
+            }
+            for record in records
+        ]
+        agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
     def get_stats(self):
