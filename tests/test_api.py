@@ -115,3 +115,24 @@ def test_health_reports_an_unreachable_backend(client):
     response = client.get("/api/health")
     assert response.status_code == 503
     assert response.get_json()["status"] == "error"
+
+
+def test_stats_summarizes_the_catalogue(client):
+    """The dashboard reads these instead of downloading every agent."""
+    stats = client.get("/api/stats").get_json()
+    assert stats["count"] == 3
+    assert stats["categories"] == 2
+    assert stats["top_category"] == {"name": "Code Generation", "count": 2}
+    assert stats["total_stars"] == 35000 + 12000 + 14000
+    assert stats["average_stars"] == round(61000 / 3)
+    assert stats["embedding_model"]
+
+
+def test_stats_on_an_empty_index_does_not_divide_by_zero(client, tmp_path):
+    from vectorstore import VectorStore
+
+    api.set_store(VectorStore(persist_directory=tmp_path / "empty", embedding_function=object()))
+    stats = client.get("/api/stats").get_json()
+    assert stats["count"] == 0
+    assert stats["average_stars"] == 0
+    assert stats["top_category"] is None

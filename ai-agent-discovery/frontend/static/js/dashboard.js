@@ -10,23 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return String(stars);
     }
 
-    function summarize(agents) {
-        const categories = {};
-        let stars = 0;
-        agents.forEach(agent => {
-            const meta = agent.metadata || {};
-            const category = meta.category || 'Uncategorized';
-            categories[category] = (categories[category] || 0) + 1;
-            stars += Number(meta.stars) || 0;
-        });
-        const ranked = Object.entries(categories).sort((a, b) => b[1] - a[1]);
-        return {
-            total: agents.length,
-            topCategory: ranked.length > 0 ? ranked[0][0] : 'N/A',
-            stars
-        };
-    }
-
     function showMessage(text) {
         const p = document.createElement('p');
         p.className = 'result-message error';
@@ -35,16 +18,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch('/api/agents');
-        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+        // Stats are computed server-side; this page only needs the totals
+        // plus the agent list itself.
+        const [statsResponse, agentsResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/agents')
+        ]);
+        if (!agentsResponse.ok) throw new Error(`Request failed with status ${agentsResponse.status}`);
 
-        const payload = await response.json();
+        if (statsResponse.ok) {
+            const stats = await statsResponse.json();
+            totalAgentsEl.textContent = stats.count;
+            topCategoryEl.textContent = stats.top_category ? stats.top_category.name : 'N/A';
+            totalStarsEl.textContent = formatTotalStars(stats.total_stars || 0);
+        }
+
+        const payload = await agentsResponse.json();
         const agents = Array.isArray(payload) ? payload : (payload.agents || []);
-
-        const stats = summarize(agents);
-        totalAgentsEl.textContent = stats.total;
-        topCategoryEl.textContent = stats.topCategory;
-        totalStarsEl.textContent = formatTotalStars(stats.stars);
 
         if (agents.length === 0) {
             showMessage('No agents indexed yet. Run seed.py to populate the vector store.');

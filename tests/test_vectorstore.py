@@ -32,7 +32,23 @@ def test_search_on_an_empty_store_returns_nothing(tmp_path):
     vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
     assert vs.vector_store is None
     assert vs.search("anything") == []
-    assert vs.get_stats() == {"count": 0}
+
+
+def test_an_unseeded_store_reports_consistently_empty_stats(tmp_path):
+    """count must not disagree with the rest of the summary."""
+    vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
+    stats = vs.get_stats()
+    assert stats["count"] == 0
+    assert stats["categories"] == 0
+    assert stats["top_category"] is None
+    assert stats["total_stars"] == 0
+    assert stats["average_stars"] == 0
+
+
+def test_an_unseeded_store_does_not_serve_the_raw_json_catalogue(tmp_path, agents_json):
+    vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
+    assert vs.get_all_agents() == []
+    assert vs.get_categories() == []
 
 
 def test_get_all_agents_is_sorted_by_name(store):

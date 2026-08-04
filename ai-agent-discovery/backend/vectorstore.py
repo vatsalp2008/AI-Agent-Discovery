@@ -163,7 +163,14 @@ class VectorStore:
         FAISS has no public "list everything" API, so this walks the backing
         docstore. If that internal layout ever changes, fall back to the
         seeded JSON file rather than pretending the index is empty.
+
+        An absent index is a different situation: an unseeded app must look
+        empty everywhere rather than serving the raw JSON catalogue while
+        reporting zero indexed vectors.
         """
+        if not self.vector_store:
+            return []
+
         documents = self._iter_documents()
         if documents is None:
             return self._agents_from_json()
@@ -181,8 +188,6 @@ class VectorStore:
 
     def _iter_documents(self):
         """Return the indexed documents, or None if the docstore is unreadable."""
-        if not self.vector_store:
-            return None
         try:
             return list(self.vector_store.docstore._dict.values())
         except AttributeError as e:
@@ -211,10 +216,27 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
-    def get_stats(self):
+    def get_stats(self) -> Dict:
+        """Summarize the index.
+
+        The dashboard used to download every agent to work these out in the
+        browser; computing them here keeps that page to a small response.
+        """
         count = 0
         if self.vector_store:
             count = self.vector_store.index.ntotal
+
+        categories = self.get_categories()
+        total_stars = sum(
+            int(agent["metadata"].get("stars") or 0)
+            for agent in self.get_all_agents()
+        )
+
         return {
-            "count": count
+            "count": count,
+            "categories": len(categories),
+            "top_category": categories[0] if categories else None,
+            "total_stars": total_stars,
+            "average_stars": round(total_stars / count) if count else 0,
+            "embedding_model": self.embedding_model,
         }
