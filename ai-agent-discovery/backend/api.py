@@ -164,6 +164,15 @@ def get_agents():
     }), 200
 
 
+@api_bp.route('/agents/<path:name>', methods=['GET'])
+def get_agent(name):
+    """Fetch a single agent by name."""
+    agent = get_store().get_agent(name)
+    if agent is None:
+        return jsonify({"error": f"No agent named {name!r}"}), 404
+    return jsonify(agent), 200
+
+
 @api_bp.route('/search', methods=['POST'])
 def search_agents():
     payload = request.get_json(silent=True)

@@ -172,3 +172,29 @@ def test_stats_on_an_empty_index_does_not_divide_by_zero(client, tmp_path):
     assert stats["count"] == 0
     assert stats["average_stars"] == 0
     assert stats["top_category"] is None
+
+
+def test_agent_detail_returns_a_single_agent(client):
+    body = client.get("/api/agents/Cursor").get_json()
+    assert body["name"] == "Cursor"
+    assert body["metadata"]["category"] == "Code Generation"
+
+
+def test_agent_detail_is_case_insensitive(client):
+    assert client.get("/api/agents/cursor").get_json()["name"] == "Cursor"
+    assert client.get("/api/agents/CURSOR").get_json()["name"] == "Cursor"
+
+
+def test_agent_detail_handles_names_with_spaces(client):
+    assert client.get("/api/agents/GPT Researcher").status_code == 200
+
+
+def test_unknown_agent_returns_404_json(client):
+    response = client.get("/api/agents/Nonexistent")
+    assert response.status_code == 404
+    assert response.is_json
+    assert "Nonexistent" in response.get_json()["error"]
+
+
+def test_agent_detail_does_not_shadow_the_list_endpoint(client):
+    assert "agents" in client.get("/api/agents").get_json()

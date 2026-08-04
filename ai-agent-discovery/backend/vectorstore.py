@@ -186,6 +186,16 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
+    def get_agent(self, name: str) -> Dict:
+        """Look up a single agent by name (case-insensitive), or None."""
+        if not name:
+            return None
+        wanted = name.strip().casefold()
+        for agent in self.get_all_agents():
+            if (agent["name"] or "").casefold() == wanted:
+                return agent
+        return None
+
     def _iter_documents(self):
         """Return the indexed documents, or None if the docstore is unreadable."""
         try:
