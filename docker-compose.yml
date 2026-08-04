@@ -1,0 +1,45 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # One-shot: pulls the embedding model, then builds the FAISS index.
+  seed:
+    build: .
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+    command: >
+      sh -c "python -c \"
+      import urllib.request, json;
+      urllib.request.urlopen('http://ollama:11434/api/pull',
+        json.dumps({'name': 'nomic-embed-text'}).encode())\"
+      && python ai-agent-discovery/seed.py"
+
+  app:
+    build: .
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - "5000:5000"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+volumes:
+  ollama-models:

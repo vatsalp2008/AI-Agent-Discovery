@@ -1,0 +1,21 @@
+.git
+.github
+.gitignore
+.claude
+
+# Regenerated inside the container by seed.py
+data/faiss_index
+
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+venv
+.venv
+.env
+
+tests
+pytest.ini
+ruff.toml
+*.md
+LICENSE
