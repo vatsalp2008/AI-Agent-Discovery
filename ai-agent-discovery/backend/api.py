@@ -145,6 +145,7 @@ def health():
     payload = {
         "status": "ok",
         "model": config.MODEL_NAME,
+        "embedding_model": config.EMBEDDING_MODEL,
         "ollama_url": config.OLLAMA_BASE_URL,
         "index_path": str(config.FAISS_DIR),
         "indexed_agents": 0,

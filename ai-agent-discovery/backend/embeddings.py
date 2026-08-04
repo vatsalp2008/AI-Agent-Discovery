@@ -15,10 +15,10 @@ class EmbeddingService:
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            logger.info("Initializing embeddings with model=%s at %s", config.MODEL_NAME, config.OLLAMA_BASE_URL)
+            logger.info("Initializing embeddings with model=%s at %s", config.EMBEDDING_MODEL, config.OLLAMA_BASE_URL)
             cls._instance = OllamaEmbeddings(
                 base_url=config.OLLAMA_BASE_URL,
-                model=config.MODEL_NAME
+                model=config.EMBEDDING_MODEL
             )
         return cls._instance
 

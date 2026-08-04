@@ -41,7 +41,12 @@ FAISS_DIR = _resolve(os.getenv("FAISS_DIR", ""), DATA_DIR / "faiss_index")
 AGENTS_JSON = _resolve(os.getenv("AGENTS_JSON", ""), DATA_DIR / "agents.json")
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+
+# Chat/generation model. Kept separate from the embedding model below: a chat
+# model can produce embeddings, but a purpose-built embedding model is much
+# faster and gives better retrieval quality.
 MODEL_NAME = os.getenv("MODEL_NAME", "llama3.2")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 
 SEARCH_DEFAULT_LIMIT = _int_env("SEARCH_DEFAULT_LIMIT", 10)
 SEARCH_MAX_LIMIT = _int_env("SEARCH_MAX_LIMIT", 50)
