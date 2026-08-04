@@ -23,9 +23,9 @@ def _install_langchain_stubs():
     for name in (
         "langchain_community",
         "langchain_community.vectorstores",
-        "langchain_community.embeddings",
         "langchain_core",
         "langchain_core.documents",
+        "langchain_ollama",
     ):
         sys.modules.setdefault(name, types.ModuleType(name))
 
@@ -34,9 +34,16 @@ def _install_langchain_stubs():
             self.page_content = page_content
             self.metadata = metadata or {}
 
+    class _OllamaEmbeddings:
+        """Records how the real client would have been configured."""
+
+        def __init__(self, base_url=None, model=None):
+            self.base_url = base_url
+            self.model = model
+
     sys.modules["langchain_community.vectorstores"].FAISS = object
-    sys.modules["langchain_community.embeddings"].OllamaEmbeddings = object
     sys.modules["langchain_core.documents"].Document = _Document
+    sys.modules["langchain_ollama"].OllamaEmbeddings = _OllamaEmbeddings
 
     # get_embeddings() would construct a real Ollama client.
     embeddings = types.ModuleType("embeddings")

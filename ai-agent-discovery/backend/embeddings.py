@@ -1,6 +1,8 @@
 import logging
 
-from langchain_community.embeddings import OllamaEmbeddings
+# langchain_community.embeddings.OllamaEmbeddings is deprecated; the Ollama
+# integration now lives in its own langchain-ollama package.
+from langchain_ollama import OllamaEmbeddings
 
 import config
 
@@ -19,6 +21,11 @@ class EmbeddingService:
                 model=config.MODEL_NAME
             )
         return cls._instance
+
+    @classmethod
+    def reset(cls):
+        """Drop the cached client so config changes take effect. Used by tests."""
+        cls._instance = None
 
 
 def get_embeddings():
