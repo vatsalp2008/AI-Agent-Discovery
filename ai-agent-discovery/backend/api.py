@@ -122,9 +122,46 @@ def _parse_category(payload):
 # JSON 500 rather than echoing the exception text back to the client.
 
 
+def _parse_int_arg(name, default, minimum, maximum=None):
+    """Validate an integer query-string argument."""
+    raw = request.args.get(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise BadRequest(f"'{name}' must be an integer")
+    if value < minimum:
+        raise BadRequest(f"'{name}' must be at least {minimum}")
+    return min(value, maximum) if maximum is not None else value
+
+
 @api_bp.route('/agents', methods=['GET'])
 def get_agents():
-    return jsonify(get_store().get_all_agents()), 200
+    """List agents, one page at a time.
+
+    Returns an envelope rather than a bare array so clients can tell whether
+    more pages remain.
+    """
+    try:
+        limit = _parse_int_arg('limit', config.AGENTS_PAGE_SIZE, 1, config.AGENTS_MAX_PAGE_SIZE)
+        offset = _parse_int_arg('offset', 0, 0)
+    except BadRequest as e:
+        return jsonify({"error": str(e)}), 400
+
+    agents = get_store().get_all_agents()
+    page = agents[offset:offset + limit]
+
+    return jsonify({
+        "agents": page,
+        "metadata": {
+            "total": len(agents),
+            "count": len(page),
+            "limit": limit,
+            "offset": offset,
+            "has_more": offset + len(page) < len(agents),
+        }
+    }), 200
 
 
 @api_bp.route('/search', methods=['POST'])

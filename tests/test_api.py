@@ -72,9 +72,45 @@ def test_search_rejects_a_non_json_body(client):
 def test_agents_endpoint_lists_every_indexed_agent(client):
     response = client.get("/api/agents")
     assert response.status_code == 200
-    names = [a["name"] for a in response.get_json()]
+    body = response.get_json()
+    names = [a["name"] for a in body["agents"]]
     assert names == sorted(names, key=str.lower)
     assert "Cursor" in names
+    assert body["metadata"]["total"] == 3
+    assert body["metadata"]["has_more"] is False
+
+
+def test_agents_endpoint_paginates(client):
+    first = client.get("/api/agents?limit=2").get_json()
+    assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
+    assert first["metadata"] == {
+        "total": 3, "count": 2, "limit": 2, "offset": 0, "has_more": True
+    }
+
+    second = client.get("/api/agents?limit=2&offset=2").get_json()
+    assert [a["name"] for a in second["agents"]] == ["GPT Researcher"]
+    assert second["metadata"]["has_more"] is False
+
+
+def test_agents_offset_past_the_end_returns_an_empty_page(client):
+    body = client.get("/api/agents?offset=99").get_json()
+    assert body["agents"] == []
+    assert body["metadata"]["total"] == 3
+    assert body["metadata"]["has_more"] is False
+
+
+def test_agents_page_size_is_capped(client):
+    import config
+
+    body = client.get("/api/agents?limit=99999").get_json()
+    assert body["metadata"]["limit"] == config.AGENTS_MAX_PAGE_SIZE
+
+
+@pytest.mark.parametrize("query", ["limit=abc", "limit=0", "offset=-1", "offset=xyz"])
+def test_agents_rejects_bad_pagination_args(client, query):
+    response = client.get(f"/api/agents?{query}")
+    assert response.status_code == 400
+    assert response.is_json
 
 
 def test_categories_endpoint_counts_agents(client):
