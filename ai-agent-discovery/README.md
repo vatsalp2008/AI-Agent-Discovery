@@ -1,66 +1,78 @@
-# AI Agent Discovery System
+# AI Agent Discovery — application
 
-A local, privacy-focused search engine for discovering AI agents. Built with Python, Flask, LangChain, ChromaDB, and Ollama.
+This directory holds the application itself. For the full project overview,
+configuration reference and API documentation, see the
+[root README](../README.md).
 
-## Features
-- **Natural Language Search**: Find agents by describing what you need (e.g., "I need an agent to write python code").
-- **Semantic Ranking**: Uses RAG (Retrieval-Augmented Generation) techniques to return the most relevant results.
-- **Local Privacy**: All embeddings and vector storage run locally. No data is sent to the cloud.
-- **Modern UI**: Clean, dark-themed interface inspired by modern developer tools.
+## Layout
 
-## Tech Stack
-- **Backend**: Python, Flask
-- **AI/ML**: LangChain, Ollama (Llama 3.2), ChromaDB
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Data**: Local JSON and Vector Store
+| Path | Purpose |
+|------|---------|
+| `backend/config.py` | Reads environment variables and resolves paths from the repo root |
+| `backend/api.py` | Flask blueprint: routes, request validation, JSON error handlers |
+| `backend/vectorstore.py` | FAISS index: loading, seeding, search, caching |
+| `backend/embeddings.py` | Ollama embeddings client (via `langchain-ollama`) |
+| `backend/models.py` | The `Agent` dataclass |
+| `backend/scoring.py` | Converts FAISS distance to a 0–1 relevance score |
+| `backend/scraper.py` | Built-in sample agents and catalogue loading |
+| `backend/logging_setup.py` | Shared logging configuration |
+| `frontend/app.py` | Flask entry point |
+| `frontend/static/js/agent-card.js` | Card rendering shared by both pages |
+| `cli.py` | Terminal search tool |
+| `seed.py` | Builds the FAISS index |
 
-## Prerequisites
-- Python 3.10+
-- [Ollama](https://ollama.ai) installed and running
-- Model pulled: `ollama pull llama3.2` (or mistral)
+## Quick start
 
-## Setup
+`config.py` resolves paths from the repository root, so these work from any
+directory:
 
-1. **Clone the repository**
-   ```bash
-   git clone <url>
-   cd ai-agent-discovery
-   ```
+```bash
+ollama pull nomic-embed-text
+pip install -r ai-agent-discovery/requirements-dev.txt
+python ai-agent-discovery/seed.py
+python ai-agent-discovery/frontend/app.py
+```
 
-2. **Create a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   ```
+Then open [http://localhost:5000](http://localhost:5000).
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Notes for contributors
 
-4. **Configure Environment**
-   Ensure `.env` exists:
-   ```env
-   OLLAMA_BASE_URL=http://localhost:11434
-   MODEL_NAME=llama3.2
-   ```
+- **Embeddings are separate from chat.** `EMBEDDING_MODEL` (default
+  `nomic-embed-text`) generates vectors; `MODEL_NAME` is the chat model.
+  Changing the embedding model invalidates the index — re-run `seed.py`. The
+  app detects the mismatch and reports it via `/api/health` if you forget.
+- **`data/agents.json` is the source of truth.** `seed.py` reads it and writes
+  it back, so hand-edits survive. `SAMPLE_AGENTS` in `scraper.py` only
+  bootstraps a fresh checkout.
+- **Re-seeding rebuilds.** `seed.py` replaces the index rather than appending,
+  so running it twice does not duplicate agents. Use `--append` to add instead.
+- **Agent data is untrusted.** It is hand-edited JSON, so the frontend builds
+  cards with DOM APIs and `textContent`, never `innerHTML` templates, and
+  restricts links to `http(s)`.
+- **The store is built lazily.** Importing `api` does not contact Ollama, so
+  the app starts even when Ollama is down and tests need no models.
 
-5. **Seed Data**
-   Populate the local vector database with sample agents:
-   ```bash
-   python seed.py
-   ```
+## Endpoints
 
-6. **Run the Application**
-   ```bash
-   python frontend/app.py
-   ```
-   Open [http://localhost:5000](http://localhost:5000) in your browser.
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/agents` | Paginated agent list (`limit`, `offset`) |
+| `GET` | `/api/agents/<name>` | Single agent, case-insensitive |
+| `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`) |
+| `GET` | `/api/categories` | Categories with counts |
+| `GET` | `/api/stats` | Index summary |
+| `GET` | `/api/health` | Readiness probe; 503 when unusable |
 
-## API Endpoints
-- `GET /api/agents` - List all agents
-- `POST /api/search` - Search agents (`{"query": "..."}`)
-- `GET /api/stats` - System statistics
+Full request/response examples are in the [root README](../README.md).
+
+## Tests
+
+```bash
+make check      # lint + tests, from the repo root
+```
+
+The suite stubs langchain and Ollama, so it runs without any models installed.
 
 ## License
-MIT
+
+MIT — see [LICENSE](../LICENSE).

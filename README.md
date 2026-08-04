@@ -12,7 +12,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 **Key Highlights:**
 - 🔒 **100% Local & Private** - All embeddings and vector storage run locally using Ollama
 - 🧠 **Semantic Search** - Natural language queries like "I need an agent to write Python code"
-- 🎯 **RAG-Powered** - Uses Retrieval-Augmented Generation for intelligent ranking
+- 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
 - 📊 **Rich Agent Database** - Curated collection of 20+ popular AI agents and frameworks
 
@@ -22,127 +22,159 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Natural Language Queries**: Describe what you need in plain English
 - **Semantic Understanding**: Goes beyond keyword matching to understand intent
 - **Relevance Ranking**: Results ranked by similarity using vector embeddings
-- **Category Filtering**: Browse by Code Generation, Research, Automation, etc.
+- **Category Filtering**: Restrict results to Code Generation, Research, Automation, etc.
+- **Result Caching**: Repeat queries are served from memory instead of re-embedding
 
 ### Privacy-Focused Architecture
-- **Local LLM**: Powered by Ollama (Llama 3.2 or Mistral)
+- **Local LLM**: Powered by Ollama
 - **Local Vector Store**: FAISS-based vector database stored locally
 - **No Cloud Dependencies**: All processing happens on your machine
 - **No Data Leaks**: Your queries never leave your computer
 
 ### Developer-Friendly
-- **REST API**: Clean API endpoints for integration
+- **REST API**: Clean, JSON-only API endpoints for integration
+- **CLI**: Search the index from the terminal without starting the server
 - **JSON Data Format**: Easy to extend with your own agents
-- **Modern Tech Stack**: Flask, LangChain, FAISS, Ollama
-- **Responsive Design**: Works on desktop and mobile
+- **Docker**: One command brings up Ollama, seeding, and the app
+- **Tested**: Test suite runs in under a second without Ollama or FAISS installed
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | **Backend** | Python 3.10+, Flask |
-| **AI/ML** | LangChain, Ollama (Llama 3.2), FAISS |
+| **AI/ML** | LangChain, Ollama, FAISS |
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript |
 | **Data** | JSON, Vector Store (FAISS) |
-| **Embeddings** | Ollama Embeddings (local) |
+| **Embeddings** | `nomic-embed-text` via Ollama (local) |
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
-
 - **Python 3.10 or higher**
-- **[Ollama](https://ollama.ai)** - For local LLM inference
-- **Git** - For cloning the repository
+- **[Ollama](https://ollama.ai)** - For local inference
+- **Git**
+
+Or just **Docker**, which handles all of the above.
 
 ## 🔧 Installation & Setup
 
-### 1. Clone the Repository
+### Option A: Docker (quickest)
 
 ```bash
-git clone https://github.com/yourusername/AI-Agent-Discovery.git
+git clone https://github.com/vatsalp2008/AI-Agent-Discovery.git
+cd AI-Agent-Discovery
+make docker-up
+```
+
+This starts Ollama, pulls the embedding model, seeds the index, and serves the
+app on **http://localhost:5000**.
+
+### Option B: Local install
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/vatsalp2008/AI-Agent-Discovery.git
 cd AI-Agent-Discovery
 ```
 
-### 2. Install Ollama & Pull Model
+**2. Install Ollama & pull the models**
 
 ```bash
-# Install Ollama from https://ollama.ai
-# Then pull the required model
-ollama pull llama3.2
-
-# Alternative: use mistral
-# ollama pull mistral
+# Install Ollama from https://ollama.ai, then:
+ollama pull nomic-embed-text   # embeddings
+ollama pull llama3.2           # chat model
 ```
 
-### 3. Set Up Python Environment
+**3. Set up the Python environment**
 
 ```bash
-# Navigate to the project directory
-cd ai-agent-discovery
-
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-# venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+source venv/bin/activate          # Windows: venv\Scripts\activate
+make install                      # or: pip install -r ai-agent-discovery/requirements-dev.txt
 ```
 
-### 4. Configure Environment Variables
+**4. Configure environment variables (optional)**
 
-Create a `.env` file in the `ai-agent-discovery` directory:
-
-```env
-OLLAMA_BASE_URL=http://localhost:11434
-MODEL_NAME=llama3.2
-```
-
-### 5. Seed the Database
-
-Populate the vector database with sample AI agents:
+Defaults work out of the box. To customise, copy the template:
 
 ```bash
-python seed.py
+cp ai-agent-discovery/.env.example ai-agent-discovery/.env
 ```
 
-This will:
-- Load agents from `../data/agents.json`
-- Generate embeddings using Ollama
-- Store vectors in FAISS index at `../data/faiss_index`
-
-### 6. Run the Application
+**5. Seed the index**
 
 ```bash
-python frontend/app.py
+make seed        # or: python ai-agent-discovery/seed.py
 ```
 
-The application will start on **http://localhost:5000**
+**6. Run the application**
+
+```bash
+make run         # or: python ai-agent-discovery/frontend/app.py
+```
+
+The application starts on **http://localhost:5000**.
+
+## ⚙️ Configuration
+
+All settings are environment variables, read once in `backend/config.py`. Relative
+paths resolve against the repository root, so commands work from any directory.
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server address |
+| `EMBEDDING_MODEL` | `nomic-embed-text` | Model used to embed text |
+| `MODEL_NAME` | `llama3.2` | Chat/generation model |
+| `DATA_DIR` | `data` | Root for data files |
+| `FAISS_DIR` | `data/faiss_index` | Where the index is persisted |
+| `AGENTS_JSON` | `data/agents.json` | Agent catalogue |
+| `SEARCH_DEFAULT_LIMIT` | `10` | Default result count |
+| `SEARCH_MAX_LIMIT` | `50` | Upper bound on `limit` |
+| `MAX_QUERY_LENGTH` | `500` | Longest accepted query |
+| `AGENTS_PAGE_SIZE` | `50` | Default page size for `/api/agents` |
+| `AGENTS_MAX_PAGE_SIZE` | `200` | Upper bound on that page size |
+| `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
+| `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
+| `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
+| `LOG_LEVEL` | `INFO` | Logging verbosity |
+
+> ⚠️ **Never enable `FLASK_DEBUG` on anything reachable by others.** The Werkzeug
+> debugger exposes an interactive console that can execute arbitrary code.
 
 ## 🎯 Usage
 
 ### Web Interface
 
-1. Open your browser to `http://localhost:5000`
-2. Enter a natural language query like:
+1. Open `http://localhost:5000`
+2. Browse the agent previews, or enter a natural language query:
    - "I need an agent to write Python code"
    - "Find me a tool for automating workflows"
-   - "Show me research agents for document analysis"
-3. View ranked results with agent details, tech stack, and links
+3. Click a category chip to restrict results to that category
+
+### Command Line
+
+```bash
+python ai-agent-discovery/cli.py "an agent that writes python"
+python ai-agent-discovery/cli.py "chatbot" --category "Customer Service" --limit 3
+python ai-agent-discovery/cli.py --list
+python ai-agent-discovery/cli.py --stats
+```
 
 ### API Endpoints
 
-#### Search Agents
+Every endpoint returns JSON, including errors.
+
+#### Search agents
+
 ```bash
 POST /api/search
 Content-Type: application/json
 
 {
-  "query": "I need an agent to write Python code"
+  "query": "I need an agent to write Python code",
+  "limit": 5,                       # optional, 1..SEARCH_MAX_LIMIT
+  "category": "Code Generation"     # optional, case-insensitive
 }
 ```
 
@@ -152,28 +184,67 @@ Content-Type: application/json
   "results": [
     {
       "name": "Cursor",
-      "description": "An AI-powered code editor...",
-      "category": "Code Generation",
-      "tech_stack": ["Electron", "GPT-4", "VS Code"],
-      "github_stars": 35000,
-      "url": "https://cursor.sh",
-      "use_case": "Code editing, refactoring, generation",
-      "score": 0.89
+      "description": "Name: Cursor\nDescription: ...",
+      "metadata": {
+        "name": "Cursor",
+        "category": "Code Generation",
+        "stack": "Electron,GPT-4,VS Code",
+        "stars": 35000,
+        "description": "An AI-powered code editor...",
+        "url": "https://cursor.sh"
+      },
+      "distance": 0.42,
+      "score": 0.7042
     }
   ],
-  "count": 5
+  "metadata": { "count": 1, "limit": 5, "category": "Code Generation", "duration": "0.08s" }
 }
 ```
 
-#### List All Agents
+`score` is `1 / (1 + distance)`, so it lands in `[0, 1]` with 1.0 being an exact match.
+
+#### List agents (paginated)
+
 ```bash
-GET /api/agents
+GET /api/agents?limit=20&offset=0
 ```
 
-#### Get Statistics
+```json
+{
+  "agents": [ { "name": "Aider", "description": "...", "metadata": { } } ],
+  "metadata": { "total": 21, "count": 20, "limit": 20, "offset": 0, "has_more": true }
+}
+```
+
+#### Get a single agent
+
+```bash
+GET /api/agents/Cursor      # case-insensitive; 404 if unknown
+```
+
+#### List categories
+
+```bash
+GET /api/categories
+# [{"name": "Code Generation", "count": 6}, {"name": "Research", "count": 4}]
+```
+
+#### Statistics
+
 ```bash
 GET /api/stats
+# {"count": 21, "categories": 8, "top_category": {"name": "Code Generation", "count": 6},
+#  "total_stars": 653000, "average_stars": 31095, "embedding_model": "nomic-embed-text"}
 ```
+
+#### Health
+
+```bash
+GET /api/health
+```
+
+Returns `200` when the index is usable, and `503` with a `detail` explaining why
+when it is not — unseeded, unreachable, or built by a different embedding model.
 
 ## 📁 Project Structure
 
@@ -181,22 +252,34 @@ GET /api/stats
 AI-Agent-Discovery/
 ├── ai-agent-discovery/
 │   ├── backend/
-│   │   ├── api.py              # Flask API routes
-│   │   ├── embeddings.py       # Ollama embeddings wrapper
-│   │   ├── models.py           # Pydantic models
-│   │   ├── scraper.py          # Sample data definitions
-│   │   └── vectorstore.py      # FAISS vector store logic
+│   │   ├── api.py              # Flask routes and request validation
+│   │   ├── config.py           # Environment and path resolution
+│   │   ├── embeddings.py       # Ollama embeddings client
+│   │   ├── logging_setup.py    # Shared logging configuration
+│   │   ├── models.py           # Agent dataclass
+│   │   ├── scoring.py          # Distance to relevance score
+│   │   ├── scraper.py          # Sample data and catalogue loading
+│   │   └── vectorstore.py      # FAISS index, search, caching
 │   ├── frontend/
 │   │   ├── app.py              # Flask application entry point
-│   │   ├── static/             # CSS and JavaScript
-│   │   └── templates/          # HTML templates
-│   ├── .env                    # Environment configuration
-│   ├── requirements.txt        # Python dependencies
-│   └── seed.py                 # Database seeding script
+│   │   ├── static/css/style.css
+│   │   ├── static/js/agent-card.js   # Shared card rendering
+│   │   ├── static/js/main.js         # Search page
+│   │   ├── static/js/dashboard.js    # Dashboard page
+│   │   └── templates/          # index.html, dashboard.html
+│   ├── .env.example            # Configuration template
+│   ├── cli.py                  # Terminal search tool
+│   ├── requirements.txt        # Runtime dependencies
+│   ├── requirements-dev.txt    # Plus pytest and ruff
+│   └── seed.py                 # Index building script
 ├── data/
-│   ├── agents.json             # Agent database
-│   └── faiss_index/            # Vector store (generated)
-└── README.md                   # This file
+│   ├── agents.json             # Agent catalogue (source of truth)
+│   └── faiss_index/            # Vector store (generated, gitignored)
+├── tests/                      # Test suite
+├── Dockerfile
+├── docker-compose.yml
+├── Makefile
+└── README.md
 ```
 
 ## 🔍 How It Works
@@ -216,24 +299,30 @@ graph LR
 
 ### Search Flow
 
-1. **User Input**: User enters natural language query
-2. **Embedding Generation**: Query is converted to vector using Ollama
-3. **Vector Search**: FAISS finds most similar agent embeddings
-4. **Ranking**: Results ranked by cosine similarity
-5. **Response**: Top results returned with metadata
+1. **User Input**: User enters a natural language query
+2. **Cache Check**: Identical recent queries return immediately
+3. **Embedding Generation**: The query is converted to a vector using Ollama
+4. **Vector Search**: FAISS finds the nearest agent embeddings
+5. **Scoring & Filtering**: Distances become scores; category filters are applied
+6. **Response**: Top results are returned with metadata
 
 ### Data Pipeline
 
-1. **Seed Phase**: `seed.py` loads agents from JSON
+1. **Seed Phase**: `seed.py` loads agents from `data/agents.json`
 2. **Embedding**: Each agent description is embedded using Ollama
-3. **Indexing**: Vectors stored in FAISS index
-4. **Query**: User queries are embedded and matched against index
+3. **Indexing**: Vectors are stored in the FAISS index, alongside an
+   `index_meta.json` recording which embedding model built it
+4. **Query**: User queries are embedded and matched against the index
+
+Re-running `seed.py` **rebuilds** the index rather than appending, so repeated
+runs are idempotent. Pass `--append` to add to an existing index instead.
 
 ## 🎨 Customization
 
 ### Adding Your Own Agents
 
-Edit `data/agents.json`:
+`data/agents.json` is the source of truth — `seed.py` reads it and writes it
+back, so your edits are preserved.
 
 ```json
 {
@@ -247,57 +336,71 @@ Edit `data/agents.json`:
 }
 ```
 
-Then re-run the seed script:
+Then rebuild the index:
+
 ```bash
-python seed.py
+make seed
 ```
 
-### Changing the LLM Model
+Unknown fields are ignored, so you can annotate records freely.
 
-Update `.env`:
-```env
-MODEL_NAME=mistral  # or any other Ollama model
+### Changing the Embedding Model
+
+```bash
+ollama pull mxbai-embed-large
+echo "EMBEDDING_MODEL=mxbai-embed-large" >> ai-agent-discovery/.env
+make seed        # required: vectors from one model are unusable by another
 ```
+
+If you forget to re-seed, the app detects the mismatch and `/api/health`
+reports it rather than returning nonsense results.
 
 ### Customizing the UI
 
-- **Styles**: Edit `frontend/static/style.css`
-- **Layout**: Edit `frontend/templates/index.html`
-- **Behavior**: Edit `frontend/static/script.js`
+- **Styles**: `ai-agent-discovery/frontend/static/css/style.css`
+- **Layout**: `ai-agent-discovery/frontend/templates/index.html`
+- **Card rendering**: `ai-agent-discovery/frontend/static/js/agent-card.js`
+- **Search behaviour**: `ai-agent-discovery/frontend/static/js/main.js`
 
 ## 🧪 Development
 
-### Running in Development Mode
-
 ```bash
-# Enable Flask debug mode
-export FLASK_ENV=development
-python frontend/app.py
+make help        # list every target
+make check       # lint + tests, exactly what CI runs
+make test
+make lint
+make fix         # apply autofixable lint findings
+make clean       # drop caches and the generated index
 ```
+
+The test suite stubs out langchain and Ollama, so it runs in well under a
+second and needs no models installed. CI runs the same checks on Python 3.10
+and 3.12.
 
 ### Testing the API
 
 ```bash
-# Test search endpoint
 curl -X POST http://localhost:5000/api/search \
   -H "Content-Type: application/json" \
-  -d '{"query": "code generation agent"}'
+  -d '{"query": "code generation agent", "limit": 3}'
 
-# Test list endpoint
-curl http://localhost:5000/api/agents
-
-# Test stats endpoint
+curl "http://localhost:5000/api/agents?limit=5"
+curl http://localhost:5000/api/agents/Cursor
+curl http://localhost:5000/api/categories
 curl http://localhost:5000/api/stats
+curl http://localhost:5000/api/health
 ```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions are welcome:
 
-1. **Add More Agents**: Expand the agent database
-2. **Improve Search**: Enhance ranking algorithms
+1. **Add More Agents**: Expand `data/agents.json`
+2. **Improve Search**: Enhance ranking and filtering
 3. **UI Enhancements**: Make the interface even better
 4. **Documentation**: Improve docs and examples
+
+Please make sure `make check` passes before opening a pull request.
 
 ### Contribution Workflow
 
@@ -309,7 +412,7 @@ Contributions are welcome! Here's how you can help:
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
