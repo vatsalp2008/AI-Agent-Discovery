@@ -143,6 +143,7 @@ def client(store):
     api.set_store(store)
     app = Flask(__name__)
     app.register_blueprint(api.api_bp)
+    api.register_error_handlers(app)
     with app.test_client() as test_client:
         yield test_client
     api.set_store(None)

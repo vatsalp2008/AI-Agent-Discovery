@@ -2,6 +2,7 @@ import logging
 import time
 
 from flask import Blueprint, request, jsonify
+from werkzeug.exceptions import HTTPException
 
 import config
 from vectorstore import VectorStore
@@ -31,6 +32,45 @@ def set_store(store) -> None:
     """Override the shared store. Used by tests."""
     global _store
     _store = store
+
+
+def register_error_handlers(app):
+    """Return JSON (not Flask's HTML error page) for failures under /api.
+
+    Routing errors are raised before a blueprint is selected, so these must be
+    registered on the app rather than the blueprint. Non-API paths keep the
+    default HTML behaviour so the browser UI is unaffected.
+    """
+    prefix = api_bp.url_prefix + '/'
+
+    def is_api_request():
+        return request.path.startswith(prefix)
+
+    @app.errorhandler(404)
+    def handle_not_found(e):
+        if is_api_request():
+            return jsonify({"error": "Not found", "path": request.path}), 404
+        return e.get_response()
+
+    @app.errorhandler(405)
+    def handle_method_not_allowed(e):
+        if is_api_request():
+            return jsonify({"error": f"Method {request.method} not allowed for {request.path}"}), 405
+        return e.get_response()
+
+    @app.errorhandler(Exception)
+    def handle_unexpected(e):
+        # Let real HTTP errors keep their status; only 500s land here.
+        if isinstance(e, HTTPException):
+            if is_api_request():
+                return jsonify({"error": e.description}), e.code
+            return e.get_response()
+        logger.exception("Unhandled error serving %s", request.path)
+        if is_api_request():
+            return jsonify({"error": "Internal server error"}), 500
+        raise e
+
+    return app
 
 
 class BadRequest(Exception):
@@ -77,14 +117,14 @@ def _parse_category(payload):
     return category or None
 
 
+# Unexpected failures fall through to the app-level handler in
+# register_error_handlers, which logs the traceback and returns a generic
+# JSON 500 rather than echoing the exception text back to the client.
+
+
 @api_bp.route('/agents', methods=['GET'])
 def get_agents():
-    try:
-        agents = get_store().get_all_agents()
-        return jsonify(agents), 200
-    except Exception as e:
-        logger.exception("Failed to list agents")
-        return jsonify({"error": str(e)}), 500
+    return jsonify(get_store().get_all_agents()), 200
 
 
 @api_bp.route('/search', methods=['POST'])
@@ -98,12 +138,7 @@ def search_agents():
         return jsonify({"error": str(e)}), 400
 
     start_time = time.time()
-    try:
-        results = get_store().search(query, limit=limit, category=category)
-    except Exception as e:
-        logger.exception("Search failed for query %r", query)
-        return jsonify({"error": str(e)}), 500
-
+    results = get_store().search(query, limit=limit, category=category)
     duration = time.time() - start_time
     return jsonify({
         "results": results,
@@ -118,21 +153,12 @@ def search_agents():
 
 @api_bp.route('/categories', methods=['GET'])
 def get_categories():
-    try:
-        return jsonify(get_store().get_categories()), 200
-    except Exception as e:
-        logger.exception("Failed to list categories")
-        return jsonify({"error": str(e)}), 500
+    return jsonify(get_store().get_categories()), 200
 
 
 @api_bp.route('/stats', methods=['GET'])
 def get_stats():
-    try:
-        stats = get_store().get_stats()
-        return jsonify(stats), 200
-    except Exception as e:
-        logger.exception("Failed to compute stats")
-        return jsonify({"error": str(e)}), 500
+    return jsonify(get_store().get_stats()), 200
 
 
 @api_bp.route('/health', methods=['GET'])
