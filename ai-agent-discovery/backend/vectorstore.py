@@ -2,14 +2,14 @@ import json
 import logging
 import os
 from collections import OrderedDict
+
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
-from typing import List, Dict
-from models import Agent
-from embeddings import get_embeddings
-from scoring import relevance_score
 
 import config
+from embeddings import get_embeddings
+from models import Agent
+from scoring import relevance_score
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class VectorStore:
     def meta_path(self) -> str:
         return os.path.join(self.persist_directory, self.META_FILENAME)
 
-    def _read_meta(self) -> Dict:
+    def _read_meta(self) -> dict:
         try:
             with open(self.meta_path) as f:
                 return json.load(f)
@@ -63,7 +63,8 @@ class VectorStore:
 
     def load_store(self):
         try:
-            if os.path.exists(self.persist_directory) and os.path.exists(os.path.join(self.persist_directory, "index.faiss")):
+            index_file = os.path.join(self.persist_directory, "index.faiss")
+            if os.path.exists(self.persist_directory) and os.path.exists(index_file):
                 if self._is_stale():
                     self.stale_model = self._read_meta().get("embedding_model")
                     logger.error(
@@ -84,12 +85,12 @@ class VectorStore:
             logger.warning("Could not load vector store from %s: %s", self.persist_directory, e)
             self.vector_store = None
 
-    def replace_agents(self, agents: List[Agent]):
+    def replace_agents(self, agents: list[Agent]):
         """Rebuild the index from scratch so re-seeding cannot duplicate entries."""
         self.vector_store = None
         self.add_agents(agents)
 
-    def add_agents(self, agents: List[Agent]):
+    def add_agents(self, agents: list[Agent]):
         """Adds a list of agents to the vector store"""
         if not agents:
             logger.warning("No agents to index; leaving the vector store unchanged.")
@@ -102,12 +103,12 @@ class VectorStore:
                 metadata=agent.metadata
             )
             documents.append(doc)
-        
+
         if self.vector_store:
             self.vector_store.add_documents(documents)
         else:
             self.vector_store = FAISS.from_documents(documents, self.embedding_function)
-        
+
         # Save locally
         self.vector_store.save_local(self.persist_directory)
         self._write_meta(self.vector_store.index.ntotal)
@@ -118,7 +119,7 @@ class VectorStore:
     # overall may all belong to other categories.
     CATEGORY_OVERFETCH = 5
 
-    def search(self, query: str, limit: int = None, category: str = None) -> List[Dict]:
+    def search(self, query: str, limit: int = None, category: str = None) -> list[dict]:
         """Semantic search for agents, best match first.
 
         When `category` is given, only agents in that category are returned
@@ -180,7 +181,7 @@ class VectorStore:
         """Drop cached search results. Called whenever the index changes."""
         self._search_cache.clear()
 
-    def get_categories(self) -> List[Dict]:
+    def get_categories(self) -> list[dict]:
         """Return the indexed categories with agent counts, most common first."""
         counts = {}
         for agent in self.get_all_agents():
@@ -191,7 +192,7 @@ class VectorStore:
             for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
         ]
 
-    def get_all_agents(self) -> List[Dict]:
+    def get_all_agents(self) -> list[dict]:
         """Retrieve every indexed agent, sorted by name.
 
         FAISS has no public "list everything" API, so this walks the backing
@@ -220,7 +221,7 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
-    def get_agent(self, name: str) -> Dict:
+    def get_agent(self, name: str) -> dict:
         """Look up a single agent by name (case-insensitive), or None."""
         if not name:
             return None
@@ -238,7 +239,7 @@ class VectorStore:
             logger.warning("Could not read FAISS docstore (%s); falling back to %s", e, config.AGENTS_JSON)
             return None
 
-    def _agents_from_json(self) -> List[Dict]:
+    def _agents_from_json(self) -> list[dict]:
         """Load agents straight from the seeded JSON file."""
         if not os.path.exists(config.AGENTS_JSON):
             return []
@@ -260,7 +261,7 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Summarize the index.
 
         The dashboard used to download every agent to work these out in the

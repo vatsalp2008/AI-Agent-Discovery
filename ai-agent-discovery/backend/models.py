@@ -1,15 +1,15 @@
-from dataclasses import dataclass, asdict, fields
-from typing import List, Optional
+from dataclasses import asdict, dataclass, fields
+
 
 @dataclass
 class Agent:
     name: str
     description: str
     category: str
-    tech_stack: List[str]
-    github_stars: Optional[int] = 0
-    url: Optional[str] = ""
-    use_case: Optional[str] = ""
+    tech_stack: list[str]
+    github_stars: int | None = 0
+    url: str | None = ""
+    use_case: str | None = ""
 
     def to_dict(self):
         return asdict(self)
@@ -39,4 +39,10 @@ class Agent:
     @property
     def page_content(self):
         """Returns text content for embedding"""
-        return f"Name: {self.name}\nDescription: {self.description}\nCategory: {self.category}\nTech Stack: {', '.join(self.tech_stack)}\nUse Case: {self.use_case}"
+        return (
+            f"Name: {self.name}\n"
+            f"Description: {self.description}\n"
+            f"Category: {self.category}\n"
+            f"Tech Stack: {', '.join(self.tech_stack)}\n"
+            f"Use Case: {self.use_case}"
+        )

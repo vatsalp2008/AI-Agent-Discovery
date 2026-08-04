@@ -1,0 +1,29 @@
+# Linting for the backend, seed script, CLI and tests.
+line-length = 120
+target-version = "py310"
+
+exclude = ["data", ".venv", "venv"]
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # import sorting
+    "B",    # bugbear (mutable defaults, silent except, ...)
+    "UP",   # pyupgrade
+    "C4",   # comprehension simplifications
+]
+
+[lint.per-file-ignores]
+# SAMPLE_AGENTS holds prose descriptions; wrapping them hurts readability.
+"ai-agent-discovery/backend/scraper.py" = ["E501"]
+# Both add backend/ to sys.path before importing from it.
+"ai-agent-discovery/cli.py" = ["E402"]
+"ai-agent-discovery/seed.py" = ["E402"]
+"ai-agent-discovery/frontend/app.py" = ["E402"]
+# conftest installs import stubs before the backend modules load.
+"tests/conftest.py" = ["E402"]
+
+[lint.isort]
+known-first-party = ["api", "config", "embeddings", "logging_setup", "models", "scoring", "scraper", "vectorstore"]

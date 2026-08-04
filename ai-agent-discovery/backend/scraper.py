@@ -1,11 +1,10 @@
-from typing import List
-from models import Agent
-from vectorstore import VectorStore
 import json
 import logging
 import os
 
 import config
+from models import Agent
+from vectorstore import VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +46,7 @@ SAMPLE_AGENTS = [
         url="https://github.com/OpenInterpreter/open-interpreter",
         use_case="Local system control, script execution"
     ),
-    
+
     # Research & Autonomous
     Agent(
         name="AutoGPT",
@@ -116,7 +115,7 @@ SAMPLE_AGENTS = [
         url="https://github.com/joaomdmoura/crewAI",
         use_case="Multi-agent orchestration"
     ),
-    
+
     # Customer Service / Chat
     Agent(
         name="Rasa",
@@ -214,7 +213,7 @@ SAMPLE_AGENTS = [
     )
 ]
 
-def load_agents() -> List[Agent]:
+def load_agents() -> list[Agent]:
     """Load the agent catalogue.
 
     data/agents.json is the source of truth once it exists, so hand-edits
@@ -232,7 +231,7 @@ def load_agents() -> List[Agent]:
     return list(SAMPLE_AGENTS)
 
 
-def write_agents_json(agents: List[Agent]) -> None:
+def write_agents_json(agents: list[Agent]) -> None:
     """Persist the catalogue back to data/agents.json."""
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     with open(config.AGENTS_JSON, 'w') as f:

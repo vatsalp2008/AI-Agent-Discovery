@@ -1,7 +1,7 @@
 import logging
 import time
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 import config
@@ -99,8 +99,8 @@ def _parse_limit(payload):
     raw = payload.get('limit', config.SEARCH_DEFAULT_LIMIT)
     try:
         limit = int(raw)
-    except (TypeError, ValueError):
-        raise BadRequest("'limit' must be an integer")
+    except (TypeError, ValueError) as e:
+        raise BadRequest("'limit' must be an integer") from e
     if limit < 1:
         raise BadRequest("'limit' must be at least 1")
     return min(limit, config.SEARCH_MAX_LIMIT)
@@ -129,8 +129,8 @@ def _parse_int_arg(name, default, minimum, maximum=None):
         return default
     try:
         value = int(raw)
-    except (TypeError, ValueError):
-        raise BadRequest(f"'{name}' must be an integer")
+    except (TypeError, ValueError) as e:
+        raise BadRequest(f"'{name}' must be an integer") from e
     if value < minimum:
         raise BadRequest(f"'{name}' must be at least {minimum}")
     return min(value, maximum) if maximum is not None else value

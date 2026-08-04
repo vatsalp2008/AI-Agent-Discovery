@@ -7,7 +7,6 @@ never builds a client, so the real module is loaded here under its own name.
 import importlib.util
 
 import pytest
-
 from conftest import BACKEND
 
 

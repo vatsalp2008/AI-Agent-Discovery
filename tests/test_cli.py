@@ -1,7 +1,6 @@
 import importlib.util
 
 import pytest
-
 from conftest import BACKEND
 
 CLI_PATH = BACKEND.parent / "cli.py"

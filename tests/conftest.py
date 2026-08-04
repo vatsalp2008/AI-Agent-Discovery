@@ -55,7 +55,6 @@ _install_langchain_stubs()
 
 from models import Agent  # noqa: E402
 
-
 AGENT_RECORDS = [
     {
         "name": "Cursor",
@@ -136,6 +135,7 @@ class FakeInnerStore:
 def store(agents, tmp_path):
     """A VectorStore backed by the fake inner store (no Ollama, no FAISS)."""
     from langchain_core.documents import Document
+
     from vectorstore import VectorStore
 
     documents = [Document(page_content=a.page_content, metadata=a.metadata) for a in agents]

@@ -1,6 +1,5 @@
 import json
 
-import config
 from vectorstore import VectorStore
 
 
