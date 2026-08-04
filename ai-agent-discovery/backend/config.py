@@ -56,4 +56,7 @@ MAX_QUERY_LENGTH = _int_env("MAX_QUERY_LENGTH", 500)
 AGENTS_PAGE_SIZE = _int_env("AGENTS_PAGE_SIZE", 50)
 AGENTS_MAX_PAGE_SIZE = _int_env("AGENTS_MAX_PAGE_SIZE", 200)
 
+# Number of recent search results to keep in memory. 0 disables caching.
+SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
+
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()

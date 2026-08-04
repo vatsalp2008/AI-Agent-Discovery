@@ -114,9 +114,20 @@ class FakeInnerStore:
         self.docstore = types.SimpleNamespace(_dict=dict(enumerate(documents)))
         self.index = types.SimpleNamespace(ntotal=len(documents))
         self.last_k = None
+        # Counts real lookups, so cache hits are observable.
+        self.query_count = 0
+
+    def add_documents(self, documents):
+        self.documents.extend(documents)
+        self.docstore._dict = dict(enumerate(self.documents))
+        self.index.ntotal = len(self.documents)
+
+    def save_local(self, path):
+        pass
 
     def similarity_search_with_score(self, query, k):
         self.last_k = k
+        self.query_count += 1
         # Deterministic ranking: index order, increasing distance.
         return [(doc, round(i * 0.5, 4)) for i, doc in enumerate(self.documents[:k])]
 

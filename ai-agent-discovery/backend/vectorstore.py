@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from collections import OrderedDict
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from typing import List, Dict
@@ -23,6 +24,7 @@ class VectorStore:
         self.vector_store = None
         # Set when an existing index was built by a different embedding model.
         self.stale_model = None
+        self._search_cache = OrderedDict()
         self.load_store()
 
     @property
@@ -109,6 +111,7 @@ class VectorStore:
         # Save locally
         self.vector_store.save_local(self.persist_directory)
         self._write_meta(self.vector_store.index.ntotal)
+        self.clear_cache()  # cached results no longer reflect the index
         logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
     # When filtering by category we over-fetch, since the nearest neighbours
@@ -120,11 +123,20 @@ class VectorStore:
 
         When `category` is given, only agents in that category are returned
         (case-insensitive).
+
+        Results are cached per (query, limit, category): embedding the query
+        means a round trip to Ollama, which dominates the cost of a repeat
+        search. The cache is dropped whenever the index changes.
         """
         if not self.vector_store:
             return []
 
         limit = limit or config.SEARCH_DEFAULT_LIMIT
+        cache_key = (query.casefold(), limit, (category or "").casefold())
+        cached = self._cache_get(cache_key)
+        if cached is not None:
+            return cached
+
         k = limit * self.CATEGORY_OVERFETCH if category else limit
         results = self.vector_store.similarity_search_with_score(query, k=k)
 
@@ -144,7 +156,29 @@ class VectorStore:
             })
 
         agents.sort(key=lambda agent: agent["score"], reverse=True)
-        return agents[:limit]
+        agents = agents[:limit]
+        self._cache_put(cache_key, agents)
+        return agents
+
+    def _cache_get(self, key):
+        """Return a cached result list, refreshing its recency."""
+        if key not in self._search_cache:
+            return None
+        self._search_cache.move_to_end(key)
+        # Hand back copies so a caller mutating a result cannot poison the cache.
+        return [dict(result) for result in self._search_cache[key]]
+
+    def _cache_put(self, key, results):
+        if config.SEARCH_CACHE_SIZE <= 0:
+            return
+        self._search_cache[key] = [dict(result) for result in results]
+        self._search_cache.move_to_end(key)
+        while len(self._search_cache) > config.SEARCH_CACHE_SIZE:
+            self._search_cache.popitem(last=False)
+
+    def clear_cache(self):
+        """Drop cached search results. Called whenever the index changes."""
+        self._search_cache.clear()
 
     def get_categories(self) -> List[Dict]:
         """Return the indexed categories with agent counts, most common first."""
