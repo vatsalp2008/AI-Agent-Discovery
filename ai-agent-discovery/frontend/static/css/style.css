@@ -320,3 +320,11 @@ nav a:hover, nav a.active {
     padding: 0.1rem 0.6rem;
     margin-bottom: 0.5rem;
 }
+
+/* Heading above the browse/preview grid on first visit */
+.results-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+}

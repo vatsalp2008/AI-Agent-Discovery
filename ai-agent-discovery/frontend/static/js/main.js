@@ -96,6 +96,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Fill the empty results area on first visit so the page is not blank
+     * before the user has typed anything.
+     */
+    async function loadInitialAgents() {
+        try {
+            const response = await fetch('/api/agents?limit=6');
+            if (!response.ok) return;
+
+            const body = await response.json();
+            const agents = body.agents || [];
+
+            if (agents.length === 0) {
+                showMessage('No agents indexed yet. Run seed.py to populate the vector store.');
+                return;
+            }
+
+            const heading = document.createElement('h2');
+            heading.className = 'results-heading';
+            heading.textContent = body.metadata.has_more
+                ? `Browsing ${agents.length} of ${body.metadata.total} agents`
+                : 'Browse agents';
+
+            AgentCard.renderGrid(resultsArea, agents);
+            resultsArea.prepend(heading);
+        } catch (error) {
+            console.error('Could not load agents:', error);
+        }
+    }
+
     // Event Listeners
     searchBtn.addEventListener('click', () => {
         performSearch(searchInput.value);
@@ -108,4 +138,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     loadCategories();
+    loadInitialAgents();
 });
