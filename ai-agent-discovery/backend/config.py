@@ -60,3 +60,18 @@ AGENTS_MAX_PAGE_SIZE = _int_env("AGENTS_MAX_PAGE_SIZE", 200)
 SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+
+def _bool_env(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+HOST = os.getenv("HOST", "127.0.0.1")
+PORT = _int_env("PORT", 5000)
+
+# Off by default: the Werkzeug debugger exposes an interactive console that
+# can execute arbitrary code, so it must be opted into explicitly.
+DEBUG = _bool_env("FLASK_DEBUG", False)

@@ -6,6 +6,7 @@ from flask import Flask, render_template
 # Add backend to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
+import config
 from api import api_bp, register_error_handlers
 from logging_setup import configure
 
@@ -27,4 +28,4 @@ def dashboard():
     return render_template('dashboard.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
