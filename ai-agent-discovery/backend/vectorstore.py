@@ -13,15 +13,64 @@ import config
 logger = logging.getLogger(__name__)
 
 class VectorStore:
-    def __init__(self, persist_directory=None, embedding_function=None):
+    # Sidecar file recording which embedding model built the index.
+    META_FILENAME = "index_meta.json"
+
+    def __init__(self, persist_directory=None, embedding_function=None, embedding_model=None):
         self.persist_directory = str(persist_directory or config.FAISS_DIR)
         self.embedding_function = embedding_function or get_embeddings()
+        self.embedding_model = embedding_model or config.EMBEDDING_MODEL
         self.vector_store = None
+        # Set when an existing index was built by a different embedding model.
+        self.stale_model = None
         self.load_store()
+
+    @property
+    def meta_path(self) -> str:
+        return os.path.join(self.persist_directory, self.META_FILENAME)
+
+    def _read_meta(self) -> Dict:
+        try:
+            with open(self.meta_path) as f:
+                return json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    def _write_meta(self, agent_count: int) -> None:
+        try:
+            os.makedirs(self.persist_directory, exist_ok=True)
+            with open(self.meta_path, "w") as f:
+                json.dump({"embedding_model": self.embedding_model, "agent_count": agent_count}, f, indent=2)
+        except OSError as e:
+            logger.warning("Could not write %s: %s", self.meta_path, e)
+
+    def _is_stale(self) -> bool:
+        """True when the index was built by a different embedding model.
+
+        Vectors from one model are meaningless to another (and usually a
+        different width), so loading such an index yields garbage rankings or
+        a dimension error deep inside FAISS. Detect it up front instead.
+
+        An index with no sidecar predates this check; assume it matches rather
+        than forcing an unnecessary re-seed.
+        """
+        recorded = self._read_meta().get("embedding_model")
+        if recorded is None:
+            return False
+        return recorded != self.embedding_model
 
     def load_store(self):
         try:
             if os.path.exists(self.persist_directory) and os.path.exists(os.path.join(self.persist_directory, "index.faiss")):
+                if self._is_stale():
+                    self.stale_model = self._read_meta().get("embedding_model")
+                    logger.error(
+                        "Index at %s was built with embedding model %r but the configured model is %r. "
+                        "Re-run seed.py to rebuild it.",
+                        self.persist_directory, self.stale_model, self.embedding_model,
+                    )
+                    self.vector_store = None
+                    return
                 self.vector_store = FAISS.load_local(
                     self.persist_directory,
                     self.embedding_function,
@@ -59,6 +108,7 @@ class VectorStore:
         
         # Save locally
         self.vector_store.save_local(self.persist_directory)
+        self._write_meta(self.vector_store.index.ntotal)
         logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
     # When filtering by category we over-fetch, since the nearest neighbours

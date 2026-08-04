@@ -159,7 +159,14 @@ def health():
         return jsonify(payload), 503
 
     if payload["indexed_agents"] == 0:
-        payload.update(status="degraded", detail="No agents indexed. Run seed.py to populate the vector store.")
+        detail = "No agents indexed. Run seed.py to populate the vector store."
+        stale = getattr(get_store(), "stale_model", None)
+        if stale:
+            detail = (
+                f"Index was built with embedding model {stale!r} but {config.EMBEDDING_MODEL!r} "
+                "is configured. Re-run seed.py to rebuild it."
+            )
+        payload.update(status="degraded", detail=detail)
         return jsonify(payload), 503
 
     return jsonify(payload), 200
