@@ -7,6 +7,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Category chips act as a real server-side filter, not just a canned query.
     let activeCategory = null;
 
+    /**
+     * The query and category live in the URL so a search can be bookmarked,
+     * shared, and walked back through with the browser's Back button.
+     */
+    function readStateFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            query: params.get('q') || '',
+            category: params.get('category') || null
+        };
+    }
+
+    function writeStateToUrl(query, category, { replace = false } = {}) {
+        const params = new URLSearchParams();
+        if (query) params.set('q', query);
+        if (category) params.set('category', category);
+
+        const search = params.toString();
+        const url = search ? `${window.location.pathname}?${search}` : window.location.pathname;
+        if (url === window.location.pathname + window.location.search) return;
+
+        const state = { query, category };
+        if (replace) {
+            window.history.replaceState(state, '', url);
+        } else {
+            window.history.pushState(state, '', url);
+        }
+    }
+
     function showMessage(text, isError) {
         const p = document.createElement('p');
         p.className = isError ? 'result-message error' : 'result-message';
@@ -24,8 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsArea.replaceChildren(wrapper);
     }
 
-    async function performSearch(query) {
+    async function performSearch(query, { updateUrl = true } = {}) {
         if (!query.trim()) return;
+
+        if (updateUrl) writeStateToUrl(query.trim(), activeCategory);
 
         showLoading();
         resultsArea.setAttribute('aria-busy', 'true');
@@ -68,6 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * Category chips are real <button>s, not styled <span>s: they need to be
      * reachable by keyboard and expose their pressed state to assistive tech.
      */
+    function setActiveChip(name) {
+        filters.querySelectorAll('.filter-tag').forEach(t => {
+            const active = t.dataset.category === name;
+            t.classList.toggle('active', active);
+            t.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        activeCategory = name;
+    }
+
     function makeChip(name, count) {
         const chip = document.createElement('button');
         chip.type = 'button';
@@ -77,22 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.setAttribute('aria-pressed', 'false');
 
         chip.addEventListener('click', () => {
+            // Clicking the active chip clears the filter.
             const wasActive = chip.getAttribute('aria-pressed') === 'true';
-            filters.querySelectorAll('.filter-tag').forEach(t => {
-                t.classList.remove('active');
-                t.setAttribute('aria-pressed', 'false');
-            });
-
-            if (wasActive) {
-                activeCategory = null;
-            } else {
-                activeCategory = name;
-                chip.classList.add('active');
-                chip.setAttribute('aria-pressed', 'true');
-            }
+            setActiveChip(wasActive ? null : name);
 
             if (searchInput.value.trim()) {
                 performSearch(searchInput.value);
+            } else {
+                writeStateToUrl('', activeCategory);
             }
         });
         return chip;
@@ -105,6 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const categories = await response.json();
             if (!Array.isArray(categories) || categories.length === 0) return;
             categories.forEach(c => filters.appendChild(makeChip(c.name, c.count)));
+            // Re-apply a category that arrived in the URL.
+            if (activeCategory) setActiveChip(activeCategory);
         } catch (error) {
             console.error('Could not load categories:', error);
         }
@@ -147,6 +181,26 @@ document.addEventListener('DOMContentLoaded', () => {
         performSearch(searchInput.value);
     });
 
+    async function applyState(state, { updateUrl = false } = {}) {
+        activeCategory = state.category;
+        searchInput.value = state.query;
+        setActiveChip(state.category);
+
+        if (state.query) {
+            await performSearch(state.query, { updateUrl });
+        } else {
+            await loadInitialAgents();
+        }
+    }
+
+    window.addEventListener('popstate', (event) => {
+        applyState(event.state || readStateFromUrl());
+    });
+
+    // Boot: honour whatever the URL already says. The chips may not exist yet,
+    // so loadCategories re-applies the active one once they do.
+    const initial = readStateFromUrl();
+    activeCategory = initial.category;
     loadCategories();
-    loadInitialAgents();
+    applyState(initial);
 });
