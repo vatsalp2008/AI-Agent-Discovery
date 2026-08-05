@@ -13,7 +13,10 @@ const AgentCard = (() => {
     function safeUrl(raw) {
         if (!raw) return null;
         try {
-            const url = new URL(raw, window.location.href);
+            // Parsed without a base, so a relative or malformed value throws
+            // rather than silently resolving to a same-origin link. Agent URLs
+            // are meant to be absolute project homepages.
+            const url = new URL(raw);
             return SAFE_PROTOCOLS.includes(url.protocol) ? url.href : null;
         } catch (err) {
             return null;

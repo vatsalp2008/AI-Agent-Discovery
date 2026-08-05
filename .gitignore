@@ -6,6 +6,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Node (frontend tests)
+node_modules/
+
 # Virtual environments
 venv/
 .venv/

@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install seed run search stats test lint fix check docker-build docker-up docker-down clean
+.PHONY: help install install-js seed run search stats test test-js lint fix check docker-build docker-up docker-down clean
 
 PYTHON ?= python
 APP_DIR := ai-agent-discovery
@@ -10,6 +10,9 @@ help:  ## Show this help
 
 install:  ## Install runtime and development dependencies
 	$(PYTHON) -m pip install -r $(APP_DIR)/requirements-dev.txt
+
+install-js:  ## Install frontend test dependencies
+	npm install
 
 seed:  ## Build the FAISS index from data/agents.json
 	$(PYTHON) $(APP_DIR)/seed.py
@@ -26,13 +29,16 @@ stats:  ## Print index statistics
 test:  ## Run the test suite
 	$(PYTHON) -m pytest
 
+test-js:  ## Run the frontend test suite
+	npm test
+
 lint:  ## Check formatting and lint rules
 	$(PYTHON) -m ruff check .
 
 fix:  ## Apply the lint fixes that can be applied automatically
 	$(PYTHON) -m ruff check . --fix
 
-check: lint test  ## Run lint and tests, as CI does
+check: lint test test-js  ## Run lint and all tests, as CI does
 
 docker-build:  ## Build the container image
 	docker build -t ai-agent-discovery .
