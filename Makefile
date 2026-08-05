@@ -23,6 +23,9 @@ run:  ## Start the web app
 search:  ## Search from the terminal, e.g. make search Q="write python"
 	$(PYTHON) $(APP_DIR)/cli.py "$(Q)"
 
+refresh-stars:  ## Update GitHub star counts in data/agents.json
+	$(PYTHON) $(APP_DIR)/refresh_stars.py
+
 stats:  ## Print index statistics
 	$(PYTHON) $(APP_DIR)/cli.py --stats
 
