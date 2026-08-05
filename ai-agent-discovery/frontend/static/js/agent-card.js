@@ -33,14 +33,6 @@ const AgentCard = (() => {
         return [];
     }
 
-    /** Pull the human description out of the embedded page_content blob. */
-    function extractDescription(fullText) {
-        if (!fullText) return '';
-        const match = fullText.match(/Description: (.*?)(?:\n|$)/);
-        if (match) return match[1];
-        return fullText.length > 100 ? fullText.substring(0, 100) + '…' : fullText;
-    }
-
     function el(tag, className, text) {
         const node = document.createElement(tag);
         if (className) node.className = className;
@@ -63,7 +55,7 @@ const AgentCard = (() => {
             card.appendChild(match);
         }
 
-        const description = meta.description || extractDescription(agent.description) || 'No description available.';
+        const description = meta.description || agent.description || 'No description available.';
         card.appendChild(el('div', 'agent-description', description));
 
         const stack = el('div', 'tech-stack');
@@ -105,5 +97,5 @@ const AgentCard = (() => {
         return grid;
     }
 
-    return { create, renderGrid, formatStars, parseStack, safeUrl, extractDescription };
+    return { create, renderGrid, formatStars, parseStack, safeUrl };
 })();

@@ -150,7 +150,10 @@ class VectorStore:
                 continue
             agents.append({
                 "name": doc.metadata.get("name"),
-                "description": doc.page_content,
+                # The plain description, not the composite text that was
+                # embedded; that is exposed separately as matched_text.
+                "description": doc.metadata.get("description", ""),
+                "matched_text": doc.page_content,
                 "metadata": doc.metadata,
                 "distance": float(distance),
                 "score": relevance_score(distance)

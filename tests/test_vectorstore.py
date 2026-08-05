@@ -89,3 +89,17 @@ def test_add_agents_ignores_an_empty_list(store):
     before = store.vector_store
     store.add_agents([])
     assert store.vector_store is before
+
+
+def test_search_returns_the_plain_description_not_the_embedded_blob(store):
+    """The frontend used to strip 'Description: ' back out of page_content."""
+    result = store.search("agent", limit=1)[0]
+    assert result["description"] == "AI-powered code editor."
+    assert "Name:" not in result["description"]
+
+
+def test_search_still_exposes_the_embedded_text(store):
+    """The composite text that was actually embedded stays available."""
+    result = store.search("agent", limit=1)[0]
+    assert result["matched_text"].startswith("Name: Cursor")
+    assert "Tech Stack:" in result["matched_text"]
