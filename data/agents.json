@@ -21,7 +21,7 @@
       "GPT-4",
       "Git"
     ],
-    "github_stars": 12000,
+    "github_stars": 47970,
     "url": "https://github.com/paul-gauthier/aider",
     "use_case": "Terminal-based pair programming"
   },
@@ -46,7 +46,7 @@
       "Llama 2",
       "GPT-4"
     ],
-    "github_stars": 45000,
+    "github_stars": 67711,
     "url": "https://github.com/OpenInterpreter/open-interpreter",
     "use_case": "Local system control, script execution"
   },
@@ -59,7 +59,7 @@
       "GPT-4",
       "Pinecone"
     ],
-    "github_stars": 160000,
+    "github_stars": 185834,
     "url": "https://github.com/Significant-Gravitas/Auto-GPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
@@ -72,7 +72,7 @@
       "LangChain",
       "Selenium"
     ],
-    "github_stars": 14000,
+    "github_stars": 28835,
     "url": "https://github.com/assafelovic/gpt-researcher",
     "use_case": "Deep web research, report generation"
   },
@@ -85,7 +85,7 @@
       "OpenAI API",
       "Pinecone"
     ],
-    "github_stars": 19000,
+    "github_stars": 22343,
     "url": "https://github.com/yoheinakajima/babyagi",
     "use_case": "Task management, loop execution"
   },
@@ -98,7 +98,7 @@
       "Pandas",
       "LLMs"
     ],
-    "github_stars": 11000,
+    "github_stars": 23701,
     "url": "https://github.com/gventuri/pandas-ai",
     "use_case": "Chat with data, analysis"
   },
@@ -110,7 +110,7 @@
       "Python",
       "Multi-Agent"
     ],
-    "github_stars": 38000,
+    "github_stars": 69672,
     "url": "https://github.com/geekan/MetaGPT",
     "use_case": "Software development lifecycle automation"
   },
@@ -122,7 +122,7 @@
       "Python",
       "TypeScript"
     ],
-    "github_stars": 85000,
+    "github_stars": 143505,
     "url": "https://github.com/langchain-ai/langchain",
     "use_case": "LLM orchestration"
   },
@@ -134,7 +134,7 @@
       "Python",
       "Agents"
     ],
-    "github_stars": 15000,
+    "github_stars": 56659,
     "url": "https://github.com/joaomdmoura/crewAI",
     "use_case": "Multi-agent orchestration"
   },
@@ -146,7 +146,7 @@
       "Python",
       "TensorFlow"
     ],
-    "github_stars": 18000,
+    "github_stars": 21282,
     "url": "https://github.com/RasaHQ/rasa",
     "use_case": "Enterprise chatbots"
   },
@@ -195,7 +195,7 @@
       "Docker",
       "PostgreSQL"
     ],
-    "github_stars": 14500,
+    "github_stars": 17653,
     "url": "https://github.com/TransformerOptimus/SuperAGI",
     "use_case": "Agent provisioning and management"
   },
@@ -207,7 +207,7 @@
       "Python",
       "Role-Playing"
     ],
-    "github_stars": 22000,
+    "github_stars": 33928,
     "url": "https://github.com/OpenBMB/ChatDev",
     "use_case": "Full software project generation"
   },
@@ -220,7 +220,7 @@
       "LlamaIndex",
       "Local LLM"
     ],
-    "github_stars": 55000,
+    "github_stars": 57408,
     "url": "https://github.com/imartinez/privateGPT",
     "use_case": "Document QA, RAG"
   },
@@ -233,7 +233,7 @@
       "Supabase",
       "React"
     ],
-    "github_stars": 32000,
+    "github_stars": 39386,
     "url": "https://github.com/StanGirard/quivr",
     "use_case": "Personal knowledge base"
   },
@@ -246,7 +246,7 @@
       "LangChain",
       "ChromaDB"
     ],
-    "github_stars": 18000,
+    "github_stars": 22208,
     "url": "https://github.com/PromtEngineer/localGPT",
     "use_case": "Local RAG"
   },
@@ -258,7 +258,7 @@
       "Python",
       "GitHub API"
     ],
-    "github_stars": 7000,
+    "github_stars": 7702,
     "url": "https://github.com/sweepai/sweep",
     "use_case": "Bug fixing, feature implementation"
   }
