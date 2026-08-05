@@ -7,20 +7,22 @@
     <h1>Discover AI Agents</h1>
     <p>Find the perfect AI agent for your needs using natural language.</p>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input"
+    <form class="search-container" id="searchForm" role="search">
+        <label class="sr-only" for="searchInput">Search for an AI agent</label>
+        <input type="search" id="searchInput" class="search-input" name="q"
+               autocomplete="off"
                placeholder="e.g., 'Agent that can write python code in VS Code'...">
-        <button id="searchBtn" class="search-btn">
-            <ion-icon name="search-outline"></ion-icon>
+        <button id="searchBtn" class="search-btn" type="submit" aria-label="Search">
+            <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
         </button>
-    </div>
+    </form>
 
-    <div class="filters" id="filters">
+    <div class="filters" id="filters" role="group" aria-label="Filter by category">
         <!-- Populated from /api/categories -->
     </div>
 </section>
 
-<main id="resultsArea">
+<main id="resultsArea" aria-live="polite" aria-busy="false">
     <!-- Results are injected here -->
 </main>
 {% endblock %}

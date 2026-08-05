@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
     const resultsArea = document.getElementById('resultsArea');
     const filters = document.getElementById('filters');
 
@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!query.trim()) return;
 
         showLoading();
+        resultsArea.setAttribute('aria-busy', 'true');
 
         const body = { query };
         if (activeCategory) body.category = activeCategory;
@@ -58,23 +59,36 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error:', error);
             showMessage('An error occurred while searching.', true);
+        } finally {
+            resultsArea.setAttribute('aria-busy', 'false');
         }
     }
 
+    /**
+     * Category chips are real <button>s, not styled <span>s: they need to be
+     * reachable by keyboard and expose their pressed state to assistive tech.
+     */
     function makeChip(name, count) {
-        const chip = document.createElement('span');
+        const chip = document.createElement('button');
+        chip.type = 'button';
         chip.className = 'filter-tag';
         chip.textContent = count === undefined ? name : `${name} (${count})`;
         chip.dataset.category = name;
+        chip.setAttribute('aria-pressed', 'false');
+
         chip.addEventListener('click', () => {
-            const wasActive = chip.classList.contains('active');
-            filters.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            const wasActive = chip.getAttribute('aria-pressed') === 'true';
+            filters.querySelectorAll('.filter-tag').forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-pressed', 'false');
+            });
 
             if (wasActive) {
                 activeCategory = null;
             } else {
                 activeCategory = name;
                 chip.classList.add('active');
+                chip.setAttribute('aria-pressed', 'true');
             }
 
             if (searchInput.value.trim()) {
@@ -126,15 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listeners
-    searchBtn.addEventListener('click', () => {
+    // Event Listeners. A submit handler covers the button, the Enter key and
+    // the browser's own search-field affordances in one place.
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         performSearch(searchInput.value);
-    });
-
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            performSearch(searchInput.value);
-        }
     });
 
     loadCategories();
