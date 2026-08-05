@@ -62,6 +62,13 @@ SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 
+def _float_env(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 def _bool_env(name: str, default: bool = False) -> bool:
     raw = os.getenv(name)
     if raw is None:
@@ -75,3 +82,13 @@ PORT = _int_env("PORT", 5000)
 # Off by default: the Werkzeug debugger exposes an interactive console that
 # can execute arbitrary code, so it must be opted into explicitly.
 DEBUG = _bool_env("FLASK_DEBUG", False)
+
+# Optional LLM summary of search results (the generation half of RAG).
+# Requires MODEL_NAME to be pulled in Ollama; search works fine without it.
+ENABLE_SUMMARY = _bool_env("ENABLE_SUMMARY", True)
+SUMMARY_MAX_RESULTS = _int_env("SUMMARY_MAX_RESULTS", 5)
+SUMMARY_MAX_TOKENS = _int_env("SUMMARY_MAX_TOKENS", 220)
+SUMMARY_TIMEOUT = _float_env("SUMMARY_TIMEOUT", 30.0)
+# Low but non-zero: summaries should be near-deterministic and stick to the
+# retrieved context rather than embellish.
+SUMMARY_TEMPERATURE = _float_env("SUMMARY_TEMPERATURE", 0.2)
