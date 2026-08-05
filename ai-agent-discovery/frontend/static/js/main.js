@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Category chips act as a real server-side filter, not just a canned query.
     let activeCategory = null;
 
+    // Guards against a slow summary landing after a newer search started.
+    let searchToken = 0;
+
     /**
      * The query and category live in the URL so a search can be bookmarked,
      * shared, and walked back through with the browser's Back button.
@@ -43,6 +46,26 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsArea.replaceChildren(p);
     }
 
+    /**
+     * The model-written overview. Labelled as generated so it is not mistaken
+     * for catalogue data, and inserted as text so the model cannot emit markup.
+     */
+    function makeSummary(text, { pending = false } = {}) {
+        const box = document.createElement('aside');
+        box.className = pending ? 'summary pending' : 'summary';
+
+        const label = document.createElement('span');
+        label.className = 'summary-label';
+        label.textContent = 'AI overview';
+        box.appendChild(label);
+
+        const body = document.createElement('p');
+        body.textContent = text;
+        box.appendChild(body);
+
+        return box;
+    }
+
     function showLoading() {
         const wrapper = document.createElement('div');
         wrapper.className = 'loading';
@@ -53,9 +76,45 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsArea.replaceChildren(wrapper);
     }
 
+    /**
+     * Ask for the model-written overview separately, once results are already
+     * on screen. Generation on a local model can take seconds, and there is no
+     * reason to make the user wait for it to see their results; the server
+     * caches the retrieval half, so the second call only pays for generation.
+     */
+    async function requestSummary(query, token) {
+        const placeholder = makeSummary('Generating overview…', { pending: true });
+        resultsArea.prepend(placeholder);
+
+        const body = { query, summarize: true };
+        if (activeCategory) body.category = activeCategory;
+
+        try {
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await response.json();
+
+            // A newer search has started; this result is stale.
+            if (token !== searchToken) return;
+
+            if (response.ok && data.summary) {
+                placeholder.replaceWith(makeSummary(data.summary));
+            } else {
+                placeholder.remove();
+            }
+        } catch (error) {
+            console.error('Could not generate overview:', error);
+            if (token === searchToken) placeholder.remove();
+        }
+    }
+
     async function performSearch(query, { updateUrl = true } = {}) {
         if (!query.trim()) return;
 
+        const token = ++searchToken;
         if (updateUrl) writeStateToUrl(query.trim(), activeCategory);
 
         showLoading();
@@ -82,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Array.isArray(data.results) && data.results.length > 0) {
                 AgentCard.renderGrid(resultsArea, data.results);
+                requestSummary(query, token);
             } else if (activeCategory) {
                 showMessage(`No agents in "${activeCategory}" match your query.`);
             } else {
