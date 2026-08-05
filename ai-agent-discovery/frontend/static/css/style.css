@@ -328,3 +328,19 @@ nav a:hover, nav a.active {
     color: var(--text-secondary);
     margin-bottom: 1.25rem;
 }
+
+/* Dashboard hero: left-aligned and tighter than the search hero */
+.hero-compact {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.section-heading {
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.logo ion-icon {
+    vertical-align: middle;
+    margin-right: 5px;
+}

@@ -21,11 +21,11 @@ register_error_handlers(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', page='search')
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', page='dashboard')
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)

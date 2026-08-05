@@ -1,56 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent Discovery | Find the best AI Agents</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <a href="/" class="logo">
-                <ion-icon name="planet-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
-                AgentDiscovery
-            </a>
-            <nav>
-                <a href="/" class="active">Search</a>
-                <a href="/dashboard">Dashboard</a>
-            </nav>
-        </header>
+{% extends "base.html" %}
 
-        <section class="hero">
-            <h1>Discover AI Agents</h1>
-            <p>Find the perfect AI agent for your needs using natural language.</p>
-            
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="e.g., 'Agent that can write python code in VS Code'...">
-                <button id="searchBtn" class="search-btn">
-                    <ion-icon name="search-outline"></ion-icon>
-                </button>
-            </div>
+{% block title %}AI Agent Discovery | Find the best AI Agents{% endblock %}
 
-            <div class="filters" id="filters">
-                <!-- Populated from /api/categories -->
-            </div>
-        </section>
+{% block content %}
+<section class="hero">
+    <h1>Discover AI Agents</h1>
+    <p>Find the perfect AI agent for your needs using natural language.</p>
 
-        <main id="resultsArea">
-            <!-- Results will be injected here -->
-             <div class="loading" style="display: none;">
-                 <div class="spinner"></div>
-                 <p>Searching the agentverse...</p>
-             </div>
-        </main>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input"
+               placeholder="e.g., 'Agent that can write python code in VS Code'...">
+        <button id="searchBtn" class="search-btn">
+            <ion-icon name="search-outline"></ion-icon>
+        </button>
     </div>
 
-    <script src="/static/js/agent-card.js"></script>
-    <script src="/static/js/main.js"></script>
-</body>
-</html>
+    <div class="filters" id="filters">
+        <!-- Populated from /api/categories -->
+    </div>
+</section>
+
+<main id="resultsArea">
+    <!-- Results are injected here -->
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/main.js"></script>
+{% endblock %}
