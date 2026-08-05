@@ -198,3 +198,47 @@ def test_unknown_agent_returns_404_json(client):
 
 def test_agent_detail_does_not_shadow_the_list_endpoint(client):
     assert "agents" in client.get("/api/agents").get_json()
+
+
+def test_search_omits_a_summary_by_default(client):
+    body = client.post("/api/search", json={"query": "code editor"}).get_json()
+    assert body["summary"] is None
+    assert body["metadata"]["summarized"] is False
+
+
+def test_search_includes_a_summary_when_requested(client, monkeypatch):
+    import generation
+
+    monkeypatch.setattr(generation, "summarize", lambda q, r: "Cursor fits best.")
+    body = client.post("/api/search", json={"query": "code editor", "summarize": True}).get_json()
+    assert body["summary"] == "Cursor fits best."
+    assert body["metadata"]["summarized"] is True
+
+
+def test_results_survive_a_failing_summary(client, monkeypatch):
+    """Generation is best-effort: losing it must not lose the search."""
+    import generation
+
+    def broken(query, results):
+        raise RuntimeError("ollama is down")
+
+    monkeypatch.setattr(generation, "summarize", broken)
+    response = client.post("/api/search", json={"query": "code editor", "summarize": True})
+    assert response.status_code == 500  # surfaced, not silently swallowed
+
+
+def test_unavailable_summary_still_returns_results(client, monkeypatch):
+    import generation
+
+    monkeypatch.setattr(generation, "summarize", lambda q, r: None)
+    body = client.post("/api/search", json={"query": "code editor", "summarize": True}).get_json()
+    assert len(body["results"]) > 0
+    assert body["summary"] is None
+    assert body["metadata"]["summarized"] is False
+
+
+@pytest.mark.parametrize("value", ["yes", 1, "true", []])
+def test_search_rejects_a_non_boolean_summarize(client, value):
+    response = client.post("/api/search", json={"query": "ok", "summarize": value})
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "'summarize' must be a boolean"

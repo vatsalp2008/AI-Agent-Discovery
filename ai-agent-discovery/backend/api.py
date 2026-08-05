@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 import config
+import generation
 from vectorstore import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -106,6 +107,14 @@ def _parse_limit(payload):
     return min(limit, config.SEARCH_MAX_LIMIT)
 
 
+def _parse_summarize(payload):
+    """Validate the optional 'summarize' flag."""
+    value = payload.get('summarize', False)
+    if isinstance(value, bool):
+        return value
+    raise BadRequest("'summarize' must be a boolean")
+
+
 def _parse_category(payload):
     """Validate the optional category filter."""
     category = payload.get('category')
@@ -180,18 +189,27 @@ def search_agents():
         query = _parse_query(payload)
         limit = _parse_limit(payload)
         category = _parse_category(payload)
+        summarize = _parse_summarize(payload)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
     start_time = time.time()
     results = get_store().search(query, limit=limit, category=category)
+
+    # Retrieval is complete at this point. Generation is a best-effort extra:
+    # generation.summarize returns None rather than raising if the chat model
+    # is unavailable, so a failure here cannot cost the user their results.
+    summary = generation.summarize(query, results) if summarize else None
+
     duration = time.time() - start_time
     return jsonify({
         "results": results,
+        "summary": summary,
         "metadata": {
             "count": len(results),
             "limit": limit,
             "category": category,
+            "summarized": summary is not None,
             "duration": f"{duration:.2f}s"
         }
     }), 200

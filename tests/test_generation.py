@@ -1,9 +1,9 @@
 """The summary step must never be able to break a search."""
 
-import generation
 import pytest
 
 import config
+import generation
 
 
 class FakeResponse:

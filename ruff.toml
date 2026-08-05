@@ -26,4 +26,7 @@ select = [
 "tests/conftest.py" = ["E402"]
 
 [lint.isort]
-known-first-party = ["api", "config", "embeddings", "logging_setup", "models", "scoring", "scraper", "vectorstore"]
+known-first-party = [
+    "api", "config", "embeddings", "generation", "logging_setup",
+    "models", "scoring", "scraper", "vectorstore",
+]
