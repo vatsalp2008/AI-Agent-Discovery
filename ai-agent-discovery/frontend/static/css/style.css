@@ -377,3 +377,36 @@ nav a:focus-visible,
         transition-duration: 0.01ms !important;
     }
 }
+
+/* "Load more" control under the dashboard grid */
+.grid-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.load-more {
+    font: inherit;
+    font-weight: 600;
+    color: var(--accent-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.load-more:hover:not(:disabled) {
+    border-color: var(--accent-color);
+}
+
+.load-more:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.load-more:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

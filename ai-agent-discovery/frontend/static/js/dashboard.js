@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const topCategoryEl = document.getElementById('topCategory');
     const totalStarsEl = document.getElementById('totalStars');
     const grid = document.getElementById('allAgentsGrid');
+    const footer = document.getElementById('gridFooter');
+
+    const PAGE_SIZE = 24;
+    let offset = 0;
 
     function formatTotalStars(stars) {
         if (stars >= 1000000) return (stars / 1000000).toFixed(1) + 'M+';
@@ -15,14 +19,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         p.className = 'result-message error';
         p.textContent = text;
         grid.replaceChildren(p);
+        footer.replaceChildren();
+    }
+
+    /** Append one page of agents, and offer the next if there is one. */
+    function renderPage(agents, metadata) {
+        agents.forEach(agent => grid.appendChild(AgentCard.create(agent)));
+        offset += agents.length;
+        footer.replaceChildren();
+
+        if (metadata.has_more) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'load-more';
+            button.textContent = `Load more (${offset} of ${metadata.total})`;
+            button.addEventListener('click', async () => {
+                button.disabled = true;
+                button.textContent = 'Loading…';
+                try {
+                    await loadPage();
+                } catch (error) {
+                    console.error(error);
+                    button.disabled = false;
+                    button.textContent = 'Retry';
+                }
+            });
+            footer.appendChild(button);
+        } else if (metadata.total > 0) {
+            const done = document.createElement('p');
+            done.className = 'result-message';
+            done.textContent = `Showing all ${metadata.total} agents.`;
+            footer.appendChild(done);
+        }
+    }
+
+    async function loadPage() {
+        const response = await fetch(`/api/agents?limit=${PAGE_SIZE}&offset=${offset}`);
+        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+        const payload = await response.json();
+        renderPage(payload.agents || [], payload.metadata || {});
     }
 
     try {
         // Stats are computed server-side; this page only needs the totals
-        // plus the agent list itself.
+        // plus one page of agents at a time.
         const [statsResponse, agentsResponse] = await Promise.all([
             fetch('/api/stats'),
-            fetch('/api/agents')
+            fetch(`/api/agents?limit=${PAGE_SIZE}&offset=0`)
         ]);
         if (!agentsResponse.ok) throw new Error(`Request failed with status ${agentsResponse.status}`);
 
@@ -34,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const payload = await agentsResponse.json();
-        const agents = Array.isArray(payload) ? payload : (payload.agents || []);
+        const agents = payload.agents || [];
 
         if (agents.length === 0) {
             showMessage('No agents indexed yet. Run seed.py to populate the vector store.');
@@ -42,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         grid.replaceChildren();
-        agents.forEach(agent => grid.appendChild(AgentCard.create(agent)));
+        renderPage(agents, payload.metadata || {});
     } catch (error) {
         console.error(error);
         showMessage('Error loading dashboard data.');
