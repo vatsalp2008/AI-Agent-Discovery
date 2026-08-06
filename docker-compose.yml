@@ -11,22 +11,30 @@ services:
       timeout: 5s
       retries: 12
 
-  # One-shot: pulls the embedding model, then builds the FAISS index.
-  seed:
-    build: .
+  # One-shot: pulls the models using the ollama CLI, which reports progress and
+  # fails loudly. Runs in the ollama image so the CLI is already present.
+  pull-models:
+    image: ollama/ollama:latest
     depends_on:
       ollama:
         condition: service_healthy
     environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama pull nomic-embed-text && ollama pull ${MODEL_NAME:-llama3.2}"
+
+  # One-shot: builds the FAISS index from data/agents.json.
+  seed:
+    build: .
+    depends_on:
+      pull-models:
+        condition: service_completed_successfully
+    environment:
       OLLAMA_BASE_URL: http://ollama:11434
     volumes:
       - ./data:/app/data
-    command: >
-      sh -c "python -c \"
-      import urllib.request, json;
-      urllib.request.urlopen('http://ollama:11434/api/pull',
-        json.dumps({'name': 'nomic-embed-text'}).encode())\"
-      && python ai-agent-discovery/seed.py"
+    command: ["python", "ai-agent-discovery/seed.py"]
 
   app:
     build: .
