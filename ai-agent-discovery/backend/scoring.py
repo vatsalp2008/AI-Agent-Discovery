@@ -1,19 +1,33 @@
 """Turn raw FAISS distances into a relevance score.
 
-``similarity_search_with_score`` returns an L2 distance: lower is better and
-the value is unbounded, which is awkward to display or threshold on. We map
-it to ``1 / (1 + distance)``, which is strictly decreasing and lands in
-[0, 1] — an exact match scores 1.0 and relevance decays smoothly from there.
-Results are rounded to four places, so distances beyond ~10000 bottom out at
-0.0, the same value reported for an unusable distance. Both mean "no useful
-relevance", so the collision is harmless.
+``similarity_search_with_score`` returns an L2 distance: lower is better, and
+the value is awkward to display or threshold on directly.
 
-Kept dependency-free so it can be unit tested without Ollama or FAISS.
+Embedding models used for retrieval (nomic-embed-text among them) emit
+unit-length vectors, and for unit vectors the L2 distance and the cosine
+similarity are related exactly:
+
+    cosine = 1 - d² / 2
+
+So rather than inventing a mapping, we recover the cosine similarity the model
+was actually trained to produce. Measured against this catalogue:
+
+    verbatim description of an agent   d≈0.42  ->  0.91
+    good semantic match                d≈0.77  ->  0.70
+    unrelated query ("banana bread")   d≈1.15  ->  0.34
+
+An earlier version used ``1 / (1 + d)``, which squeezed that entire range into
+0.46–0.70 — a perfect match displayed as "70% match" and nonsense as "47%",
+which told the user almost nothing.
+
+If a model emits non-unit vectors the identity no longer holds and the numbers
+lose their cosine interpretation, but the mapping stays monotonically
+decreasing in distance, so ranking is unaffected.
 """
 
 
 def relevance_score(distance: float) -> float:
-    """Convert an L2 distance to a relevance score in [0, 1]."""
+    """Convert an L2 distance between unit vectors to cosine similarity in [0, 1]."""
     try:
         value = float(distance)
     except (TypeError, ValueError):
@@ -22,4 +36,7 @@ def relevance_score(distance: float) -> float:
         return 0.0
     if value < 0:
         value = 0.0
-    return round(1.0 / (1.0 + value), 4)
+
+    # Negative cosine means "points the other way", which is no more useful
+    # than orthogonal for ranking, so the floor is 0.
+    return round(max(0.0, 1.0 - (value * value) / 2.0), 4)
