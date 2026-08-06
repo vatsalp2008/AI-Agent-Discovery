@@ -6,6 +6,7 @@ from werkzeug.exceptions import HTTPException
 
 import config
 import generation
+import rate_limit
 from vectorstore import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -192,6 +193,21 @@ def search_agents():
         summarize = _parse_summarize(payload)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
+
+    # Searching costs an embedding call; summarizing costs a generation on
+    # top, so it gets its own tighter budget.
+    key = rate_limit.client_key(request)
+    allowed, retry_after = rate_limit.search_limiter.check(key)
+    if allowed and summarize:
+        allowed, retry_after = rate_limit.summary_limiter.check(key)
+    if not allowed:
+        logger.warning("Rate limited %s on /api/search", key)
+        response = jsonify({
+            "error": "Too many requests. Please slow down.",
+            "retry_after": round(retry_after, 1),
+        })
+        response.headers["Retry-After"] = str(max(1, int(retry_after) + 1))
+        return response, 429
 
     start_time = time.time()
     results = get_store().search(query, limit=limit, category=category)

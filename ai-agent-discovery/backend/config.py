@@ -95,3 +95,9 @@ SUMMARY_TIMEOUT = _float_env("SUMMARY_TIMEOUT", 30.0)
 # Low but non-zero: summaries should be near-deterministic and stick to the
 # retrieved context rather than embellish.
 SUMMARY_TEMPERATURE = _float_env("SUMMARY_TEMPERATURE", 0.2)
+
+# Requests per minute per client for /api/search. Generous enough that normal
+# interactive use never notices; 0 disables the limit entirely. Summaries are
+# capped lower because each one costs a text generation.
+RATE_LIMIT_SEARCHES = _int_env("RATE_LIMIT_SEARCHES", 60)
+RATE_LIMIT_SUMMARIES = _int_env("RATE_LIMIT_SUMMARIES", 20)
