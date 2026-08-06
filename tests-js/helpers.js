@@ -115,3 +115,14 @@ export const SEARCH_HTML = `
     <div id="filters"></div>
     <main id="resultsArea" aria-live="polite" aria-busy="false"></main>
 `;
+
+/** The dashboard's markup, mirroring templates/dashboard.html. */
+export const DASHBOARD_HTML = `
+    <div class="stats-grid" id="statsGrid" aria-busy="true">
+      <div class="stat-number" id="totalAgents">-</div>
+      <div class="stat-number" id="topCategory">-</div>
+      <div class="stat-number" id="totalStars">-</div>
+    </div>
+    <div class="results-grid" id="allAgentsGrid" aria-busy="true"></div>
+    <div class="grid-footer" id="gridFooter"></div>
+`;
