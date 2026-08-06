@@ -9,12 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const PAGE_SIZE = 24;
     let offset = 0;
 
-    function formatTotalStars(stars) {
-        if (stars >= 1000000) return (stars / 1000000).toFixed(1) + 'M+';
-        if (stars >= 1000) return (stars / 1000).toFixed(1) + 'k';
-        return String(stars);
-    }
-
     function showMessage(text) {
         const p = document.createElement('p');
         p.className = 'result-message error';
@@ -32,11 +26,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         offset += agents.length;
         footer.replaceChildren();
 
-        if (metadata.has_more) {
+        const label = DashboardStats.loadMoreLabel(offset, metadata);
+        if (label) {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'load-more';
-            button.textContent = `Load more (${offset} of ${metadata.total})`;
+            button.textContent = label;
             button.addEventListener('click', async () => {
                 button.disabled = true;
                 button.textContent = 'Loading…';
@@ -59,16 +54,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
             footer.appendChild(button);
-        } else if (metadata.total > 0) {
-            const done = document.createElement('p');
-            done.className = 'result-message';
-            done.textContent = `Showing all ${metadata.total} agents.`;
-            footer.appendChild(done);
+        } else {
+            const complete = DashboardStats.completeMessage(metadata);
+            if (complete) {
+                const done = document.createElement('p');
+                done.className = 'result-message';
+                done.textContent = complete;
+                footer.appendChild(done);
+            }
         }
     }
 
     async function loadPage() {
-        const response = await fetch(`/api/agents?limit=${PAGE_SIZE}&offset=${offset}`);
+        const response = await fetch('/api/agents' + DashboardStats.pageQuery(offset, PAGE_SIZE));
         if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
 
         const payload = await response.json();
@@ -80,15 +78,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         // plus one page of agents at a time.
         const [statsResponse, agentsResponse] = await Promise.all([
             fetch('/api/stats'),
-            fetch(`/api/agents?limit=${PAGE_SIZE}&offset=0`)
+            fetch('/api/agents' + DashboardStats.pageQuery(0, PAGE_SIZE))
         ]);
         if (!agentsResponse.ok) throw new Error(`Request failed with status ${agentsResponse.status}`);
 
         if (statsResponse.ok) {
-            const stats = await statsResponse.json();
-            totalAgentsEl.textContent = stats.count;
-            topCategoryEl.textContent = stats.top_category ? stats.top_category.name : 'N/A';
-            totalStarsEl.textContent = formatTotalStars(stats.total_stars || 0);
+            const headline = DashboardStats.headline(await statsResponse.json());
+            totalAgentsEl.textContent = headline.total;
+            topCategoryEl.textContent = headline.topCategory;
+            totalStarsEl.textContent = headline.stars;
         }
         statsGrid.setAttribute('aria-busy', 'false');
 
