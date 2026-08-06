@@ -158,6 +158,27 @@ def _parse_int_arg(name, default, minimum, maximum=None):
     return min(value, maximum) if maximum is not None else value
 
 
+# Sort keys for GET /api/agents, mapped to (key function, default direction).
+AGENT_SORTS = {
+    "name": (lambda a: (a["name"] or "").casefold(), "asc"),
+    "stars": (lambda a: int(a["metadata"].get("stars") or 0), "desc"),
+    "category": (lambda a: ((a["metadata"].get("category") or "").casefold(),
+                            (a["name"] or "").casefold()), "asc"),
+}
+
+
+def _parse_sort():
+    """Validate the sort key and direction from the query string."""
+    key = (request.args.get('sort') or 'name').strip().casefold()
+    if key not in AGENT_SORTS:
+        raise BadRequest(f"'sort' must be one of: {', '.join(sorted(AGENT_SORTS))}")
+
+    order = (request.args.get('order') or AGENT_SORTS[key][1]).strip().casefold()
+    if order not in {"asc", "desc"}:
+        raise BadRequest("'order' must be 'asc' or 'desc'")
+    return key, order
+
+
 @api_bp.route('/agents', methods=['GET'])
 def get_agents():
     """List agents, one page at a time.
@@ -168,6 +189,7 @@ def get_agents():
     try:
         limit = _parse_int_arg('limit', config.AGENTS_PAGE_SIZE, 1, config.AGENTS_MAX_PAGE_SIZE)
         offset = _parse_int_arg('offset', 0, 0)
+        sort_key, order = _parse_sort()
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
@@ -178,6 +200,7 @@ def get_agents():
         wanted = category.casefold()
         agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
 
+    agents.sort(key=AGENT_SORTS[sort_key][0], reverse=(order == "desc"))
     page = agents[offset:offset + limit]
 
     return jsonify({
@@ -188,6 +211,8 @@ def get_agents():
             "limit": limit,
             "offset": offset,
             "category": category,
+            "sort": sort_key,
+            "order": order,
             "has_more": offset + len(page) < len(agents),
         }
     }), 200

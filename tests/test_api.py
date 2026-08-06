@@ -85,7 +85,7 @@ def test_agents_endpoint_paginates(client):
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
         "total": 3, "count": 2, "limit": 2, "offset": 0,
-        "category": None, "has_more": True,
+        "category": None, "sort": "name", "order": "asc", "has_more": True,
     }
 
     second = client.get("/api/agents?limit=2&offset=2").get_json()
@@ -318,3 +318,44 @@ def test_agents_unknown_category_is_empty_not_an_error(client):
 
 def test_agents_blank_category_is_ignored(client):
     assert client.get("/api/agents?category=%20").get_json()["metadata"]["total"] == 3
+
+
+def test_agents_sort_by_stars_defaults_to_descending(client):
+    body = client.get("/api/agents?sort=stars").get_json()
+    stars = [a["metadata"]["stars"] for a in body["agents"]]
+    assert stars == sorted(stars, reverse=True)
+    assert body["metadata"]["order"] == "desc"
+
+
+def test_agents_sort_by_name_defaults_to_ascending(client):
+    body = client.get("/api/agents?sort=name").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Aider", "Cursor", "GPT Researcher"]
+    assert body["metadata"]["order"] == "asc"
+
+
+def test_agents_sort_direction_can_be_reversed(client):
+    body = client.get("/api/agents?sort=name&order=desc").get_json()
+    assert [a["name"] for a in body["agents"]] == ["GPT Researcher", "Cursor", "Aider"]
+
+
+def test_agents_sort_by_category_breaks_ties_by_name(client):
+    names = [a["name"] for a in client.get("/api/agents?sort=category").get_json()["agents"]]
+    assert names == ["Aider", "Cursor", "GPT Researcher"]
+
+
+def test_agents_default_sort_is_by_name(client):
+    body = client.get("/api/agents").get_json()
+    assert body["metadata"]["sort"] == "name"
+
+
+@pytest.mark.parametrize("query", ["sort=bogus", "sort=name&order=sideways"])
+def test_agents_rejects_a_bad_sort(client, query):
+    response = client.get(f"/api/agents?{query}")
+    assert response.status_code == 400
+    assert response.is_json
+
+
+def test_agents_sort_does_not_corrupt_the_cached_list(client, store):
+    """The handler sorts in place; it must be working on a copy."""
+    client.get("/api/agents?sort=stars&order=desc")
+    assert [a["name"] for a in store.get_all_agents()] == ["Aider", "Cursor", "GPT Researcher"]
