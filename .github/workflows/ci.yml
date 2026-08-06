@@ -37,10 +37,64 @@ jobs:
       # would otherwise hide.
       - name: Check backend imports resolve
         working-directory: ai-agent-discovery/backend
-        run: python -c "import api, config, embeddings, models, scoring, scraper, vectorstore"
+        run: python -c "import api, config, embeddings, generation, models, rate_limit, request_log, scoring, scraper, vectorstore"
 
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
+
+  # Exercises the real embedding and chat models against a throwaway Ollama.
+  # Kept separate from `test` so an Ollama outage cannot block ordinary CI, and
+  # skipped on forks where the long model pull is rarely wanted.
+  live:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    timeout-minutes: 25
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai-agent-discovery/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r ai-agent-discovery/requirements-dev.txt
+
+      - name: Wait for Ollama
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:11434/api/tags && exit 0
+            sleep 2
+          done
+          echo "Ollama did not become ready" >&2
+          exit 1
+
+      - name: Pull models
+        run: |
+          curl -sf http://localhost:11434/api/pull -d '{"name":"nomic-embed-text"}' > /dev/null
+          curl -sf http://localhost:11434/api/pull -d '{"name":"llama3.2"}' > /dev/null
+
+      - name: Seed the index
+        run: python ai-agent-discovery/seed.py
+
+      # The suite skips itself when Ollama is unreachable, which would turn a
+      # broken setup into a silent pass. Assert it actually ran.
+      - name: Run live tests
+        run: |
+          # pipefail: without it, `| tee` would swallow a pytest failure.
+          set -eo pipefail
+          python -m pytest tests-live -v --tb=short | tee live.log
+          if grep -q "skipped" live.log; then
+            echo "live tests skipped themselves; the Ollama setup is broken" >&2
+            exit 1
+          fi
 
   frontend:
     runs-on: ubuntu-latest
