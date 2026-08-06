@@ -24,12 +24,20 @@ import config
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = (
-    "You help developers choose an AI agent or tool. "
-    "You will be given a user's need and a numbered list of candidate tools. "
-    "Write 1-3 short sentences comparing the most relevant options and saying which "
-    "suits the stated need. Use ONLY the information in the list; if it does not "
-    "contain enough detail, say so plainly. Do not invent tools, features, or numbers. "
-    "Plain prose, no markdown, no preamble."
+    "You help developers choose an AI agent or tool.\n"
+    "You will be given a user's need and a list of candidate tools. Each tool is a "
+    "block starting with [n] Name, followed by its own indented fields.\n"
+    "\n"
+    "Rules:\n"
+    "1. Write 1-3 short sentences recommending which tool best suits the need.\n"
+    "2. Refer to tools by their exact names as given.\n"
+    "3. Every claim about a tool must come from that tool's own block. Never "
+    "describe one tool using another tool's fields.\n"
+    "4. Do not mention any tool that is not in the list, and do not invent "
+    "features, numbers, or comparisons the blocks do not support.\n"
+    "5. If the blocks lack the detail needed to choose, say so plainly.\n"
+    "\n"
+    "Reply with plain prose only: no markdown, no bullet points, no preamble."
 )
 
 
@@ -60,21 +68,30 @@ class GenerationService:
 
 
 def build_prompt(query, results):
-    """Render the retrieved agents into a grounded prompt."""
-    lines = []
+    """Render the retrieved agents into a grounded prompt.
+
+    One indented block per tool rather than a single delimited line: it makes
+    the binding between a tool and its attributes unambiguous, which is what
+    stops a small model attributing one tool's capabilities to another.
+    """
+    blocks = []
     for i, result in enumerate(results, start=1):
         meta = result.get("metadata", {})
-        parts = [f"{i}. {meta.get('name') or result.get('name') or 'Unknown'}"]
+        name = meta.get("name") or result.get("name") or "Unknown"
+        lines = [f"[{i}] {name}"]
         if meta.get("category"):
-            parts.append(f"category: {meta['category']}")
+            lines.append(f"    Category: {meta['category']}")
         if meta.get("stack"):
-            parts.append(f"tech: {meta['stack']}")
+            lines.append(f"    Tech: {meta['stack']}")
         description = meta.get("description") or result.get("description") or ""
         if description:
-            parts.append(description)
-        lines.append(" — ".join(parts))
+            lines.append(f"    Description: {description}")
+        blocks.append("\n".join(lines))
 
-    return f"User need: {query}\n\nCandidate tools:\n" + "\n".join(lines)
+    return (
+        f"User need: {query}\n\n"
+        f"Candidate tools ({len(blocks)}):\n\n" + "\n\n".join(blocks)
+    )
 
 
 def summarize(query, results, client=None):

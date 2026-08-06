@@ -152,3 +152,34 @@ def test_index_sidecar_matches_the_configured_model(live_store):
 
     assert live_store._read_meta().get("embedding_model") == config.EMBEDDING_MODEL
     assert live_store.stale_model is None
+
+
+@needs_chat
+@needs_embeddings
+@pytest.mark.parametrize("query", [
+    "agent that edits code in my terminal",
+    "chat with my documents privately",
+    "multi agent orchestration framework",
+])
+def test_overview_never_mentions_an_agent_it_was_not_given(live_store, query):
+    """Mechanical grounding check.
+
+    Naming a catalogue agent that was not among the retrieved results means the
+    model reached outside its context — the failure mode the prompt guards
+    against.
+    """
+    import re
+
+    import generation
+
+    results = live_store.search(query, limit=5)
+    summary = generation.summarize(query, results)
+    assert summary
+
+    given = {r["name"] for r in results}
+    catalogue = {a["name"] for a in live_store.get_all_agents()}
+    leaked = {
+        name for name in catalogue - given
+        if re.search(rf"\b{re.escape(name)}\b", summary)
+    }
+    assert not leaked, f"summary mentioned agents it was not given: {sorted(leaked)}"
