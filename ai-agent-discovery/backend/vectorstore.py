@@ -260,6 +260,23 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
+    def get_tech_stacks(self) -> list[dict]:
+        """Return the indexed technologies with agent counts, most common first.
+
+        `stack` is stored as a comma-joined string (FAISS metadata values must
+        be scalars), so it is split back apart here.
+        """
+        counts = {}
+        for agent in self.get_all_agents():
+            for tech in str(agent["metadata"].get("stack") or "").split(","):
+                tech = tech.strip()
+                if tech:
+                    counts[tech] = counts.get(tech, 0) + 1
+        return [
+            {"name": name, "count": count}
+            for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+        ]
+
     def get_agent(self, name: str) -> dict:
         """Look up a single agent by name (case-insensitive), or None."""
         if not name:

@@ -85,7 +85,7 @@ def test_agents_endpoint_paginates(client):
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
         "total": 3, "count": 2, "limit": 2, "offset": 0,
-        "category": None, "sort": "name", "order": "asc", "has_more": True,
+        "category": None, "tech": None, "sort": "name", "order": "asc", "has_more": True,
     }
 
     second = client.get("/api/agents?limit=2&offset=2").get_json()
@@ -359,3 +359,45 @@ def test_agents_sort_does_not_corrupt_the_cached_list(client, store):
     """The handler sorts in place; it must be working on a copy."""
     client.get("/api/agents?sort=stars&order=desc")
     assert [a["name"] for a in store.get_all_agents()] == ["Aider", "Cursor", "GPT Researcher"]
+
+
+def test_tech_endpoint_lists_technologies_with_counts(client):
+    body = client.get("/api/tech").get_json()
+    names = [t["name"] for t in body]
+    assert "Python" in names
+    # Most common first.
+    counts = [t["count"] for t in body]
+    assert counts == sorted(counts, reverse=True)
+
+
+def test_tech_endpoint_splits_the_comma_joined_stack(client):
+    """stack is stored as one string because FAISS metadata must be scalar."""
+    names = [t["name"] for t in client.get("/api/tech").get_json()]
+    assert "Electron" in names and "GPT-4" in names
+    assert not any("," in n for n in names)
+
+
+def test_agents_can_be_filtered_by_tech(client):
+    body = client.get("/api/agents?tech=Python").get_json()
+    assert body["metadata"]["tech"] == "Python"
+    for agent in body["agents"]:
+        assert "Python" in agent["metadata"]["stack"]
+
+
+def test_tech_filter_is_case_insensitive(client):
+    lower = client.get("/api/agents?tech=python").get_json()["metadata"]["total"]
+    upper = client.get("/api/agents?tech=PYTHON").get_json()["metadata"]["total"]
+    assert lower == upper > 0
+
+
+def test_tech_filter_matches_whole_entries_not_substrings(client):
+    """'GPT' must not match the 'GPT-4' entry."""
+    assert client.get("/api/agents?tech=GPT").get_json()["metadata"]["total"] == 0
+    assert client.get("/api/agents?tech=GPT-4").get_json()["metadata"]["total"] > 0
+
+
+def test_tech_and_category_filters_combine(client):
+    body = client.get("/api/agents?tech=Python&category=Code Generation").get_json()
+    for agent in body["agents"]:
+        assert agent["metadata"]["category"] == "Code Generation"
+        assert "Python" in agent["metadata"]["stack"]

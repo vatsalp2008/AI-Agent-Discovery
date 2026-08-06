@@ -194,11 +194,18 @@ def get_agents():
         return jsonify({"error": str(e)}), 400
 
     category = (request.args.get('category') or '').strip() or None
+    tech = (request.args.get('tech') or '').strip() or None
 
     agents = get_store().get_all_agents()
     if category:
         wanted = category.casefold()
         agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
+    if tech:
+        wanted = tech.casefold()
+        agents = [
+            a for a in agents
+            if wanted in {t.strip().casefold() for t in str(a["metadata"].get("stack") or "").split(",")}
+        ]
 
     agents.sort(key=AGENT_SORTS[sort_key][0], reverse=(order == "desc"))
     page = agents[offset:offset + limit]
@@ -211,6 +218,7 @@ def get_agents():
             "limit": limit,
             "offset": offset,
             "category": category,
+            "tech": tech,
             "sort": sort_key,
             "order": order,
             "has_more": offset + len(page) < len(agents),
@@ -288,6 +296,12 @@ def search_agents():
 @api_bp.route('/categories', methods=['GET'])
 def get_categories():
     return jsonify(get_store().get_categories()), 200
+
+
+@api_bp.route('/tech', methods=['GET'])
+def get_tech_stacks():
+    """Technologies across the catalogue, with counts."""
+    return jsonify(get_store().get_tech_stacks()), 200
 
 
 @api_bp.route('/stats', methods=['GET'])
