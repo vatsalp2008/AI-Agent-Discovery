@@ -213,22 +213,83 @@ SAMPLE_AGENTS = [
     )
 ]
 
+class CatalogueError(Exception):
+    """agents.json exists but cannot be used."""
+
+
+def _parse_records(raw: str) -> list:
+    """Parse agents.json, naming the problem if it is malformed.
+
+    The docs invite hand-editing this file, so a typo is an ordinary event and
+    deserves a message that says where to look — not a raw JSONDecodeError.
+    """
+    try:
+        records = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise CatalogueError(
+            f"{config.AGENTS_JSON} is not valid JSON: {e.msg} (line {e.lineno}, column {e.colno})"
+        ) from e
+
+    if not isinstance(records, list):
+        raise CatalogueError(
+            f"{config.AGENTS_JSON} must contain a JSON array of agents, "
+            f"found {type(records).__name__}."
+        )
+    return records
+
+
+def _build_agent(record, index: int) -> Agent:
+    """Turn one record into an Agent, reporting which entry is at fault."""
+    where = f"entry {index} of {config.AGENTS_JSON}"
+    if not isinstance(record, dict):
+        raise CatalogueError(f"{where} must be an object, found {type(record).__name__}.")
+
+    try:
+        return Agent.from_dict(record)
+    except TypeError as e:
+        name = record.get("name")
+        label = f"{where} ({name!r})" if name else where
+        raise CatalogueError(f"{label} is not a valid agent: {e}") from e
+
+
 def load_agents() -> list[Agent]:
     """Load the agent catalogue.
 
     data/agents.json is the source of truth once it exists, so hand-edits
     survive re-seeding. SAMPLE_AGENTS only bootstraps a fresh checkout.
+
+    A catalogue that exists but is broken raises rather than falling back to
+    the samples: silently indexing different data than the file says would be
+    worse than stopping.
     """
     if os.path.exists(config.AGENTS_JSON):
         with open(config.AGENTS_JSON) as f:
-            records = json.load(f)
+            records = _parse_records(f.read())
+
         if records:
-            logger.info("Loaded %d agents from %s", len(records), config.AGENTS_JSON)
-            return [Agent.from_dict(record) for record in records]
+            agents = [_build_agent(record, i) for i, record in enumerate(records)]
+            _warn_about_duplicates(agents)
+            logger.info("Loaded %d agents from %s", len(agents), config.AGENTS_JSON)
+            return agents
         logger.warning("%s is empty; using the built-in sample agents.", config.AGENTS_JSON)
 
     logger.info("Using %d built-in sample agents.", len(SAMPLE_AGENTS))
     return list(SAMPLE_AGENTS)
+
+
+def _warn_about_duplicates(agents: list[Agent]) -> None:
+    """Duplicate names index fine but make lookups by name ambiguous."""
+    seen, duplicates = set(), set()
+    for agent in agents:
+        key = (agent.name or "").casefold()
+        if key in seen:
+            duplicates.add(agent.name)
+        seen.add(key)
+    if duplicates:
+        logger.warning(
+            "Duplicate agent names in %s: %s. Lookups by name return the first match.",
+            config.AGENTS_JSON, ", ".join(sorted(duplicates)),
+        )
 
 
 def write_agents_json(agents: list[Agent]) -> None:
@@ -260,7 +321,13 @@ def seed_data(rebuild: bool = True):
     logger.info("Seeding complete: %d agents indexed.", len(agents))
 
 if __name__ == "__main__":
+    import sys
+
     from logging_setup import configure
 
     configure()
-    seed_data()
+    try:
+        seed_data()
+    except CatalogueError as e:
+        print(f"error: {e}", file=sys.stderr)
+        sys.exit(1)

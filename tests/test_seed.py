@@ -1,4 +1,7 @@
 import json
+import logging
+
+import pytest
 
 import config
 import scraper
@@ -82,3 +85,71 @@ def test_agents_json_ends_with_a_newline(tmp_path, monkeypatch):
     scraper.write_agents_json(scraper.SAMPLE_AGENTS)
 
     assert target.read_text().endswith("]\n")
+
+
+class TestBrokenCatalogue:
+    """agents.json is documented as hand-editable, so typos are routine.
+
+    Each failure must name the file and the offending entry rather than
+    surfacing a raw JSONDecodeError, AttributeError or TypeError.
+    """
+
+    @pytest.fixture
+    def catalogue(self, tmp_path, monkeypatch):
+        import config
+
+        target = tmp_path / "agents.json"
+        monkeypatch.setattr(config, "AGENTS_JSON", target)
+        return target
+
+    def test_malformed_json_names_the_position(self, catalogue):
+        catalogue.write_text('[{"name": "A",}]')
+        with pytest.raises(scraper.CatalogueError) as excinfo:
+            scraper.load_agents()
+        assert "not valid JSON" in str(excinfo.value)
+        assert "line 1" in str(excinfo.value)
+
+    def test_top_level_must_be_an_array(self, catalogue):
+        catalogue.write_text('{"name": "A"}')
+        with pytest.raises(scraper.CatalogueError, match="must contain a JSON array"):
+            scraper.load_agents()
+
+    def test_entries_must_be_objects(self, catalogue):
+        catalogue.write_text('["oops"]')
+        with pytest.raises(scraper.CatalogueError, match="entry 0 .*must be an object"):
+            scraper.load_agents()
+
+    def test_a_missing_field_names_the_entry(self, catalogue):
+        catalogue.write_text(json.dumps([
+            {"name": "Fine", "description": "d", "category": "c", "tech_stack": []},
+            {"description": "no name here", "category": "c", "tech_stack": []},
+        ]))
+        with pytest.raises(scraper.CatalogueError, match="entry 1"):
+            scraper.load_agents()
+
+    def test_a_bad_entry_is_identified_by_name_when_it_has_one(self, catalogue):
+        catalogue.write_text(json.dumps([{"name": "Halfway", "category": "c"}]))
+        with pytest.raises(scraper.CatalogueError, match="'Halfway'"):
+            scraper.load_agents()
+
+    def test_a_broken_catalogue_does_not_silently_use_the_samples(self, catalogue):
+        """Indexing different data than the file says is worse than stopping."""
+        catalogue.write_text("{ not json")
+        with pytest.raises(scraper.CatalogueError):
+            scraper.load_agents()
+
+    def test_duplicate_names_load_but_warn(self, catalogue, caplog):
+        catalogue.write_text(json.dumps([
+            {"name": "Twin", "description": "a", "category": "c", "tech_stack": []},
+            {"name": "twin", "description": "b", "category": "c", "tech_stack": []},
+        ]))
+        with caplog.at_level(logging.WARNING):
+            assert len(scraper.load_agents()) == 2
+        assert "Duplicate agent names" in caplog.text
+
+    def test_a_valid_catalogue_still_loads(self, catalogue):
+        catalogue.write_text(json.dumps([
+            {"name": "Fine", "description": "d", "category": "c", "tech_stack": ["Python"]},
+        ]))
+        agents = scraper.load_agents()
+        assert [a.name for a in agents] == ["Fine"]
