@@ -1,0 +1,225 @@
+/**
+ * Wiring tests for main.js: the parts that talk to the DOM and the API.
+ * The pure helpers are covered in search-state.test.js.
+ */
+
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { bootPage, flush, SEARCH_HTML, stubFetch } from './helpers.js';
+
+const CATEGORIES = [
+    { name: 'Code Generation', count: 6 },
+    { name: 'Research', count: 4 },
+];
+
+function makeResult(name, score = 0.9) {
+    return {
+        name,
+        description: `${name} description.`,
+        score,
+        metadata: { name, category: 'Code Generation', stack: 'Python', stars: 100, description: `${name} description.` },
+    };
+}
+
+function defaultRoutes(overrides = {}) {
+    return {
+        '/api/categories': { body: CATEGORIES },
+        '/api/agents': { body: { agents: [makeResult('Aider')], metadata: { total: 1, has_more: false } } },
+        '/api/search': { body: { results: [makeResult('Cursor')], metadata: { confident: true } } },
+        '/api/summary': { body: { summary: null } },
+        ...overrides,
+    };
+}
+
+async function boot(routes = defaultRoutes()) {
+    const calls = stubFetch(routes);
+    bootPage({
+        html: SEARCH_HTML,
+        script: 'main.js',
+        // index.html loads search-state.js before main.js.
+        extraScripts: [{ file: 'search-state.js', global: 'SearchState' }],
+    });
+    await flush();
+    return calls;
+}
+
+function submitSearch(query) {
+    document.getElementById('searchInput').value = query;
+    document.getElementById('searchForm').dispatchEvent(
+        new window.Event('submit', { bubbles: true, cancelable: true })
+    );
+}
+
+beforeEach(() => {
+    window.history.replaceState({}, '', '/');
+});
+
+afterEach(() => {
+    delete globalThis.fetch;
+});
+
+describe('first load', () => {
+    it('renders category chips as real buttons', async () => {
+        await boot();
+        const chips = document.querySelectorAll('#filters .filter-tag');
+        expect(chips).toHaveLength(2);
+        expect(chips[0].tagName).toBe('BUTTON');
+        expect(chips[0].getAttribute('aria-pressed')).toBe('false');
+        expect(chips[0].textContent).toBe('Code Generation (6)');
+    });
+
+    it('previews agents so the page is not blank', async () => {
+        await boot();
+        expect(document.querySelectorAll('.agent-card').length).toBeGreaterThan(0);
+    });
+
+    it('tells the user to seed when the index is empty', async () => {
+        await boot(defaultRoutes({
+            '/api/agents': { body: { agents: [], metadata: { total: 0, has_more: false } } },
+        }));
+        expect(document.querySelector('#resultsArea').textContent).toContain('seed.py');
+    });
+});
+
+describe('searching', () => {
+    it('posts the query and renders the results', async () => {
+        const calls = await boot();
+        submitSearch('code editor');
+        await flush();
+
+        const search = calls.find(c => c.url.includes('/api/search'));
+        expect(JSON.parse(search.options.body).query).toBe('code editor');
+        expect(document.querySelector('.agent-name').textContent).toBe('Cursor');
+    });
+
+    it('does not search when the box is empty', async () => {
+        const calls = await boot();
+        const before = calls.length;
+        submitSearch('   ');
+        await flush();
+        expect(calls.length).toBe(before);
+    });
+
+    it('clears aria-busy once results arrive', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        expect(document.getElementById('resultsArea').getAttribute('aria-busy')).toBe('false');
+    });
+
+    it('reports a server error instead of rendering nothing', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { ok: false, status: 400, body: { error: 'query too long' } },
+        }));
+        submitSearch('x'.repeat(10));
+        await flush();
+        expect(document.querySelector('.result-message').textContent).toContain('query too long');
+    });
+
+    it('survives a network failure', async () => {
+        await boot(defaultRoutes({ '/api/search': new Error('offline') }));
+        submitSearch('anything');
+        await flush();
+        expect(document.querySelector('.result-message.error')).not.toBeNull();
+        expect(document.getElementById('resultsArea').getAttribute('aria-busy')).toBe('false');
+    });
+
+    it('says so plainly when nothing matched well', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { body: { results: [makeResult('Cursor', 0.3)], metadata: { confident: false } } },
+        }));
+        submitSearch('banana bread');
+        await flush();
+        expect(document.querySelector('.result-notice').textContent).toContain('Nothing matched');
+    });
+
+    it('reports an empty result set', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { body: { results: [], metadata: { confident: false } } },
+        }));
+        submitSearch('nothing at all');
+        await flush();
+        expect(document.querySelector('#resultsArea').textContent).toContain('No agents found');
+    });
+});
+
+describe('category chips', () => {
+    it('sends the category with the query', async () => {
+        const calls = await boot();
+        document.querySelector('#filters .filter-tag').click();
+        submitSearch('editor');
+        await flush();
+
+        const search = calls.filter(c => c.url.includes('/api/search')).pop();
+        expect(JSON.parse(search.options.body).category).toBe('Code Generation');
+    });
+
+    it('marks the active chip for assistive tech', async () => {
+        await boot();
+        const chip = document.querySelector('#filters .filter-tag');
+        chip.click();
+        await flush();
+        expect(chip.getAttribute('aria-pressed')).toBe('true');
+        expect(chip.classList.contains('active')).toBe(true);
+    });
+
+    it('clicking the active chip clears the filter', async () => {
+        await boot();
+        const chip = document.querySelector('#filters .filter-tag');
+        chip.click();
+        chip.click();
+        await flush();
+        expect(chip.getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('only one chip is active at a time', async () => {
+        await boot();
+        const [first, second] = document.querySelectorAll('#filters .filter-tag');
+        first.click();
+        second.click();
+        await flush();
+        expect(first.getAttribute('aria-pressed')).toBe('false');
+        expect(second.getAttribute('aria-pressed')).toBe('true');
+    });
+});
+
+describe('URL state', () => {
+    it('puts the query in the address bar', async () => {
+        await boot();
+        submitSearch('vector database');
+        await flush();
+        expect(window.location.search).toContain('q=vector+database');
+    });
+
+    it('runs the search named in the URL on load', async () => {
+        window.history.replaceState({}, '', '/?q=from+the+url');
+        const calls = await boot();
+
+        const search = calls.find(c => c.url.includes('/api/search'));
+        expect(JSON.parse(search.options.body).query).toBe('from the url');
+        expect(document.getElementById('searchInput').value).toBe('from the url');
+    });
+
+    it('restores a category from the URL', async () => {
+        window.history.replaceState({}, '', '/?q=x&category=Research');
+        const calls = await boot();
+
+        const search = calls.find(c => c.url.includes('/api/search'));
+        expect(JSON.parse(search.options.body).category).toBe('Research');
+
+        const research = [...document.querySelectorAll('#filters .filter-tag')]
+            .find(c => c.dataset.category === 'Research');
+        expect(research.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('does not push a duplicate entry when restoring history', async () => {
+        await boot();
+        submitSearch('one');
+        await flush();
+        const length = window.history.length;
+
+        window.dispatchEvent(new window.PopStateEvent('popstate', { state: { query: 'one', category: null } }));
+        await flush();
+        expect(window.history.length).toBe(length);
+    });
+});
