@@ -164,22 +164,32 @@ def test_index_sidecar_matches_the_configured_model(live_store):
 def test_overview_never_mentions_an_agent_it_was_not_given(live_store, query):
     """Mechanical grounding check.
 
-    Naming a catalogue agent that was not among the retrieved results means the
-    model reached outside its context — the failure mode the prompt guards
-    against.
+    Naming an agent that appears nowhere in the prompt means the model reached
+    outside its context — the failure mode the prompt guards against.
+
+    The comparison is against the prompt text rather than the retrieved names,
+    because some catalogue agents are also other agents' dependencies:
+    PrivateGPT's own tech stack lists LlamaIndex, which is itself an indexed
+    agent. Describing PrivateGPT with PrivateGPT's own field is correct, so
+    only a name absent from the whole prompt counts as invention.
     """
     import re
 
+    import config
     import generation
 
     results = live_store.search(query, limit=5)
     summary = generation.summarize(query, results)
     assert summary
 
-    given = {r["name"] for r in results}
+    prompt = generation.build_prompt(query, results[: config.SUMMARY_MAX_RESULTS])
     catalogue = {a["name"] for a in live_store.get_all_agents()}
-    leaked = {
-        name for name in catalogue - given
+    invented = {
+        name for name in catalogue
         if re.search(rf"\b{re.escape(name)}\b", summary)
+        and not re.search(rf"\b{re.escape(name)}\b", prompt)
     }
-    assert not leaked, f"summary mentioned agents it was not given: {sorted(leaked)}"
+    assert not invented, (
+        f"summary named agents absent from the prompt: {sorted(invented)}\n"
+        f"summary: {summary}"
+    )
