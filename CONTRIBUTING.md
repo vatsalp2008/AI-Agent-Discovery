@@ -30,6 +30,18 @@ make seed
 make run
 ```
 
+With that in place you can also run the end-to-end suite, which checks things
+the stubs cannot — that embeddings are unit vectors, that scores separate
+relevant from irrelevant results, and that generation stays grounded and inside
+its timeout:
+
+```bash
+make test-live
+```
+
+It is deliberately outside `make check` and skips cleanly when Ollama or the
+index is missing.
+
 ## Before opening a pull request
 
 1. `make check` passes.
@@ -69,6 +81,11 @@ back to clients.
 **Re-seeding rebuilds.** `seed.py` replaces the index rather than appending, and
 treats `data/agents.json` as the source of truth so hand-edits survive.
 
+**Pure logic goes in its own file.** Page scripts wrap everything in a
+`DOMContentLoaded` closure, which makes it untestable. Helpers that do not touch
+the DOM belong in a separate file with a global (`search-state.js`,
+`dashboard-stats.js`) so `tests-js/` can exercise them directly.
+
 ## Adding agents to the catalogue
 
 Edit `data/agents.json` and re-run `make seed`:
@@ -103,6 +120,7 @@ Edit `data/agents.json` and re-run `make seed`:
 | `ai-agent-discovery/refresh_stars.py` | Star count refresh |
 | `tests/` | Python tests (pytest) |
 | `tests-js/` | Frontend tests (vitest + jsdom) |
+| `tests-live/` | End-to-end tests against a real Ollama |
 
 Run `make help` to see every available target.
 

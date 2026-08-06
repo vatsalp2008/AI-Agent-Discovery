@@ -15,12 +15,15 @@ configuration reference and API documentation, see the
 | `backend/models.py` | The `Agent` dataclass |
 | `backend/scoring.py` | Converts FAISS distance to a 0–1 relevance score |
 | `backend/generation.py` | Optional LLM overview of results (the generation half of RAG) |
+| `backend/rate_limit.py` | Per-client request budgets for /api/search |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
 | `frontend/app.py` | Flask entry point |
 | `frontend/templates/base.html` | Shared page shell: head, header, nav |
 | `frontend/static/js/agent-card.js` | Card rendering shared by both pages |
+| `frontend/static/js/search-state.js` | URL state and request shaping (unit tested) |
+| `frontend/static/js/dashboard-stats.js` | Stat formatting and paging labels (unit tested) |
 | `cli.py` | Terminal search tool |
 | `refresh_stars.py` | Refreshes GitHub star counts from the API |
 | `seed.py` | Builds the FAISS index |
@@ -58,6 +61,12 @@ Then open [http://localhost:5000](http://localhost:5000).
 - **Generation is best-effort.** `generation.summarize` returns `None` on any
   failure. A missing chat model or a timeout must never cost a user their
   search results. Set `ENABLE_SUMMARY=false` to disable it entirely.
+- **Scores are cosine similarity.** `scoring.relevance_score` converts the L2
+  distance with `1 - d²/2`, which is exact only because these embedding models
+  emit unit-length vectors. `tests-live/` asserts that property holds.
+- **Keep page logic out of closures.** Pure helpers live in their own files
+  (`search-state.js`, `dashboard-stats.js`) so they can be unit tested; the
+  `DOMContentLoaded` handlers just wire them to the DOM.
 
 ## Endpoints
 
@@ -76,10 +85,12 @@ Full request/response examples are in the [root README](../README.md).
 
 ```bash
 make check      # lint + Python tests + frontend tests, from the repo root
+make test-live  # end-to-end against a real Ollama (needs a seeded index)
 ```
 
 The Python suite stubs langchain and Ollama; the frontend suite runs in jsdom.
-Neither needs a model installed. See [CONTRIBUTING.md](../CONTRIBUTING.md).
+Neither needs a model installed. `make test-live` is the exception and is not
+part of `make check`. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## License
 

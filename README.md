@@ -15,7 +15,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
-- 📊 **Rich Agent Database** - Curated collection of 20+ popular AI agents and frameworks
+- 📊 **Rich Agent Database** - Curated collection of 35+ AI agents, frameworks and coding tools
 
 ## 🚀 Features
 
@@ -142,6 +142,8 @@ paths resolve against the repository root, so commands work from any directory.
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
+| `RATE_LIMIT_SEARCHES` | `60` | Searches per minute per client; `0` disables |
+| `RATE_LIMIT_SUMMARIES` | `20` | Summaries per minute per client; `0` disables |
 | `ENABLE_SUMMARY` | `true` | Allow LLM-generated overviews |
 | `SUMMARY_MAX_RESULTS` | `5` | Results sent to the chat model |
 | `SUMMARY_MAX_TOKENS` | `220` | Length cap on a generated overview |
@@ -170,6 +172,10 @@ python ai-agent-discovery/cli.py "an agent that writes python"
 python ai-agent-discovery/cli.py "chatbot" --category "Customer Service" --limit 3
 python ai-agent-discovery/cli.py --list
 python ai-agent-discovery/cli.py --stats
+
+# AI overview of the results, and machine-readable output
+python ai-agent-discovery/cli.py "rag pipeline" --summarize
+python ai-agent-discovery/cli.py "rag pipeline" --json | jq '.results[].name'
 ```
 
 ### API Endpoints
@@ -218,8 +224,11 @@ Content-Type: application/json
 }
 ```
 
-`score` is `1 / (1 + distance)`, so it lands in `[0, 1]` with 1.0 being an exact
-match. `description` is the agent's own text; `matched_text` is the composite
+`score` is the cosine similarity between the query and the agent, recovered
+from the L2 distance as `1 - d²/2` (exact for the unit-length vectors these
+embedding models emit). Measured against this catalogue: a verbatim
+description scores ≈0.91, a good semantic match ≈0.71, and an unrelated query
+≈0.34. `description` is the agent's own text; `matched_text` is the composite
 string that was actually embedded.
 
 `summary` is `null` unless you pass `"summarize": true` **and** generation
@@ -282,6 +291,7 @@ AI-Agent-Discovery/
 │   │   ├── logging_setup.py    # Shared logging configuration
 │   │   ├── generation.py       # Optional LLM overview (the RAG step)
 │   │   ├── models.py           # Agent dataclass
+│   │   ├── rate_limit.py       # Per-client request budgets
 │   │   ├── request_log.py      # Per-request timing
 │   │   ├── scoring.py          # Distance to relevance score
 │   │   ├── scraper.py          # Sample data and catalogue loading
@@ -290,9 +300,11 @@ AI-Agent-Discovery/
 │   │   ├── app.py              # Flask application entry point
 │   │   ├── static/css/style.css
 │   │   ├── static/img/favicon.svg
-│   │   ├── static/js/agent-card.js   # Shared card rendering
-│   │   ├── static/js/main.js         # Search page
-│   │   ├── static/js/dashboard.js    # Dashboard page
+│   │   ├── static/js/agent-card.js      # Shared card rendering
+│   │   ├── static/js/search-state.js    # URL state and request shaping
+│   │   ├── static/js/dashboard-stats.js # Stat formatting
+│   │   ├── static/js/main.js            # Search page
+│   │   ├── static/js/dashboard.js       # Dashboard page
 │   │   └── templates/          # base.html, index.html, dashboard.html
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
@@ -305,6 +317,7 @@ AI-Agent-Discovery/
 │   └── faiss_index/            # Vector store (generated, gitignored)
 ├── tests/                      # Python test suite (pytest)
 ├── tests-js/                   # Frontend test suite (vitest + jsdom)
+├── tests-live/                 # End-to-end tests against a real Ollama
 ├── CONTRIBUTING.md
 ├── Dockerfile
 ├── docker-compose.yml
@@ -419,6 +432,7 @@ make help          # list every target
 make check         # lint + Python tests + frontend tests, as CI runs them
 make test          # Python only
 make test-js       # frontend only (needs: make install-js)
+make test-live     # end-to-end against a real Ollama + seeded index
 make lint
 make fix           # apply autofixable lint findings
 make refresh-stars # update GitHub star counts in data/agents.json
@@ -428,6 +442,12 @@ make clean         # drop caches and the generated index
 The Python suite stubs out langchain and Ollama; the frontend suite runs in
 jsdom. Neither needs a model installed, and both finish in seconds. CI runs the
 Python checks on 3.10 and 3.12 plus the frontend suite.
+
+`make test-live` is separate and **not** part of `make check`: it exercises the
+real embedding and chat models to catch what stubs cannot — that embeddings are
+unit vectors, that scores actually separate relevant from irrelevant results,
+and that generation returns grounded text inside its timeout. It needs a
+running Ollama and a seeded index, and skips cleanly without them.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and setup details.
 
