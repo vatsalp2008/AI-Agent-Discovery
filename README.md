@@ -13,6 +13,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🔒 **100% Local & Private** - All embeddings and vector storage run locally using Ollama
 - 🧠 **Semantic Search** - Natural language queries like "I need an agent to write Python code"
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
+- 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
 - 📊 **Rich Agent Database** - Curated collection of 20+ popular AI agents and frameworks
 
@@ -23,6 +24,8 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Semantic Understanding**: Goes beyond keyword matching to understand intent
 - **Relevance Ranking**: Results ranked by similarity using vector embeddings
 - **Category Filtering**: Restrict results to Code Generation, Research, Automation, etc.
+- **AI Overviews**: A local chat model summarizes why the top results match, using only the retrieved agents
+- **Shareable Searches**: The query and filter live in the URL, so results can be bookmarked and shared
 - **Result Caching**: Repeat queries are served from memory instead of re-embedding
 
 ### Privacy-Focused Architecture
@@ -34,9 +37,10 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 ### Developer-Friendly
 - **REST API**: Clean, JSON-only API endpoints for integration
 - **CLI**: Search the index from the terminal without starting the server
+- **Accessible**: Keyboard-operable filters, labelled controls, and live-announced results
 - **JSON Data Format**: Easy to extend with your own agents
 - **Docker**: One command brings up Ollama, seeding, and the app
-- **Tested**: Test suite runs in under a second without Ollama or FAISS installed
+- **Tested**: Python and frontend suites run in seconds without Ollama or FAISS installed
 
 ## 🛠️ Tech Stack
 
@@ -45,6 +49,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 | **Backend** | Python 3.10+, Flask |
 | **AI/ML** | LangChain, Ollama, FAISS |
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript |
+| **Testing** | pytest, vitest + jsdom, ruff |
 | **Data** | JSON, Vector Store (FAISS) |
 | **Embeddings** | `nomic-embed-text` via Ollama (local) |
 
@@ -137,6 +142,12 @@ paths resolve against the repository root, so commands work from any directory.
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
+| `ENABLE_SUMMARY` | `true` | Allow LLM-generated overviews |
+| `SUMMARY_MAX_RESULTS` | `5` | Results sent to the chat model |
+| `SUMMARY_MAX_TOKENS` | `220` | Length cap on a generated overview |
+| `SUMMARY_TIMEOUT` | `30.0` | Seconds before generation is abandoned |
+| `SUMMARY_TEMPERATURE` | `0.2` | Sampling temperature for overviews |
+| `SLOW_REQUEST_MS` | `1000` | Requests at/above this are logged as slow |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |
 
 > ⚠️ **Never enable `FLASK_DEBUG` on anything reachable by others.** The Werkzeug
@@ -173,8 +184,9 @@ Content-Type: application/json
 
 {
   "query": "I need an agent to write Python code",
-  "limit": 5,                       # optional, 1..SEARCH_MAX_LIMIT
-  "category": "Code Generation"     # optional, case-insensitive
+  "limit": 5,                       // optional, 1..SEARCH_MAX_LIMIT
+  "category": "Code Generation",    // optional, case-insensitive
+  "summarize": true                 // optional, adds an LLM overview
 }
 ```
 
@@ -184,7 +196,8 @@ Content-Type: application/json
   "results": [
     {
       "name": "Cursor",
-      "description": "Name: Cursor\nDescription: ...",
+      "description": "An AI-powered code editor...",
+      "matched_text": "Name: Cursor\nDescription: ...",
       "metadata": {
         "name": "Cursor",
         "category": "Code Generation",
@@ -197,11 +210,22 @@ Content-Type: application/json
       "score": 0.7042
     }
   ],
-  "metadata": { "count": 1, "limit": 5, "category": "Code Generation", "duration": "0.08s" }
+  "summary": "Cursor is a full editor, while Aider works from the terminal.",
+  "metadata": {
+    "count": 1, "limit": 5, "category": "Code Generation",
+    "summarized": true, "duration": "1.31s"
+  }
 }
 ```
 
-`score` is `1 / (1 + distance)`, so it lands in `[0, 1]` with 1.0 being an exact match.
+`score` is `1 / (1 + distance)`, so it lands in `[0, 1]` with 1.0 being an exact
+match. `description` is the agent's own text; `matched_text` is the composite
+string that was actually embedded.
+
+`summary` is `null` unless you pass `"summarize": true` **and** generation
+succeeds. `metadata.summarized` tells you which happened. Generation is
+best-effort: if the chat model is missing, slow, or Ollama is down, you still
+get your results with `summary: null`.
 
 #### List agents (paginated)
 
@@ -256,26 +280,32 @@ AI-Agent-Discovery/
 │   │   ├── config.py           # Environment and path resolution
 │   │   ├── embeddings.py       # Ollama embeddings client
 │   │   ├── logging_setup.py    # Shared logging configuration
+│   │   ├── generation.py       # Optional LLM overview (the RAG step)
 │   │   ├── models.py           # Agent dataclass
+│   │   ├── request_log.py      # Per-request timing
 │   │   ├── scoring.py          # Distance to relevance score
 │   │   ├── scraper.py          # Sample data and catalogue loading
 │   │   └── vectorstore.py      # FAISS index, search, caching
 │   ├── frontend/
 │   │   ├── app.py              # Flask application entry point
 │   │   ├── static/css/style.css
+│   │   ├── static/img/favicon.svg
 │   │   ├── static/js/agent-card.js   # Shared card rendering
 │   │   ├── static/js/main.js         # Search page
 │   │   ├── static/js/dashboard.js    # Dashboard page
-│   │   └── templates/          # index.html, dashboard.html
+│   │   └── templates/          # base.html, index.html, dashboard.html
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
+│   ├── refresh_stars.py        # Star count refresh
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
 │   └── seed.py                 # Index building script
 ├── data/
 │   ├── agents.json             # Agent catalogue (source of truth)
 │   └── faiss_index/            # Vector store (generated, gitignored)
-├── tests/                      # Test suite
+├── tests/                      # Python test suite (pytest)
+├── tests-js/                   # Frontend test suite (vitest + jsdom)
+├── CONTRIBUTING.md
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
@@ -295,7 +325,25 @@ graph LR
     E --> F[Ranked Results]
     F --> G[JSON Response]
     G --> H[Web UI]
+    F -. optional .-> I[Chat Model]
+    I -. grounded overview .-> G
 ```
+
+### Retrieval-augmented generation
+
+Retrieval and generation are deliberately separate. FAISS retrieves candidate
+agents; the chat model is then given **only those agents** and asked to compare
+them against what the user wanted. The prompt tells it to use nothing else and
+not to invent tools or numbers, which keeps a small local model useful and
+limits invention.
+
+The web UI requests results first and the overview second, so you never wait on
+the model to see your results. The second request re-uses the cached retrieval,
+so it only pays for generation.
+
+Generation never blocks retrieval: `backend/generation.py` returns `None` on any
+failure. Set `ENABLE_SUMMARY=false` to turn it off entirely, in which case the
+chat model is never contacted and `llama3.2` is not needed at all.
 
 ### Search Flow
 
@@ -305,6 +353,8 @@ graph LR
 4. **Vector Search**: FAISS finds the nearest agent embeddings
 5. **Scoring & Filtering**: Distances become scores; category filters are applied
 6. **Response**: Top results are returned with metadata
+7. **Overview (optional)**: The retrieved agents are passed to the chat model,
+   which writes a short grounded comparison
 
 ### Data Pipeline
 
@@ -365,17 +415,21 @@ reports it rather than returning nonsense results.
 ## 🧪 Development
 
 ```bash
-make help        # list every target
-make check       # lint + tests, exactly what CI runs
-make test
+make help          # list every target
+make check         # lint + Python tests + frontend tests, as CI runs them
+make test          # Python only
+make test-js       # frontend only (needs: make install-js)
 make lint
-make fix         # apply autofixable lint findings
-make clean       # drop caches and the generated index
+make fix           # apply autofixable lint findings
+make refresh-stars # update GitHub star counts in data/agents.json
+make clean         # drop caches and the generated index
 ```
 
-The test suite stubs out langchain and Ollama, so it runs in well under a
-second and needs no models installed. CI runs the same checks on Python 3.10
-and 3.12.
+The Python suite stubs out langchain and Ollama; the frontend suite runs in
+jsdom. Neither needs a model installed, and both finish in seconds. CI runs the
+Python checks on 3.10 and 3.12 plus the frontend suite.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and setup details.
 
 ### Testing the API
 
@@ -383,6 +437,11 @@ and 3.12.
 curl -X POST http://localhost:5000/api/search \
   -H "Content-Type: application/json" \
   -d '{"query": "code generation agent", "limit": 3}'
+
+# With an AI overview (requires the chat model to be pulled)
+curl -X POST http://localhost:5000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "code generation agent", "limit": 3, "summarize": true}'
 
 curl "http://localhost:5000/api/agents?limit=5"
 curl http://localhost:5000/api/agents/Cursor
@@ -400,7 +459,8 @@ Contributions are welcome:
 3. **UI Enhancements**: Make the interface even better
 4. **Documentation**: Improve docs and examples
 
-Please make sure `make check` passes before opening a pull request.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) first, and make sure `make check` passes
+before opening a pull request.
 
 ### Contribution Workflow
 

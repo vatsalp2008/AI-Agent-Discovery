@@ -14,11 +14,15 @@ configuration reference and API documentation, see the
 | `backend/embeddings.py` | Ollama embeddings client (via `langchain-ollama`) |
 | `backend/models.py` | The `Agent` dataclass |
 | `backend/scoring.py` | Converts FAISS distance to a 0–1 relevance score |
+| `backend/generation.py` | Optional LLM overview of results (the generation half of RAG) |
+| `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
 | `frontend/app.py` | Flask entry point |
+| `frontend/templates/base.html` | Shared page shell: head, header, nav |
 | `frontend/static/js/agent-card.js` | Card rendering shared by both pages |
 | `cli.py` | Terminal search tool |
+| `refresh_stars.py` | Refreshes GitHub star counts from the API |
 | `seed.py` | Builds the FAISS index |
 
 ## Quick start
@@ -51,6 +55,9 @@ Then open [http://localhost:5000](http://localhost:5000).
   restricts links to `http(s)`.
 - **The store is built lazily.** Importing `api` does not contact Ollama, so
   the app starts even when Ollama is down and tests need no models.
+- **Generation is best-effort.** `generation.summarize` returns `None` on any
+  failure. A missing chat model or a timeout must never cost a user their
+  search results. Set `ENABLE_SUMMARY=false` to disable it entirely.
 
 ## Endpoints
 
@@ -58,7 +65,7 @@ Then open [http://localhost:5000](http://localhost:5000).
 |--------|------|-------------|
 | `GET` | `/api/agents` | Paginated agent list (`limit`, `offset`) |
 | `GET` | `/api/agents/<name>` | Single agent, case-insensitive |
-| `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`) |
+| `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`, `summarize`) |
 | `GET` | `/api/categories` | Categories with counts |
 | `GET` | `/api/stats` | Index summary |
 | `GET` | `/api/health` | Readiness probe; 503 when unusable |
@@ -68,10 +75,11 @@ Full request/response examples are in the [root README](../README.md).
 ## Tests
 
 ```bash
-make check      # lint + tests, from the repo root
+make check      # lint + Python tests + frontend tests, from the repo root
 ```
 
-The suite stubs langchain and Ollama, so it runs without any models installed.
+The Python suite stubs langchain and Ollama; the frontend suite runs in jsdom.
+Neither needs a model installed. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## License
 
