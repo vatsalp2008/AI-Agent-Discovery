@@ -28,5 +28,5 @@ select = [
 [lint.isort]
 known-first-party = [
     "api", "config", "embeddings", "generation", "logging_setup",
-    "models", "rate_limit", "request_log", "scoring", "scraper", "vectorstore",
+    "models", "rate_limit", "request_log", "scoring", "scraper", "security", "vectorstore",
 ]

@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'b
 
 import config
 import request_log
+import security
 from api import api_bp, register_error_handlers
 from logging_setup import configure
 
@@ -20,6 +21,7 @@ app = Flask(__name__,
 app.register_blueprint(api_bp)
 register_error_handlers(app)
 request_log.register(app)
+security.register(app)
 
 @app.route('/')
 def index():
