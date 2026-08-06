@@ -6,15 +6,19 @@ const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_JS = resolve(here, '..', 'ai-agent-discovery', 'frontend', 'static', 'js');
 
 /**
- * agent-card.js is a plain script that assigns a global, not an ES module.
- * Evaluate it in the jsdom window so tests exercise exactly the file the
+ * The static scripts are plain files that assign a global, not ES modules.
+ * Evaluate one in the jsdom window so tests exercise exactly the file the
  * browser loads, with no build step or source duplication.
  */
-export function loadAgentCard() {
-    const source = readFileSync(resolve(STATIC_JS, 'agent-card.js'), 'utf8');
+export function loadScript(filename, globalName) {
+    const source = readFileSync(resolve(STATIC_JS, filename), 'utf8');
     // eslint-disable-next-line no-eval
-    (0, eval)(source + '\n;globalThis.AgentCard = AgentCard;');
-    return globalThis.AgentCard;
+    (0, eval)(`${source}\n;globalThis.${globalName} = ${globalName};`);
+    return globalThis[globalName];
+}
+
+export function loadAgentCard() {
+    return loadScript('agent-card.js', 'AgentCard');
 }
 
 /** Minimal agent record shaped like a /api/search result. */

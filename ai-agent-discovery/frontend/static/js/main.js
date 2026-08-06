@@ -15,20 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * shared, and walked back through with the browser's Back button.
      */
     function readStateFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        return {
-            query: params.get('q') || '',
-            category: params.get('category') || null
-        };
+        return SearchState.fromSearch(window.location.search);
     }
 
     function writeStateToUrl(query, category, { replace = false } = {}) {
-        const params = new URLSearchParams();
-        if (query) params.set('q', query);
-        if (category) params.set('category', category);
-
-        const search = params.toString();
-        const url = search ? `${window.location.pathname}?${search}` : window.location.pathname;
+        const url = SearchState.toUrl(window.location.pathname, { query, category });
         if (url === window.location.pathname + window.location.search) return;
 
         const state = { query, category };
@@ -86,8 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeholder = makeSummary('Generating overview…', { pending: true });
         resultsArea.prepend(placeholder);
 
-        const body = { query, summarize: true };
-        if (activeCategory) body.category = activeCategory;
+        const body = SearchState.searchBody({ query, category: activeCategory, summarize: true });
 
         try {
             const response = await fetch('/api/search', {
@@ -120,8 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading();
         resultsArea.setAttribute('aria-busy', 'true');
 
-        const body = { query };
-        if (activeCategory) body.category = activeCategory;
+        const body = SearchState.searchBody({ query, category: activeCategory });
 
         try {
             const response = await fetch('/api/search', {
@@ -142,10 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Array.isArray(data.results) && data.results.length > 0) {
                 AgentCard.renderGrid(resultsArea, data.results);
                 requestSummary(query, token);
-            } else if (activeCategory) {
-                showMessage(`No agents in "${activeCategory}" match your query.`);
             } else {
-                showMessage('No agents found matching your query.');
+                showMessage(SearchState.emptyMessage(activeCategory));
             }
         } catch (error) {
             console.error('Error:', error);
