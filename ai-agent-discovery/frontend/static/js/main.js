@@ -38,6 +38,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Show a failure with a way out. A transient error (Ollama still loading a
+     * model, a dropped connection) usually succeeds on a second attempt, so
+     * make retrying one click rather than a retype.
+     */
+    function showRetryableError(text, retry) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'result-error';
+
+        const message = document.createElement('p');
+        message.className = 'result-message error';
+        message.textContent = text;
+        wrapper.appendChild(message);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'retry-btn';
+        button.textContent = 'Try again';
+        button.addEventListener('click', () => {
+            button.disabled = true;
+            button.textContent = 'Retrying…';
+            retry();
+        });
+        wrapper.appendChild(button);
+
+        resultsArea.replaceChildren(wrapper);
+        button.focus();
+    }
+
+    /**
      * The model-written overview. Labelled as generated so it is not mistaken
      * for catalogue data, and inserted as text so the model cannot emit markup.
      */
@@ -178,7 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
-                showMessage(data.error || 'Search failed.', true);
+                // A 4xx is the client's fault and retrying changes nothing;
+                // a 5xx is worth another attempt.
+                if (response.status >= 500) {
+                    showRetryableError(data.error || 'Search failed.', () => performSearch(query, { updateUrl: false }));
+                } else {
+                    showMessage(data.error || 'Search failed.', true);
+                }
                 return;
             }
 
@@ -205,7 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            showMessage('An error occurred while searching.', true);
+            showRetryableError(
+                'Could not reach the server.',
+                () => performSearch(query, { updateUrl: false })
+            );
         } finally {
             resultsArea.setAttribute('aria-busy', 'false');
         }

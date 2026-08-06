@@ -278,3 +278,61 @@ describe('copy link', () => {
         expect(document.querySelector('.copy-link')).toBeNull();
     });
 });
+
+describe('retrying a failed search', () => {
+    it('offers a retry when the server errors', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { ok: false, status: 500, body: { error: 'Internal server error' } },
+        }));
+        submitSearch('anything');
+        await flush();
+        expect(document.querySelector('.retry-btn')).not.toBeNull();
+    });
+
+    it('offers a retry when the network is down', async () => {
+        await boot(defaultRoutes({ '/api/search': new Error('offline') }));
+        submitSearch('anything');
+        await flush();
+
+        const button = document.querySelector('.retry-btn');
+        expect(button).not.toBeNull();
+        expect(document.querySelector('.result-message').textContent).toContain('Could not reach');
+    });
+
+    it('does not offer a retry for a client error', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { ok: false, status: 400, body: { error: 'query too long' } },
+        }));
+        submitSearch('anything');
+        await flush();
+        expect(document.querySelector('.retry-btn')).toBeNull();
+        expect(document.querySelector('.result-message').textContent).toContain('query too long');
+    });
+
+    it('succeeds on retry once the server recovers', async () => {
+        let attempt = 0;
+        await boot(defaultRoutes({
+            '/api/search': () => {
+                attempt += 1;
+                return attempt === 1
+                    ? { ok: false, status: 500, body: { error: 'boom' } }
+                    : { body: { results: [makeResult('Cursor')], metadata: { confident: true } } };
+            },
+        }));
+        submitSearch('code editor');
+        await flush();
+
+        document.querySelector('.retry-btn').click();
+        await flush();
+
+        expect(document.querySelector('.retry-btn')).toBeNull();
+        expect(document.querySelector('.agent-name').textContent).toBe('Cursor');
+    });
+
+    it('moves focus to the retry button so keyboard users can reach it', async () => {
+        await boot(defaultRoutes({ '/api/search': new Error('offline') }));
+        submitSearch('anything');
+        await flush();
+        expect(document.activeElement).toBe(document.querySelector('.retry-btn'));
+    });
+});

@@ -553,3 +553,37 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Failure state with a retry affordance */
+.result-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+}
+
+.retry-btn {
+    font: inherit;
+    font-weight: 600;
+    color: var(--accent-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+}
+
+.retry-btn:hover:not(:disabled) {
+    border-color: var(--accent-color);
+}
+
+.retry-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.retry-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
