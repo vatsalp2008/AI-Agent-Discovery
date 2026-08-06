@@ -171,7 +171,13 @@ def get_agents():
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
+    category = (request.args.get('category') or '').strip() or None
+
     agents = get_store().get_all_agents()
+    if category:
+        wanted = category.casefold()
+        agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
+
     page = agents[offset:offset + limit]
 
     return jsonify({
@@ -181,6 +187,7 @@ def get_agents():
             "count": len(page),
             "limit": limit,
             "offset": offset,
+            "category": category,
             "has_more": offset + len(page) < len(agents),
         }
     }), 200

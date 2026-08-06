@@ -84,7 +84,8 @@ def test_agents_endpoint_paginates(client):
     first = client.get("/api/agents?limit=2").get_json()
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
-        "total": 3, "count": 2, "limit": 2, "offset": 0, "has_more": True
+        "total": 3, "count": 2, "limit": 2, "offset": 0,
+        "category": None, "has_more": True,
     }
 
     second = client.get("/api/agents?limit=2&offset=2").get_json()
@@ -289,3 +290,31 @@ def test_min_score_can_filter_everything_out(client, weak_store):
 def test_search_rejects_a_bad_min_score(client, value):
     response = client.post("/api/search", json={"query": "ok", "min_score": value})
     assert response.status_code == 400
+
+
+def test_agents_can_be_filtered_by_category(client):
+    body = client.get("/api/agents?category=Code Generation").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Aider", "Cursor"]
+    assert body["metadata"]["total"] == 2
+    assert body["metadata"]["category"] == "Code Generation"
+
+
+def test_agents_category_filter_is_case_insensitive(client):
+    assert client.get("/api/agents?category=code generation").get_json()["metadata"]["total"] == 2
+
+
+def test_agents_category_filter_combines_with_paging(client):
+    body = client.get("/api/agents?category=Code Generation&limit=1").get_json()
+    assert body["metadata"]["count"] == 1
+    assert body["metadata"]["total"] == 2
+    assert body["metadata"]["has_more"] is True
+
+
+def test_agents_unknown_category_is_empty_not_an_error(client):
+    body = client.get("/api/agents?category=Nonexistent").get_json()
+    assert body["agents"] == []
+    assert body["metadata"]["total"] == 0
+
+
+def test_agents_blank_category_is_ignored(client):
+    assert client.get("/api/agents?category=%20").get_json()["metadata"]["total"] == 3
