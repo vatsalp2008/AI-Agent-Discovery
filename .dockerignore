@@ -16,6 +16,7 @@ venv
 
 tests
 tests-js
+tests-live
 node_modules
 package.json
 package-lock.json

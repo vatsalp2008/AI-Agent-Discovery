@@ -32,6 +32,9 @@ stats:  ## Print index statistics
 test:  ## Run the test suite
 	$(PYTHON) -m pytest
 
+test-live:  ## Run end-to-end tests against a real Ollama + seeded index
+	$(PYTHON) -m pytest tests-live
+
 test-js:  ## Run the frontend test suite
 	npm test
 
