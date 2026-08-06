@@ -242,3 +242,50 @@ def test_search_rejects_a_non_boolean_summarize(client, value):
     response = client.post("/api/search", json={"query": "ok", "summarize": value})
     assert response.status_code == 400
     assert response.get_json()["error"] == "'summarize' must be a boolean"
+
+
+def test_search_reports_confidence(client):
+    body = client.post("/api/search", json={"query": "code editor"}).get_json()
+    assert body["metadata"]["confident"] is True
+
+
+def test_weak_matches_are_flagged_not_hidden(client, weak_store):
+    """A nonsense query still returns results, but must not claim they are good."""
+    body = client.post("/api/search", json={"query": "banana bread"}).get_json()
+    assert body["metadata"]["confident"] is False
+    assert len(body["results"]) > 0
+    assert body["results"][0]["score"] < 0.5
+
+
+def test_no_overview_is_generated_for_weak_matches(client, weak_store, monkeypatch):
+    """An overview of irrelevant tools reads as confident nonsense."""
+    import generation
+
+    called = []
+    monkeypatch.setattr(generation, "summarize", lambda q, r: called.append(1) or "text")
+
+    body = client.post("/api/search", json={"query": "banana", "summarize": True}).get_json()
+    assert called == []
+    assert body["summary"] is None
+
+
+def test_min_score_hard_filters(client):
+    """Unlike the confidence flag, min_score removes results outright."""
+    unfiltered = client.post("/api/search", json={"query": "agent"}).get_json()
+    assert len(unfiltered["results"]) == 3
+
+    body = client.post("/api/search", json={"query": "agent", "min_score": 0.99}).get_json()
+    assert [r["name"] for r in body["results"]] == ["Cursor"]  # only the distance-0 hit
+    assert body["metadata"]["min_score"] == 0.99
+
+
+def test_min_score_can_filter_everything_out(client, weak_store):
+    body = client.post("/api/search", json={"query": "banana", "min_score": 0.9}).get_json()
+    assert body["results"] == []
+    assert body["metadata"]["confident"] is False
+
+
+@pytest.mark.parametrize("value", ["0.5", True, [], 1.5, -0.1])
+def test_search_rejects_a_bad_min_score(client, value):
+    response = client.post("/api/search", json={"query": "ok", "min_score": value})
+    assert response.status_code == 400

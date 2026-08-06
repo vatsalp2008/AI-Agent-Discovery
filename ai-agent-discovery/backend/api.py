@@ -116,6 +116,18 @@ def _parse_summarize(payload):
     raise BadRequest("'summarize' must be a boolean")
 
 
+def _parse_min_score(payload):
+    """Validate the optional hard score filter."""
+    raw = payload.get('min_score')
+    if raw is None:
+        return None
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raise BadRequest("'min_score' must be a number")
+    if not 0.0 <= raw <= 1.0:
+        raise BadRequest("'min_score' must be between 0 and 1")
+    return float(raw)
+
+
 def _parse_category(payload):
     """Validate the optional category filter."""
     category = payload.get('category')
@@ -191,6 +203,7 @@ def search_agents():
         limit = _parse_limit(payload)
         category = _parse_category(payload)
         summarize = _parse_summarize(payload)
+        min_score = _parse_min_score(payload)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
@@ -210,12 +223,19 @@ def search_agents():
         return response, 429
 
     start_time = time.time()
-    results = get_store().search(query, limit=limit, category=category)
+    results = get_store().search(query, limit=limit, category=category, min_score=min_score)
+
+    # Vector search always returns *something*, so a nonsense query still gets
+    # a full page of cards. Report whether the best match actually cleared the
+    # confidence threshold rather than letting the UI imply they are all good.
+    confident = bool(results) and results[0]["score"] >= config.SEARCH_MIN_SCORE
 
     # Retrieval is complete at this point. Generation is a best-effort extra:
     # generation.summarize returns None rather than raising if the chat model
     # is unavailable, so a failure here cannot cost the user their results.
-    summary = generation.summarize(query, results) if summarize else None
+    # Skipped for weak matches: an overview of irrelevant tools reads as
+    # confident nonsense.
+    summary = generation.summarize(query, results) if summarize and confident else None
 
     duration = time.time() - start_time
     return jsonify({
@@ -225,6 +245,8 @@ def search_agents():
             "count": len(results),
             "limit": limit,
             "category": category,
+            "confident": confident,
+            "min_score": min_score,
             "summarized": summary is not None,
             "duration": f"{duration:.2f}s"
         }

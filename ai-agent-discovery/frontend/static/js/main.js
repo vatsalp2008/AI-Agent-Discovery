@@ -57,6 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return box;
     }
 
+    function makeNotice(text) {
+        const notice = document.createElement('p');
+        notice.className = 'result-notice';
+        notice.textContent = text;
+        return notice;
+    }
+
     function showLoading() {
         const wrapper = document.createElement('div');
         wrapper.className = 'loading';
@@ -130,7 +137,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Array.isArray(data.results) && data.results.length > 0) {
                 AgentCard.renderGrid(resultsArea, data.results);
-                requestSummary(query, token);
+                // Vector search always returns something. Say so plainly when
+                // nothing actually matched well, rather than presenting weak
+                // hits as if they were answers.
+                if (data.metadata && data.metadata.confident === false) {
+                    resultsArea.prepend(makeNotice(
+                        'Nothing matched your query well. Showing the closest agents anyway.'
+                    ));
+                } else {
+                    requestSummary(query, token);
+                }
             } else {
                 showMessage(SearchState.emptyMessage(activeCategory));
             }

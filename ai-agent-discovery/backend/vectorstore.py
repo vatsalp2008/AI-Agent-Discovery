@@ -122,11 +122,14 @@ class VectorStore:
     # overall may all belong to other categories.
     CATEGORY_OVERFETCH = 5
 
-    def search(self, query: str, limit: int = None, category: str = None) -> list[dict]:
+    def search(self, query: str, limit: int = None, category: str = None,
+               min_score: float = None) -> list[dict]:
         """Semantic search for agents, best match first.
 
         When `category` is given, only agents in that category are returned
-        (case-insensitive).
+        (case-insensitive). When `min_score` is given, weaker matches are
+        dropped entirely; by default nothing is filtered and callers decide
+        what to do with low scores.
 
         Results are cached per (query, limit, category): embedding the query
         means a round trip to Ollama, which dominates the cost of a repeat
@@ -136,7 +139,7 @@ class VectorStore:
             return []
 
         limit = limit or config.SEARCH_DEFAULT_LIMIT
-        cache_key = (query.casefold(), limit, (category or "").casefold())
+        cache_key = (query.casefold(), limit, (category or "").casefold(), min_score)
         cached = self._cache_get(cache_key)
         if cached is not None:
             return cached
@@ -163,6 +166,8 @@ class VectorStore:
             })
 
         agents.sort(key=lambda agent: agent["score"], reverse=True)
+        if min_score is not None:
+            agents = [a for a in agents if a["score"] >= min_score]
         agents = agents[:limit]
         self._cache_put(cache_key, agents)
         return agents

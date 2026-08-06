@@ -451,3 +451,14 @@ nav a:focus-visible,
 .stats-grid dd {
     margin: 0;
 }
+
+/* Shown when no result cleared the confidence threshold */
+.result-notice {
+    background: rgba(148, 163, 184, 0.10);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--text-secondary);
+    border-radius: 8px;
+    padding: 0.85rem 1.15rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}

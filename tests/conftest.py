@@ -108,8 +108,10 @@ def agents_json(tmp_path):
 class FakeInnerStore:
     """Stands in for langchain's FAISS wrapper."""
 
-    def __init__(self, documents):
+    def __init__(self, documents, base_distance=0.0):
         self.documents = documents
+        # Lets a test simulate a query where nothing matched well.
+        self.base_distance = base_distance
         self.docstore = types.SimpleNamespace(_dict=dict(enumerate(documents)))
         self.index = types.SimpleNamespace(ntotal=len(documents))
         self.last_k = None
@@ -128,7 +130,10 @@ class FakeInnerStore:
         self.last_k = k
         self.query_count += 1
         # Deterministic ranking: index order, increasing distance.
-        return [(doc, round(i * 0.5, 4)) for i, doc in enumerate(self.documents[:k])]
+        return [
+            (doc, round(self.base_distance + i * 0.5, 4))
+            for i, doc in enumerate(self.documents[:k])
+        ]
 
 
 @pytest.fixture
@@ -142,6 +147,14 @@ def store(agents, tmp_path):
     vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
     vs.vector_store = FakeInnerStore(documents)
     return vs
+
+
+@pytest.fixture
+def weak_store(store):
+    """A store whose best match is a poor one (cosine ≈ 0.28)."""
+    store.vector_store.base_distance = 1.2
+    store.clear_cache()
+    return store
 
 
 @pytest.fixture

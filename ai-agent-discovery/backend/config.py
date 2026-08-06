@@ -29,6 +29,13 @@ def _resolve(value: str, default: Path) -> Path:
     return (REPO_ROOT / path).resolve()
 
 
+def _float_env(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 def _int_env(name: str, default: int) -> int:
     try:
         return int(os.getenv(name, default))
@@ -56,6 +63,12 @@ MAX_QUERY_LENGTH = _int_env("MAX_QUERY_LENGTH", 500)
 AGENTS_PAGE_SIZE = _int_env("AGENTS_PAGE_SIZE", 50)
 AGENTS_MAX_PAGE_SIZE = _int_env("AGENTS_MAX_PAGE_SIZE", 200)
 
+# Below this cosine score a result is treated as a weak match. Measured on the
+# seeded catalogue: genuine queries top out at 0.63-0.85 and nonsense queries
+# at 0.27-0.42, so 0.5 sits between with margin. Used to *flag* weak results,
+# not to hide them; callers wanting a hard filter pass min_score explicitly.
+SEARCH_MIN_SCORE = _float_env("SEARCH_MIN_SCORE", 0.5)
+
 # Number of recent search results to keep in memory. 0 disables caching.
 SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
 
@@ -63,13 +76,6 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Requests at or above this many milliseconds are logged as slow.
 SLOW_REQUEST_MS = _int_env("SLOW_REQUEST_MS", 1000)
-
-
-def _float_env(name: str, default: float) -> float:
-    try:
-        return float(os.getenv(name, default))
-    except (TypeError, ValueError):
-        return default
 
 
 def _bool_env(name: str, default: bool = False) -> bool:
