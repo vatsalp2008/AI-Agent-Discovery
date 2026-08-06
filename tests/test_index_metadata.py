@@ -49,7 +49,8 @@ def test_corrupt_sidecar_is_assumed_compatible(tmp_path):
 def test_sidecar_records_the_model_and_count(store, tmp_path):
     store._write_meta(7)
     meta = json.loads((tmp_path / "index" / VectorStore.META_FILENAME).read_text())
-    assert meta == {"embedding_model": store.embedding_model, "agent_count": 7}
+    assert meta["embedding_model"] == store.embedding_model
+    assert meta["agent_count"] == 7
 
 
 def test_health_explains_a_stale_index(client, store):
@@ -61,3 +62,31 @@ def test_health_explains_a_stale_index(client, store):
     assert body["status"] == "degraded"
     assert "llama3.2" in body["detail"]
     assert "seed.py" in body["detail"]
+
+
+def test_sidecar_records_when_the_index_was_built(store, tmp_path):
+    store._write_meta(3)
+    meta = json.loads((tmp_path / "index" / VectorStore.META_FILENAME).read_text())
+    assert "built_at" in meta
+    # Parses as an aware UTC timestamp.
+    from datetime import datetime, timezone
+    parsed = datetime.fromisoformat(meta["built_at"])
+    assert parsed.tzinfo is not None
+    assert abs((datetime.now(timezone.utc) - parsed).total_seconds()) < 60
+
+
+def test_built_at_is_none_for_an_index_without_a_sidecar(tmp_path):
+    index_dir = _make_index_dir(tmp_path, embedding_model=None)
+    vs = VectorStore(persist_directory=index_dir, embedding_function=object())
+    assert vs.built_at is None
+
+
+def test_stats_expose_the_build_time(store):
+    store._write_meta(3)
+    assert store.get_stats()["built_at"] is not None
+
+
+def test_health_reports_the_build_time(client, store):
+    store._write_meta(3)
+    body = client.get("/api/health").get_json()
+    assert body["index_built_at"] is not None

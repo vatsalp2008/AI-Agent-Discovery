@@ -308,11 +308,14 @@ def health():
         "embedding_model": config.EMBEDDING_MODEL,
         "ollama_url": config.OLLAMA_BASE_URL,
         "index_path": str(config.FAISS_DIR),
+        "index_built_at": None,
         "indexed_agents": 0,
     }
 
     try:
-        payload["indexed_agents"] = get_store().get_stats().get("count", 0)
+        stats = get_store().get_stats()
+        payload["indexed_agents"] = stats.get("count", 0)
+        payload["index_built_at"] = stats.get("built_at")
     except Exception as e:
         logger.exception("Health check could not reach the vector store")
         payload.update(status="error", detail=str(e))

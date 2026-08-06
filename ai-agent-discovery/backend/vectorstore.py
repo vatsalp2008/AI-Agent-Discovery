@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from collections import OrderedDict
+from datetime import datetime, timezone
 
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -45,9 +46,20 @@ class VectorStore:
         try:
             os.makedirs(self.persist_directory, exist_ok=True)
             with open(self.meta_path, "w") as f:
-                json.dump({"embedding_model": self.embedding_model, "agent_count": agent_count}, f, indent=2)
+                json.dump({
+                    "embedding_model": self.embedding_model,
+                    "agent_count": agent_count,
+                    # UTC ISO-8601, so an operator can tell at a glance whether
+                    # the index predates the current agents.json.
+                    "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                }, f, indent=2)
         except OSError as e:
             logger.warning("Could not write %s: %s", self.meta_path, e)
+
+    @property
+    def built_at(self):
+        """When the index was last rebuilt, or None for older indexes."""
+        return self._read_meta().get("built_at")
 
     def _is_stale(self) -> bool:
         """True when the index was built by a different embedding model.
@@ -312,4 +324,5 @@ class VectorStore:
             "total_stars": total_stars,
             "average_stars": round(total_stars / count) if count else 0,
             "embedding_model": self.embedding_model,
+            "built_at": self.built_at,
         }
