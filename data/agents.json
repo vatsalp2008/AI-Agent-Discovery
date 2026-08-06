@@ -21,7 +21,7 @@
       "GPT-4",
       "Git"
     ],
-    "github_stars": 47970,
+    "github_stars": 47981,
     "url": "https://github.com/paul-gauthier/aider",
     "use_case": "Terminal-based pair programming"
   },
@@ -46,7 +46,7 @@
       "Llama 2",
       "GPT-4"
     ],
-    "github_stars": 67711,
+    "github_stars": 67742,
     "url": "https://github.com/OpenInterpreter/open-interpreter",
     "use_case": "Local system control, script execution"
   },
@@ -59,7 +59,7 @@
       "GPT-4",
       "Pinecone"
     ],
-    "github_stars": 185834,
+    "github_stars": 185841,
     "url": "https://github.com/Significant-Gravitas/Auto-GPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
@@ -72,7 +72,7 @@
       "LangChain",
       "Selenium"
     ],
-    "github_stars": 28835,
+    "github_stars": 28840,
     "url": "https://github.com/assafelovic/gpt-researcher",
     "use_case": "Deep web research, report generation"
   },
@@ -98,7 +98,7 @@
       "Pandas",
       "LLMs"
     ],
-    "github_stars": 23701,
+    "github_stars": 23706,
     "url": "https://github.com/gventuri/pandas-ai",
     "use_case": "Chat with data, analysis"
   },
@@ -110,7 +110,7 @@
       "Python",
       "Multi-Agent"
     ],
-    "github_stars": 69672,
+    "github_stars": 69676,
     "url": "https://github.com/geekan/MetaGPT",
     "use_case": "Software development lifecycle automation"
   },
@@ -122,7 +122,7 @@
       "Python",
       "TypeScript"
     ],
-    "github_stars": 143505,
+    "github_stars": 143523,
     "url": "https://github.com/langchain-ai/langchain",
     "use_case": "LLM orchestration"
   },
@@ -134,7 +134,7 @@
       "Python",
       "Agents"
     ],
-    "github_stars": 56659,
+    "github_stars": 56673,
     "url": "https://github.com/joaomdmoura/crewAI",
     "use_case": "Multi-agent orchestration"
   },
@@ -207,7 +207,7 @@
       "Python",
       "Role-Playing"
     ],
-    "github_stars": 33928,
+    "github_stars": 33931,
     "url": "https://github.com/OpenBMB/ChatDev",
     "use_case": "Full software project generation"
   },
@@ -220,7 +220,7 @@
       "LlamaIndex",
       "Local LLM"
     ],
-    "github_stars": 57408,
+    "github_stars": 57409,
     "url": "https://github.com/imartinez/privateGPT",
     "use_case": "Document QA, RAG"
   },
@@ -233,7 +233,7 @@
       "Supabase",
       "React"
     ],
-    "github_stars": 39386,
+    "github_stars": 39388,
     "url": "https://github.com/StanGirard/quivr",
     "use_case": "Personal knowledge base"
   },
@@ -261,5 +261,200 @@
     "github_stars": 7702,
     "url": "https://github.com/sweepai/sweep",
     "use_case": "Bug fixing, feature implementation"
+  },
+  {
+    "name": "Claude Code",
+    "description": "Anthropic's coding agent that works in your terminal, editing files and running commands in your repository.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "Claude"
+    ],
+    "github_stars": 140417,
+    "url": "https://github.com/anthropics/claude-code",
+    "use_case": "Terminal-based agentic coding"
+  },
+  {
+    "name": "OpenHands",
+    "description": "An open platform for AI software developer agents that write code, run commands and browse the web.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python",
+      "Docker",
+      "React"
+    ],
+    "github_stars": 83234,
+    "url": "https://github.com/All-Hands-AI/OpenHands",
+    "use_case": "Autonomous software engineering"
+  },
+  {
+    "name": "Cline",
+    "description": "An autonomous coding agent inside VS Code that can create and edit files, run commands and use a browser.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "VS Code"
+    ],
+    "github_stars": 65728,
+    "url": "https://github.com/cline/cline",
+    "use_case": "In-editor agentic coding"
+  },
+  {
+    "name": "Continue",
+    "description": "An open-source IDE extension for building custom AI code assistants inside VS Code and JetBrains.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "VS Code",
+      "JetBrains"
+    ],
+    "github_stars": 35341,
+    "url": "https://github.com/continuedev/continue",
+    "use_case": "Customisable IDE assistant"
+  },
+  {
+    "name": "SWE-agent",
+    "description": "Turns language models into software engineering agents that fix bugs and issues in real GitHub repositories.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "Python",
+      "GitHub API"
+    ],
+    "github_stars": 20010,
+    "url": "https://github.com/SWE-agent/SWE-agent",
+    "use_case": "Automated issue resolution"
+  },
+  {
+    "name": "gpt-engineer",
+    "description": "Specify what you want it to build, and the AI asks for clarification and then writes the code.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 55158,
+    "url": "https://github.com/AntonOsika/gpt-engineer",
+    "use_case": "Whole-project code generation"
+  },
+  {
+    "name": "AutoGen",
+    "description": "A Microsoft framework for building multi-agent AI applications that can act autonomously or with humans.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "Multi-Agent"
+    ],
+    "github_stars": 60257,
+    "url": "https://github.com/microsoft/autogen",
+    "use_case": "Multi-agent conversation"
+  },
+  {
+    "name": "LangGraph",
+    "description": "Builds stateful, multi-actor applications with LLMs, used to create agent and multi-agent workflows.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "LangChain"
+    ],
+    "github_stars": 39004,
+    "url": "https://github.com/langchain-ai/langgraph",
+    "use_case": "Stateful agent graphs"
+  },
+  {
+    "name": "LlamaIndex",
+    "description": "A data framework for connecting custom data sources to large language models.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "RAG"
+    ],
+    "github_stars": 51411,
+    "url": "https://github.com/run-llama/llama_index",
+    "use_case": "Data ingestion and RAG"
+  },
+  {
+    "name": "Semantic Kernel",
+    "description": "A Microsoft SDK that integrates language models into applications as plugins and planners.",
+    "category": "Framework",
+    "tech_stack": [
+      "C#",
+      "Python",
+      "Java"
+    ],
+    "github_stars": 28423,
+    "url": "https://github.com/microsoft/semantic-kernel",
+    "use_case": "Enterprise LLM orchestration"
+  },
+  {
+    "name": "Haystack",
+    "description": "An end-to-end framework for building search systems and RAG pipelines over large document collections.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "Elasticsearch"
+    ],
+    "github_stars": 26125,
+    "url": "https://github.com/deepset-ai/haystack",
+    "use_case": "Production RAG pipelines"
+  },
+  {
+    "name": "Dify",
+    "description": "An open-source platform for developing LLM applications, combining workflow, RAG and agent capabilities.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Python",
+      "Docker"
+    ],
+    "github_stars": 151491,
+    "url": "https://github.com/langgenius/dify",
+    "use_case": "Visual LLM app development"
+  },
+  {
+    "name": "Flowise",
+    "description": "A drag-and-drop interface for building customised LLM flows and agents without writing code.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "github_stars": 55199,
+    "url": "https://github.com/FlowiseAI/Flowise",
+    "use_case": "No-code agent building"
+  },
+  {
+    "name": "AnythingLLM",
+    "description": "An all-in-one desktop and Docker application for chatting with your documents using local or hosted models.",
+    "category": "Research",
+    "tech_stack": [
+      "JavaScript",
+      "Docker"
+    ],
+    "github_stars": 64406,
+    "url": "https://github.com/Mintplex-Labs/anything-llm",
+    "use_case": "Private document chat"
+  },
+  {
+    "name": "Browser Use",
+    "description": "Lets AI agents control a real web browser to navigate sites and complete tasks.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "Playwright"
+    ],
+    "github_stars": 108014,
+    "url": "https://github.com/browser-use/browser-use",
+    "use_case": "Web browsing automation"
+  },
+  {
+    "name": "Goose",
+    "description": "An on-machine developer agent from Block that automates engineering tasks using any LLM.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Rust",
+      "Python"
+    ],
+    "github_stars": 52429,
+    "url": "https://github.com/block/goose",
+    "use_case": "Local developer automation"
   }
 ]
