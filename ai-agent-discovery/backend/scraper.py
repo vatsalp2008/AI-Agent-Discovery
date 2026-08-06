@@ -236,6 +236,9 @@ def write_agents_json(agents: list[Agent]) -> None:
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     with open(config.AGENTS_JSON, 'w') as f:
         json.dump([agent.to_dict() for agent in agents], f, indent=2)
+        # Trailing newline so re-seeding does not fight the end-of-file-fixer
+        # pre-commit hook, which would otherwise flip the file back and forth.
+        f.write("\n")
 
 
 def seed_data(rebuild: bool = True):

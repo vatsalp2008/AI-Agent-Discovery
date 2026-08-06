@@ -1,0 +1,52 @@
+# Install once with:  pre-commit install
+# Run against everything with:  pre-commit run --all-files
+#
+# These are the same checks CI runs, so a failure here is a failure you would
+# have hit on push anyway — just seconds later instead of minutes.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      # The FAISS index is a pickle; committing one would be both large and a
+      # deserialization hazard.
+      - id: check-added-large-files
+        name: block committing the FAISS index
+        files: ^data/faiss_index/
+        args: [--maxkb=0]
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # All local, so every hook uses the project's own environment. A
+  # pre-commit-managed ruff would be pinned separately from
+  # requirements-dev.txt and the two versions disagree about which lint rules
+  # exist, which makes the hook and CI contradict each other.
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: python3 -m ruff check --fix
+        language: system
+        types: [python]
+
+      - id: pytest
+        name: pytest
+        entry: python3 -m pytest tests -q
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      - id: vitest
+        name: vitest
+        entry: npx vitest run
+        language: system
+        pass_filenames: false
+        files: \.(js|html)$

@@ -70,3 +70,15 @@ class _RecordingStore:
 
     def add_agents(self, agents):
         self.calls.append(("add", len(agents)))
+
+
+def test_agents_json_ends_with_a_newline(tmp_path, monkeypatch):
+    """Otherwise the end-of-file-fixer hook and seed.py fight over the file."""
+    import config
+    import scraper
+
+    target = tmp_path / "agents.json"
+    monkeypatch.setattr(config, "AGENTS_JSON", target)
+    scraper.write_agents_json(scraper.SAMPLE_AGENTS)
+
+    assert target.read_text().endswith("]\n")
