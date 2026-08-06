@@ -36,15 +36,25 @@ def register(app):
         if request.endpoint == 'static':
             return response
 
-        level = logging.WARNING if elapsed_ms >= config.SLOW_REQUEST_MS else logging.INFO
+        slow = elapsed_ms >= config.SLOW_REQUEST_MS
+        level = logging.WARNING if slow else logging.INFO
+        path = request.full_path.rstrip('?')
+
+        # The same facts twice: a readable message for the text formatter, and
+        # structured fields that JsonFormatter promotes to real JSON keys so a
+        # collector can filter on them without parsing the message.
         logger.log(
             level,
             "%s %s -> %s in %.1fms%s",
-            request.method,
-            request.full_path.rstrip('?'),
-            response.status_code,
-            elapsed_ms,
-            "  (slow)" if level == logging.WARNING else "",
+            request.method, path, response.status_code, elapsed_ms,
+            "  (slow)" if slow else "",
+            extra={
+                "method": request.method,
+                "path": path,
+                "status": response.status_code,
+                "duration_ms": round(elapsed_ms, 1),
+                "slow": slow,
+            },
         )
         return response
 

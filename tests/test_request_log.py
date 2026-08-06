@@ -92,3 +92,26 @@ def test_static_assets_are_not_logged(app, caplog, tmp_path):
     assert 'thing.css' not in caplog.text
     # The timing header is still attached.
     assert 'X-Response-Time' in response.headers
+
+
+def test_request_fields_are_structured_not_just_a_message(app, caplog):
+    """JSON log mode is only useful if these are real fields."""
+    with caplog.at_level(logging.INFO, logger="request_log"):
+        app.test_client().get("/fast")
+
+    record = next(r for r in caplog.records if r.name == "request_log")
+    assert record.method == "GET"
+    assert record.path == "/fast"
+    assert record.status == 200
+    assert isinstance(record.duration_ms, float)
+    assert record.slow is False
+
+
+def test_slow_requests_are_flagged_in_the_structured_fields(app, caplog, monkeypatch):
+    monkeypatch.setattr(config, "SLOW_REQUEST_MS", 0)
+    with caplog.at_level(logging.INFO, logger="request_log"):
+        app.test_client().get("/fast")
+
+    record = next(r for r in caplog.records if r.name == "request_log")
+    assert record.slow is True
+    assert record.levelname == "WARNING"

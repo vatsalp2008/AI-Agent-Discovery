@@ -74,6 +74,10 @@ SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
+# "text" for human-readable console output, "json" for one JSON object per
+# line (what a log collector wants).
+LOG_FORMAT = os.getenv("LOG_FORMAT", "text").strip().lower()
+
 # Requests at or above this many milliseconds are logged as slow.
 SLOW_REQUEST_MS = _int_env("SLOW_REQUEST_MS", 1000)
 
