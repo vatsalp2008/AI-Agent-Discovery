@@ -140,6 +140,8 @@ paths resolve against the repository root, so commands work from any directory.
 | `AGENTS_PAGE_SIZE` | `50` | Default page size for `/api/agents` |
 | `AGENTS_MAX_PAGE_SIZE` | `200` | Upper bound on that page size |
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
+| `SEARCH_MIN_SCORE` | `0.5` | Below this, results are flagged as weak matches |
+| `LOG_FORMAT` | `text` | `text` or `json` (one object per line) |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
 | `RATE_LIMIT_SEARCHES` | `60` | Searches per minute per client; `0` disables |
@@ -164,6 +166,13 @@ paths resolve against the repository root, so commands work from any directory.
    - "I need an agent to write Python code"
    - "Find me a tool for automating workflows"
 3. Click a category chip to restrict results to that category
+4. Click an agent's name for its detail page, with similar agents
+5. Use **Copy link** to share a search — the query and category live in the
+   URL, so results are bookmarkable and survive the Back button
+
+Everything is keyboard operable: the category chips are real buttons, the
+results region announces updates, and a failed search offers a focused
+**Try again** rather than making you retype.
 
 ### Command Line
 
@@ -173,10 +182,20 @@ python ai-agent-discovery/cli.py "chatbot" --category "Customer Service" --limit
 python ai-agent-discovery/cli.py --list
 python ai-agent-discovery/cli.py --stats
 
+# Filter and sort the catalogue
+python ai-agent-discovery/cli.py --list --sort stars          # name | stars | category
+python ai-agent-discovery/cli.py --list --tech Python --category "Code Generation"
+python ai-agent-discovery/cli.py --tech-list                  # technologies with counts
+
+# Drop weak matches instead of showing the closest guesses
+python ai-agent-discovery/cli.py "banana bread" --min-score 0.5
+
 # AI overview of the results, and machine-readable output
 python ai-agent-discovery/cli.py "rag pipeline" --summarize
 python ai-agent-discovery/cli.py "rag pipeline" --json | jq '.results[].name'
 ```
+
+Run `--help` for the full list.
 
 ### API Endpoints
 
@@ -192,6 +211,7 @@ Content-Type: application/json
   "query": "I need an agent to write Python code",
   "limit": 5,                       // optional, 1..SEARCH_MAX_LIMIT
   "category": "Code Generation",    // optional, case-insensitive
+  "min_score": 0.5,                 // optional, 0..1 — drops weaker matches
   "summarize": true                 // optional, adds an LLM overview
 }
 ```
@@ -219,6 +239,7 @@ Content-Type: application/json
   "summary": "Cursor is a full editor, while Aider works from the terminal.",
   "metadata": {
     "count": 1, "limit": 5, "category": "Code Generation",
+    "confident": true, "min_score": null,
     "summarized": true, "duration": "1.31s"
   }
 }
@@ -231,23 +252,45 @@ description scores ≈0.91, a good semantic match ≈0.71, and an unrelated quer
 ≈0.34. `description` is the agent's own text; `matched_text` is the composite
 string that was actually embedded.
 
+**Weak matches.** Vector search always returns *something*, so a nonsense query
+still comes back with a full page of results. `metadata.confident` is `false`
+when the best result scored below `SEARCH_MIN_SCORE` (default `0.5`); the web UI
+shows a plain "nothing matched well" notice in that case. Results are flagged,
+not hidden — an obscure but genuine query should still return its best guess.
+Pass `min_score` if you want them dropped outright instead.
+
+The default sits in a measured gap: against this catalogue, genuine queries
+score 0.63–0.85 and nonsense queries 0.27–0.42.
+
 `summary` is `null` unless you pass `"summarize": true` **and** generation
 succeeds. `metadata.summarized` tells you which happened. Generation is
 best-effort: if the chat model is missing, slow, or Ollama is down, you still
-get your results with `summary: null`.
+get your results with `summary: null`. No overview is generated for
+low-confidence results, since a confident summary of irrelevant tools is worse
+than none.
 
-#### List agents (paginated)
+#### List agents (paginated, filterable, sortable)
 
 ```bash
 GET /api/agents?limit=20&offset=0
+GET /api/agents?category=Code%20Generation      # case-insensitive
+GET /api/agents?tech=Python                     # matches whole stack entries
+GET /api/agents?sort=stars                      # name | stars | category
+GET /api/agents?sort=name&order=desc            # asc | desc
 ```
 
 ```json
 {
   "agents": [ { "name": "Aider", "description": "...", "metadata": { } } ],
-  "metadata": { "total": 21, "count": 20, "limit": 20, "offset": 0, "has_more": true }
+  "metadata": {
+    "total": 37, "count": 20, "limit": 20, "offset": 0,
+    "category": null, "tech": null, "sort": "name", "order": "asc",
+    "has_more": true
+  }
 }
 ```
+
+`sort=stars` defaults to descending, the others to ascending. Filters combine.
 
 #### Get a single agent
 
@@ -262,12 +305,23 @@ GET /api/categories
 # [{"name": "Code Generation", "count": 6}, {"name": "Research", "count": 4}]
 ```
 
+#### List technologies
+
+```bash
+GET /api/tech
+# [{"name": "Python", "count": 26}, {"name": "TypeScript", "count": 10}]
+```
+
+Agent records store `stack` as one comma-joined string (FAISS metadata values
+must be scalars); this endpoint splits it back into individual technologies.
+
 #### Statistics
 
 ```bash
 GET /api/stats
-# {"count": 21, "categories": 8, "top_category": {"name": "Code Generation", "count": 6},
-#  "total_stars": 653000, "average_stars": 31095, "embedding_model": "nomic-embed-text"}
+# {"count": 37, "categories": 8, "top_category": {"name": "Code Generation", "count": 9},
+#  "total_stars": 653000, "average_stars": 17648, "embedding_model": "nomic-embed-text",
+#  "built_at": "2026-08-06T20:48:31+00:00"}
 ```
 
 #### Health
@@ -278,6 +332,15 @@ GET /api/health
 
 Returns `200` when the index is usable, and `503` with a `detail` explaining why
 when it is not — unseeded, unreachable, or built by a different embedding model.
+The payload also reports `index_built_at`, so you can tell whether the index
+predates your current `agents.json`.
+
+#### Response headers
+
+Every response carries a baseline security policy: a Content-Security-Policy
+that disallows inline and third-party scripts (beyond the two CDNs the pages
+use), plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and
+`Permissions-Policy`. `X-Response-Time` reports server-side duration.
 
 ## 📁 Project Structure
 
@@ -295,6 +358,7 @@ AI-Agent-Discovery/
 │   │   ├── request_log.py      # Per-request timing
 │   │   ├── scoring.py          # Distance to relevance score
 │   │   ├── scraper.py          # Sample data and catalogue loading
+│   │   ├── security.py         # CSP and other response headers
 │   │   └── vectorstore.py      # FAISS index, search, caching
 │   ├── frontend/
 │   │   ├── app.py              # Flask application entry point
@@ -305,7 +369,8 @@ AI-Agent-Discovery/
 │   │   ├── static/js/dashboard-stats.js # Stat formatting
 │   │   ├── static/js/main.js            # Search page
 │   │   ├── static/js/dashboard.js       # Dashboard page
-│   │   └── templates/          # base.html, index.html, dashboard.html
+│   │   ├── static/js/agent.js           # Agent detail page
+│   │   └── templates/          # base.html, index.html, dashboard.html, agent.html
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
 │   ├── refresh_stars.py        # Star count refresh
@@ -318,6 +383,7 @@ AI-Agent-Discovery/
 ├── tests/                      # Python test suite (pytest)
 ├── tests-js/                   # Frontend test suite (vitest + jsdom)
 ├── tests-live/                 # End-to-end tests against a real Ollama
+├── .pre-commit-config.yaml
 ├── CONTRIBUTING.md
 ├── Dockerfile
 ├── docker-compose.yml
@@ -405,7 +471,14 @@ Then rebuild the index:
 make seed
 ```
 
-Unknown fields are ignored, so you can annotate records freely.
+Unknown fields are ignored, so you can annotate records freely. If the file
+is malformed, `seed.py` names the offending entry and exits non-zero rather
+than failing with a traceback:
+
+```
+error: data/agents.json is not valid JSON: Illegal trailing comma before end
+of object (line 1, column 19)
+```
 
 ### Changing the Embedding Model
 
@@ -421,9 +494,14 @@ reports it rather than returning nonsense results.
 ### Customizing the UI
 
 - **Styles**: `ai-agent-discovery/frontend/static/css/style.css`
-- **Layout**: `ai-agent-discovery/frontend/templates/index.html`
+- **Shared layout**: `ai-agent-discovery/frontend/templates/base.html`
+- **Pages**: `templates/index.html`, `dashboard.html`, `agent.html`
 - **Card rendering**: `ai-agent-discovery/frontend/static/js/agent-card.js`
 - **Search behaviour**: `ai-agent-discovery/frontend/static/js/main.js`
+- **Response headers / CSP**: `ai-agent-discovery/backend/security.py`
+
+Adding an inline `<script>` will be blocked by the Content-Security-Policy —
+put it in a file under `static/js/` instead.
 
 ## 🧪 Development
 
@@ -440,14 +518,31 @@ make clean         # drop caches and the generated index
 ```
 
 The Python suite stubs out langchain and Ollama; the frontend suite runs in
-jsdom. Neither needs a model installed, and both finish in seconds. CI runs the
-Python checks on 3.10 and 3.12 plus the frontend suite.
+jsdom. Neither needs a model installed, and both finish in seconds.
 
 `make test-live` is separate and **not** part of `make check`: it exercises the
 real embedding and chat models to catch what stubs cannot — that embeddings are
 unit vectors, that scores actually separate relevant from irrelevant results,
-and that generation returns grounded text inside its timeout. It needs a
-running Ollama and a seeded index, and skips cleanly without them.
+and that generated overviews only mention agents that were actually retrieved.
+It needs a running Ollama and a seeded index, and skips cleanly without them.
+
+**CI** runs three jobs: the Python checks on 3.10 and 3.12, the frontend suite,
+and a `live` job that starts an Ollama service container, pulls both models and
+runs `tests-live` for real. That last job asserts the suite did not skip itself,
+so a broken setup fails loudly instead of passing silently.
+
+### Pre-commit hooks
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Runs the same lint and tests CI does, plus whitespace and JSON checks and a
+guard against committing the FAISS index (it is a pickle, and regenerable with
+`make seed`). Every hook is `language: system`, so they use this project's
+environment rather than a separately pinned copy that could disagree with
+`requirements-dev.txt`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and setup details.
 
@@ -464,8 +559,10 @@ curl -X POST http://localhost:5000/api/search \
   -d '{"query": "code generation agent", "limit": 3, "summarize": true}'
 
 curl "http://localhost:5000/api/agents?limit=5"
+curl "http://localhost:5000/api/agents?sort=stars&tech=Python"
 curl http://localhost:5000/api/agents/Cursor
 curl http://localhost:5000/api/categories
+curl http://localhost:5000/api/tech
 curl http://localhost:5000/api/stats
 curl http://localhost:5000/api/health
 ```

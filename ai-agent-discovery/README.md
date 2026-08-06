@@ -16,6 +16,7 @@ configuration reference and API documentation, see the
 | `backend/scoring.py` | Converts FAISS distance to a 0–1 relevance score |
 | `backend/generation.py` | Optional LLM overview of results (the generation half of RAG) |
 | `backend/rate_limit.py` | Per-client request budgets for /api/search |
+| `backend/security.py` | Content-Security-Policy and other response headers |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
@@ -72,11 +73,12 @@ Then open [http://localhost:5000](http://localhost:5000).
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/agents` | Paginated agent list (`limit`, `offset`) |
+| `GET` | `/api/agents` | Agent list (`limit`, `offset`, `category`, `tech`, `sort`, `order`) |
 | `GET` | `/api/agents/<name>` | Single agent, case-insensitive |
-| `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`, `summarize`) |
+| `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`, `min_score`, `summarize`) |
 | `GET` | `/api/categories` | Categories with counts |
-| `GET` | `/api/stats` | Index summary |
+| `GET` | `/api/tech` | Technologies with counts |
+| `GET` | `/api/stats` | Index summary, including `built_at` |
 | `GET` | `/api/health` | Readiness probe; 503 when unusable |
 
 Full request/response examples are in the [root README](../README.md).
