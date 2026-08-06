@@ -25,6 +25,9 @@ class VectorStore:
         # Set when an existing index was built by a different embedding model.
         self.stale_model = None
         self._search_cache = OrderedDict()
+        # Memoized agent list and name index; both rebuilt when the index changes.
+        self._agents = None
+        self._agents_by_name = None
         self.load_store()
 
     @property
@@ -181,8 +184,10 @@ class VectorStore:
             self._search_cache.popitem(last=False)
 
     def clear_cache(self):
-        """Drop cached search results. Called whenever the index changes."""
+        """Drop every derived cache. Called whenever the index changes."""
         self._search_cache.clear()
+        self._agents = None
+        self._agents_by_name = None
 
     def get_categories(self) -> list[dict]:
         """Return the indexed categories with agent counts, most common first."""
@@ -197,6 +202,20 @@ class VectorStore:
 
     def get_all_agents(self) -> list[dict]:
         """Retrieve every indexed agent, sorted by name.
+
+        Memoized: walking the docstore, building dicts and sorting is pure
+        work that only changes when the index does. /api/stats alone used to
+        trigger it twice per request (once directly, once via get_categories).
+
+        The list is copied on the way out so a caller cannot mutate the cache;
+        the agent dicts themselves are shared, as they always have been.
+        """
+        if self._agents is None:
+            self._agents = self._build_agents()
+        return list(self._agents)
+
+    def _build_agents(self) -> list[dict]:
+        """Assemble the agent list from the docstore.
 
         FAISS has no public "list everything" API, so this walks the backing
         docstore. If that internal layout ever changes, fall back to the
@@ -228,11 +247,12 @@ class VectorStore:
         """Look up a single agent by name (case-insensitive), or None."""
         if not name:
             return None
-        wanted = name.strip().casefold()
-        for agent in self.get_all_agents():
-            if (agent["name"] or "").casefold() == wanted:
-                return agent
-        return None
+        if self._agents_by_name is None:
+            self._agents_by_name = {
+                (agent["name"] or "").casefold(): agent
+                for agent in self.get_all_agents()
+            }
+        return self._agents_by_name.get(name.strip().casefold())
 
     def _iter_documents(self):
         """Return the indexed documents, or None if the docstore is unreadable."""

@@ -103,3 +103,41 @@ def test_search_still_exposes_the_embedded_text(store):
     result = store.search("agent", limit=1)[0]
     assert result["matched_text"].startswith("Name: Cursor")
     assert "Tech Stack:" in result["matched_text"]
+
+
+def test_agent_list_is_built_once(store):
+    """/api/stats alone used to rebuild it twice per request."""
+    calls = []
+    original = store._build_agents
+    store._build_agents = lambda: (calls.append(1), original())[1]
+
+    store.get_all_agents()
+    store.get_all_agents()
+    store.get_categories()
+    store.get_stats()
+    assert len(calls) == 1
+
+
+def test_reindexing_rebuilds_the_agent_list(store, agents):
+    before = len(store.get_all_agents())
+    store.add_agents(agents)
+    assert len(store.get_all_agents()) == before + len(agents)
+
+
+def test_agent_lookup_uses_an_index(store):
+    store.get_agent("Cursor")
+    assert store._agents_by_name is not None
+    assert set(store._agents_by_name) == {"cursor", "aider", "gpt researcher"}
+
+
+def test_agent_lookup_index_is_invalidated_on_reindex(store, agents):
+    assert store.get_agent("Cursor") is not None
+    store.add_agents(agents)
+    assert store._agents_by_name is None
+    assert store.get_agent("Cursor") is not None
+
+
+def test_callers_cannot_mutate_the_cached_agent_list(store):
+    first = store.get_all_agents()
+    first.clear()
+    assert len(store.get_all_agents()) == 3
