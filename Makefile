@@ -1,4 +1,6 @@
 .DEFAULT_GOAL := help
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 .PHONY: help install install-js seed run search stats test test-js lint fix check docker-build docker-up docker-down clean
 
 PYTHON ?= python

@@ -66,7 +66,7 @@ def test_prompt_is_grounded_in_the_retrieved_agents(results):
 
     system, human = chat.calls[0]
     assert system[0] == "system"
-    assert "ONLY the information in the list" in system[1]
+    assert "from that tool's own block" in system[1]
 
     prompt = human[1]
     assert "User need: code editor" in prompt
