@@ -223,3 +223,58 @@ describe('URL state', () => {
         expect(window.history.length).toBe(length);
     });
 });
+
+describe('copy link', () => {
+    it('offers a copy button once results are shown', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        expect(document.querySelector('.copy-link')).not.toBeNull();
+    });
+
+    it('copies the shareable URL', async () => {
+        const written = [];
+        Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: (t) => { written.push(t); return Promise.resolve(); } },
+            configurable: true,
+        });
+        Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });
+
+        await boot();
+        submitSearch('vector search');
+        await flush();
+
+        document.querySelector('.copy-link').click();
+        await flush();
+
+        expect(written).toHaveLength(1);
+        expect(written[0]).toContain('q=vector+search');
+        expect(document.querySelector('.copy-link').textContent).toBe('Copied');
+    });
+
+    it('reports a failure instead of silently doing nothing', async () => {
+        Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: () => Promise.reject(new Error('denied')) },
+            configurable: true,
+        });
+        Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });
+
+        await boot();
+        submitSearch('anything');
+        await flush();
+
+        document.querySelector('.copy-link').click();
+        await flush();
+
+        expect(document.querySelector('.copy-link').textContent).toContain('Ctrl+C');
+    });
+
+    it('is not shown when there are no results', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { body: { results: [], metadata: { confident: false } } },
+        }));
+        submitSearch('nothing');
+        await flush();
+        expect(document.querySelector('.copy-link')).toBeNull();
+    });
+});

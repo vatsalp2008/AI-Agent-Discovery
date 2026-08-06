@@ -524,3 +524,32 @@ nav a:focus-visible,
     color: var(--accent-color);
     text-decoration: underline;
 }
+
+/* Actions above a results page */
+.results-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.copy-link {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.copy-link:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.copy-link:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

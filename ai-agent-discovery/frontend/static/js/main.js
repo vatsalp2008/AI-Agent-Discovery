@@ -57,6 +57,53 @@ document.addEventListener('DOMContentLoaded', () => {
         return box;
     }
 
+    /**
+     * Copy the current search URL. Uses the async clipboard API where it is
+     * available (it needs a secure context), and falls back to selecting a
+     * temporary input so the button still does something over plain HTTP.
+     */
+    async function copyCurrentUrl() {
+        const url = window.location.href;
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url);
+            return;
+        }
+
+        const scratch = document.createElement('input');
+        scratch.value = url;
+        scratch.setAttribute('readonly', '');
+        scratch.style.position = 'absolute';
+        scratch.style.left = '-9999px';
+        document.body.appendChild(scratch);
+        scratch.select();
+        try {
+            document.execCommand('copy');
+        } finally {
+            scratch.remove();
+        }
+    }
+
+    function makeCopyLinkButton() {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-link';
+        button.textContent = 'Copy link';
+
+        button.addEventListener('click', async () => {
+            try {
+                await copyCurrentUrl();
+                button.textContent = 'Copied';
+            } catch (error) {
+                console.error('Could not copy the link:', error);
+                button.textContent = 'Press Ctrl+C';
+            }
+            // Announce the outcome, then settle back to the resting label.
+            button.setAttribute('aria-live', 'polite');
+            setTimeout(() => { button.textContent = 'Copy link'; }, 2000);
+        });
+        return button;
+    }
+
     function makeNotice(text) {
         const notice = document.createElement('p');
         notice.className = 'result-notice';
@@ -140,6 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Vector search always returns something. Say so plainly when
                 // nothing actually matched well, rather than presenting weak
                 // hits as if they were answers.
+                // A results page is a shareable thing; offer the link.
+                const bar = document.createElement('div');
+                bar.className = 'results-bar';
+                bar.appendChild(makeCopyLinkButton());
+                resultsArea.prepend(bar);
+
                 if (data.metadata && data.metadata.confident === false) {
                     resultsArea.prepend(makeNotice(
                         'Nothing matched your query well. Showing the closest agents anyway.'
