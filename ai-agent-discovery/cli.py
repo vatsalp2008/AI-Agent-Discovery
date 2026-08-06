@@ -4,11 +4,13 @@
     python cli.py "chatbot" --category "Customer Service" --limit 3
     python cli.py --list
     python cli.py --stats
+    python cli.py "rag" --json | jq '.results[].name'
 
 Useful for checking the index without starting the web server.
 """
 
 import argparse
+import json
 import os
 import sys
 
@@ -32,6 +34,10 @@ def build_parser():
                         help="list every indexed agent and exit")
     parser.add_argument("-s", "--stats", action="store_true",
                         help="show index statistics and exit")
+    parser.add_argument("--summarize", action="store_true",
+                        help="add an AI overview of the results")
+    parser.add_argument("--json", action="store_true", dest="as_json",
+                        help="emit JSON instead of formatted text")
     parser.add_argument("-v", "--verbose", action="store_true", help="show debug logging")
     return parser
 
@@ -73,6 +79,13 @@ def format_stats(stats):
     ])
 
 
+def _build_store():
+    """Construct the vector store. Separated so tests can substitute a fake."""
+    from vectorstore import VectorStore
+
+    return VectorStore()
+
+
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -83,8 +96,7 @@ def main(argv=None):
 
     configure("DEBUG" if args.verbose else "WARNING")
 
-    from vectorstore import VectorStore
-    store = VectorStore()
+    store = _build_store()
 
     if store.stale_model:
         print(
@@ -95,7 +107,8 @@ def main(argv=None):
         return 1
 
     if args.stats:
-        print(format_stats(store.get_stats()))
+        stats = store.get_stats()
+        print(json.dumps(stats, indent=2) if args.as_json else format_stats(stats))
         return 0
 
     if args.list_agents:
@@ -103,8 +116,11 @@ def main(argv=None):
         if not agents:
             print("No agents indexed. Run seed.py first.", file=sys.stderr)
             return 1
-        for agent in agents:
-            print(f"{agent['name']:<20} {agent['metadata'].get('category', '')}")
+        if args.as_json:
+            print(json.dumps(agents, indent=2))
+        else:
+            for agent in agents:
+                print(f"{agent['name']:<20} {agent['metadata'].get('category', '')}")
         return 0
 
     results = store.search(args.query, limit=args.limit, category=args.category)
@@ -112,6 +128,20 @@ def main(argv=None):
         print("No agents indexed. Run seed.py first.", file=sys.stderr)
         return 1
 
+    summary = None
+    if args.summarize:
+        import generation
+        summary = generation.summarize(args.query, results)
+        if summary is None:
+            print("Could not generate an overview; showing results only.", file=sys.stderr)
+
+    if args.as_json:
+        print(json.dumps({"query": args.query, "results": results, "summary": summary}, indent=2))
+        return 0
+
+    if summary:
+        print(summary)
+        print()
     print(format_results(results))
     return 0
 

@@ -79,3 +79,48 @@ def test_format_stats_handles_an_empty_index(cli):
 def test_no_arguments_prints_help_and_exits_nonzero(cli, capsys):
     assert cli.main([]) == 2
     assert "usage" in capsys.readouterr().out.lower()
+
+
+def test_json_flag_is_parsed(cli):
+    args = cli.build_parser().parse_args(["query", "--json"])
+    assert args.as_json is True
+    assert cli.build_parser().parse_args(["query"]).as_json is False
+
+
+def test_summarize_flag_is_parsed(cli):
+    assert cli.build_parser().parse_args(["query", "--summarize"]).summarize is True
+    assert cli.build_parser().parse_args(["query"]).summarize is False
+
+
+def test_json_output_is_machine_readable(cli, capsys, monkeypatch):
+    import json
+
+    class FakeStore:
+        vector_store = object()
+        stale_model = None
+
+        def search(self, query, limit=None, category=None):
+            return [{"name": "Cursor", "score": 0.9, "metadata": {"category": "Code Generation"}}]
+
+    monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
+    assert cli.main(["code editor", "--json"]) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["query"] == "code editor"
+    assert payload["results"][0]["name"] == "Cursor"
+    assert payload["summary"] is None
+
+
+def test_json_stats_output(cli, capsys, monkeypatch):
+    import json
+
+    class FakeStore:
+        vector_store = object()
+        stale_model = None
+
+        def get_stats(self):
+            return {"count": 37, "categories": 8}
+
+    monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
+    assert cli.main(["--stats", "--json"]) == 0
+    assert json.loads(capsys.readouterr().out)["count"] == 37
