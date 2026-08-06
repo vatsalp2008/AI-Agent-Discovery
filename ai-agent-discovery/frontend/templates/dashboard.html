@@ -3,34 +3,38 @@
 {% block title %}Dashboard | AI Agent Discovery{% endblock %}
 
 {% block content %}
-<section class="hero hero-compact">
-    <h1>Dashboard</h1>
-    <p>Overview of the indexed AI agents.</p>
-</section>
+<main>
+    <section class="hero hero-compact">
+        <h1>Dashboard</h1>
+        <p>Overview of the indexed AI agents.</p>
+    </section>
 
-<div class="stats-grid" id="statsGrid">
-    <div class="stat-card">
-        <div class="stat-number" id="totalAgents">-</div>
-        <div class="stat-label">Total Agents Indexed</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number" id="topCategory">-</div>
-        <div class="stat-label">Top Category</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number" id="totalStars">-</div>
-        <div class="stat-label">Total GitHub Stars</div>
-    </div>
-</div>
+    <!-- Values arrive from /api/stats, so announce them once they land. -->
+    <dl class="stats-grid" id="statsGrid" aria-live="polite" aria-busy="true">
+        <div class="stat-card">
+            <dt class="stat-label">Total Agents Indexed</dt>
+            <dd class="stat-number" id="totalAgents">-</dd>
+        </div>
+        <div class="stat-card">
+            <dt class="stat-label">Top Category</dt>
+            <dd class="stat-number" id="topCategory">-</dd>
+        </div>
+        <div class="stat-card">
+            <dt class="stat-label">Total GitHub Stars</dt>
+            <dd class="stat-number" id="totalStars">-</dd>
+        </div>
+    </dl>
 
-<h2 class="section-heading">All Agents</h2>
-<div class="results-grid" id="allAgentsGrid">
-    <!-- Populated via JS -->
-    <div class="loading">
-        <div class="spinner"></div>
+    <h2 class="section-heading" id="allAgentsHeading">All Agents</h2>
+    <div class="results-grid" id="allAgentsGrid" aria-labelledby="allAgentsHeading" aria-busy="true">
+        <!-- Populated via JS -->
+        <div class="loading" role="status">
+            <div class="spinner" aria-hidden="true"></div>
+            <span class="sr-only">Loading agents…</span>
+        </div>
     </div>
-</div>
-<div class="grid-footer" id="gridFooter"></div>
+    <div class="grid-footer" id="gridFooter"></div>
+</main>
 {% endblock %}
 
 {% block scripts %}

@@ -440,3 +440,14 @@ nav a:focus-visible,
     color: var(--text-secondary);
     font-style: italic;
 }
+
+/* Stat cards are a <dl>: <dt> must precede <dd> in the markup, but the
+   number should read above its label, so reverse them visually. */
+.stat-card {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.stats-grid dd {
+    margin: 0;
+}

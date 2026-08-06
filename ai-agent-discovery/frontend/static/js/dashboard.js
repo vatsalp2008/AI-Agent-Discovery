@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalStarsEl = document.getElementById('totalStars');
     const grid = document.getElementById('allAgentsGrid');
     const footer = document.getElementById('gridFooter');
+    const statsGrid = document.getElementById('statsGrid');
 
     const PAGE_SIZE = 24;
     let offset = 0;
@@ -19,11 +20,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         p.className = 'result-message error';
         p.textContent = text;
         grid.replaceChildren(p);
+        grid.setAttribute('aria-busy', 'false');
+        statsGrid.setAttribute('aria-busy', 'false');
         footer.replaceChildren();
     }
 
     /** Append one page of agents, and offer the next if there is one. */
     function renderPage(agents, metadata) {
+        const previousCount = grid.children.length;
         agents.forEach(agent => grid.appendChild(AgentCard.create(agent)));
         offset += agents.length;
         footer.replaceChildren();
@@ -36,12 +40,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.addEventListener('click', async () => {
                 button.disabled = true;
                 button.textContent = 'Loading…';
+                grid.setAttribute('aria-busy', 'true');
                 try {
                     await loadPage();
+                    // Move focus to the first newly added card so keyboard
+                    // users are not dropped back at the top of the document.
+                    const firstNew = grid.children[previousCount];
+                    if (firstNew) {
+                        firstNew.tabIndex = -1;
+                        firstNew.focus();
+                    }
                 } catch (error) {
                     console.error(error);
                     button.disabled = false;
                     button.textContent = 'Retry';
+                } finally {
+                    grid.setAttribute('aria-busy', 'false');
                 }
             });
             footer.appendChild(button);
@@ -76,6 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             topCategoryEl.textContent = stats.top_category ? stats.top_category.name : 'N/A';
             totalStarsEl.textContent = formatTotalStars(stats.total_stars || 0);
         }
+        statsGrid.setAttribute('aria-busy', 'false');
 
         const payload = await agentsResponse.json();
         const agents = payload.agents || [];
@@ -87,6 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         grid.replaceChildren();
         renderPage(agents, payload.metadata || {});
+        grid.setAttribute('aria-busy', 'false');
     } catch (error) {
         console.error(error);
         showMessage('Error loading dashboard data.');
