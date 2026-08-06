@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }} | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<main>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Search</a> <span aria-hidden="true">/</span>
+        <span aria-current="page" id="crumbName">{{ name }}</span>
+    </nav>
+
+    <div id="agentDetail" aria-busy="true">
+        <div class="loading" role="status">
+            <div class="spinner" aria-hidden="true"></div>
+            <span class="sr-only">Loading agent…</span>
+        </div>
+    </div>
+
+    <section aria-labelledby="similarHeading" id="similarSection" hidden>
+        <h2 class="section-heading" id="similarHeading">Similar agents</h2>
+        <div id="similarGrid"></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/agent.js"></script>
+{% endblock %}

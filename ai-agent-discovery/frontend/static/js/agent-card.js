@@ -48,7 +48,17 @@ const AgentCard = (() => {
         const card = el('div', 'agent-card');
 
         const header = el('div', 'card-header');
-        header.appendChild(el('div', 'agent-name', meta.name || 'Unnamed agent'));
+        // The name links to the in-app detail page; the footer link goes to
+        // the external project.
+        const nameEl = el('div', 'agent-name');
+        if (meta.name) {
+            const nameLink = el('a', 'agent-name-link', meta.name);
+            nameLink.href = `/agent/${encodeURIComponent(meta.name)}`;
+            nameEl.appendChild(nameLink);
+        } else {
+            nameEl.textContent = 'Unnamed agent';
+        }
+        header.appendChild(nameEl);
         header.appendChild(el('div', 'agent-category', meta.category || 'Uncategorized'));
         card.appendChild(header);
 

@@ -462,3 +462,65 @@ nav a:focus-visible,
     margin-bottom: 1.5rem;
     color: var(--text-secondary);
 }
+
+/* Agent detail page */
+.breadcrumb {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.agent-detail {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.agent-detail h1 {
+    margin-bottom: 0.75rem;
+}
+
+.detail-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.detail-row {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.detail-label {
+    flex: 0 0 8rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+}
+
+.agent-detail .view-btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+}
+
+.agent-name-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.agent-name-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}

@@ -31,6 +31,11 @@ def index():
 def dashboard():
     return render_template('dashboard.html', page='dashboard')
 
+@app.route('/agent/<path:name>')
+def agent_detail(name):
+    """Detail page. The agent itself is fetched client-side from the API."""
+    return render_template('agent.html', page='search', name=name)
+
 @app.route('/favicon.ico')
 def favicon():
     """Browsers request this path directly, regardless of the <link> tag."""
