@@ -99,7 +99,7 @@ def test_json_output_is_machine_readable(cli, capsys, monkeypatch):
         vector_store = object()
         stale_model = None
 
-        def search(self, query, limit=None, category=None):
+        def search(self, query, limit=None, category=None, min_score=None):
             return [{"name": "Cursor", "score": 0.9, "metadata": {"category": "Code Generation"}}]
 
     monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
@@ -124,3 +124,104 @@ def test_json_stats_output(cli, capsys, monkeypatch):
     monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
     assert cli.main(["--stats", "--json"]) == 0
     assert json.loads(capsys.readouterr().out)["count"] == 37
+
+
+def _agent(name, category="Code Generation", stars=100, stack="Python"):
+    return {"name": name, "metadata": {"name": name, "category": category, "stars": stars, "stack": stack}}
+
+
+class TestSortingAndFiltering:
+    AGENTS = [
+        _agent("Zebra", "Research", 500, "Python,LangChain"),
+        _agent("alpha", "Code Generation", 100, "TypeScript"),
+        _agent("Mid", "Code Generation", 300, "Python"),
+    ]
+
+    def test_sort_by_name_is_case_insensitive(self, cli):
+        assert [a["name"] for a in cli.sort_agents(self.AGENTS, "name")] == ["alpha", "Mid", "Zebra"]
+
+    def test_sort_by_stars_defaults_to_descending(self, cli):
+        assert [a["name"] for a in cli.sort_agents(self.AGENTS, "stars")] == ["Zebra", "Mid", "alpha"]
+
+    def test_sort_direction_can_be_overridden(self, cli):
+        assert [a["name"] for a in cli.sort_agents(self.AGENTS, "stars", "asc")] == ["alpha", "Mid", "Zebra"]
+
+    def test_sort_by_category_breaks_ties_by_name(self, cli):
+        assert [a["name"] for a in cli.sort_agents(self.AGENTS, "category")] == ["alpha", "Mid", "Zebra"]
+
+    def test_filter_by_category(self, cli):
+        got = cli.filter_agents(self.AGENTS, category="Research")
+        assert [a["name"] for a in got] == ["Zebra"]
+
+    def test_filter_by_category_is_case_insensitive(self, cli):
+        assert len(cli.filter_agents(self.AGENTS, category="research")) == 1
+
+    def test_filter_by_tech(self, cli):
+        got = cli.filter_agents(self.AGENTS, tech="Python")
+        assert sorted(a["name"] for a in got) == ["Mid", "Zebra"]
+
+    def test_filter_by_tech_matches_whole_entries(self, cli):
+        """'Lang' must not match the 'LangChain' entry."""
+        assert cli.filter_agents(self.AGENTS, tech="Lang") == []
+        assert len(cli.filter_agents(self.AGENTS, tech="LangChain")) == 1
+
+    def test_filters_combine(self, cli):
+        got = cli.filter_agents(self.AGENTS, category="Code Generation", tech="Python")
+        assert [a["name"] for a in got] == ["Mid"]
+
+    def test_no_filters_returns_everything(self, cli):
+        assert len(cli.filter_agents(self.AGENTS)) == 3
+
+
+def test_new_flags_are_parsed(cli):
+    args = cli.build_parser().parse_args(
+        ["q", "--tech", "Python", "--sort", "stars", "--order", "asc", "--min-score", "0.4"]
+    )
+    assert args.tech == "Python"
+    assert args.sort == "stars"
+    assert args.order == "asc"
+    assert args.min_score == 0.4
+
+
+def test_min_score_is_passed_through_to_the_store(cli, monkeypatch):
+    seen = {}
+
+    class FakeStore:
+        vector_store = object()
+        stale_model = None
+
+        def search(self, query, limit=None, category=None, min_score=None):
+            seen["min_score"] = min_score
+            return []
+
+    monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
+    cli.main(["anything", "--min-score", "0.7"])
+    assert seen["min_score"] == 0.7
+
+
+def test_tech_list_prints_counts(cli, capsys, monkeypatch):
+    class FakeStore:
+        vector_store = object()
+        stale_model = None
+
+        def get_tech_stacks(self):
+            return [{"name": "Python", "count": 26}, {"name": "TypeScript", "count": 10}]
+
+    monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
+    assert cli.main(["--tech-list"]) == 0
+
+    out = capsys.readouterr().out
+    assert "Python" in out and "26" in out
+
+
+def test_listing_with_no_matches_exits_nonzero(cli, capsys, monkeypatch):
+    class FakeStore:
+        vector_store = object()
+        stale_model = None
+
+        def get_all_agents(self):
+            return [_agent("Only", "Research")]
+
+    monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
+    assert cli.main(["--list", "--category", "Nonexistent"]) == 1
+    assert "No matching agents" in capsys.readouterr().err

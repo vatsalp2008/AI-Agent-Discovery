@@ -30,10 +30,19 @@ def build_parser():
     parser.add_argument("-n", "--limit", type=int, default=config.SEARCH_DEFAULT_LIMIT,
                         help=f"maximum results (default: {config.SEARCH_DEFAULT_LIMIT})")
     parser.add_argument("-c", "--category", help="restrict results to one category")
+    parser.add_argument("-t", "--tech", help="restrict results to one technology")
+    parser.add_argument("--sort", choices=["name", "stars", "category"], default="name",
+                        help="sort order for --list (default: name)")
+    parser.add_argument("--order", choices=["asc", "desc"],
+                        help="sort direction (default: desc for stars, asc otherwise)")
+    parser.add_argument("--min-score", type=float, dest="min_score",
+                        help="drop results below this relevance score (0-1)")
     parser.add_argument("-l", "--list", action="store_true", dest="list_agents",
                         help="list every indexed agent and exit")
     parser.add_argument("-s", "--stats", action="store_true",
                         help="show index statistics and exit")
+    parser.add_argument("--tech-list", action="store_true", dest="tech_list",
+                        help="list technologies across the catalogue and exit")
     parser.add_argument("--summarize", action="store_true",
                         help="add an AI overview of the results")
     parser.add_argument("--json", action="store_true", dest="as_json",
@@ -79,6 +88,35 @@ def format_stats(stats):
     ])
 
 
+# Mirrors AGENT_SORTS in the API so the two stay consistent.
+SORT_KEYS = {
+    "name": (lambda a: (a["name"] or "").casefold(), "asc"),
+    "stars": (lambda a: int(a["metadata"].get("stars") or 0), "desc"),
+    "category": (lambda a: ((a["metadata"].get("category") or "").casefold(),
+                            (a["name"] or "").casefold()), "asc"),
+}
+
+
+def sort_agents(agents, sort="name", order=None):
+    """Return `agents` sorted, defaulting stars to descending."""
+    key, default_order = SORT_KEYS[sort]
+    return sorted(agents, key=key, reverse=(order or default_order) == "desc")
+
+
+def filter_agents(agents, category=None, tech=None):
+    """Narrow a list of agents by category and/or technology."""
+    if category:
+        wanted = category.strip().casefold()
+        agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
+    if tech:
+        wanted = tech.strip().casefold()
+        agents = [
+            a for a in agents
+            if wanted in {t.strip().casefold() for t in str(a["metadata"].get("stack") or "").split(",")}
+        ]
+    return agents
+
+
 def _build_store():
     """Construct the vector store. Separated so tests can substitute a fake."""
     from vectorstore import VectorStore
@@ -90,7 +128,7 @@ def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if not (args.query or args.list_agents or args.stats):
+    if not (args.query or args.list_agents or args.stats or args.tech_list):
         parser.print_help()
         return 2
 
@@ -111,19 +149,34 @@ def main(argv=None):
         print(json.dumps(stats, indent=2) if args.as_json else format_stats(stats))
         return 0
 
+    if args.tech_list:
+        tech = store.get_tech_stacks()
+        if args.as_json:
+            print(json.dumps(tech, indent=2))
+        else:
+            for entry in tech:
+                print(f"{entry['name']:<20} {entry['count']}")
+        return 0
+
     if args.list_agents:
-        agents = store.get_all_agents()
+        agents = filter_agents(store.get_all_agents(), args.category, args.tech)
+        agents = sort_agents(agents, args.sort, args.order)
         if not agents:
-            print("No agents indexed. Run seed.py first.", file=sys.stderr)
+            print("No matching agents.", file=sys.stderr)
             return 1
         if args.as_json:
             print(json.dumps(agents, indent=2))
         else:
             for agent in agents:
-                print(f"{agent['name']:<20} {agent['metadata'].get('category', '')}")
+                stars = format_stars(agent["metadata"].get("stars"))
+                print(f"{agent['name']:<20} {agent['metadata'].get('category', ''):<20} {stars:>7}")
         return 0
 
-    results = store.search(args.query, limit=args.limit, category=args.category)
+    results = store.search(
+        args.query, limit=args.limit, category=args.category, min_score=args.min_score
+    )
+    if args.tech:
+        results = filter_agents(results, tech=args.tech)
     if not results and not store.vector_store:
         print("No agents indexed. Run seed.py first.", file=sys.stderr)
         return 1
