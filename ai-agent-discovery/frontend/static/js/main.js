@@ -158,6 +158,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function makeExportButton(format, run) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'export-btn';
+        button.textContent = `Export ${format}`;
+        button.addEventListener('click', () => {
+            try {
+                run();
+            } catch (error) {
+                console.error(`Could not export ${format}:`, error);
+                button.textContent = 'Export failed';
+                setTimeout(() => { button.textContent = `Export ${format}`; }, 2000);
+            }
+        });
+        return button;
+    }
+
     function makeNotice(text) {
         const notice = document.createElement('p');
         notice.className = 'result-notice';
@@ -256,6 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // A results page is a shareable thing; offer the link.
                 const bar = document.createElement('div');
                 bar.className = 'results-bar';
+                bar.appendChild(makeExportButton('CSV', () => ExportResults.asCsv(data.results, query)));
+                bar.appendChild(makeExportButton('JSON', () => ExportResults.asJson(data.results, query)));
                 bar.appendChild(makeCopyLinkButton());
                 resultsArea.prepend(bar);
 

@@ -40,6 +40,7 @@ async function boot(routes = defaultRoutes()) {
         extraScripts: [
             { file: 'search-state.js', global: 'SearchState' },
             { file: 'recent-searches.js', global: 'RecentSearches' },
+            { file: 'export-results.js', global: 'ExportResults' },
         ],
     });
     await flush();
@@ -395,5 +396,53 @@ describe('recent searches', () => {
         document.getElementById('recentClear').click();
         await flush();
         expect(document.getElementById('recent').hidden).toBe(true);
+    });
+});
+
+describe('exporting results', () => {
+    it('offers CSV and JSON once results are shown', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        const labels = [...document.querySelectorAll('.export-btn')].map(b => b.textContent);
+        expect(labels).toEqual(['Export CSV', 'Export JSON']);
+    });
+
+    it('is not offered when there are no results', async () => {
+        await boot(defaultRoutes({
+            '/api/search': { body: { results: [], metadata: { confident: false } } },
+        }));
+        submitSearch('nothing');
+        await flush();
+        expect(document.querySelector('.export-btn')).toBeNull();
+    });
+
+    it('downloads a file named after the query', async () => {
+        const clicked = [];
+        URL.createObjectURL = () => 'blob:fake';
+        URL.revokeObjectURL = () => {};
+        const realClick = HTMLAnchorElement.prototype.click;
+        HTMLAnchorElement.prototype.click = function () { clicked.push(this.download); };
+
+        try {
+            await boot();
+            submitSearch('code editor');
+            await flush();
+            document.querySelector('.export-btn').click();
+            expect(clicked).toEqual(['code-editor.csv']);
+        } finally {
+            HTMLAnchorElement.prototype.click = realClick;
+        }
+    });
+
+    it('reports a failure instead of doing nothing', async () => {
+        URL.createObjectURL = () => { throw new Error('blocked'); };
+        await boot();
+        submitSearch('code editor');
+        await flush();
+
+        const button = document.querySelector('.export-btn');
+        button.click();
+        expect(button.textContent).toBe('Export failed');
     });
 });

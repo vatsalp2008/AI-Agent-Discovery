@@ -735,3 +735,30 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Export buttons in the results bar */
+.results-bar {
+    gap: 0.5rem;
+}
+
+.export-btn {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.export-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.export-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
