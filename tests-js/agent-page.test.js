@@ -23,8 +23,8 @@ function similar(name) {
 
 function routes(overrides = {}) {
     return {
+        '/similar': { body: { agents: [similar('Aider'), similar('Cline')], metadata: { of: 'Cursor', count: 2 } } },
         '/api/agents/': { body: CURSOR },
-        '/api/search': { body: { results: [CURSOR, similar('Aider')], metadata: { confident: true } } },
         ...overrides,
     };
 }
@@ -117,8 +117,11 @@ describe('similar agents', () => {
         expect(document.querySelectorAll('#similarGrid .agent-card').length).toBeGreaterThan(0);
     });
 
-    it('excludes the agent from its own similar list', async () => {
-        await boot();
+    it('asks the dedicated endpoint, which excludes the agent itself', async () => {
+        const calls = await boot();
+        const call = calls.find(c => c.url.includes('/similar'));
+        expect(call.url).toContain('/api/agents/Cursor/similar');
+
         const names = [...document.querySelectorAll('#similarGrid .agent-name')].map(n => n.textContent);
         expect(names).not.toContain('Cursor');
         expect(names).toContain('Aider');
@@ -126,13 +129,13 @@ describe('similar agents', () => {
 
     it('stays hidden when nothing else is similar', async () => {
         await boot('/agent/Cursor', routes({
-            '/api/search': { body: { results: [CURSOR], metadata: { confident: true } } },
+            '/similar': { body: { agents: [], metadata: { of: 'Cursor', count: 0 } } },
         }));
         expect(document.getElementById('similarSection').hidden).toBe(true);
     });
 
     it('does not break the page when the similar lookup fails', async () => {
-        await boot('/agent/Cursor', routes({ '/api/search': new Error('offline') }));
+        await boot('/agent/Cursor', routes({ '/similar': new Error('offline') }));
         expect(document.getElementById('agentDetail').textContent).toContain('Cursor');
         expect(document.getElementById('similarSection').hidden).toBe(true);
     });

@@ -247,6 +247,24 @@ def get_agent(name):
     return jsonify(agent), 200
 
 
+@api_bp.route('/agents/<path:name>/similar', methods=['GET'])
+def get_similar_agents(name):
+    """Agents similar to the named one, excluding itself."""
+    try:
+        limit = _parse_int_arg('limit', 3, 1, config.SEARCH_MAX_LIMIT)
+    except BadRequest as e:
+        return jsonify({"error": str(e)}), 400
+
+    results = get_store().find_similar(name, limit=limit)
+    if results is None:
+        return jsonify({"error": f"No agent named {name!r}"}), 404
+
+    return jsonify({
+        "agents": results,
+        "metadata": {"of": name, "count": len(results), "limit": limit},
+    }), 200
+
+
 @api_bp.route('/search', methods=['POST'])
 def search_agents():
     payload = request.get_json(silent=True)

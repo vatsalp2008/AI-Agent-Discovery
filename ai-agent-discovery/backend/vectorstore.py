@@ -260,6 +260,25 @@ class VectorStore:
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
 
+    def find_similar(self, name: str, limit: int = None) -> list[dict]:
+        """Agents most like the named one, excluding itself.
+
+        Over-fetches by one and drops the agent from its own results, so a
+        request for N neighbours actually returns N rather than N-1.
+        Returns None when the agent does not exist, to distinguish that from
+        an agent that genuinely has no neighbours.
+        """
+        agent = self.get_agent(name)
+        if agent is None:
+            return None
+
+        limit = limit or config.SEARCH_DEFAULT_LIMIT
+        query = agent["metadata"].get("description") or agent["name"]
+        results = self.search(query, limit=limit + 1)
+
+        wanted = (agent["name"] or "").casefold()
+        return [r for r in results if (r["name"] or "").casefold() != wanted][:limit]
+
     def get_tech_stacks(self) -> list[dict]:
         """Return the indexed technologies with agent counts, most common first.
 

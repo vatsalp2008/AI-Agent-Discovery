@@ -430,3 +430,40 @@ def test_agents_keyword_no_match_is_empty(client):
 
 def test_agents_blank_keyword_is_ignored(client):
     assert client.get("/api/agents?q=%20").get_json()["metadata"]["total"] == 3
+
+
+def test_similar_endpoint_is_not_swallowed_by_the_detail_route(client):
+    """/agents/<path:name> matches slashes, so ordering matters here."""
+    body = client.get("/api/agents/Cursor/similar").get_json()
+    assert "agents" in body
+    assert body["metadata"]["of"] == "Cursor"
+
+
+def test_similar_excludes_the_agent_itself(client):
+    body = client.get("/api/agents/Cursor/similar").get_json()
+    assert "Cursor" not in [a["name"] for a in body["agents"]]
+
+
+def test_similar_returns_the_requested_count(client):
+    """Over-fetching means asking for N does not yield N-1."""
+    body = client.get("/api/agents/Cursor/similar?limit=2").get_json()
+    assert body["metadata"]["count"] == 2
+    assert len(body["agents"]) == 2
+
+
+def test_similar_defaults_to_three(client):
+    assert client.get("/api/agents/Cursor/similar").get_json()["metadata"]["limit"] == 3
+
+
+def test_similar_for_an_unknown_agent_is_404(client):
+    response = client.get("/api/agents/Nope/similar")
+    assert response.status_code == 404
+    assert response.is_json
+
+
+def test_similar_is_case_insensitive(client):
+    assert client.get("/api/agents/cursor/similar").status_code == 200
+
+
+def test_similar_rejects_a_bad_limit(client):
+    assert client.get("/api/agents/Cursor/similar?limit=0").status_code == 400

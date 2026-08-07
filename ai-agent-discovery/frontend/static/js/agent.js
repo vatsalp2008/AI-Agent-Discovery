@@ -79,21 +79,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadSimilar(agent) {
-        const meta = agent.metadata || {};
-        const query = meta.description || agent.description || meta.name;
-        if (!query) return;
-
+        // The server excludes the agent from its own neighbours and
+        // over-fetches so we get the full count back.
         try {
-            const response = await fetch('/api/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, limit: 4 })
-            });
+            const response = await fetch(`/api/agents/${encodeURIComponent(agent.name)}/similar?limit=3`);
             if (!response.ok) return;
 
             const data = await response.json();
-            // Drop the agent itself from its own "similar" list.
-            const others = (data.results || []).filter(r => r.name !== agent.name).slice(0, 3);
+            const others = data.agents || [];
             if (others.length === 0) return;
 
             AgentCard.renderGrid(similarGrid, others);
