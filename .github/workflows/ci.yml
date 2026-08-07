@@ -6,6 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+# A run superseded by a newer push tells you nothing useful, and the live job
+# holds an Ollama container for minutes. Cancel in-flight runs for the same
+# ref — except on main, where each commit's result is worth keeping so a
+# failure cannot be masked by the next push cancelling its run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
