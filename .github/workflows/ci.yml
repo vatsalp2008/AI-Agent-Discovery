@@ -85,16 +85,13 @@ jobs:
         run: python ai-agent-discovery/seed.py
 
       # The suite skips itself when Ollama is unreachable, which would turn a
-      # broken setup into a silent pass. Assert it actually ran.
+      # broken setup into a silent pass. LIVE_TESTS_REQUIRED makes any skip a
+      # failure — enforced in tests-live/conftest.py rather than by grepping
+      # pytest's console output, which it is free to reword.
       - name: Run live tests
-        run: |
-          # pipefail: without it, `| tee` would swallow a pytest failure.
-          set -eo pipefail
-          python -m pytest tests-live -v --tb=short | tee live.log
-          if grep -q "skipped" live.log; then
-            echo "live tests skipped themselves; the Ollama setup is broken" >&2
-            exit 1
-          fi
+        env:
+          LIVE_TESTS_REQUIRED: "1"
+        run: python -m pytest tests-live -v --tb=short
 
   frontend:
     runs-on: ubuntu-latest
