@@ -38,9 +38,17 @@ const DashboardStats = (() => {
         return `Showing all ${total} agents.`;
     }
 
-    /** Query string for the next page. */
-    function pageQuery(offset, pageSize) {
-        return `?limit=${pageSize}&offset=${offset}`;
+    /**
+     * Query string for a page, carrying whatever filters are active.
+     * Empty filters are omitted rather than sent blank.
+     */
+    function pageQuery(offset, pageSize, filters = {}) {
+        const params = new URLSearchParams({ limit: pageSize, offset });
+        ['q', 'category', 'tech', 'sort', 'order'].forEach(key => {
+            const value = filters[key];
+            if (value) params.set(key, value);
+        });
+        return `?${params.toString()}`;
     }
 
     return { formatTotal, headline, loadMoreLabel, completeMessage, pageQuery };

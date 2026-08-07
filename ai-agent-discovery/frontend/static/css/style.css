@@ -639,3 +639,46 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Dashboard filter/sort controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.control-input,
+.control-select {
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+}
+
+.control-input { flex: 1 1 14rem; }
+
+.control-button {
+    font: inherit;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.85rem;
+    cursor: pointer;
+}
+
+.control-button:hover,
+.control-select:hover {
+    border-color: var(--accent-color);
+}
+
+.control-input:focus-visible,
+.control-select:focus-visible,
+.control-button:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

@@ -126,6 +126,13 @@ export const DASHBOARD_HTML = `
       <div class="stat-number" id="topCategory">-</div>
       <div class="stat-number" id="totalStars">-</div>
     </div>
+    <div class="controls">
+      <input type="search" id="filterQuery">
+      <select id="filterCategory"><option value="">All categories</option></select>
+      <select id="filterTech"><option value="">All technologies</option></select>
+      <select id="sortBy"><option value="name">Name</option><option value="stars">Stars</option></select>
+      <button type="button" id="sortOrder">↑</button>
+    </div>
     <div class="results-grid" id="allAgentsGrid" aria-busy="true"></div>
     <div class="grid-footer" id="gridFooter"></div>
 `;

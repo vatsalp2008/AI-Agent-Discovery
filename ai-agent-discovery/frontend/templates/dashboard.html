@@ -26,6 +26,30 @@
     </dl>
 
     <h2 class="section-heading" id="allAgentsHeading">All Agents</h2>
+
+    <div class="controls" role="group" aria-labelledby="allAgentsHeading">
+        <label class="sr-only" for="filterQuery">Filter by name or description</label>
+        <input type="search" id="filterQuery" class="control-input" placeholder="Filter by name…" autocomplete="off">
+
+        <label class="sr-only" for="filterCategory">Category</label>
+        <select id="filterCategory" class="control-select">
+            <option value="">All categories</option>
+        </select>
+
+        <label class="sr-only" for="filterTech">Technology</label>
+        <select id="filterTech" class="control-select">
+            <option value="">All technologies</option>
+        </select>
+
+        <label class="sr-only" for="sortBy">Sort by</label>
+        <select id="sortBy" class="control-select">
+            <option value="name">Name</option>
+            <option value="stars">Stars</option>
+            <option value="category">Category</option>
+        </select>
+
+        <button type="button" id="sortOrder" class="control-button" aria-label="Sort ascending">↑</button>
+    </div>
     <div class="results-grid" id="allAgentsGrid" aria-labelledby="allAgentsHeading" aria-busy="true">
         <!-- Populated via JS -->
         <div class="loading" role="status">

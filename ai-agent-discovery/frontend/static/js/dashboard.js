@@ -9,6 +9,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     const PAGE_SIZE = 24;
     let offset = 0;
 
+    const controls = {
+        q: document.getElementById('filterQuery'),
+        category: document.getElementById('filterCategory'),
+        tech: document.getElementById('filterTech'),
+        sort: document.getElementById('sortBy'),
+        order: document.getElementById('sortOrder'),
+    };
+    let order = 'asc';
+
+    function activeFilters() {
+        return {
+            q: controls.q ? controls.q.value.trim() : '',
+            category: controls.category ? controls.category.value : '',
+            tech: controls.tech ? controls.tech.value : '',
+            sort: controls.sort ? controls.sort.value : 'name',
+            order,
+        };
+    }
+
+    /** Populate a <select> from a [{name, count}] facet list. */
+    async function fillFacet(select, url) {
+        if (!select) return;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return;
+            const items = await response.json();
+            if (!Array.isArray(items)) return;
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.name;
+                option.textContent = `${item.name} (${item.count})`;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error(`Could not load facets from ${url}:`, error);
+        }
+    }
+
+    /** Re-run the listing from the first page with the current filters. */
+    async function applyFilters() {
+        offset = 0;
+        grid.replaceChildren();
+        grid.setAttribute('aria-busy', 'true');
+        footer.replaceChildren();
+        try {
+            await loadPage();
+        } catch (error) {
+            console.error(error);
+            showMessage('Error loading dashboard data.');
+        } finally {
+            grid.setAttribute('aria-busy', 'false');
+        }
+    }
+
     function showMessage(text) {
         const p = document.createElement('p');
         p.className = 'result-message error';
@@ -66,11 +120,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadPage() {
-        const response = await fetch('/api/agents' + DashboardStats.pageQuery(offset, PAGE_SIZE));
+        const response = await fetch('/api/agents' + DashboardStats.pageQuery(offset, PAGE_SIZE, activeFilters()));
         if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
 
         const payload = await response.json();
-        renderPage(payload.agents || [], payload.metadata || {});
+        const agents = payload.agents || [];
+        if (offset === 0 && agents.length === 0) {
+            showMessage('No agents match these filters.');
+            return;
+        }
+        renderPage(agents, payload.metadata || {});
     }
 
     try {
@@ -78,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // plus one page of agents at a time.
         const [statsResponse, agentsResponse] = await Promise.all([
             fetch('/api/stats'),
-            fetch('/api/agents' + DashboardStats.pageQuery(0, PAGE_SIZE))
+            fetch('/api/agents' + DashboardStats.pageQuery(0, PAGE_SIZE, activeFilters()))
         ]);
         if (!agentsResponse.ok) throw new Error(`Request failed with status ${agentsResponse.status}`);
 
@@ -101,6 +160,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         grid.replaceChildren();
         renderPage(agents, payload.metadata || {});
         grid.setAttribute('aria-busy', 'false');
+
+        fillFacet(controls.category, '/api/categories');
+        fillFacet(controls.tech, '/api/tech');
+
+        // Typing filters on a short debounce; the selects fire immediately.
+        let typingTimer;
+        if (controls.q) {
+            controls.q.addEventListener('input', () => {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(applyFilters, 250);
+            });
+        }
+        [controls.category, controls.tech, controls.sort].forEach(select => {
+            if (select) select.addEventListener('change', applyFilters);
+        });
+        if (controls.order) {
+            controls.order.addEventListener('click', () => {
+                order = order === 'asc' ? 'desc' : 'asc';
+                controls.order.textContent = order === 'asc' ? '↑' : '↓';
+                controls.order.setAttribute('aria-label',
+                    order === 'asc' ? 'Sort ascending' : 'Sort descending');
+                applyFilters();
+            });
+        }
     } catch (error) {
         console.error(error);
         showMessage('Error loading dashboard data.');

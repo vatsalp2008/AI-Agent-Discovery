@@ -157,3 +157,96 @@ describe('empty and error states', () => {
         expect(document.getElementById('allAgentsGrid').getAttribute('aria-busy')).toBe('false');
     });
 });
+
+describe('filter and sort controls', () => {
+    function withFacets(overrides = {}) {
+        return {
+            '/api/stats': { body: STATS },
+            '/api/categories': { body: [{ name: 'Code Generation', count: 9 }] },
+            '/api/tech': { body: [{ name: 'Python', count: 26 }] },
+            '/api/agents': page(['Aider']),
+            ...overrides,
+        };
+    }
+
+    it('populates the category and tech selects from the facet endpoints', async () => {
+        await boot(withFacets());
+        await flush();
+        expect([...document.querySelectorAll('#filterCategory option')].map(o => o.value))
+            .toEqual(['', 'Code Generation']);
+        expect([...document.querySelectorAll('#filterTech option')].map(o => o.value))
+            .toEqual(['', 'Python']);
+    });
+
+    it('sends the selected category to the API', async () => {
+        const calls = await boot(withFacets());
+        await flush();
+        document.getElementById('filterCategory').value = 'Code Generation';
+        document.getElementById('filterCategory').dispatchEvent(new window.Event('change'));
+        await flush();
+
+        const last = calls.filter(c => c.url.includes('/api/agents')).pop();
+        expect(last.url).toContain('category=Code+Generation');
+        expect(last.url).toContain('offset=0');
+    });
+
+    it('sends the chosen sort key', async () => {
+        const calls = await boot(withFacets());
+        await flush();
+        document.getElementById('sortBy').value = 'stars';
+        document.getElementById('sortBy').dispatchEvent(new window.Event('change'));
+        await flush();
+        expect(calls.filter(c => c.url.includes('/api/agents')).pop().url).toContain('sort=stars');
+    });
+
+    it('reverses the order and updates the button', async () => {
+        const calls = await boot(withFacets());
+        await flush();
+        const button = document.getElementById('sortOrder');
+        button.click();
+        await flush();
+
+        expect(button.textContent).toBe('↓');
+        expect(button.getAttribute('aria-label')).toContain('descending');
+        expect(calls.filter(c => c.url.includes('/api/agents')).pop().url).toContain('order=desc');
+    });
+
+    it('debounces typing rather than firing per keystroke', async () => {
+        const calls = await boot(withFacets());
+        await flush();
+        const before = calls.filter(c => c.url.includes('/api/agents')).length;
+
+        const input = document.getElementById('filterQuery');
+        for (const value of ['c', 'cu', 'cur']) {
+            input.value = value;
+            input.dispatchEvent(new window.Event('input'));
+        }
+        await new Promise(r => setTimeout(r, 400));
+        await flush();
+
+        const after = calls.filter(c => c.url.includes('/api/agents')).length;
+        expect(after - before).toBe(1);
+        expect(calls.filter(c => c.url.includes('/api/agents')).pop().url).toContain('q=cur');
+    });
+
+    it('omits empty filters from the query', async () => {
+        const calls = await boot(withFacets());
+        const url = calls.find(c => c.url.includes('/api/agents')).url;
+        expect(url).not.toContain('q=');
+        expect(url).not.toContain('category=');
+    });
+
+    it('reports when filters match nothing', async () => {
+        let call = 0;
+        await boot(withFacets({
+            '/api/agents': () => {
+                call += 1;
+                return call === 1 ? page(['Aider']) : page([], { total: 0 });
+            },
+        }));
+        await flush();
+        document.getElementById('sortBy').dispatchEvent(new window.Event('change'));
+        await flush();
+        expect(document.getElementById('allAgentsGrid').textContent).toContain('No agents match');
+    });
+});
