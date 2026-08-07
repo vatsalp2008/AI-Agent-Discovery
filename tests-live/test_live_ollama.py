@@ -240,3 +240,32 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
         f"(at most {allowed} tolerated):\n" +
         "\n".join(f"  {names}: {text}" for names, text in failures)
     )
+
+
+@needs_embeddings
+@pytest.mark.parametrize("query,expected", [
+    ("agent that edits code in my terminal", {"Claude Code", "Aider", "Goose", "Cline"}),
+    ("chat with my documents privately", {"PrivateGPT", "LocalGPT", "AnythingLLM", "Khoj"}),
+    ("turn plain english into SQL", {"Vanna AI", "DB-GPT"}),
+    ("give my agent long term memory", {"Mem0", "Letta"}),
+    ("automate a browser", {"Browser Use", "Skyvern", "Stagehand"}),
+    ("multi agent orchestration framework", {"CrewAI", "AutoGen", "LangGraph", "MetaGPT"}),
+])
+def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
+    """Retrieval quality as the catalogue grows.
+
+    Every added agent is another chance for a query to drift onto something
+    less apt. Each case asserts that at least one clearly-correct agent is in
+    the top 3 — loose enough not to encode one particular ranking, strict
+    enough to catch a real regression.
+    """
+    top = [r["name"] for r in live_store.search(query, limit=3)]
+    assert expected & set(top), f"{query!r} returned {top}, expected one of {sorted(expected)}"
+
+
+@needs_embeddings
+def test_growth_has_not_flattened_the_score_gap(live_store):
+    """A bigger catalogue must still separate relevant from irrelevant."""
+    good = live_store.search("agent that edits code in my terminal", limit=1)[0]
+    bad = live_store.search("banana bread recipe", limit=1)[0]
+    assert good["score"] - bad["score"] > 0.25
