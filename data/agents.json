@@ -46,7 +46,7 @@
       "Llama 2",
       "GPT-4"
     ],
-    "github_stars": 67742,
+    "github_stars": 67860,
     "url": "https://github.com/OpenInterpreter/open-interpreter",
     "use_case": "Local system control, script execution"
   },
@@ -59,7 +59,7 @@
       "GPT-4",
       "Pinecone"
     ],
-    "github_stars": 185841,
+    "github_stars": 186262,
     "url": "https://github.com/Significant-Gravitas/Auto-GPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
@@ -72,7 +72,7 @@
       "LangChain",
       "Selenium"
     ],
-    "github_stars": 28840,
+    "github_stars": 28879,
     "url": "https://github.com/assafelovic/gpt-researcher",
     "use_case": "Deep web research, report generation"
   },
@@ -98,7 +98,7 @@
       "Pandas",
       "LLMs"
     ],
-    "github_stars": 23706,
+    "github_stars": 23730,
     "url": "https://github.com/gventuri/pandas-ai",
     "use_case": "Chat with data, analysis"
   },
@@ -110,7 +110,7 @@
       "Python",
       "Multi-Agent"
     ],
-    "github_stars": 69676,
+    "github_stars": 69702,
     "url": "https://github.com/geekan/MetaGPT",
     "use_case": "Software development lifecycle automation"
   },
@@ -122,7 +122,7 @@
       "Python",
       "TypeScript"
     ],
-    "github_stars": 143523,
+    "github_stars": 143641,
     "url": "https://github.com/langchain-ai/langchain",
     "use_case": "LLM orchestration"
   },
@@ -134,7 +134,7 @@
       "Python",
       "Agents"
     ],
-    "github_stars": 56673,
+    "github_stars": 56750,
     "url": "https://github.com/joaomdmoura/crewAI",
     "use_case": "Multi-agent orchestration"
   },
@@ -146,7 +146,7 @@
       "Python",
       "TensorFlow"
     ],
-    "github_stars": 21282,
+    "github_stars": 21288,
     "url": "https://github.com/RasaHQ/rasa",
     "use_case": "Enterprise chatbots"
   },
@@ -195,7 +195,7 @@
       "Docker",
       "PostgreSQL"
     ],
-    "github_stars": 17653,
+    "github_stars": 17655,
     "url": "https://github.com/TransformerOptimus/SuperAGI",
     "use_case": "Agent provisioning and management"
   },
@@ -207,7 +207,7 @@
       "Python",
       "Role-Playing"
     ],
-    "github_stars": 33931,
+    "github_stars": 33950,
     "url": "https://github.com/OpenBMB/ChatDev",
     "use_case": "Full software project generation"
   },
@@ -220,7 +220,7 @@
       "LlamaIndex",
       "Local LLM"
     ],
-    "github_stars": 57409,
+    "github_stars": 57416,
     "url": "https://github.com/imartinez/privateGPT",
     "use_case": "Document QA, RAG"
   },
@@ -233,7 +233,7 @@
       "Supabase",
       "React"
     ],
-    "github_stars": 39388,
+    "github_stars": 39391,
     "url": "https://github.com/StanGirard/quivr",
     "use_case": "Personal knowledge base"
   },
@@ -246,7 +246,7 @@
       "LangChain",
       "ChromaDB"
     ],
-    "github_stars": 22208,
+    "github_stars": 22210,
     "url": "https://github.com/PromtEngineer/localGPT",
     "use_case": "Local RAG"
   },
@@ -270,7 +270,7 @@
       "TypeScript",
       "Claude"
     ],
-    "github_stars": 140417,
+    "github_stars": 140590,
     "url": "https://github.com/anthropics/claude-code",
     "use_case": "Terminal-based agentic coding"
   },
@@ -283,7 +283,7 @@
       "Docker",
       "React"
     ],
-    "github_stars": 83234,
+    "github_stars": 83388,
     "url": "https://github.com/All-Hands-AI/OpenHands",
     "use_case": "Autonomous software engineering"
   },
@@ -295,7 +295,7 @@
       "TypeScript",
       "VS Code"
     ],
-    "github_stars": 65728,
+    "github_stars": 65831,
     "url": "https://github.com/cline/cline",
     "use_case": "In-editor agentic coding"
   },
@@ -308,7 +308,7 @@
       "VS Code",
       "JetBrains"
     ],
-    "github_stars": 35341,
+    "github_stars": 35373,
     "url": "https://github.com/continuedev/continue",
     "use_case": "Customisable IDE assistant"
   },
@@ -320,7 +320,7 @@
       "Python",
       "GitHub API"
     ],
-    "github_stars": 20010,
+    "github_stars": 20018,
     "url": "https://github.com/SWE-agent/SWE-agent",
     "use_case": "Automated issue resolution"
   },
@@ -343,7 +343,7 @@
       "Python",
       "Multi-Agent"
     ],
-    "github_stars": 60257,
+    "github_stars": 60298,
     "url": "https://github.com/microsoft/autogen",
     "use_case": "Multi-agent conversation"
   },
@@ -355,7 +355,7 @@
       "Python",
       "LangChain"
     ],
-    "github_stars": 39004,
+    "github_stars": 39138,
     "url": "https://github.com/langchain-ai/langgraph",
     "use_case": "Stateful agent graphs"
   },
@@ -392,7 +392,7 @@
       "Python",
       "Elasticsearch"
     ],
-    "github_stars": 26125,
+    "github_stars": 26141,
     "url": "https://github.com/deepset-ai/haystack",
     "use_case": "Production RAG pipelines"
   },
@@ -405,7 +405,7 @@
       "Python",
       "Docker"
     ],
-    "github_stars": 151491,
+    "github_stars": 151713,
     "url": "https://github.com/langgenius/dify",
     "use_case": "Visual LLM app development"
   },
@@ -417,7 +417,7 @@
       "TypeScript",
       "Node.js"
     ],
-    "github_stars": 55199,
+    "github_stars": 55238,
     "url": "https://github.com/FlowiseAI/Flowise",
     "use_case": "No-code agent building"
   },
@@ -429,7 +429,7 @@
       "JavaScript",
       "Docker"
     ],
-    "github_stars": 64406,
+    "github_stars": 64464,
     "url": "https://github.com/Mintplex-Labs/anything-llm",
     "use_case": "Private document chat"
   },
@@ -441,7 +441,7 @@
       "Python",
       "Playwright"
     ],
-    "github_stars": 108014,
+    "github_stars": 108188,
     "url": "https://github.com/browser-use/browser-use",
     "use_case": "Web browsing automation"
   },
@@ -453,7 +453,7 @@
       "Rust",
       "Python"
     ],
-    "github_stars": 52429,
+    "github_stars": 52518,
     "url": "https://github.com/block/goose",
     "use_case": "Local developer automation"
   },
@@ -478,7 +478,7 @@
       "Python",
       "JupyterLab"
     ],
-    "github_stars": 3500,
+    "github_stars": 4358,
     "url": "https://github.com/jupyterlab/jupyter-ai",
     "use_case": "AI assistance inside notebooks"
   },
@@ -491,7 +491,7 @@
       "Altair",
       "Matplotlib"
     ],
-    "github_stars": 2800,
+    "github_stars": 3271,
     "url": "https://github.com/microsoft/lida",
     "use_case": "Automatic chart and infographic generation"
   },
@@ -503,7 +503,7 @@
       "Python",
       "Pandas"
     ],
-    "github_stars": 2300,
+    "github_stars": 2283,
     "url": "https://github.com/approximatelabs/sketch",
     "use_case": "Dataframe-aware code suggestions"
   },
@@ -516,7 +516,7 @@
       "Local LLM",
       "SQL"
     ],
-    "github_stars": 16000,
+    "github_stars": 19661,
     "url": "https://github.com/eosphoros-ai/DB-GPT",
     "use_case": "Private database question answering"
   },
@@ -552,7 +552,7 @@
       "Rust",
       "Local LLM"
     ],
-    "github_stars": 24000,
+    "github_stars": 33824,
     "url": "https://github.com/TabbyML/tabby",
     "use_case": "Self-hosted code completion"
   },
@@ -601,7 +601,7 @@
       "Elasticsearch",
       "Docker"
     ],
-    "github_stars": 32000,
+    "github_stars": 87030,
     "url": "https://github.com/infiniflow/ragflow",
     "use_case": "Document-grounded question answering"
   },
@@ -627,7 +627,7 @@
       "Django",
       "Local LLM"
     ],
-    "github_stars": 27000,
+    "github_stars": 36378,
     "url": "https://github.com/khoj-ai/khoj",
     "use_case": "Personal knowledge search"
   },
@@ -639,7 +639,7 @@
       "Python",
       "Vector DB"
     ],
-    "github_stars": 27000,
+    "github_stars": 62775,
     "url": "https://github.com/mem0ai/mem0",
     "use_case": "Long-term memory for agents"
   },
@@ -651,7 +651,7 @@
       "Python",
       "PostgreSQL"
     ],
-    "github_stars": 17000,
+    "github_stars": 24148,
     "url": "https://github.com/letta-ai/letta",
     "use_case": "Stateful agents with self-managed memory"
   },
@@ -663,7 +663,7 @@
       "Python",
       "OCR"
     ],
-    "github_stars": 11000,
+    "github_stars": 15276,
     "url": "https://github.com/Unstructured-IO/unstructured",
     "use_case": "Document ingestion for RAG"
   },
@@ -725,7 +725,7 @@
       "Ruby",
       "Vue.js"
     ],
-    "github_stars": 35586,
+    "github_stars": 35587,
     "url": "https://github.com/chatwoot/chatwoot",
     "use_case": "Omnichannel customer support"
   },
