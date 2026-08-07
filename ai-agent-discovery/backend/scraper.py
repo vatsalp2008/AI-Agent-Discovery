@@ -132,6 +132,60 @@ SAMPLE_AGENTS = [
         use_case="Private database question answering"
     ),
     Agent(
+        name="Windsurf",
+        description="An agentic IDE from Codeium whose Cascade mode keeps context across a whole multi-file change.",
+        category="Code Generation",
+        tech_stack=["Electron", "TypeScript"],
+        github_stars=0,
+        url="https://codeium.com/windsurf",
+        use_case="Agentic multi-file editing in an IDE"
+    ),
+    Agent(
+        name="Zed",
+        description="A high-performance collaborative editor written in Rust, with inline AI assistance and multibuffer edits.",
+        category="Code Generation",
+        tech_stack=["Rust", "GPUI"],
+        github_stars=58000,
+        url="https://github.com/zed-industries/zed",
+        use_case="Fast native editing with AI assistance"
+    ),
+    Agent(
+        name="Tabby",
+        description="A self-hosted AI coding assistant that runs entirely on your own hardware, with no external calls.",
+        category="Code Generation",
+        tech_stack=["Rust", "Local LLM"],
+        github_stars=24000,
+        url="https://github.com/TabbyML/tabby",
+        use_case="Self-hosted code completion"
+    ),
+    Agent(
+        name="Devika",
+        description="An open agentic engineer that takes a high-level instruction, researches it, and writes the code.",
+        category="Code Generation",
+        tech_stack=["Python", "Playwright"],
+        github_stars=19000,
+        url="https://github.com/stitionai/devika",
+        use_case="Instruction-to-implementation coding"
+    ),
+    Agent(
+        name="Plandex",
+        description="A terminal agent for large tasks that keeps changes in a sandbox until you approve them.",
+        category="Code Generation",
+        tech_stack=["Go", "GPT-4"],
+        github_stars=11000,
+        url="https://github.com/plandex-ai/plandex",
+        use_case="Reviewable multi-step terminal coding"
+    ),
+    Agent(
+        name="CodeRabbit",
+        description="An AI reviewer that comments on pull requests line by line and tracks whether feedback was addressed.",
+        category="Code Generation",
+        tech_stack=["TypeScript", "GitHub API"],
+        github_stars=0,
+        url="https://coderabbit.ai",
+        use_case="Automated pull request review"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
