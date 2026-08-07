@@ -126,3 +126,13 @@ export const DASHBOARD_HTML = `
     <div class="results-grid" id="allAgentsGrid" aria-busy="true"></div>
     <div class="grid-footer" id="gridFooter"></div>
 `;
+
+/** The agent detail page's markup, mirroring templates/agent.html. */
+export const AGENT_HTML = `
+    <nav class="breadcrumb"><a href="/">Search</a> <span id="crumbName">x</span></nav>
+    <div id="agentDetail" aria-busy="true"></div>
+    <section id="similarSection" hidden>
+      <h2 id="similarHeading">Similar agents</h2>
+      <div id="similarGrid"></div>
+    </section>
+`;
