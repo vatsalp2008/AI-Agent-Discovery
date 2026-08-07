@@ -1,6 +1,10 @@
 """An index built by one embedding model must not be used by another."""
 
 import json
+import os
+import time
+
+import pytest
 
 from vectorstore import VectorStore
 
@@ -90,3 +94,54 @@ def test_health_reports_the_build_time(client, store):
     store._write_meta(3)
     body = client.get("/api/health").get_json()
     assert body["index_built_at"] is not None
+
+
+class TestCatalogueFreshness:
+    """Editing agents.json without re-seeding is silent: searches keep
+    working and simply return the previous contents."""
+
+    @pytest.fixture
+    def catalogue(self, tmp_path, monkeypatch):
+        import config
+
+        target = tmp_path / "agents.json"
+        target.write_text("[]")
+        monkeypatch.setattr(config, "AGENTS_JSON", target)
+        return target
+
+    def test_fresh_index_is_not_stale(self, store, catalogue):
+        store._write_meta(3)
+        assert store.catalogue_is_stale is False
+
+    def test_editing_the_catalogue_marks_it_stale(self, store, catalogue):
+        store._write_meta(3)
+        future = time.time() + 60
+        os.utime(catalogue, (future, future))
+        assert store.catalogue_is_stale is True
+
+    def test_unknown_without_a_sidecar(self, tmp_path, catalogue):
+        vs = VectorStore(persist_directory=tmp_path / "none", embedding_function=object())
+        assert vs.catalogue_is_stale is None
+
+    def test_unknown_without_a_catalogue(self, store, tmp_path, monkeypatch):
+        import config
+
+        store._write_meta(3)
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "missing.json")
+        assert store.catalogue_is_stale is None
+
+    def test_stats_report_freshness(self, store, catalogue):
+        store._write_meta(3)
+        assert store.get_stats()["catalogue_stale"] is False
+
+    def test_health_warns_but_stays_healthy(self, client, store, catalogue):
+        """Stale data is a warning, not an outage."""
+        store._write_meta(3)
+        future = time.time() + 60
+        os.utime(catalogue, (future, future))
+
+        response = client.get("/api/health")
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body["catalogue_stale"] is True
+        assert "seed.py" in body["detail"]

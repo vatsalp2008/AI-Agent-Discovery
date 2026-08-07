@@ -360,10 +360,19 @@ def health():
         stats = get_store().get_stats()
         payload["indexed_agents"] = stats.get("count", 0)
         payload["index_built_at"] = stats.get("built_at")
+        payload["catalogue_stale"] = stats.get("catalogue_stale")
     except Exception as e:
         logger.exception("Health check could not reach the vector store")
         payload.update(status="error", detail=str(e))
         return jsonify(payload), 503
+
+    # A drifted catalogue still serves results, just outdated ones, so this is
+    # a warning on an otherwise healthy response rather than a 503.
+    if payload.get("catalogue_stale"):
+        payload["detail"] = (
+            "data/agents.json has changed since the index was built. "
+            "Run seed.py to pick up the edits."
+        )
 
     if payload["indexed_agents"] == 0:
         detail = "No agents indexed. Run seed.py to populate the vector store."

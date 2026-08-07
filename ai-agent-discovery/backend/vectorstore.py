@@ -18,6 +18,12 @@ class VectorStore:
     # Sidecar file recording which embedding model built the index.
     META_FILENAME = "index_meta.json"
 
+    # A seed writes the sidecar (from add_agents) before rewriting
+    # agents.json, and built_at is stored to whole seconds, so the catalogue
+    # is legitimately a shade newer than the index every time. Only a gap
+    # larger than this means a human edited the file afterwards.
+    FRESHNESS_GRACE_SECONDS = 5
+
     def __init__(self, persist_directory=None, embedding_function=None, embedding_model=None):
         self.persist_directory = str(persist_directory or config.FAISS_DIR)
         self.embedding_function = embedding_function or get_embeddings()
@@ -60,6 +66,25 @@ class VectorStore:
     def built_at(self):
         """When the index was last rebuilt, or None for older indexes."""
         return self._read_meta().get("built_at")
+
+    @property
+    def catalogue_is_stale(self):
+        """True when agents.json has been edited since the index was built.
+
+        Editing the catalogue without re-seeding is easy to do and silent:
+        searches keep working, they just return the previous contents. Compare
+        file mtime against the recorded build time so it can be surfaced.
+
+        None when it cannot be determined (no sidecar, or no catalogue file).
+        """
+        built = self.built_at
+        if not built or not os.path.exists(config.AGENTS_JSON):
+            return None
+        try:
+            built_ts = datetime.fromisoformat(built).timestamp()
+        except ValueError:
+            return None
+        return os.path.getmtime(config.AGENTS_JSON) > built_ts + self.FRESHNESS_GRACE_SECONDS
 
     def _is_stale(self) -> bool:
         """True when the index was built by a different embedding model.
@@ -361,4 +386,5 @@ class VectorStore:
             "average_stars": round(total_stars / count) if count else 0,
             "embedding_model": self.embedding_model,
             "built_at": self.built_at,
+            "catalogue_stale": self.catalogue_is_stale,
         }
