@@ -154,3 +154,40 @@ describe('renderGrid', () => {
         expect(container.querySelector('.results-grid')).not.toBeNull();
     });
 });
+
+describe('compare links', () => {
+    it('links an agent against its neighbours', () => {
+        const agents = [makeAgent(), makeAgent({ metadata: { name: 'Aider' } }), makeAgent({ metadata: { name: 'Cline' } })];
+        const link = AgentCard.compareLink(agents[0], agents);
+        expect(link.getAttribute('href')).toBe('/compare?names=Cursor%2CAider%2CCline');
+    });
+
+    it('excludes the agent itself', () => {
+        const agents = [makeAgent(), makeAgent({ metadata: { name: 'Aider' } })];
+        expect(decodeURIComponent(AgentCard.compareLink(agents[0], agents).getAttribute('href')))
+            .toBe('/compare?names=Cursor,Aider');
+    });
+
+    it('caps the comparison at three agents', () => {
+        const agents = ['A', 'B', 'C', 'D', 'E'].map(n => makeAgent({ metadata: { name: n } }));
+        const href = decodeURIComponent(AgentCard.compareLink(agents[0], agents).getAttribute('href'));
+        expect(href.split(',')).toHaveLength(3);
+    });
+
+    it('returns nothing when there is no one to compare against', () => {
+        const only = makeAgent();
+        expect(AgentCard.compareLink(only, [only])).toBeNull();
+    });
+
+    it('appears in a rendered grid', () => {
+        const container = document.createElement('div');
+        AgentCard.renderGrid(container, [makeAgent(), makeAgent({ metadata: { name: 'Aider' } })]);
+        expect(container.querySelectorAll('.compare-link').length).toBe(2);
+    });
+
+    it('is absent from a single-card grid', () => {
+        const container = document.createElement('div');
+        AgentCard.renderGrid(container, [makeAgent()]);
+        expect(container.querySelector('.compare-link')).toBeNull();
+    });
+});

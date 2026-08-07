@@ -102,13 +102,41 @@ const AgentCard = (() => {
         return card;
     }
 
+    /**
+     * A link that compares `agent` against the others shown alongside it.
+     * Returns null when there is nothing to compare against.
+     */
+    function compareLink(agent, siblings) {
+        const name = (agent.metadata || {}).name || agent.name;
+        if (!name) return null;
+
+        const others = (siblings || [])
+            .map(s => (s.metadata || {}).name || s.name)
+            .filter(n => n && n !== name)
+            .slice(0, 2);
+        if (others.length === 0) return null;
+
+        const link = el('a', 'compare-link', 'Compare');
+        link.href = `/compare?names=${encodeURIComponent([name, ...others].join(','))}`;
+        link.title = `Compare ${name} with ${others.join(' and ')}`;
+        return link;
+    }
+
     /** Replace the contents of `container` with a grid of agent cards. */
     function renderGrid(container, agents) {
         const grid = el('div', 'results-grid');
-        agents.forEach(agent => grid.appendChild(create(agent)));
+        agents.forEach(agent => {
+            const card = create(agent);
+            const compare = compareLink(agent, agents);
+            if (compare) {
+                const footer = card.querySelector('.card-footer');
+                if (footer) footer.insertBefore(compare, footer.lastChild);
+            }
+            grid.appendChild(card);
+        });
         container.replaceChildren(grid);
         return grid;
     }
 
-    return { create, renderGrid, formatStars, parseStack, safeUrl };
+    return { create, renderGrid, compareLink, formatStars, parseStack, safeUrl };
 })();
