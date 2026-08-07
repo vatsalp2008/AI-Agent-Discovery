@@ -1,0 +1,52 @@
+name: Refresh star counts
+
+# Star counts in data/agents.json are hand-entered and drift as projects grow.
+# This re-reads them weekly and opens a pull request with the changes rather
+# than committing to main directly: the numbers feed the catalogue and the
+# dashboard, so they deserve a human glance before landing.
+on:
+  schedule:
+    # Mondays, 06:00 UTC. Off-peak, so the GitHub API is responsive.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:  # and on demand
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r ai-agent-discovery/requirements.txt
+
+      - name: Refresh star counts
+        env:
+          # Raises the API limit from 60/hour to 5000/hour, which matters
+          # because the catalogue has more agents than the anonymous budget.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python ai-agent-discovery/refresh_stars.py
+
+      - name: Open a pull request if anything changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: Refresh GitHub star counts
+          title: Refresh GitHub star counts
+          body: |
+            Automated weekly refresh of `github_stars` in `data/agents.json`.
+
+            Re-seed after merging so the index reflects the new numbers:
+
+            ```bash
+            make seed
+            ```
+          branch: chore/refresh-stars
+          delete-branch: true
+          add-paths: data/agents.json
