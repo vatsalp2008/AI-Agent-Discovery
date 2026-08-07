@@ -240,6 +240,60 @@ SAMPLE_AGENTS = [
         use_case="Document ingestion for RAG"
     ),
     Agent(
+        name="Skyvern",
+        description="Automates browser workflows using vision models, so it survives layout changes that break selectors.",
+        category="Automation",
+        tech_stack=["Python", "Playwright", "Vision"],
+        github_stars=22706,
+        url="https://github.com/Skyvern-AI/skyvern",
+        use_case="Resilient browser automation"
+    ),
+    Agent(
+        name="Stagehand",
+        description="An AI browser framework that mixes natural-language steps with ordinary Playwright code.",
+        category="Automation",
+        tech_stack=["TypeScript", "Playwright"],
+        github_stars=23761,
+        url="https://github.com/browserbase/stagehand",
+        use_case="Hybrid scripted and AI browsing"
+    ),
+    Agent(
+        name="Activepieces",
+        description="An open source automation platform with AI steps and several hundred connectors.",
+        category="Automation",
+        tech_stack=["TypeScript", "Node.js"],
+        github_stars=23616,
+        url="https://github.com/activepieces/activepieces",
+        use_case="Open source workflow automation"
+    ),
+    Agent(
+        name="Vocode",
+        description="A library for building real-time voice agents that can hold a phone conversation.",
+        category="Customer Service",
+        tech_stack=["Python", "Twilio", "Speech"],
+        github_stars=3783,
+        url="https://github.com/vocodedev/vocode-core",
+        use_case="Voice agents and phone calls"
+    ),
+    Agent(
+        name="Chatwoot",
+        description="An open customer engagement suite with AI-assisted replies across chat, email and social.",
+        category="Customer Service",
+        tech_stack=["Ruby", "Vue.js"],
+        github_stars=35586,
+        url="https://github.com/chatwoot/chatwoot",
+        use_case="Omnichannel customer support"
+    ),
+    Agent(
+        name="K8sGPT",
+        description="Scans a Kubernetes cluster, diagnoses problems and explains them in plain English.",
+        category="Automation",
+        tech_stack=["Go", "Kubernetes"],
+        github_stars=8053,
+        url="https://github.com/k8sgpt-ai/k8sgpt",
+        use_case="Cluster diagnostics and triage"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
