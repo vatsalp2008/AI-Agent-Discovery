@@ -37,7 +37,19 @@
         {% block content %}{% endblock %}
     </div>
 
+    <div class="help-dialog" id="shortcutHelp" role="dialog" aria-modal="false"
+         aria-labelledby="shortcutHelpTitle" hidden>
+        <h2 id="shortcutHelpTitle">Keyboard shortcuts</h2>
+        <dl>
+            <dt><kbd>/</kbd> or <kbd>s</kbd></dt><dd>Focus search</dd>
+            <dt><kbd>?</kbd></dt><dd>Toggle this help</dd>
+            <dt><kbd>Esc</kbd></dt><dd>Close help, or leave the search box</dd>
+        </dl>
+        <button type="button" class="help-close">Close</button>
+    </div>
+
     <script src="/static/js/agent-card.js"></script>
+    <script src="/static/js/shortcuts.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 
