@@ -85,7 +85,7 @@ def test_agents_endpoint_paginates(client):
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
         "total": 3, "count": 2, "limit": 2, "offset": 0,
-        "category": None, "tech": None, "sort": "name", "order": "asc", "has_more": True,
+        "category": None, "tech": None, "q": None, "sort": "name", "order": "asc", "has_more": True,
     }
 
     second = client.get("/api/agents?limit=2&offset=2").get_json()
@@ -401,3 +401,32 @@ def test_tech_and_category_filters_combine(client):
     for agent in body["agents"]:
         assert agent["metadata"]["category"] == "Code Generation"
         assert "Python" in agent["metadata"]["stack"]
+
+
+def test_agents_keyword_filter_matches_names(client):
+    body = client.get("/api/agents?q=curs").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Cursor"]
+    assert body["metadata"]["q"] == "curs"
+
+
+def test_agents_keyword_filter_matches_descriptions(client):
+    body = client.get("/api/agents?q=editor").get_json()
+    assert "Cursor" in [a["name"] for a in body["agents"]]
+
+
+def test_agents_keyword_filter_is_case_insensitive(client):
+    assert client.get("/api/agents?q=CURSOR").get_json()["metadata"]["total"] == 1
+
+
+def test_agents_keyword_filter_combines_with_category(client):
+    body = client.get("/api/agents?q=e&category=Research").get_json()
+    for agent in body["agents"]:
+        assert agent["metadata"]["category"] == "Research"
+
+
+def test_agents_keyword_no_match_is_empty(client):
+    assert client.get("/api/agents?q=zzzznope").get_json()["metadata"]["total"] == 0
+
+
+def test_agents_blank_keyword_is_ignored(client):
+    assert client.get("/api/agents?q=%20").get_json()["metadata"]["total"] == 3

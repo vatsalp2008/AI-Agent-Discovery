@@ -195,8 +195,19 @@ def get_agents():
 
     category = (request.args.get('category') or '').strip() or None
     tech = (request.args.get('tech') or '').strip() or None
+    keyword = (request.args.get('q') or '').strip() or None
 
     agents = get_store().get_all_agents()
+    if keyword:
+        # Plain substring matching, deliberately not semantic: this answers
+        # "find the agent I can already name", which vector search is bad at
+        # for short literal strings.
+        needle = keyword.casefold()
+        agents = [
+            a for a in agents
+            if needle in (a["name"] or "").casefold()
+            or needle in (a["metadata"].get("description") or "").casefold()
+        ]
     if category:
         wanted = category.casefold()
         agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
@@ -219,6 +230,7 @@ def get_agents():
             "offset": offset,
             "category": category,
             "tech": tech,
+            "q": keyword,
             "sort": sort_key,
             "order": order,
             "has_more": offset + len(page) < len(agents),
