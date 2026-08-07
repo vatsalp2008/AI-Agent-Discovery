@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const resultsArea = document.getElementById('resultsArea');
     const filters = document.getElementById('filters');
+    const recent = document.getElementById('recent');
+    const recentList = document.getElementById('recentList');
+    const recentClear = document.getElementById('recentClear');
 
     // Category chips act as a real server-side filter, not just a canned query.
     let activeCategory = null;
@@ -133,6 +136,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return button;
     }
 
+    /** Redraw the recent-query chips. Hidden entirely when there are none. */
+    function renderRecent() {
+        if (!recent || !recentList) return;
+
+        const entries = RecentSearches.read();
+        recent.hidden = entries.length === 0;
+        recentList.replaceChildren();
+
+        entries.forEach(entry => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'recent-item';
+            chip.textContent = RecentSearches.label(entry);
+            chip.addEventListener('click', () => {
+                searchInput.value = entry.query;
+                setActiveChip(entry.category || null);
+                performSearch(entry.query);
+            });
+            recentList.appendChild(chip);
+        });
+    }
+
     function makeNotice(text) {
         const notice = document.createElement('p');
         notice.className = 'result-notice';
@@ -188,7 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!query.trim()) return;
 
         const token = ++searchToken;
-        if (updateUrl) writeStateToUrl(query.trim(), activeCategory);
+        if (updateUrl) {
+            writeStateToUrl(query.trim(), activeCategory);
+            // Only record searches the user actually initiated, not those
+            // replayed from the URL or the Back button.
+            RecentSearches.add(query, activeCategory);
+            renderRecent();
+        }
 
         showLoading();
         resultsArea.setAttribute('aria-busy', 'true');
@@ -355,6 +386,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // so loadCategories re-applies the active one once they do.
     const initial = readStateFromUrl();
     activeCategory = initial.category;
+    if (recentClear) {
+        recentClear.addEventListener('click', () => {
+            RecentSearches.clear();
+            renderRecent();
+        });
+    }
+
     loadCategories();
+    renderRecent();
     applyState(initial);
 });

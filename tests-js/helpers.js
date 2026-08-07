@@ -116,6 +116,11 @@ export const SEARCH_HTML = `
       <button id="searchBtn" type="submit">go</button>
     </form>
     <div id="filters"></div>
+    <div class="recent" id="recent" hidden>
+      <span id="recentLabel">Recent</span>
+      <span id="recentList"></span>
+      <button type="button" id="recentClear">Clear</button>
+    </div>
     <main id="resultsArea" aria-live="polite" aria-busy="false"></main>
 `;
 

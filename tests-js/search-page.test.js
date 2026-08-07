@@ -37,7 +37,10 @@ async function boot(routes = defaultRoutes()) {
         html: SEARCH_HTML,
         script: 'main.js',
         // index.html loads search-state.js before main.js.
-        extraScripts: [{ file: 'search-state.js', global: 'SearchState' }],
+        extraScripts: [
+            { file: 'search-state.js', global: 'SearchState' },
+            { file: 'recent-searches.js', global: 'RecentSearches' },
+        ],
     });
     await flush();
     return calls;
@@ -334,5 +337,63 @@ describe('retrying a failed search', () => {
         submitSearch('anything');
         await flush();
         expect(document.activeElement).toBe(document.querySelector('.retry-btn'));
+    });
+});
+
+describe('recent searches', () => {
+    beforeEach(() => localStorage.clear());
+    afterEach(() => localStorage.clear());
+
+    it('is hidden with no history', async () => {
+        await boot();
+        expect(document.getElementById('recent').hidden).toBe(true);
+    });
+
+    it('records a search and shows it as a chip', async () => {
+        await boot();
+        submitSearch('vector database');
+        await flush();
+
+        expect(document.getElementById('recent').hidden).toBe(false);
+        const chips = [...document.querySelectorAll('.recent-item')].map(c => c.textContent);
+        expect(chips).toContain('vector database');
+    });
+
+    it('includes the active category in the chip label', async () => {
+        await boot();
+        document.querySelector('#filters .filter-tag').click();
+        submitSearch('editor');
+        await flush();
+        expect(document.querySelector('.recent-item').textContent).toContain('Code Generation');
+    });
+
+    it('re-runs a search when its chip is clicked', async () => {
+        const calls = await boot();
+        submitSearch('first query');
+        await flush();
+
+        document.getElementById('searchInput').value = '';
+        document.querySelector('.recent-item').click();
+        await flush();
+
+        expect(document.getElementById('searchInput').value).toBe('first query');
+        const last = calls.filter(c => c.url.includes('/api/search')).pop();
+        expect(JSON.parse(last.options.body).query).toBe('first query');
+    });
+
+    it('does not record a search replayed from the URL', async () => {
+        window.history.replaceState({}, '', '/?q=from+url');
+        await boot();
+        expect(document.getElementById('recent').hidden).toBe(true);
+    });
+
+    it('clears the history', async () => {
+        await boot();
+        submitSearch('something');
+        await flush();
+
+        document.getElementById('recentClear').click();
+        await flush();
+        expect(document.getElementById('recent').hidden).toBe(true);
     });
 });

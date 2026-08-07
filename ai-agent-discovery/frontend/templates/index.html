@@ -20,6 +20,12 @@
     <div class="filters" id="filters" role="group" aria-label="Filter by category">
         <!-- Populated from /api/categories -->
     </div>
+
+    <div class="recent" id="recent" hidden>
+        <span class="recent-label" id="recentLabel">Recent</span>
+        <span class="recent-list" id="recentList" role="group" aria-labelledby="recentLabel"></span>
+        <button type="button" id="recentClear" class="recent-clear">Clear</button>
+    </div>
 </section>
 
 <main id="resultsArea" aria-live="polite" aria-busy="false">
@@ -29,5 +35,6 @@
 
 {% block scripts %}
 <script src="/static/js/search-state.js"></script>
+<script src="/static/js/recent-searches.js"></script>
 <script src="/static/js/main.js"></script>
 {% endblock %}

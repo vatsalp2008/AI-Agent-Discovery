@@ -682,3 +682,56 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Recent searches */
+.recent {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+}
+
+.recent-label {
+    color: var(--text-secondary);
+}
+
+.recent-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.recent-item {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px dashed var(--border-color);
+    border-radius: 14px;
+    padding: 0.25rem 0.7rem;
+    cursor: pointer;
+}
+
+.recent-item:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    border-style: solid;
+}
+
+.recent-clear {
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.recent-item:focus-visible,
+.recent-clear:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
