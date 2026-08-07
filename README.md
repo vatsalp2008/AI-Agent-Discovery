@@ -15,7 +15,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
-- 📊 **Rich Agent Database** - Curated collection of 35+ AI agents, frameworks and coding tools
+- 📊 **Rich Agent Database** - Curated collection of 60 AI agents and frameworks
 
 ## 🚀 Features
 
@@ -141,6 +141,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `AGENTS_MAX_PAGE_SIZE` | `200` | Upper bound on that page size |
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
 | `SEARCH_MIN_SCORE` | `0.5` | Below this, results are flagged as weak matches |
+| `COMPARE_MAX_AGENTS` | `4` | Upper bound on `/api/compare` |
 | `LOG_FORMAT` | `text` | `text` or `json` (one object per line) |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
@@ -159,6 +160,15 @@ paths resolve against the repository root, so commands work from any directory.
 
 ## 🎯 Usage
 
+### Pages
+
+| Path | What it does |
+|------|--------------|
+| `/` | Search, with category chips, recent queries and export |
+| `/dashboard` | Every agent, filterable and sortable, with totals |
+| `/agent/<name>` | One agent in detail, plus similar agents |
+| `/compare?names=A,B` | Agents side by side |
+
 ### Web Interface
 
 1. Open `http://localhost:5000`
@@ -169,6 +179,13 @@ paths resolve against the repository root, so commands work from any directory.
 4. Click an agent's name for its detail page, with similar agents
 5. Use **Copy link** to share a search — the query and category live in the
    URL, so results are bookmarkable and survive the Back button
+6. **Export CSV / JSON** to take a result set elsewhere
+7. Recent queries are remembered locally; they never leave your machine
+8. Toggle light/dark in the header — the choice is saved, and the OS
+   preference is honoured until you set one
+
+Keyboard: <kbd>/</kbd> or <kbd>s</kbd> focuses search, <kbd>?</kbd> shows the
+shortcut help, <kbd>Esc</kbd> closes it.
 
 Everything is keyboard operable: the category chips are real buttons, the
 results region announces updates, and a failed search offers a focused
@@ -275,6 +292,7 @@ than none.
 GET /api/agents?limit=20&offset=0
 GET /api/agents?category=Code%20Generation      # case-insensitive
 GET /api/agents?tech=Python                     # matches whole stack entries
+GET /api/agents?q=cursor                        # substring of name or description
 GET /api/agents?sort=stars                      # name | stars | category
 GET /api/agents?sort=name&order=desc            # asc | desc
 ```
@@ -283,14 +301,17 @@ GET /api/agents?sort=name&order=desc            # asc | desc
 {
   "agents": [ { "name": "Aider", "description": "...", "metadata": { } } ],
   "metadata": {
-    "total": 37, "count": 20, "limit": 20, "offset": 0,
-    "category": null, "tech": null, "sort": "name", "order": "asc",
+    "total": 60, "count": 20, "limit": 20, "offset": 0,
+    "category": null, "tech": null, "q": null, "sort": "name", "order": "asc",
     "has_more": true
   }
 }
 ```
 
 `sort=stars` defaults to descending, the others to ascending. Filters combine.
+`q` is plain substring matching, deliberately not semantic: it answers "find
+the agent I can already name", which vector search handles poorly for short
+literal strings.
 
 #### Get a single agent
 
@@ -304,6 +325,39 @@ GET /api/agents/Cursor      # case-insensitive; 404 if unknown
 GET /api/categories
 # [{"name": "Code Generation", "count": 6}, {"name": "Research", "count": 4}]
 ```
+
+#### Similar agents
+
+```bash
+GET /api/agents/Cursor/similar?limit=3
+```
+
+```json
+{
+  "agents": [ { "name": "Windsurf", "score": 0.83, "metadata": { } } ],
+  "metadata": { "of": "Cursor", "count": 3, "limit": 3 }
+}
+```
+
+Excludes the agent from its own results, and over-fetches so a request for
+three neighbours returns three rather than two.
+
+#### Compare agents
+
+```bash
+GET /api/compare?names=Claude%20Code,Aider,Cline
+```
+
+```json
+{
+  "agents": [ { "name": "Claude Code", "metadata": { } } ],
+  "metadata": { "requested": 3, "count": 3, "missing": [] }
+}
+```
+
+Unknown names come back in `metadata.missing` instead of failing the request,
+so one typo does not discard the agents that did resolve. Capped at
+`COMPARE_MAX_AGENTS`.
 
 #### List technologies
 
@@ -319,7 +373,7 @@ must be scalars); this endpoint splits it back into individual technologies.
 
 ```bash
 GET /api/stats
-# {"count": 37, "categories": 8, "top_category": {"name": "Code Generation", "count": 9},
+# {"count": 60, "categories": 7, "top_category": {"name": "Code Generation", "count": 9},
 #  "total_stars": 653000, "average_stars": 17648, "embedding_model": "nomic-embed-text",
 #  "built_at": "2026-08-06T20:48:31+00:00"}
 ```
@@ -370,7 +424,12 @@ AI-Agent-Discovery/
 │   │   ├── static/js/main.js            # Search page
 │   │   ├── static/js/dashboard.js       # Dashboard page
 │   │   ├── static/js/agent.js           # Agent detail page
-│   │   └── templates/          # base.html, index.html, dashboard.html, agent.html
+│   │   ├── static/js/compare.js         # Comparison page
+│   │   ├── static/js/theme.js           # Light/dark switching
+│   │   ├── static/js/shortcuts.js       # Keyboard shortcuts
+│   │   ├── static/js/recent-searches.js # Local query history
+│   │   ├── static/js/export-results.js  # CSV and JSON export
+│   │   └── templates/          # base, index, dashboard, agent, compare
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
 │   ├── refresh_stars.py        # Star count refresh
@@ -525,6 +584,9 @@ real embedding and chat models to catch what stubs cannot — that embeddings ar
 unit vectors, that scores actually separate relevant from irrelevant results,
 and that generated overviews only mention agents that were actually retrieved.
 It needs a running Ollama and a seeded index, and skips cleanly without them.
+
+A separate scheduled workflow refreshes GitHub star counts weekly and opens a
+pull request with the changes.
 
 **CI** runs three jobs: the Python checks on 3.10 and 3.12, the frontend suite,
 and a `live` job that starts an Ollama service container, pulls both models and
