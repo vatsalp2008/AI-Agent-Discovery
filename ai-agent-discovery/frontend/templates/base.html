@@ -13,6 +13,9 @@
     <!-- Ionicons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Loaded in <head> without defer so the saved theme is applied before
+         first paint; the CSP forbids the usual inline snippet. -->
+    <script src="/static/js/theme.js"></script>
     {% block head %}{% endblock %}
 </head>
 
@@ -26,6 +29,8 @@
             <nav aria-label="Main">
                 <a href="/" {% if page == 'search' %}class="active" aria-current="page"{% endif %}>Search</a>
                 <a href="/dashboard" {% if page == 'dashboard' %}class="active" aria-current="page"{% endif %}>Dashboard</a>
+                <button type="button" id="themeToggle" class="theme-toggle"
+                        aria-label="Switch theme">☀</button>
             </nav>
         </header>
 

@@ -65,8 +65,11 @@ export function bootPage({ html, script, extraScripts = [] }) {
 
     try {
         const source = readFileSync(resolve(STATIC_JS, script), 'utf8');
+        // Surface any top-level const the file defines (e.g. Theme) so tests
+        // can drive its API directly, the same way loadScript does.
+        const exposed = script.replace(/\.js$/, '').replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase());
         // eslint-disable-next-line no-eval
-        (0, eval)(source);
+        (0, eval)(`${source}\n;try { globalThis.${exposed} = ${exposed}; } catch (e) {}`);
     } finally {
         document.addEventListener = realAdd;
     }
