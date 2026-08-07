@@ -87,6 +87,51 @@ SAMPLE_AGENTS = [
         use_case="Chat with data, analysis"
     ),
     Agent(
+        name="Vanna AI",
+        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
+        category="Data Analysis",
+        tech_stack=["Python", "RAG", "SQL"],
+        github_stars=19000,
+        url="https://github.com/vanna-ai/vanna",
+        use_case="Natural language querying of databases"
+    ),
+    Agent(
+        name="Jupyter AI",
+        description="Brings generative AI into JupyterLab with a chat panel and %%ai magics that work against any notebook cell.",
+        category="Data Analysis",
+        tech_stack=["Python", "JupyterLab"],
+        github_stars=3500,
+        url="https://github.com/jupyterlab/jupyter-ai",
+        use_case="AI assistance inside notebooks"
+    ),
+    Agent(
+        name="LIDA",
+        description="Generates visualisations and infographics from data using LLMs, including the grammar-agnostic chart code.",
+        category="Data Analysis",
+        tech_stack=["Python", "Altair", "Matplotlib"],
+        github_stars=2800,
+        url="https://github.com/microsoft/lida",
+        use_case="Automatic chart and infographic generation"
+    ),
+    Agent(
+        name="Sketch",
+        description="An AI coding assistant for pandas that understands the contents of a dataframe, not just its schema.",
+        category="Data Analysis",
+        tech_stack=["Python", "Pandas"],
+        github_stars=2300,
+        url="https://github.com/approximatelabs/sketch",
+        use_case="Dataframe-aware code suggestions"
+    ),
+    Agent(
+        name="DB-GPT",
+        description="A private data application framework that puts an agent layer over databases and warehouses.",
+        category="Data Analysis",
+        tech_stack=["Python", "Local LLM", "SQL"],
+        github_stars=16000,
+        url="https://github.com/eosphoros-ai/DB-GPT",
+        use_case="Private database question answering"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
