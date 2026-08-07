@@ -818,3 +818,67 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Comparison table */
+.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.compare-table th,
+.compare-table td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.compare-table thead th {
+    background: rgba(148, 163, 184, 0.08);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.compare-table thead th a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.compare-table tbody th {
+    width: 10rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+.compare-table td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.compare-table tr:last-child th,
+.compare-table tr:last-child td {
+    border-bottom: none;
+}
+
+.compare-remove {
+    font: inherit;
+    float: right;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 0.25rem;
+}
+
+.compare-remove:hover { color: #ef4444; }
+
+.compare-remove:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

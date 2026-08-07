@@ -265,6 +265,39 @@ def get_similar_agents(name):
     }), 200
 
 
+@api_bp.route('/compare', methods=['GET'])
+def compare_agents():
+    """Fetch several agents at once for a side-by-side comparison.
+
+    Reports unknown names in `metadata.missing` rather than 404ing the whole
+    request, so one typo does not discard the agents that did resolve.
+    """
+    raw = request.args.get('names') or ''
+    names = [n.strip() for n in raw.split(',') if n.strip()]
+
+    if not names:
+        return jsonify({"error": "'names' must list at least one agent"}), 400
+    if len(names) > config.COMPARE_MAX_AGENTS:
+        return jsonify({
+            "error": f"'names' accepts at most {config.COMPARE_MAX_AGENTS} agents"
+        }), 400
+
+    store = get_store()
+    found, missing = [], []
+    for name in names:
+        agent = store.get_agent(name)
+        (found if agent else missing).append(agent or name)
+
+    return jsonify({
+        "agents": found,
+        "metadata": {
+            "requested": len(names),
+            "count": len(found),
+            "missing": missing,
+        },
+    }), 200
+
+
 @api_bp.route('/search', methods=['POST'])
 def search_agents():
     payload = request.get_json(silent=True)

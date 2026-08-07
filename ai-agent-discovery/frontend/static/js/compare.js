@@ -1,0 +1,163 @@
+/**
+ * Side-by-side agent comparison.
+ *
+ * The chosen agents live in the URL (?names=A,B) so a comparison can be
+ * shared and survives the Back button, the same way a search does.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const area = document.getElementById('compareArea');
+    const picker = document.getElementById('comparePick');
+    const clearButton = document.getElementById('compareClear');
+
+    const ROWS = [
+        { label: 'Category', get: m => m.category || 'Uncategorized' },
+        { label: 'GitHub stars', get: m => AgentCard.formatStars(m.stars) },
+        { label: 'Tech stack', get: m => AgentCard.parseStack(m.stack).join(', ') || '—' },
+        { label: 'Description', get: m => m.description || '—' },
+    ];
+
+    function selected() {
+        const raw = new URLSearchParams(window.location.search).get('names') || '';
+        return raw.split(',').map(n => n.trim()).filter(Boolean);
+    }
+
+    function setSelected(names) {
+        const url = names.length
+            ? `${window.location.pathname}?names=${encodeURIComponent(names.join(','))}`
+            : window.location.pathname;
+        window.history.pushState({ names }, '', url);
+        render();
+    }
+
+    function message(text) {
+        const p = document.createElement('p');
+        p.className = 'result-message';
+        p.textContent = text;
+        area.replaceChildren(p);
+    }
+
+    /** One column per agent, one row per attribute. */
+    function buildTable(agents) {
+        const table = document.createElement('table');
+        table.className = 'compare-table';
+
+        const head = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        headRow.appendChild(document.createElement('th'));
+        agents.forEach(agent => {
+            const th = document.createElement('th');
+            th.scope = 'col';
+
+            const link = document.createElement('a');
+            link.href = `/agent/${encodeURIComponent(agent.name)}`;
+            link.textContent = agent.name;
+            th.appendChild(link);
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'compare-remove';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', `Remove ${agent.name}`);
+            remove.addEventListener('click', () => {
+                setSelected(selected().filter(n => n.toLowerCase() !== agent.name.toLowerCase()));
+            });
+            th.appendChild(remove);
+
+            headRow.appendChild(th);
+        });
+        head.appendChild(headRow);
+        table.appendChild(head);
+
+        const body = document.createElement('tbody');
+        ROWS.forEach(row => {
+            const tr = document.createElement('tr');
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.textContent = row.label;
+            tr.appendChild(th);
+
+            agents.forEach(agent => {
+                const td = document.createElement('td');
+                td.textContent = row.get(agent.metadata || {});
+                tr.appendChild(td);
+            });
+            body.appendChild(tr);
+        });
+        table.appendChild(body);
+        return table;
+    }
+
+    async function render() {
+        const names = selected();
+        if (names.length === 0) {
+            message('Pick two or more agents to compare.');
+            return;
+        }
+
+        area.setAttribute('aria-busy', 'true');
+        try {
+            const response = await fetch(`/api/compare?names=${encodeURIComponent(names.join(','))}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                message(data.error || 'Could not load the comparison.');
+                return;
+            }
+
+            if ((data.agents || []).length === 0) {
+                message('None of those agents were found.');
+                return;
+            }
+
+            area.replaceChildren(buildTable(data.agents));
+
+            const missing = (data.metadata || {}).missing || [];
+            if (missing.length) {
+                const note = document.createElement('p');
+                note.className = 'result-notice';
+                note.textContent = `Not found: ${missing.join(', ')}`;
+                area.prepend(note);
+            }
+        } catch (error) {
+            console.error(error);
+            message('Could not load the comparison.');
+        } finally {
+            area.setAttribute('aria-busy', 'false');
+        }
+    }
+
+    async function fillPicker() {
+        if (!picker) return;
+        try {
+            const response = await fetch('/api/agents?limit=200&sort=name');
+            if (!response.ok) return;
+            const body = await response.json();
+            (body.agents || []).forEach(agent => {
+                const option = document.createElement('option');
+                option.value = agent.name;
+                option.textContent = agent.name;
+                picker.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Could not load the agent list:', error);
+        }
+    }
+
+    if (picker) {
+        picker.addEventListener('change', () => {
+            const name = picker.value;
+            picker.value = '';
+            if (!name) return;
+
+            const current = selected();
+            if (current.some(n => n.toLowerCase() === name.toLowerCase())) return;
+            setSelected([...current, name]);
+        });
+    }
+
+    if (clearButton) clearButton.addEventListener('click', () => setSelected([]));
+    window.addEventListener('popstate', render);
+
+    fillPicker();
+    render();
+});

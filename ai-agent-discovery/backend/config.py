@@ -59,6 +59,9 @@ SEARCH_DEFAULT_LIMIT = _int_env("SEARCH_DEFAULT_LIMIT", 10)
 SEARCH_MAX_LIMIT = _int_env("SEARCH_MAX_LIMIT", 50)
 MAX_QUERY_LENGTH = _int_env("MAX_QUERY_LENGTH", 500)
 
+# Upper bound on GET /api/compare, so a long URL cannot fan out unboundedly.
+COMPARE_MAX_AGENTS = _int_env("COMPARE_MAX_AGENTS", 4)
+
 # Page size for GET /api/agents
 AGENTS_PAGE_SIZE = _int_env("AGENTS_PAGE_SIZE", 50)
 AGENTS_MAX_PAGE_SIZE = _int_env("AGENTS_MAX_PAGE_SIZE", 200)

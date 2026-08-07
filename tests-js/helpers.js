@@ -151,3 +151,12 @@ export const AGENT_HTML = `
       <div id="similarGrid"></div>
     </section>
 `;
+
+/** The comparison page's markup, mirroring templates/compare.html. */
+export const COMPARE_HTML = `
+    <div class="controls">
+      <select id="comparePick"><option value="">Add an agent…</option></select>
+      <button type="button" id="compareClear">Clear</button>
+    </div>
+    <main id="compareArea" aria-busy="false"></main>
+`;

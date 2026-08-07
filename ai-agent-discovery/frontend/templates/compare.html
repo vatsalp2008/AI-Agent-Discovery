@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Compare agents | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>Compare agents</h1>
+    <p>Put agents side by side to see how they differ.</p>
+</section>
+
+<div class="controls" role="group" aria-labelledby="compareHeading">
+    <span class="sr-only" id="compareHeading">Choose agents to compare</span>
+    <label class="sr-only" for="comparePick">Add an agent</label>
+    <select id="comparePick" class="control-select">
+        <option value="">Add an agent…</option>
+    </select>
+    <button type="button" id="compareClear" class="control-button">Clear</button>
+</div>
+
+<main id="compareArea" aria-live="polite" aria-busy="false"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/compare.js"></script>
+{% endblock %}

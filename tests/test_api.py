@@ -467,3 +467,46 @@ def test_similar_is_case_insensitive(client):
 
 def test_similar_rejects_a_bad_limit(client):
     assert client.get("/api/agents/Cursor/similar?limit=0").status_code == 400
+
+
+def test_compare_returns_several_agents(client):
+    body = client.get("/api/compare?names=Cursor,Aider").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Cursor", "Aider"]
+    assert body["metadata"] == {"requested": 2, "count": 2, "missing": []}
+
+
+def test_compare_preserves_the_requested_order(client):
+    body = client.get("/api/compare?names=Aider,Cursor").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Aider", "Cursor"]
+
+
+def test_compare_reports_unknown_names_without_discarding_the_rest(client):
+    """One typo should not throw away the agents that did resolve."""
+    body = client.get("/api/compare?names=Cursor,Nope").get_json()
+    assert [a["name"] for a in body["agents"]] == ["Cursor"]
+    assert body["metadata"]["missing"] == ["Nope"]
+    assert body["metadata"]["requested"] == 2
+
+
+def test_compare_is_case_insensitive(client):
+    assert client.get("/api/compare?names=cursor").get_json()["metadata"]["count"] == 1
+
+
+def test_compare_ignores_blank_entries(client):
+    body = client.get("/api/compare?names=Cursor,,%20,Aider").get_json()
+    assert body["metadata"]["requested"] == 2
+
+
+def test_compare_requires_at_least_one_name(client):
+    for query in ["", "names=", "names=%20"]:
+        response = client.get(f"/api/compare?{query}")
+        assert response.status_code == 400, query
+
+
+def test_compare_caps_the_number_of_agents(client):
+    import config
+
+    names = ",".join(f"a{i}" for i in range(config.COMPARE_MAX_AGENTS + 1))
+    response = client.get(f"/api/compare?names={names}")
+    assert response.status_code == 400
+    assert "at most" in response.get_json()["error"]

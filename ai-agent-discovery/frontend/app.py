@@ -31,6 +31,11 @@ def index():
 def dashboard():
     return render_template('dashboard.html', page='dashboard')
 
+@app.route('/compare')
+def compare():
+    """Side-by-side comparison; the agents come from ?names=."""
+    return render_template('compare.html', page='compare')
+
 @app.route('/agent/<path:name>')
 def agent_detail(name):
     """Detail page. The agent itself is fetched client-side from the API."""
