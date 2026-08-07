@@ -186,6 +186,60 @@ SAMPLE_AGENTS = [
         use_case="Automated pull request review"
     ),
     Agent(
+        name="RAGFlow",
+        description="A RAG engine built on deep document understanding, with layout-aware chunking and grounded citations.",
+        category="Research",
+        tech_stack=["Python", "Elasticsearch", "Docker"],
+        github_stars=32000,
+        url="https://github.com/infiniflow/ragflow",
+        use_case="Document-grounded question answering"
+    ),
+    Agent(
+        name="Verba",
+        description="Weaviate's open RAG interface for importing documents and querying them with citations.",
+        category="Research",
+        tech_stack=["Python", "Weaviate", "React"],
+        github_stars=7000,
+        url="https://github.com/weaviate/Verba",
+        use_case="Turnkey retrieval-augmented chat"
+    ),
+    Agent(
+        name="Khoj",
+        description="A self-hosted second brain that searches your notes, documents and the web from one place.",
+        category="Research",
+        tech_stack=["Python", "Django", "Local LLM"],
+        github_stars=27000,
+        url="https://github.com/khoj-ai/khoj",
+        use_case="Personal knowledge search"
+    ),
+    Agent(
+        name="Mem0",
+        description="A memory layer that lets agents remember user preferences and facts across sessions.",
+        category="Framework",
+        tech_stack=["Python", "Vector DB"],
+        github_stars=27000,
+        url="https://github.com/mem0ai/mem0",
+        use_case="Long-term memory for agents"
+    ),
+    Agent(
+        name="Letta",
+        description="Formerly MemGPT: agents with persistent memory that manage their own context window.",
+        category="Framework",
+        tech_stack=["Python", "PostgreSQL"],
+        github_stars=17000,
+        url="https://github.com/letta-ai/letta",
+        use_case="Stateful agents with self-managed memory"
+    ),
+    Agent(
+        name="Unstructured",
+        description="Preprocessing pipelines that turn PDFs, HTML and images into clean chunks for retrieval.",
+        category="Framework",
+        tech_stack=["Python", "OCR"],
+        github_stars=11000,
+        url="https://github.com/Unstructured-IO/unstructured",
+        use_case="Document ingestion for RAG"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
