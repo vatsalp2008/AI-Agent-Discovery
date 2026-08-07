@@ -69,7 +69,7 @@ SAMPLE_AGENTS = [
     Agent(
         name="BabyAGI",
         description="A framework for managing tasks using AI. It creates tasks based on the result of previous tasks.",
-        category="Task Automation",
+        category="Autonomous Agent",
         tech_stack=["Python", "OpenAI API", "Pinecone"],
         github_stars=19000,
         url="https://github.com/yoheinakajima/babyagi",
