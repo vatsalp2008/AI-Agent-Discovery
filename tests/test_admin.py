@@ -236,3 +236,40 @@ def test_writes_work_when_the_catalogue_sits_outside_data_dir(tmp_path, monkeypa
         assert client.post("/api/admin/agents", json=valid()).status_code == 201
     assert elsewhere.exists()
     api.set_store(None)
+
+
+def test_concurrent_creates_do_not_drop_each_other(catalogue, monkeypatch, store):
+    """Each edit is a read-modify-write of the whole file, so without a lock
+    the second write would silently discard the first — both returning 201."""
+    import threading
+
+    import api
+
+    monkeypatch.setattr(config, "ENABLE_ADMIN", True)
+    api.set_store(store)
+
+    app = Flask(__name__)
+    app.register_blueprint(admin.admin_bp)
+    admin.register_error_handler(app)
+
+    errors = []
+
+    def add(i):
+        # A test client is not shareable across threads; give each its own.
+        with app.test_client() as client:
+            response = client.post("/api/admin/agents", json=valid(name=f"Agent{i}"))
+            if response.status_code != 201:
+                errors.append((i, response.status_code, response.get_json()))
+
+    threads = [threading.Thread(target=add, args=(i,)) for i in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    api.set_store(None)
+    assert not errors, errors
+
+    names = {r["name"] for r in json.loads(catalogue.read_text())}
+    expected = {f"Agent{i}" for i in range(8)} | {"Cursor"}
+    assert names == expected, f"lost writes: {sorted(expected - names)}"

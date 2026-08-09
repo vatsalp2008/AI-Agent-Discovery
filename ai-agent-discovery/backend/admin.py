@@ -18,6 +18,7 @@ change.
 import json
 import logging
 import os
+import threading
 
 from flask import Blueprint, jsonify, request
 
@@ -30,6 +31,14 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
 EDITABLE_FIELDS = ("name", "description", "category", "tech_stack",
                    "github_stars", "url", "use_case")
+
+# Every edit is a read-modify-write of the whole catalogue. Flask's dev server
+# is threaded, so two concurrent edits would both read the same list and the
+# second write would silently discard the first — with both returning success.
+# One process-wide lock is enough here: this is a single-process local tool,
+# and the alternative (per-record locking or a real database) is far more
+# machinery than a hand-edited JSON file warrants.
+_write_lock = threading.Lock()
 
 
 class AdminError(Exception):
@@ -150,10 +159,12 @@ def _find(records, name):
 @admin_bp.route('/agents', methods=['POST'])
 def create_agent():
     _require_enabled()
-    records = load_catalogue()
-    cleaned = validate(request.get_json(silent=True), records)
-    records.append(cleaned)
-    save_catalogue(records)
+    payload = request.get_json(silent=True)
+    with _write_lock:
+        records = load_catalogue()
+        cleaned = validate(payload, records)
+        records.append(cleaned)
+        save_catalogue(records)
     logger.info("Added agent %r to the catalogue", cleaned["name"])
     return jsonify({"agent": cleaned, "total": len(records)}), 201
 
@@ -161,14 +172,16 @@ def create_agent():
 @admin_bp.route('/agents/<path:name>', methods=['PUT'])
 def update_agent(name):
     _require_enabled()
-    records = load_catalogue()
-    index = _find(records, name)
-    if index is None:
-        raise AdminError(f"No agent named {name!r}", status=404)
+    payload = request.get_json(silent=True)
+    with _write_lock:
+        records = load_catalogue()
+        index = _find(records, name)
+        if index is None:
+            raise AdminError(f"No agent named {name!r}", status=404)
 
-    cleaned = validate(request.get_json(silent=True), records, original_name=records[index]["name"])
-    records[index] = cleaned
-    save_catalogue(records)
+        cleaned = validate(payload, records, original_name=records[index].get("name"))
+        records[index] = cleaned
+        save_catalogue(records)
     logger.info("Updated agent %r", cleaned["name"])
     return jsonify({"agent": cleaned, "total": len(records)}), 200
 
@@ -176,15 +189,16 @@ def update_agent(name):
 @admin_bp.route('/agents/<path:name>', methods=['DELETE'])
 def delete_agent(name):
     _require_enabled()
-    records = load_catalogue()
-    index = _find(records, name)
-    if index is None:
-        raise AdminError(f"No agent named {name!r}", status=404)
+    with _write_lock:
+        records = load_catalogue()
+        index = _find(records, name)
+        if index is None:
+            raise AdminError(f"No agent named {name!r}", status=404)
 
-    removed = records.pop(index)
-    save_catalogue(records)
-    logger.info("Deleted agent %r", removed["name"])
-    return jsonify({"deleted": removed["name"], "total": len(records)}), 200
+        removed = records.pop(index)
+        save_catalogue(records)
+    logger.info("Deleted agent %r", removed.get("name"))
+    return jsonify({"deleted": removed.get("name"), "total": len(records)}), 200
 
 
 @admin_bp.route('/reindex', methods=['POST'])
