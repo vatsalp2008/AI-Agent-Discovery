@@ -48,3 +48,21 @@ def test_port_is_configurable(fresh_config, monkeypatch):
 def test_invalid_port_falls_back_to_the_default(fresh_config, monkeypatch):
     monkeypatch.setenv("PORT", "not-a-port")
     assert fresh_config().PORT == 5000
+
+
+def test_env_example_documents_every_setting():
+    """A setting absent from .env.example is one nobody will discover."""
+    import re
+
+    import config
+
+    source = (config.PACKAGE_DIR / "backend" / "config.py").read_text()
+    example = (config.PACKAGE_DIR / ".env.example").read_text()
+
+    # Derived paths and helpers are not env-configurable.
+    internal = {"PACKAGE_DIR", "REPO_ROOT", "DEBUG"}
+    settings = set(re.findall(r"^([A-Z][A-Z0-9_]+) = ", source, re.M)) - internal
+
+    documented = set(re.findall(r"^#?\s*([A-Z][A-Z0-9_]+)=", example, re.M))
+    missing = settings - documented
+    assert not missing, f".env.example does not mention: {sorted(missing)}"
