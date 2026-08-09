@@ -366,6 +366,60 @@ SAMPLE_AGENTS = [
         use_case="Automated vulnerability scanning for models"
     ),
     Agent(
+        name="Guardrails",
+        description="Adds validation and structure to LLM output, re-asking the model when a check fails.",
+        category="Safety",
+        tech_stack=["Python", "Pydantic"],
+        github_stars=7260,
+        url="https://github.com/guardrails-ai/guardrails",
+        use_case="Validating and correcting model output"
+    ),
+    Agent(
+        name="NeMo Guardrails",
+        description="NVIDIA's toolkit for adding programmable conversational rails to LLM applications.",
+        category="Safety",
+        tech_stack=["Python", "Colang"],
+        github_stars=6895,
+        url="https://github.com/NVIDIA/NeMo-Guardrails",
+        use_case="Constraining what a chatbot will discuss"
+    ),
+    Agent(
+        name="Rebuff",
+        description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
+        category="Safety",
+        tech_stack=["Python", "Vector DB"],
+        github_stars=1517,
+        url="https://github.com/protectai/rebuff",
+        use_case="Detecting prompt injection"
+    ),
+    Agent(
+        name="Garak",
+        description="A vulnerability scanner for LLMs, probing for jailbreaks, data leakage and toxic generation.",
+        category="Safety",
+        tech_stack=["Python"],
+        github_stars=8739,
+        url="https://github.com/leondz/garak",
+        use_case="Red teaming a model before deployment"
+    ),
+    Agent(
+        name="Presidio",
+        description="Microsoft's framework for detecting and redacting personal data in text and images.",
+        category="Safety",
+        tech_stack=["Python", "spaCy"],
+        github_stars=10395,
+        url="https://github.com/microsoft/presidio",
+        use_case="Stripping PII before it reaches a model"
+    ),
+    Agent(
+        name="LiteLLM",
+        description="A gateway that exposes one OpenAI-compatible API across a hundred model providers, with budgets and fallbacks.",
+        category="Framework",
+        tech_stack=["Python", "Rust", "Proxy"],
+        github_stars=55917,
+        url="https://github.com/BerriAI/litellm",
+        use_case="Provider-agnostic model access"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
