@@ -997,3 +997,57 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Catalogue editor */
+.admin-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-count { color: var(--text-secondary); font-size: 0.9rem; margin-right: auto; }
+
+.admin-stale {
+    font-size: 0.85rem;
+    color: #f59e0b;
+}
+
+.admin-form {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.admin-form h2 { font-size: 1.05rem; margin-bottom: 1.25rem; }
+
+.admin-field { margin-bottom: 1rem; }
+
+.admin-field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.admin-field .control-input { width: 100%; }
+
+.admin-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+
+.admin-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-row-name { font-weight: 600; min-width: 12rem; }
+
+.admin-row-category {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-right: auto;
+}

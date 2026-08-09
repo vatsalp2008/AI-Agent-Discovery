@@ -31,6 +31,7 @@
                 <a href="/dashboard" {% if page == 'dashboard' %}class="active" aria-current="page"{% endif %}>Dashboard</a>
                 <a href="/compare" {% if page == 'compare' %}class="active" aria-current="page"{% endif %}>Compare</a>
                 <a href="/collections" {% if page == 'collections' %}class="active" aria-current="page"{% endif %}>Collections</a>
+                {% if admin_enabled %}<a href="/admin" {% if page == 'admin' %}class="active" aria-current="page"{% endif %}>Edit</a>{% endif %}
                 <button type="button" id="themeToggle" class="theme-toggle"
                         aria-label="Switch theme">☀</button>
             </nav>

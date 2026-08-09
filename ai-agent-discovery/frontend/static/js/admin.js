@@ -1,0 +1,204 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const panel = document.getElementById('adminPanel');
+    const disabled = document.getElementById('adminDisabled');
+    const form = document.getElementById('agentForm');
+    const list = document.getElementById('adminList');
+    const errorEl = document.getElementById('adminError');
+    const statusEl = document.getElementById('adminStatus');
+    const countEl = document.getElementById('adminCount');
+    const staleEl = document.getElementById('adminStale');
+    const heading = document.getElementById('formHeading');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editingName = document.getElementById('editingName');
+
+    const fields = {
+        name: document.getElementById('fieldName'),
+        category: document.getElementById('fieldCategory'),
+        description: document.getElementById('fieldDescription'),
+        stack: document.getElementById('fieldStack'),
+        stars: document.getElementById('fieldStars'),
+        url: document.getElementById('fieldUrl'),
+        use_case: document.getElementById('fieldUseCase'),
+    };
+
+    function say(message, isError) {
+        const target = isError ? errorEl : statusEl;
+        const other = isError ? statusEl : errorEl;
+        target.textContent = message || '';
+        target.hidden = !message;
+        other.hidden = true;
+    }
+
+    function formValues() {
+        return {
+            name: fields.name.value.trim(),
+            category: fields.category.value.trim(),
+            description: fields.description.value.trim(),
+            tech_stack: fields.stack.value.split(',').map(t => t.trim()).filter(Boolean),
+            github_stars: Number(fields.stars.value) || 0,
+            url: fields.url.value.trim(),
+            use_case: fields.use_case.value.trim(),
+        };
+    }
+
+    function resetForm() {
+        form.reset();
+        editingName.value = '';
+        heading.textContent = 'Add an agent';
+        saveBtn.textContent = 'Add agent';
+        cancelBtn.hidden = true;
+    }
+
+    function startEdit(agent) {
+        editingName.value = agent.name;
+        fields.name.value = agent.name;
+        fields.category.value = agent.category || '';
+        fields.description.value = agent.description || '';
+        fields.stack.value = (agent.tech_stack || []).join(', ');
+        fields.stars.value = agent.github_stars || 0;
+        fields.url.value = agent.url || '';
+        fields.use_case.value = agent.use_case || '';
+
+        heading.textContent = `Editing ${agent.name}`;
+        saveBtn.textContent = 'Save changes';
+        cancelBtn.hidden = false;
+        fields.name.focus();
+    }
+
+    function row(agent) {
+        const item = document.createElement('div');
+        item.className = 'admin-row';
+
+        const label = document.createElement('span');
+        label.className = 'admin-row-name';
+        label.textContent = agent.name;
+        item.appendChild(label);
+
+        const category = document.createElement('span');
+        category.className = 'admin-row-category';
+        category.textContent = agent.category || '';
+        item.appendChild(category);
+
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'control-button';
+        edit.textContent = 'Edit';
+        edit.setAttribute('aria-label', `Edit ${agent.name}`);
+        edit.addEventListener('click', () => startEdit(agent));
+        item.appendChild(edit);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'control-button';
+        remove.textContent = 'Delete';
+        remove.setAttribute('aria-label', `Delete ${agent.name}`);
+        remove.addEventListener('click', async () => {
+            if (!window.confirm(`Delete ${agent.name}?`)) return;
+            await send(`/api/admin/agents/${encodeURIComponent(agent.name)}`, 'DELETE');
+        });
+        item.appendChild(remove);
+
+        return item;
+    }
+
+    /** Load the catalogue straight from disk, so unindexed edits still show. */
+    async function refresh() {
+        try {
+            const status = await (await fetch('/api/admin/status')).json();
+            countEl.textContent = `${status.total} agents in the catalogue`;
+            staleEl.hidden = !status.catalogue_stale;
+
+            const response = await fetch('/api/agents?limit=200&sort=name');
+            const body = await response.json();
+            const agents = (body.agents || []).map(a => ({
+                name: a.name,
+                category: (a.metadata || {}).category,
+                description: (a.metadata || {}).description,
+                tech_stack: ((a.metadata || {}).stack || '').split(',').map(t => t.trim()).filter(Boolean),
+                github_stars: (a.metadata || {}).stars,
+                url: (a.metadata || {}).url,
+                use_case: '',
+            }));
+
+            const seen = [...new Set(agents.map(a => a.category).filter(Boolean))].sort();
+            document.getElementById('categoryOptions').replaceChildren(
+                ...seen.map(c => Object.assign(document.createElement('option'), { value: c })));
+
+            list.replaceChildren(...agents.map(row));
+        } catch (error) {
+            console.error(error);
+            say('Could not load the catalogue.', true);
+        }
+    }
+
+    async function send(url, method, body) {
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: body ? { 'Content-Type': 'application/json' } : {},
+                body: body ? JSON.stringify(body) : undefined,
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                say(data.error || `Request failed (${response.status})`, true);
+                return false;
+            }
+            say(data.deleted ? `Deleted ${data.deleted}.` : 'Saved. Rebuild the index to apply it.');
+            resetForm();
+            await refresh();
+            return true;
+        } catch (error) {
+            console.error(error);
+            say('Could not reach the server.', true);
+            return false;
+        }
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const existing = editingName.value;
+        if (existing) {
+            await send(`/api/admin/agents/${encodeURIComponent(existing)}`, 'PUT', formValues());
+        } else {
+            await send('/api/admin/agents', 'POST', formValues());
+        }
+    });
+
+    cancelBtn.addEventListener('click', resetForm);
+
+    document.getElementById('reindexBtn').addEventListener('click', async (e) => {
+        const button = e.currentTarget;
+        button.disabled = true;
+        button.textContent = 'Rebuilding…';
+        try {
+            const response = await fetch('/api/admin/reindex', { method: 'POST' });
+            const data = await response.json().catch(() => ({}));
+            say(response.ok ? `Reindexed ${data.indexed} agents.` : (data.error || 'Reindex failed.'),
+                !response.ok);
+            if (response.ok) await refresh();
+        } catch (error) {
+            console.error(error);
+            say('Could not reach the server.', true);
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Rebuild index';
+        }
+    });
+
+    (async () => {
+        try {
+            const status = await (await fetch('/api/admin/status')).json();
+            if (!status.enabled) {
+                disabled.hidden = false;
+                return;
+            }
+            panel.hidden = false;
+            await refresh();
+        } catch (error) {
+            console.error(error);
+            disabled.hidden = false;
+        }
+    })();
+});

@@ -28,6 +28,11 @@ admin.register_error_handler(app)
 request_log.register(app)
 security.register(app)
 
+@app.context_processor
+def inject_flags():
+    """Template globals. admin_enabled gates the nav link."""
+    return {"admin_enabled": config.ENABLE_ADMIN}
+
 @app.route('/')
 def index():
     return render_template('index.html', page='search')
@@ -45,6 +50,12 @@ def compare():
 def collections():
     """Saved shortlists. Entirely client-side; the server stores nothing."""
     return render_template('collections.html', page='collections')
+
+@app.route('/admin')
+def admin_page():
+    """Catalogue editor. The page itself always renders; the API refuses
+    writes unless ENABLE_ADMIN is set, and the page says so."""
+    return render_template('admin.html', page='admin')
 
 @app.route('/agent/<path:name>')
 def agent_detail(name):

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Edit catalogue | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>Edit catalogue</h1>
+    <p>Add, edit and remove agents without hand-editing JSON.</p>
+</section>
+
+<p class="result-notice" id="adminDisabled" hidden>
+    Editing is disabled. Set <code>ENABLE_ADMIN=true</code> in
+    <code>ai-agent-discovery/.env</code> and restart to enable it.
+</p>
+
+<div id="adminPanel" hidden>
+    <div class="admin-bar">
+        <span id="adminCount" class="admin-count"></span>
+        <span id="adminStale" class="admin-stale" hidden>Index is behind the catalogue.</span>
+        <button type="button" id="reindexBtn" class="control-button">Rebuild index</button>
+    </div>
+
+    <p class="result-message error" id="adminError" hidden></p>
+    <p class="result-message" id="adminStatus" hidden></p>
+
+    <form class="admin-form" id="agentForm">
+        <h2 id="formHeading">Add an agent</h2>
+        <input type="hidden" id="editingName" value="">
+
+        <div class="admin-field">
+            <label for="fieldName">Name</label>
+            <input type="text" id="fieldName" class="control-input" required maxlength="80">
+        </div>
+        <div class="admin-field">
+            <label for="fieldCategory">Category</label>
+            <input type="text" id="fieldCategory" class="control-input" required maxlength="60"
+                   list="categoryOptions">
+            <datalist id="categoryOptions"></datalist>
+        </div>
+        <div class="admin-field">
+            <label for="fieldDescription">Description</label>
+            <textarea id="fieldDescription" class="control-input" rows="3" required></textarea>
+        </div>
+        <div class="admin-field">
+            <label for="fieldStack">Tech stack</label>
+            <input type="text" id="fieldStack" class="control-input"
+                   placeholder="Comma separated, e.g. Python, Git">
+        </div>
+        <div class="admin-field">
+            <label for="fieldStars">GitHub stars</label>
+            <input type="number" id="fieldStars" class="control-input" min="0" value="0">
+        </div>
+        <div class="admin-field">
+            <label for="fieldUrl">URL</label>
+            <input type="url" id="fieldUrl" class="control-input" placeholder="https://…">
+        </div>
+        <div class="admin-field">
+            <label for="fieldUseCase">Use case</label>
+            <input type="text" id="fieldUseCase" class="control-input" maxlength="120">
+        </div>
+
+        <div class="admin-actions">
+            <button type="submit" class="control-button" id="saveBtn">Add agent</button>
+            <button type="button" class="control-button" id="cancelBtn" hidden>Cancel</button>
+        </div>
+    </form>
+
+    <h2 class="section-heading">Agents</h2>
+    <div id="adminList"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}
