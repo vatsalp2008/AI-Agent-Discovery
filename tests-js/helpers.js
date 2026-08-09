@@ -170,3 +170,32 @@ export const COLLECTIONS_HTML = `
     <p class="result-message error" id="collectionsError" hidden></p>
     <main id="collectionsArea"></main>
 `;
+
+/** The catalogue editor's markup, mirroring templates/admin.html. */
+export const ADMIN_HTML = `
+    <p id="adminDisabled" hidden></p>
+    <div id="adminPanel" hidden>
+      <div class="admin-bar">
+        <span id="adminCount"></span>
+        <span id="adminStale" hidden></span>
+        <button type="button" id="reindexBtn">Rebuild index</button>
+      </div>
+      <p id="adminError" hidden></p>
+      <p id="adminStatus" hidden></p>
+      <form id="agentForm">
+        <h2 id="formHeading">Add an agent</h2>
+        <input type="hidden" id="editingName" value="">
+        <input type="text" id="fieldName">
+        <input type="text" id="fieldCategory">
+        <datalist id="categoryOptions"></datalist>
+        <textarea id="fieldDescription"></textarea>
+        <input type="text" id="fieldStack">
+        <input type="number" id="fieldStars" value="0">
+        <input type="url" id="fieldUrl">
+        <input type="text" id="fieldUseCase">
+        <button type="submit" id="saveBtn">Add agent</button>
+        <button type="button" id="cancelBtn" hidden>Cancel</button>
+      </form>
+      <div id="adminList"></div>
+    </div>
+`;
