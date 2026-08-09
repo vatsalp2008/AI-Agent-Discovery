@@ -38,6 +38,11 @@ def compare():
     """Side-by-side comparison; the agents come from ?names=."""
     return render_template('compare.html', page='compare')
 
+@app.route('/collections')
+def collections():
+    """Saved shortlists. Entirely client-side; the server stores nothing."""
+    return render_template('collections.html', page='collections')
+
 @app.route('/agent/<path:name>')
 def agent_detail(name):
     """Detail page. The agent itself is fetched client-side from the API."""

@@ -900,3 +900,78 @@ nav a:focus-visible,
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Collections */
+.collection-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.collection-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.collection-header h2 {
+    font-size: 1.05rem;
+    margin-right: auto;
+}
+
+.collection-delete {
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.collection-delete:hover { color: #ef4444; }
+
+.collection-agents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.collection-agent {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 0.25rem 0.5rem 0.25rem 0.8rem;
+}
+
+.collection-agent a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.collection-agent a:hover { color: var(--accent-color); }
+
+.collection-remove {
+    font: inherit;
+    line-height: 1;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 0.2rem;
+}
+
+.collection-remove:hover { color: #ef4444; }
+
+.collection-delete:focus-visible,
+.collection-remove:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

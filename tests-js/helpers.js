@@ -160,3 +160,13 @@ export const COMPARE_HTML = `
     </div>
     <main id="compareArea" aria-busy="false"></main>
 `;
+
+/** The collections page's markup, mirroring templates/collections.html. */
+export const COLLECTIONS_HTML = `
+    <form id="newCollectionForm">
+      <input type="text" id="newCollectionName">
+      <button type="submit">Create</button>
+    </form>
+    <p class="result-message error" id="collectionsError" hidden></p>
+    <main id="collectionsArea"></main>
+`;

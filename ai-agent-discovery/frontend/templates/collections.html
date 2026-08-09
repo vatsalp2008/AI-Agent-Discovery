@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Collections | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>Collections</h1>
+    <p>Shortlists of agents, kept in this browser. Nothing is sent anywhere.</p>
+</section>
+
+<form class="controls" id="newCollectionForm">
+    <label class="sr-only" for="newCollectionName">New collection name</label>
+    <input type="text" id="newCollectionName" class="control-input"
+           placeholder="New collection…" autocomplete="off" maxlength="60">
+    <button type="submit" class="control-button">Create</button>
+</form>
+
+<p class="result-message error" id="collectionsError" hidden></p>
+
+<main id="collectionsArea" aria-live="polite"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/collections.js"></script>
+<script src="/static/js/collections-page.js"></script>
+{% endblock %}
