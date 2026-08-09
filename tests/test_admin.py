@@ -195,3 +195,44 @@ class TestReindex:
         response = admin_client.post("/api/admin/reindex")
         assert response.status_code == 400
         assert "not valid JSON" in response.get_json()["error"]
+
+
+class TestMalformedExistingRecords:
+    """The catalogue is hand-editable, so existing entries may be broken.
+    Validating a *new* record must not 500 because an *old* one is bad."""
+
+    def test_a_record_missing_a_name_does_not_break_validation(self, admin_client, catalogue):
+        catalogue.write_text(json.dumps([{"description": "no name here"}]))
+        response = admin_client.post("/api/admin/agents", json=valid())
+        assert response.status_code == 201
+
+    def test_a_non_dict_entry_does_not_break_validation(self, admin_client, catalogue):
+        catalogue.write_text(json.dumps(["just a string"]))
+        assert admin_client.post("/api/admin/agents", json=valid()).status_code == 201
+
+    def test_a_non_string_name_does_not_break_validation(self, admin_client, catalogue):
+        catalogue.write_text(json.dumps([{"name": 123}]))
+        assert admin_client.post("/api/admin/agents", json=valid()).status_code == 201
+
+    def test_duplicates_are_still_caught_among_valid_records(self, admin_client, catalogue):
+        catalogue.write_text(json.dumps([{"name": "Aider"}, {"broken": True}]))
+        assert admin_client.post("/api/admin/agents", json=valid(name="aider")).status_code == 409
+
+
+def test_writes_work_when_the_catalogue_sits_outside_data_dir(tmp_path, monkeypatch, store):
+    """AGENTS_JSON is configurable independently of DATA_DIR."""
+    import api
+
+    elsewhere = tmp_path / "elsewhere" / "agents.json"
+    monkeypatch.setattr(config, "AGENTS_JSON", elsewhere)
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path / "data")
+    monkeypatch.setattr(config, "ENABLE_ADMIN", True)
+    api.set_store(store)
+
+    app = Flask(__name__)
+    app.register_blueprint(admin.admin_bp)
+    admin.register_error_handler(app)
+    with app.test_client() as client:
+        assert client.post("/api/admin/agents", json=valid()).status_code == 201
+    assert elsewhere.exists()
+    api.set_store(None)

@@ -66,7 +66,9 @@ def load_catalogue():
 def save_catalogue(records):
     """Write agents.json atomically, so a crash cannot truncate it."""
     try:
-        config.DATA_DIR.mkdir(parents=True, exist_ok=True)
+        # AGENTS_JSON is separately configurable, so it need not sit inside
+        # DATA_DIR; create the directory it actually points at.
+        os.makedirs(os.path.dirname(str(config.AGENTS_JSON)) or ".", exist_ok=True)
         tmp = f"{config.AGENTS_JSON}.tmp"
         with open(tmp, "w") as f:
             json.dump(records, f, indent=2)
@@ -119,9 +121,17 @@ def validate(record, existing, original_name=None):
     cleaned["use_case"] = use_case.strip()
 
     # Names identify agents everywhere else, so they have to stay unique.
+    # Existing records are read from a hand-editable file, so they may be
+    # malformed; use .get and skip anything unusable rather than raising a
+    # 500 from inside what is meant to be a validation routine.
     wanted = cleaned["name"].casefold()
     for other in existing:
-        if other["name"].casefold() == wanted and other["name"] != original_name:
+        if not isinstance(other, dict):
+            continue
+        other_name = other.get("name")
+        if not isinstance(other_name, str):
+            continue
+        if other_name.casefold() == wanted and other_name != original_name:
             raise AdminError(f"An agent named {cleaned['name']!r} already exists", status=409)
 
     # Fails for the same reasons seeding would, but here rather than later.
