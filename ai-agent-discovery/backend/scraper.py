@@ -420,6 +420,78 @@ SAMPLE_AGENTS = [
         use_case="Provider-agnostic model access"
     ),
     Agent(
+        name="Chroma",
+        description="An embedding database designed for AI applications, with a Python-first API and local persistence.",
+        category="Infrastructure",
+        tech_stack=["Python", "Rust", "SQLite"],
+        github_stars=28987,
+        url="https://github.com/chroma-core/chroma",
+        use_case="Local vector storage for RAG"
+    ),
+    Agent(
+        name="Qdrant",
+        description="A high-performance vector database with rich payload filtering alongside similarity search.",
+        category="Infrastructure",
+        tech_stack=["Rust", "gRPC"],
+        github_stars=33870,
+        url="https://github.com/qdrant/qdrant",
+        use_case="Filtered vector search at scale"
+    ),
+    Agent(
+        name="Weaviate",
+        description="An open source vector database that stores both objects and vectors, with built-in hybrid search.",
+        category="Infrastructure",
+        tech_stack=["Go", "GraphQL"],
+        github_stars=16708,
+        url="https://github.com/weaviate/weaviate",
+        use_case="Hybrid keyword and vector search"
+    ),
+    Agent(
+        name="Milvus",
+        description="A cloud-native vector database built for billion-scale similarity search.",
+        category="Infrastructure",
+        tech_stack=["Go", "C++", "Kubernetes"],
+        github_stars=45568,
+        url="https://github.com/milvus-io/milvus",
+        use_case="Very large scale vector search"
+    ),
+    Agent(
+        name="pgvector",
+        description="Vector similarity search inside PostgreSQL, so embeddings live beside the rest of your data.",
+        category="Infrastructure",
+        tech_stack=["C", "PostgreSQL"],
+        github_stars=22543,
+        url="https://github.com/pgvector/pgvector",
+        use_case="Vector search without a separate database"
+    ),
+    Agent(
+        name="FAISS",
+        description="Meta's library for efficient similarity search over dense vectors, and the index behind this project.",
+        category="Infrastructure",
+        tech_stack=["C++", "Python"],
+        github_stars=40696,
+        url="https://github.com/facebookresearch/faiss",
+        use_case="In-process vector indexing"
+    ),
+    Agent(
+        name="Ollama",
+        description="Runs open language models locally with a simple CLI and HTTP API. Powers this project's embeddings.",
+        category="Infrastructure",
+        tech_stack=["Go", "llama.cpp"],
+        github_stars=178091,
+        url="https://github.com/ollama/ollama",
+        use_case="Running models on your own machine"
+    ),
+    Agent(
+        name="vLLM",
+        description="A high-throughput inference engine using paged attention to serve models efficiently.",
+        category="Infrastructure",
+        tech_stack=["Python", "CUDA"],
+        github_stars=88563,
+        url="https://github.com/vllm-project/vllm",
+        use_case="Serving models at high throughput"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
