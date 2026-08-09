@@ -39,9 +39,15 @@ class EmbeddingCache:
         self.load()
 
     def _key(self, text: str) -> str:
-        """Hash the text so the file cannot grow unbounded in key length."""
-        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:32]
-        return f"{self.model}:{digest}"
+        """Hash the text so the file cannot grow unbounded in key length.
+
+        The key is the digest alone; the model is recorded once for the whole
+        file. Embedding it in the key and matching by prefix was wrong —
+        "nomic-embed-text" is a prefix of "nomic-embed-text:latest", so
+        entries from one tag loaded under the other and then never matched,
+        quietly consuming the cache budget.
+        """
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()[:32]
 
     def load(self):
         if self.max_entries <= 0 or not os.path.exists(self.path):
@@ -55,25 +61,43 @@ class EmbeddingCache:
 
         if not isinstance(stored, dict):
             return
+
+        # Vectors from another model are the wrong shape; discard the file
+        # rather than loading entries that can never be served.
+        if stored.get("model") != self.model:
+            logger.debug("Embedding cache at %s was written by %r, not %r; ignoring.",
+                         self.path, stored.get("model"), self.model)
+            return
+
         for key, vector in stored.get("entries", {}).items():
-            # Entries for other models are dropped rather than kept around.
-            if key.startswith(f"{self.model}:") and isinstance(vector, list):
+            if isinstance(vector, list):
                 self._entries[key] = vector
         logger.debug("Loaded %d cached embeddings from %s", len(self._entries), self.path)
 
     def save(self):
         """Write the cache out. Cheap enough to call on shutdown."""
-        if self.max_entries <= 0 or not self._dirty:
+        if self.max_entries <= 0:
             return
+
+        # Snapshot and clear the flag together, so an entry added while the
+        # file is being written is not both excluded from it and marked clean.
+        with self._lock:
+            if not self._dirty:
+                return
+            snapshot = dict(self._entries)
+            self._dirty = False
+
         try:
             os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
             tmp = f"{self.path}.tmp"
             with open(tmp, "w") as f:
-                json.dump({"entries": dict(self._entries)}, f)
+                json.dump({"model": self.model, "entries": snapshot}, f)
             # Atomic replace, so a crash mid-write cannot corrupt the cache.
             os.replace(tmp, self.path)
-            self._dirty = False
         except OSError as e:
+            # Put the flag back; the entries are still only in memory.
+            with self._lock:
+                self._dirty = True
             logger.warning("Could not write embedding cache to %s: %s", self.path, e)
 
     def get(self, text: str):

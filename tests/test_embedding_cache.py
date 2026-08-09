@@ -153,3 +153,55 @@ def test_an_empty_cache_is_not_silently_replaced(cache_path):
 
     wrapper = CachedEmbeddings(FakeClient(), cache=empty)
     assert wrapper.cache is empty
+
+
+class TestModelIsolation:
+    """Vectors from one model are the wrong shape for another."""
+
+    def test_a_similar_model_tag_does_not_leak_entries(self, cache_path):
+        """'nomic-embed-text' is a prefix of 'nomic-embed-text:latest'."""
+        written = EmbeddingCache(path=cache_path, model="nomic-embed-text:latest", max_entries=5)
+        written.put("hello", [1.0, 2.0])
+        written.save()
+
+        other = EmbeddingCache(path=cache_path, model="nomic-embed-text", max_entries=5)
+        assert len(other) == 0, "entries from another model tag were loaded"
+        assert other.get("hello") is None
+
+    def test_the_same_model_still_loads(self, cache_path):
+        written = EmbeddingCache(path=cache_path, model="nomic-embed-text", max_entries=5)
+        written.put("hello", [1.0, 2.0])
+        written.save()
+
+        reopened = EmbeddingCache(path=cache_path, model="nomic-embed-text", max_entries=5)
+        assert reopened.get("hello") == [1.0, 2.0]
+
+    def test_the_file_records_which_model_wrote_it(self, cache, cache_path):
+        cache.put("x", [1.0])
+        cache.save()
+        assert json.loads(cache_path.read_text())["model"] == "test-model"
+
+
+def test_save_does_not_lose_an_entry_added_during_the_write(cache, cache_path):
+    """The dirty flag must not be cleared for an entry that was not written."""
+    cache.put("first", [1.0])
+    cache.save()
+
+    cache.put("second", [2.0])
+    cache.save()
+
+    reopened = EmbeddingCache(path=cache_path, model="test-model", max_entries=5)
+    assert reopened.get("first") == [1.0]
+    assert reopened.get("second") == [2.0]
+
+
+def test_a_failed_save_keeps_the_cache_dirty(cache, monkeypatch):
+    """Otherwise the entries are dropped on the next successful save."""
+    cache.put("x", [1.0])
+
+    def explode(*args, **kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr("builtins.open", explode)
+    cache.save()
+    assert cache._dirty is True
