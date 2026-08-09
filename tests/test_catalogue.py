@@ -89,3 +89,52 @@ def test_categories_are_title_case(catalogue):
     for category in {r["category"] for r in catalogue}:
         assert category == category.strip()
         assert re.match(r"^[A-Z]", category), f"{category!r} should start with a capital"
+
+
+def test_every_page_route_has_a_template(catalogue):
+    """A route rendering a template that does not exist 500s at request time."""
+    import re
+
+    import config
+
+    app_source = (config.PACKAGE_DIR / "frontend" / "app.py").read_text()
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+
+    referenced = set(re.findall(r"render_template\('([^']+)'", app_source))
+    assert referenced, "no templates referenced; the regex is wrong"
+
+    missing = [name for name in referenced if not (templates / name).exists()]
+    assert not missing, f"routes render missing templates: {missing}"
+
+
+def test_every_template_script_exists(catalogue):
+    """A <script src> pointing nowhere fails silently in the browser."""
+    import re
+
+    import config
+
+    static = config.PACKAGE_DIR / "frontend" / "static"
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+
+    missing = []
+    for template in templates.glob("*.html"):
+        for src in re.findall(r'<script src="/static/([^"]+)"', template.read_text()):
+            if not (static / src).exists():
+                missing.append(f"{template.name} -> {src}")
+    assert not missing, f"templates reference missing scripts: {missing}"
+
+
+def test_every_template_stylesheet_exists(catalogue):
+    import re
+
+    import config
+
+    static = config.PACKAGE_DIR / "frontend" / "static"
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+
+    missing = []
+    for template in templates.glob("*.html"):
+        for href in re.findall(r'<link[^>]*href="/static/([^"]+)"', template.read_text()):
+            if not (static / href).exists():
+                missing.append(f"{template.name} -> {href}")
+    assert not missing, f"templates reference missing assets: {missing}"
