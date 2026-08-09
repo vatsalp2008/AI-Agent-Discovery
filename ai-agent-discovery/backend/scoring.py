@@ -35,7 +35,12 @@ def relevance_score(distance: float) -> float:
     if value != value:  # NaN
         return 0.0
     if value < 0:
-        value = 0.0
+        # An L2 distance cannot be negative, so this means the index is not
+        # what we assume — FAISS's IndexFlatIP, for instance, returns inner
+        # products where higher is better and negatives are legitimate.
+        # Scoring those 1.0 (as clamping to zero would) puts the *worst*
+        # matches at the top, so treat an impossible distance as no match.
+        return 0.0
 
     # Negative cosine means "points the other way", which is no more useful
     # than orthogonal for ranking, so the floor is 0.

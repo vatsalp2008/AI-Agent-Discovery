@@ -51,10 +51,14 @@ def test_real_world_distances_are_well_separated():
     assert verbatim - unrelated > 0.5
 
 
-def test_negative_distance_is_clamped():
-    assert relevance_score(-3) == 1.0
+def test_an_impossible_distance_scores_zero():
+    """A negative L2 distance means the index is not the one we assume (an
+    inner-product index, say). Scoring it 1.0 would rank the worst matches
+    first; ranking it last is the safe failure."""
+    assert relevance_score(-3) == 0.0
+    assert relevance_score(-0.001) == 0.0
 
 
-@pytest.mark.parametrize("bad", [None, "abc", object(), float("nan")])
+@pytest.mark.parametrize("bad", [float("nan"), None, "abc", [], {}])
 def test_unusable_values_score_zero(bad):
     assert relevance_score(bad) == 0.0
