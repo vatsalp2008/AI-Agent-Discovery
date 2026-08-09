@@ -4,15 +4,31 @@ import os
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-
 import config
 from embeddings import get_embeddings
 from models import Agent
 from scoring import relevance_score
 
 logger = logging.getLogger(__name__)
+
+
+def _faiss():
+    """Import FAISS on first use.
+
+    Importing it pulls in langchain_core.runnables and langsmith, ~300ms of
+    the app's startup. Nothing needs it until a store is actually built, and
+    `api.get_store()` already defers that until the first request that needs
+    the index — so paying it at module import just slows every start.
+    """
+    from langchain_community.vectorstores import FAISS
+
+    return FAISS
+
+
+def _document_class():
+    from langchain_core.documents import Document
+
+    return Document
 
 class VectorStore:
     # Sidecar file recording which embedding model built the index.
@@ -114,7 +130,7 @@ class VectorStore:
                     )
                     self.vector_store = None
                     return
-                self.vector_store = FAISS.load_local(
+                self.vector_store = _faiss().load_local(
                     self.persist_directory,
                     self.embedding_function,
                     allow_dangerous_deserialization=True # Local execution, safe.
@@ -136,9 +152,10 @@ class VectorStore:
             logger.warning("No agents to index; leaving the vector store unchanged.")
             return
 
+        document_class = _document_class()
         documents = []
         for agent in agents:
-            doc = Document(
+            doc = document_class(
                 page_content=agent.page_content,
                 metadata=agent.metadata
             )
@@ -147,7 +164,7 @@ class VectorStore:
         if self.vector_store:
             self.vector_store.add_documents(documents)
         else:
-            self.vector_store = FAISS.from_documents(documents, self.embedding_function)
+            self.vector_store = _faiss().from_documents(documents, self.embedding_function)
 
         # Save locally
         self.vector_store.save_local(self.persist_directory)

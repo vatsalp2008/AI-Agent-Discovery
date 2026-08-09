@@ -1,9 +1,5 @@
 import logging
 
-# langchain_community.embeddings.OllamaEmbeddings is deprecated; the Ollama
-# integration now lives in its own langchain-ollama package.
-from langchain_ollama import OllamaEmbeddings
-
 import config
 
 logger = logging.getLogger(__name__)
@@ -15,6 +11,12 @@ class EmbeddingService:
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
+            # Deferred: importing langchain_ollama costs ~70ms and is only
+            # needed once something actually embeds text.
+            # langchain_community.embeddings.OllamaEmbeddings is deprecated;
+            # the Ollama integration lives in its own langchain-ollama package.
+            from langchain_ollama import OllamaEmbeddings
+
             logger.info("Initializing embeddings with model=%s at %s", config.EMBEDDING_MODEL, config.OLLAMA_BASE_URL)
             client = OllamaEmbeddings(
                 base_url=config.OLLAMA_BASE_URL,
