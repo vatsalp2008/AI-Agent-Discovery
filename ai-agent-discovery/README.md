@@ -17,6 +17,10 @@ configuration reference and API documentation, see the
 | `backend/generation.py` | Optional LLM overview of results (the generation half of RAG) |
 | `backend/rate_limit.py` | Per-client request budgets for /api/search |
 | `backend/security.py` | Content-Security-Policy and other response headers |
+| `backend/admin.py` | Catalogue write API, disabled unless ENABLE_ADMIN=true |
+| `backend/embedding_cache.py` | Query embeddings persisted between runs |
+| `mcp_server.py` | MCP server exposing the index to other agents |
+| `benchmark.py` | Hot-path measurements |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
@@ -80,6 +84,12 @@ Then open [http://localhost:5000](http://localhost:5000).
 | `GET` | `/api/tech` | Technologies with counts |
 | `GET` | `/api/stats` | Index summary, including `built_at` |
 | `GET` | `/api/health` | Readiness probe; 503 when unusable |
+| `GET` | `/api/agents/<name>/similar` | Neighbours of an agent, excluding itself |
+| `GET` | `/api/compare?names=A,B` | Several agents at once |
+| `POST` | `/api/admin/agents` | Add an agent (needs ENABLE_ADMIN) |
+| `PUT` | `/api/admin/agents/<name>` | Edit an agent |
+| `DELETE` | `/api/admin/agents/<name>` | Remove an agent |
+| `POST` | `/api/admin/reindex` | Rebuild the index from the catalogue |
 
 Full request/response examples are in the [root README](../README.md).
 
