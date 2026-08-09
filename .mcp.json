@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agent-discovery": {
+      "command": "python",
+      "args": ["ai-agent-discovery/mcp_server.py"],
+      "env": {}
+    }
+  }
+}

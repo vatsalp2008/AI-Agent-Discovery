@@ -120,3 +120,19 @@ def test_no_tool_mutates_the_catalogue(mcp):
     """An agent querying this should not be able to rewrite the index."""
     names = {t["name"] for t in mcp.TOOLS}
     assert not any(w in n for n in names for w in ("add", "delete", "update", "write", "seed"))
+
+
+def test_repo_registration_points_at_the_server(mcp):
+    """.mcp.json lets an MCP client pick this up without manual setup."""
+    import json
+
+    from conftest import REPO_ROOT
+
+    config_path = REPO_ROOT / ".mcp.json"
+    assert config_path.exists(), ".mcp.json is missing"
+
+    servers = json.loads(config_path.read_text())["mcpServers"]
+    entry = servers["agent-discovery"]
+    script = REPO_ROOT / entry["args"][0]
+    assert script.exists(), f"{entry['args'][0]} does not exist"
+    assert script.name == "mcp_server.py"
