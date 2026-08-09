@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from vectorstore import VectorStore
 
 
@@ -141,3 +143,28 @@ def test_callers_cannot_mutate_the_cached_agent_list(store):
     first = store.get_all_agents()
     first.clear()
     assert len(store.get_all_agents()) == 3
+
+
+def test_a_failed_rebuild_keeps_the_previous_index(store, agents, monkeypatch):
+    """An Ollama outage mid-rebuild must not strand the app with no index."""
+    import vectorstore as vectorstore_module
+
+    before = len(store.search("agent"))
+    assert before > 0
+
+    def explode(*args, **kwargs):
+        raise RuntimeError("ollama down")
+
+    monkeypatch.setattr(vectorstore_module, "_faiss",
+                        lambda: type("F", (), {"from_documents": staticmethod(explode)}))
+
+    with pytest.raises(RuntimeError):
+        store.replace_agents(agents)
+
+    assert len(store.search("agent")) == before, "previous index was lost"
+
+
+def test_a_successful_rebuild_replaces_the_index(store, agents):
+    store.replace_agents(agents)
+    assert store.vector_store is not None
+    assert len(store.get_all_agents()) == len(agents)

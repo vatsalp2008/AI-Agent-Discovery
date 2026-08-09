@@ -142,9 +142,21 @@ class VectorStore:
             self.vector_store = None
 
     def replace_agents(self, agents: list[Agent]):
-        """Rebuild the index from scratch so re-seeding cannot duplicate entries."""
+        """Rebuild the index from scratch so re-seeding cannot duplicate entries.
+
+        The new index is built before the old one is released, so a failure
+        part-way through (Ollama down, a model pulled out from under us) leaves
+        the previous index serving. Nulling first would strand a running app
+        with an empty index until restart, despite an intact copy on disk.
+        """
+        previous = self.vector_store
         self.vector_store = None
-        self.add_agents(agents)
+        try:
+            self.add_agents(agents)
+        except Exception:
+            self.vector_store = previous
+            logger.error("Rebuild failed; keeping the previous index in memory.")
+            raise
 
     def add_agents(self, agents: list[Agent]):
         """Adds a list of agents to the vector store"""
