@@ -15,7 +15,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
-- 📊 **Rich Agent Database** - Curated collection of 60 AI agents and frameworks
+- 📊 **Rich Agent Database** - Curated collection of 82 AI agents, frameworks and developer tools
 
 ## 🚀 Features
 
@@ -49,7 +49,8 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 | **Backend** | Python 3.10+, Flask |
 | **AI/ML** | LangChain, Ollama, FAISS |
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Testing** | pytest, vitest + jsdom, ruff |
+| **Testing** | pytest, vitest + jsdom, ruff, pre-commit |
+| **Integrations** | MCP (Model Context Protocol) |
 | **Data** | JSON, Vector Store (FAISS) |
 | **Embeddings** | `nomic-embed-text` via Ollama (local) |
 
@@ -142,6 +143,9 @@ paths resolve against the repository root, so commands work from any directory.
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
 | `SEARCH_MIN_SCORE` | `0.5` | Below this, results are flagged as weak matches |
 | `COMPARE_MAX_AGENTS` | `4` | Upper bound on `/api/compare` |
+| `EMBEDDING_CACHE_SIZE` | `500` | Query embeddings kept on disk; `0` disables |
+| `EMBEDDING_CACHE_PATH` | `data/embedding_cache.json` | Where they are stored |
+| `ENABLE_ADMIN` | `false` | Catalogue editing — see the warning above |
 | `LOG_FORMAT` | `text` | `text` or `json` (one object per line) |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
@@ -168,6 +172,8 @@ paths resolve against the repository root, so commands work from any directory.
 | `/dashboard` | Every agent, filterable and sortable, with totals |
 | `/agent/<name>` | One agent in detail, plus similar agents |
 | `/compare?names=A,B` | Agents side by side |
+| `/collections` | Saved shortlists, kept in your browser |
+| `/admin` | Catalogue editor (needs `ENABLE_ADMIN=true`) |
 
 ### Web Interface
 
@@ -301,7 +307,7 @@ GET /api/agents?sort=name&order=desc            # asc | desc
 {
   "agents": [ { "name": "Aider", "description": "...", "metadata": { } } ],
   "metadata": {
-    "total": 60, "count": 20, "limit": 20, "offset": 0,
+    "total": 82, "count": 20, "limit": 20, "offset": 0,
     "category": null, "tech": null, "q": null, "sort": "name", "order": "asc",
     "has_more": true
   }
@@ -373,7 +379,7 @@ must be scalars); this endpoint splits it back into individual technologies.
 
 ```bash
 GET /api/stats
-# {"count": 60, "categories": 7, "top_category": {"name": "Code Generation", "count": 9},
+# {"count": 82, "categories": 10, "top_category": {"name": "Code Generation", "count": 9},
 #  "total_stars": 653000, "average_stars": 17648, "embedding_model": "nomic-embed-text",
 #  "built_at": "2026-08-06T20:48:31+00:00"}
 ```
@@ -389,12 +395,73 @@ when it is not — unseeded, unreachable, or built by a different embedding mode
 The payload also reports `index_built_at`, so you can tell whether the index
 predates your current `agents.json`.
 
+#### Catalogue editing
+
+Requires `ENABLE_ADMIN=true`; every route returns 403 otherwise.
+
+```bash
+POST   /api/admin/agents           # add    (409 on a duplicate name)
+PUT    /api/admin/agents/<name>    # edit   (404 if unknown)
+DELETE /api/admin/agents/<name>    # remove
+POST   /api/admin/reindex          # rebuild the index from the catalogue
+GET    /api/admin/status           # whether editing is on, and if the index is behind
+```
+
+Writes are atomic, so an interrupted request cannot truncate `agents.json`.
+
 #### Response headers
 
 Every response carries a baseline security policy: a Content-Security-Policy
 that disallows inline and third-party scripts (beyond the two CDNs the pages
 use), plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and
 `Permissions-Policy`. `X-Response-Time` reports server-side duration.
+
+## 🔌 MCP Server
+
+The catalogue is also available over [MCP](https://modelcontextprotocol.io), so
+other AI agents can search it directly:
+
+```bash
+python ai-agent-discovery/mcp_server.py        # speaks MCP over stdio
+```
+
+The repo ships a `.mcp.json`, so an MCP client that reads it picks the server
+up automatically. To register it with Claude Code by hand:
+
+```bash
+claude mcp add agent-discovery -- python /path/to/ai-agent-discovery/mcp_server.py
+```
+
+| Tool | What it does |
+|------|--------------|
+| `search_agents` | Natural-language search, with scores and a confidence flag |
+| `get_agent` | One agent by name |
+| `find_similar` | Neighbours of a named agent |
+| `list_categories` | Categories with counts |
+| `list_technologies` | Technologies with counts |
+| `catalogue_stats` | Index summary |
+
+The tools are read-only by design: an agent querying this should be able to
+read the catalogue, not rewrite it. Results are trimmed to the fields a caller
+needs, rather than the full record, to keep them cheap in a context window.
+
+## ✏️ Editing the Catalogue
+
+`data/agents.json` can be hand-edited, but `/admin` does the same job with
+validation and a clear error when something is wrong:
+
+```bash
+echo "ENABLE_ADMIN=true" >> ai-agent-discovery/.env
+make run          # then open http://localhost:5000/admin
+```
+
+**Off by default on purpose.** It is the only part of the app that writes, and
+it has no authentication, so enable it only on a localhost-bound `HOST`.
+
+Edits go to `agents.json`; the index is rebuilt separately with the **Rebuild
+index** button (or `make seed`), so a batch of edits costs one re-embed rather
+than one per change. `/api/health` reports `catalogue_stale` when the index is
+behind.
 
 ## 📁 Project Structure
 
@@ -413,6 +480,8 @@ AI-Agent-Discovery/
 │   │   ├── scoring.py          # Distance to relevance score
 │   │   ├── scraper.py          # Sample data and catalogue loading
 │   │   ├── security.py         # CSP and other response headers
+│   │   ├── admin.py            # Catalogue write API (flag-guarded)
+│   │   ├── embedding_cache.py  # Persisted query embeddings
 │   │   └── vectorstore.py      # FAISS index, search, caching
 │   ├── frontend/
 │   │   ├── app.py              # Flask application entry point
@@ -429,9 +498,13 @@ AI-Agent-Discovery/
 │   │   ├── static/js/shortcuts.js       # Keyboard shortcuts
 │   │   ├── static/js/recent-searches.js # Local query history
 │   │   ├── static/js/export-results.js  # CSV and JSON export
+│   │   ├── static/js/collections.js     # Saved shortlists
+│   │   ├── static/js/admin.js           # Catalogue editor
 │   │   └── templates/          # base, index, dashboard, agent, compare
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
+│   ├── mcp_server.py           # MCP server for other agents
+│   ├── benchmark.py            # Hot-path measurements
 │   ├── refresh_stars.py        # Star count refresh
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
@@ -442,6 +515,7 @@ AI-Agent-Discovery/
 ├── tests/                      # Python test suite (pytest)
 ├── tests-js/                   # Frontend test suite (vitest + jsdom)
 ├── tests-live/                 # End-to-end tests against a real Ollama
+├── .mcp.json                   # MCP server registration
 ├── .pre-commit-config.yaml
 ├── CONTRIBUTING.md
 ├── Dockerfile
@@ -504,6 +578,35 @@ chat model is never contacted and `llama3.2` is not needed at all.
 
 Re-running `seed.py` **rebuilds** the index rather than appending, so repeated
 runs are idempotent. Pass `--append` to add to an existing index instead.
+
+## ⚡ Performance
+
+```bash
+make benchmark                                     # measure the hot paths
+python ai-agent-discovery/benchmark.py --json > before.json
+python ai-agent-discovery/benchmark.py --compare before.json
+```
+
+Measured on an M-series laptop with 82 agents:
+
+| Operation | Time | Note |
+|-----------|------|------|
+| `import vectorstore` | ~1ms | was ~485ms before imports were deferred |
+| Build the store | ~345ms | pays the deferred FAISS import, on first request only |
+| Search (uncached) | ~13ms | 91% of it is the Ollama embedding call |
+| Search (cached) | <0.1ms | in-memory, and persisted across restarts |
+| `/api/agents`, `/api/stats` | <0.1ms | the agent list is memoized |
+
+Three things make the difference:
+
+- **Deferred imports.** `langchain_community.vectorstores` pulls in langsmith,
+  about 300ms. Nothing needs it until a store is built, and that already waits
+  for the first request that touches the index.
+- **A persisted embedding cache.** Query embeddings depend only on the model
+  and the text, so unlike results they never go stale — they survive restarts
+  in `data/embedding_cache.json`.
+- **ETags** on `/api/categories`, `/api/tech` and `/api/stats`, so a browser
+  that already has the catalogue revalidates instead of re-downloading it.
 
 ## 🎨 Customization
 
