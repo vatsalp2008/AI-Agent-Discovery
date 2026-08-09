@@ -10,6 +10,7 @@ Useful for checking the index without starting the web server.
 """
 
 import argparse
+import atexit
 import json
 import os
 import sys
@@ -135,6 +136,9 @@ def main(argv=None):
     configure("DEBUG" if args.verbose else "WARNING")
 
     store = _build_store()
+    # The CLI is short-lived, so persist whatever it embedded before exiting.
+    import embeddings
+    atexit.register(embeddings.save_cache)
 
     if store.stale_model:
         print(

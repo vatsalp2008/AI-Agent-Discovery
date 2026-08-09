@@ -72,6 +72,12 @@ AGENTS_MAX_PAGE_SIZE = _int_env("AGENTS_MAX_PAGE_SIZE", 200)
 # not to hide them; callers wanting a hard filter pass min_score explicitly.
 SEARCH_MIN_SCORE = _float_env("SEARCH_MIN_SCORE", 0.5)
 
+# Query embeddings persisted between runs. ~91% of an uncached search is the
+# round trip to Ollama, and an embedding depends only on (model, text), so it
+# stays valid across re-seeds. 0 disables.
+EMBEDDING_CACHE_SIZE = _int_env("EMBEDDING_CACHE_SIZE", 500)
+EMBEDDING_CACHE_PATH = _resolve(os.getenv("EMBEDDING_CACHE_PATH", ""), DATA_DIR / "embedding_cache.json")
+
 # Number of recent search results to keep in memory. 0 disables caching.
 SEARCH_CACHE_SIZE = _int_env("SEARCH_CACHE_SIZE", 128)
 

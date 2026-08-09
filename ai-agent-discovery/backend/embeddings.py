@@ -16,10 +16,17 @@ class EmbeddingService:
     def get_instance(cls):
         if cls._instance is None:
             logger.info("Initializing embeddings with model=%s at %s", config.EMBEDDING_MODEL, config.OLLAMA_BASE_URL)
-            cls._instance = OllamaEmbeddings(
+            client = OllamaEmbeddings(
                 base_url=config.OLLAMA_BASE_URL,
                 model=config.EMBEDDING_MODEL
             )
+            # Serve repeat queries from disk; see embedding_cache for why the
+            # embedding rather than the result set is what gets persisted.
+            if config.EMBEDDING_CACHE_SIZE > 0:
+                from embedding_cache import CachedEmbeddings
+
+                client = CachedEmbeddings(client)
+            cls._instance = client
         return cls._instance
 
     @classmethod
@@ -30,3 +37,11 @@ class EmbeddingService:
 
 def get_embeddings():
     return EmbeddingService.get_instance()
+
+
+def save_cache():
+    """Flush the embedding cache to disk. Safe to call when nothing is cached."""
+    client = EmbeddingService._instance
+    cache = getattr(client, "cache", None)
+    if cache is not None:
+        cache.save()

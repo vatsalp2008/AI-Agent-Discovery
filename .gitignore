@@ -25,3 +25,4 @@ data/faiss_index/
 .vscode/
 .idea/
 .DS_Store
+data/embedding_cache.json

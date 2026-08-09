@@ -1,3 +1,4 @@
+import atexit
 import os
 import sys
 
@@ -10,6 +11,7 @@ import config
 import request_log
 import security
 from api import api_bp, register_error_handlers
+from embeddings import save_cache
 from logging_setup import configure
 
 configure()
@@ -45,6 +47,9 @@ def agent_detail(name):
 def favicon():
     """Browsers request this path directly, regardless of the <link> tag."""
     return redirect(url_for('static', filename='img/favicon.svg'), code=301)
+
+# Flush the query-embedding cache on shutdown so the next start benefits.
+atexit.register(save_cache)
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
