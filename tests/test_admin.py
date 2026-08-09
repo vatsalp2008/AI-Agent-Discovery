@@ -165,3 +165,33 @@ def test_writes_are_atomic(admin_client, catalogue, tmp_path):
 def test_catalogue_keeps_a_trailing_newline(admin_client, catalogue):
     admin_client.post("/api/admin/agents", json=valid())
     assert catalogue.read_text().endswith("]\n")
+
+
+class TestReindex:
+    def test_rebuilds_the_index(self, admin_client, store, catalogue, monkeypatch):
+        import scraper
+
+        monkeypatch.setattr(scraper, "load_agents",
+                            lambda: [__import__("models").Agent.from_dict(r)
+                                     for r in json.loads(catalogue.read_text())])
+        response = admin_client.post("/api/admin/reindex")
+        assert response.status_code == 200
+        assert response.get_json()["indexed"] >= 1
+
+    def test_is_refused_when_disabled(self, catalogue, monkeypatch, store):
+        import api
+
+        monkeypatch.setattr(config, "ENABLE_ADMIN", False)
+        api.set_store(store)
+        app = Flask(__name__)
+        app.register_blueprint(admin.admin_bp)
+        admin.register_error_handler(app)
+        with app.test_client() as client:
+            assert client.post("/api/admin/reindex").status_code == 403
+        api.set_store(None)
+
+    def test_a_broken_catalogue_is_reported_not_raised(self, admin_client, catalogue):
+        catalogue.write_text("{ not json")
+        response = admin_client.post("/api/admin/reindex")
+        assert response.status_code == 400
+        assert "not valid JSON" in response.get_json()["error"]

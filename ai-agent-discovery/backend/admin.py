@@ -177,6 +177,39 @@ def delete_agent(name):
     return jsonify({"deleted": removed["name"], "total": len(records)}), 200
 
 
+@admin_bp.route('/reindex', methods=['POST'])
+def reindex():
+    """Rebuild the FAISS index from the current catalogue.
+
+    Separate from the edit endpoints on purpose: re-embedding every agent
+    takes seconds, so a batch of edits should cost one rebuild rather than one
+    per change. Rebuilds rather than appends, so this cannot duplicate agents.
+    """
+    _require_enabled()
+
+    from api import get_store
+    from scraper import CatalogueError, load_agents
+
+    try:
+        agents = load_agents()
+    except CatalogueError as e:
+        raise AdminError(str(e), status=400) from e
+
+    store = get_store()
+    try:
+        store.replace_agents(agents)
+    except Exception as e:
+        logger.exception("Reindex failed")
+        raise AdminError(f"Could not rebuild the index: {e}", status=500) from e
+
+    stats = store.get_stats()
+    logger.info("Reindexed %d agents", stats.get("count", 0))
+    return jsonify({
+        "indexed": stats.get("count", 0),
+        "built_at": stats.get("built_at"),
+    }), 200
+
+
 @admin_bp.route('/status', methods=['GET'])
 def status():
     """Whether editing is available, and whether the index is behind."""

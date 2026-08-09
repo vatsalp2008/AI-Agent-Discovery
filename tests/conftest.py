@@ -42,7 +42,18 @@ def _install_langchain_stubs():
             self.base_url = base_url
             self.model = model
 
-    sys.modules["langchain_community.vectorstores"].FAISS = object
+    class _FAISS:
+        """Enough of langchain's FAISS wrapper to rebuild an index."""
+
+        @staticmethod
+        def from_documents(documents, embedding_function):
+            return FakeInnerStore(list(documents))
+
+        @staticmethod
+        def load_local(*args, **kwargs):
+            raise NotImplementedError("tests build the store directly")
+
+    sys.modules["langchain_community.vectorstores"].FAISS = _FAISS
     class _Embeddings:
         """Stands in for langchain_core.embeddings.Embeddings."""
 
