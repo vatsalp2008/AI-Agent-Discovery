@@ -12,6 +12,7 @@ this should be able to read the catalogue, not rewrite it.
 """
 
 import asyncio
+import atexit
 import os
 import sys
 
@@ -121,6 +122,28 @@ def _slim(result):
     return slim
 
 
+def _require_index(store):
+    """Fail loudly when there is no usable index.
+
+    Otherwise an unseeded checkout answers every search with "nothing matched",
+    and the calling model reports that no such tools exist — a confident wrong
+    answer, where an error would have prompted the user to seed. The HTTP layer
+    already distinguishes these with a 503 on /api/health.
+    """
+    if store.vector_store is not None:
+        return
+    if getattr(store, "stale_model", None):
+        raise ValueError(
+            f"The index was built with embedding model {store.stale_model!r} but "
+            f"{config.EMBEDDING_MODEL!r} is configured. Re-run seed.py to rebuild it. "
+            "This is a setup problem, not an empty catalogue."
+        )
+    raise ValueError(
+        "No agent index is available. Run seed.py to build one. "
+        "This is a setup problem, not an empty catalogue."
+    )
+
+
 def call_tool(name, arguments=None):
     """Run a tool and return a JSON-serializable result.
 
@@ -129,6 +152,7 @@ def call_tool(name, arguments=None):
     """
     arguments = arguments or {}
     store = get_store()
+    _require_index(store)
 
     if name == "search_agents":
         query = (arguments.get("query") or "").strip()
@@ -249,6 +273,12 @@ def build_server():
 def main():
     # stdout carries the protocol, so logs must not go there.
     configure("WARNING")
+
+    # Same as cli.py and the Flask app: flush the query-embedding cache on the
+    # way out, or this entry point never benefits from it across runs.
+    import embeddings
+    atexit.register(embeddings.save_cache)
+
     build_server().run(transport="stdio")
     return 0
 

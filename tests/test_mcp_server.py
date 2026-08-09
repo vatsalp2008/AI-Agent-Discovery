@@ -136,3 +136,48 @@ def test_repo_registration_points_at_the_server(mcp):
     script = REPO_ROOT / entry["args"][0]
     assert script.exists(), f"{entry['args'][0]} does not exist"
     assert script.name == "mcp_server.py"
+
+
+class TestUnusableIndex:
+    """An unseeded index must be an error, not "nothing matched".
+
+    A tool error prompts the user to fix their setup; an empty result set
+    makes the calling model state that no such tools exist.
+    """
+
+    @pytest.fixture
+    def unseeded(self, mcp, tmp_path):
+        from vectorstore import VectorStore
+
+        mcp.set_store(VectorStore(persist_directory=tmp_path / "none", embedding_function=object()))
+        return mcp
+
+    def test_search_reports_a_setup_problem(self, unseeded):
+        with pytest.raises(ValueError, match="Run seed.py"):
+            unseeded.call_tool("search_agents", {"query": "code editor"})
+
+    def test_every_tool_reports_it(self, unseeded):
+        for name, args in [("get_agent", {"name": "X"}), ("list_categories", {}),
+                           ("catalogue_stats", {}), ("find_similar", {"name": "X"})]:
+            with pytest.raises(ValueError, match="No agent index"):
+                unseeded.call_tool(name, args)
+
+    def test_a_stale_model_names_the_mismatch(self, mcp, tmp_path):
+        from vectorstore import VectorStore
+
+        store = VectorStore(persist_directory=tmp_path / "none", embedding_function=object())
+        store.stale_model = "llama3.2"
+        mcp.set_store(store)
+
+        with pytest.raises(ValueError, match="llama3.2"):
+            mcp.call_tool("search_agents", {"query": "x"})
+
+    def test_a_seeded_index_is_unaffected(self, mcp):
+        assert mcp.call_tool("search_agents", {"query": "code editor"})["results"]
+
+
+def test_the_entry_point_persists_the_embedding_cache():
+    """cli.py and the Flask app both do; this one used to be forgotten."""
+    source = MCP_PATH.read_text()
+    assert "atexit.register" in source
+    assert "save_cache" in source
