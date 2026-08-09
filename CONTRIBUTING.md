@@ -51,7 +51,11 @@ index is missing.
    "added category filtering and some other stuff").
 4. Docs are updated if you changed the API surface, configuration, or setup.
 
-CI runs the same checks on Python 3.10 and 3.12 plus the frontend suite.
+CI runs the same checks on Python 3.10 and 3.12 plus the frontend suite, and a
+`live` job that starts an Ollama container, seeds an index, drives the MCP
+server, and runs `tests-live` for real.
+
+`pre-commit install` runs the same lint and tests locally before each commit.
 
 ## Project conventions
 
@@ -81,6 +85,28 @@ back to clients.
 **Re-seeding rebuilds.** `seed.py` replaces the index rather than appending, and
 treats `data/agents.json` as the source of truth so hand-edits survive.
 
+**Writes are opt-in and validated.** `backend/admin.py` is the only module that
+writes, and it is disabled unless `ENABLE_ADMIN=true`. It has no
+authentication, so it must stay off by default and behind a localhost `HOST`.
+Every write is atomic — write to a temporary file, then `os.replace` — so an
+interrupted request cannot truncate `agents.json`.
+
+**MCP tools are read-only.** `mcp_server.py` exposes search and lookup, never
+mutation: an agent querying the catalogue should not be able to rewrite it.
+Tool results are trimmed to the fields a caller needs, because everything sent
+back costs the caller context.
+
+**Cache what cannot go stale.** Search *results* depend on the index and are
+invalidated whenever it changes. Query *embeddings* depend only on the model
+and the text, so they are the thing persisted to disk
+(`backend/embedding_cache.py`). Getting this backwards would serve results
+from a catalogue that no longer exists.
+
+**Keep imports off the startup path.** `langchain_community.vectorstores`
+pulls in langsmith, roughly 300ms. Import it inside the function that needs it
+(see `vectorstore._faiss`) rather than at module level, and measure with
+`make benchmark` before and after.
+
 **Pure logic goes in its own file.** Page scripts wrap everything in a
 `DOMContentLoaded` closure, which makes it untestable. Helpers that do not touch
 the DOM belong in a separate file with a global (`search-state.js`,
@@ -107,7 +133,16 @@ Edit `data/agents.json` and re-run `make seed`:
 - Unknown fields are ignored, so you can annotate records freely.
 - Star counts go stale. Run `make refresh-stars` to update them from the GitHub
   API rather than editing the numbers by hand. Set `GITHUB_TOKEN` to avoid the
-  60 requests/hour unauthenticated limit.
+  60 requests/hour unauthenticated limit. A scheduled workflow also does this
+  weekly and opens a pull request.
+- **Verify the repository exists before adding it.** Check the URL against the
+  GitHub API and take the description and star count from there. It is very
+  easy to write a plausible entry for a project that does something else
+  entirely; `tests/test_catalogue.py` cannot catch that.
+- `tech_stack` entries must not contain commas — the field is stored
+  comma-joined, so a comma would split one entry into two.
+- Prefer `/admin` (with `ENABLE_ADMIN=true`) over hand-editing: it validates
+  the record and explains what is wrong.
 
 ## Layout
 
@@ -118,6 +153,8 @@ Edit `data/agents.json` and re-run `make seed`:
 | `ai-agent-discovery/cli.py` | Terminal search |
 | `ai-agent-discovery/seed.py` | Index building |
 | `ai-agent-discovery/refresh_stars.py` | Star count refresh |
+| `ai-agent-discovery/mcp_server.py` | MCP server for other agents |
+| `ai-agent-discovery/benchmark.py` | Hot-path measurements |
 | `tests/` | Python tests (pytest) |
 | `tests-js/` | Frontend tests (vitest + jsdom) |
 | `tests-live/` | End-to-end tests against a real Ollama |
