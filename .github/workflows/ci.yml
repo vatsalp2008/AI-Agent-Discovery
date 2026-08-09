@@ -45,7 +45,7 @@ jobs:
       # would otherwise hide.
       - name: Check backend imports resolve
         working-directory: ai-agent-discovery/backend
-        run: python -c "import api, config, embeddings, generation, models, rate_limit, request_log, scoring, scraper, vectorstore"
+        run: python -c "import admin, api, config, embedding_cache, embeddings, generation, models, rate_limit, request_log, scoring, scraper, security, vectorstore"
 
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
@@ -91,6 +91,39 @@ jobs:
 
       - name: Seed the index
         run: python ai-agent-discovery/seed.py
+
+      # The MCP server is a separate entry point, so a break in it would not
+      # show up in the other suites. Drive it the way a client would.
+      - name: Check the MCP server answers over stdio
+        run: |
+          python - <<'PY'
+          import asyncio, json, os, sys
+          from mcp import ClientSession, StdioServerParameters
+          from mcp.client.stdio import stdio_client
+
+          async def main():
+              params = StdioServerParameters(
+                  command=sys.executable,
+                  args=[os.path.abspath("ai-agent-discovery/mcp_server.py")])
+              async with stdio_client(params) as (read, write):
+                  async with ClientSession(read, write) as session:
+                      await session.initialize()
+                      names = {t.name for t in (await session.list_tools()).tools}
+                      assert "search_agents" in names, names
+
+                      result = await session.call_tool(
+                          "search_agents", {"query": "terminal coding agent", "limit": 3})
+                      payload = json.loads(result.content[0].text)
+                      assert payload["results"], "search returned nothing"
+                      print("MCP server answered with", len(payload["results"]), "results")
+
+          asyncio.run(asyncio.wait_for(main(), timeout=180))
+          PY
+
+      # Catches a regression that makes the app dramatically slower without
+      # failing any test. Not a threshold check: runner speed varies too much.
+      - name: Report benchmark numbers
+        run: python ai-agent-discovery/benchmark.py
 
       # The suite skips itself when Ollama is unreachable, which would turn a
       # broken setup into a silent pass. LIVE_TESTS_REQUIRED makes any skip a
