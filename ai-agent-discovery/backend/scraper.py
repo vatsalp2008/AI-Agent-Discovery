@@ -294,6 +294,78 @@ SAMPLE_AGENTS = [
         use_case="Cluster diagnostics and triage"
     ),
     Agent(
+        name="Langfuse",
+        description="Open source LLM engineering platform: tracing, evaluation, prompt management and cost tracking.",
+        category="Evaluation",
+        tech_stack=["TypeScript", "PostgreSQL", "OpenTelemetry"],
+        github_stars=32763,
+        url="https://github.com/langfuse/langfuse",
+        use_case="Tracing and evaluating LLM applications"
+    ),
+    Agent(
+        name="Phoenix",
+        description="Arize's open observability tool for tracing, evaluating and debugging LLM and RAG pipelines.",
+        category="Evaluation",
+        tech_stack=["Python", "OpenTelemetry"],
+        github_stars=10955,
+        url="https://github.com/Arize-ai/phoenix",
+        use_case="Debugging retrieval and agent traces"
+    ),
+    Agent(
+        name="DeepEval",
+        description="A unit-testing framework for LLM outputs, with metrics for hallucination, relevance and bias.",
+        category="Evaluation",
+        tech_stack=["Python", "pytest"],
+        github_stars=17484,
+        url="https://github.com/confident-ai/deepeval",
+        use_case="Regression testing LLM behaviour"
+    ),
+    Agent(
+        name="Promptfoo",
+        description="Test and red-team prompts, agents and RAG pipelines from the command line or CI.",
+        category="Evaluation",
+        tech_stack=["TypeScript", "Node.js"],
+        github_stars=24073,
+        url="https://github.com/promptfoo/promptfoo",
+        use_case="Prompt testing and red teaming"
+    ),
+    Agent(
+        name="OpenLLMetry",
+        description="OpenTelemetry-based instrumentation for LLM applications, exporting to any observability backend.",
+        category="Evaluation",
+        tech_stack=["Python", "OpenTelemetry"],
+        github_stars=7364,
+        url="https://github.com/traceloop/openllmetry",
+        use_case="Standard telemetry for LLM apps"
+    ),
+    Agent(
+        name="Opik",
+        description="Comet's platform for debugging, evaluating and monitoring LLM and RAG applications in production.",
+        category="Evaluation",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=21232,
+        url="https://github.com/comet-ml/opik",
+        use_case="Production monitoring of LLM apps"
+    ),
+    Agent(
+        name="Ragas",
+        description="Metrics for evaluating retrieval-augmented pipelines, including faithfulness and context precision.",
+        category="Evaluation",
+        tech_stack=["Python", "LangChain"],
+        github_stars=15201,
+        url="https://github.com/explodinggradients/ragas",
+        use_case="Measuring RAG quality"
+    ),
+    Agent(
+        name="Giskard",
+        description="Open source testing library that scans LLM agents for hallucination, bias and prompt injection.",
+        category="Evaluation",
+        tech_stack=["Python", "ML"],
+        github_stars=5741,
+        url="https://github.com/Giskard-AI/giskard",
+        use_case="Automated vulnerability scanning for models"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
