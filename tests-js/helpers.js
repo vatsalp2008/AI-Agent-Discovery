@@ -112,6 +112,7 @@ export function stubFetch(routes) {
 /** The search page's markup, mirroring templates/index.html. */
 export const SEARCH_HTML = `
     <form id="searchForm">
+      <label class="sr-only" for="searchInput">Search for an AI agent</label>
       <input id="searchInput" type="search">
       <button id="searchBtn" type="submit">go</button>
     </form>
@@ -132,11 +133,15 @@ export const DASHBOARD_HTML = `
       <div class="stat-number" id="totalStars">-</div>
     </div>
     <div class="controls">
+      <label class="sr-only" for="filterQuery">Filter by name or description</label>
       <input type="search" id="filterQuery">
+      <label class="sr-only" for="filterCategory">Category</label>
       <select id="filterCategory"><option value="">All categories</option></select>
+      <label class="sr-only" for="filterTech">Technology</label>
       <select id="filterTech"><option value="">All technologies</option></select>
+      <label class="sr-only" for="sortBy">Sort by</label>
       <select id="sortBy"><option value="name">Name</option><option value="stars">Stars</option></select>
-      <button type="button" id="sortOrder">↑</button>
+      <button type="button" id="sortOrder" aria-label="Sort ascending">↑</button>
     </div>
     <div class="results-grid" id="allAgentsGrid" aria-busy="true"></div>
     <div class="grid-footer" id="gridFooter"></div>
@@ -155,6 +160,7 @@ export const AGENT_HTML = `
 /** The comparison page's markup, mirroring templates/compare.html. */
 export const COMPARE_HTML = `
     <div class="controls">
+      <label class="sr-only" for="comparePick">Add an agent</label>
       <select id="comparePick"><option value="">Add an agent…</option></select>
       <button type="button" id="compareClear">Clear</button>
     </div>
@@ -164,11 +170,14 @@ export const COMPARE_HTML = `
 /** The collections page's markup, mirroring templates/collections.html. */
 export const COLLECTIONS_HTML = `
     <form id="newCollectionForm">
+      <label class="sr-only" for="newCollectionName">New collection name</label>
       <input type="text" id="newCollectionName">
       <button type="submit">Create</button>
     </form>
     <button type="button" id="exportCollections">Export</button>
-    <input type="file" id="importCollections">
+    <label class="control-button" for="importCollections">Import
+      <input type="file" id="importCollections" class="sr-only">
+    </label>
     <p class="result-message error" id="collectionsError" hidden></p>
     <p class="result-message" id="collectionsStatus" hidden></p>
     <main id="collectionsArea"></main>
@@ -188,13 +197,20 @@ export const ADMIN_HTML = `
       <form id="agentForm">
         <h2 id="formHeading">Add an agent</h2>
         <input type="hidden" id="editingName" value="">
+        <label for="fieldName">Name</label>
         <input type="text" id="fieldName">
+        <label for="fieldCategory">Category</label>
         <input type="text" id="fieldCategory">
         <datalist id="categoryOptions"></datalist>
+        <label for="fieldDescription">Description</label>
         <textarea id="fieldDescription"></textarea>
+        <label for="fieldStack">Tech stack</label>
         <input type="text" id="fieldStack">
+        <label for="fieldStars">GitHub stars</label>
         <input type="number" id="fieldStars" value="0">
+        <label for="fieldUrl">URL</label>
         <input type="url" id="fieldUrl">
+        <label for="fieldUseCase">Use case</label>
         <input type="text" id="fieldUseCase">
         <button type="submit" id="saveBtn">Add agent</button>
         <button type="button" id="cancelBtn" hidden>Cancel</button>
