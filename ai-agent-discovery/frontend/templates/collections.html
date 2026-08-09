@@ -15,7 +15,15 @@
     <button type="submit" class="control-button">Create</button>
 </form>
 
+<div class="controls">
+    <button type="button" id="exportCollections" class="control-button">Export</button>
+    <label class="control-button" for="importCollections">Import
+        <input type="file" id="importCollections" accept="application/json,.json" class="sr-only">
+    </label>
+</div>
+
 <p class="result-message error" id="collectionsError" hidden></p>
+<p class="result-message" id="collectionsStatus" hidden></p>
 
 <main id="collectionsArea" aria-live="polite"></main>
 {% endblock %}

@@ -3,11 +3,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('newCollectionForm');
     const nameInput = document.getElementById('newCollectionName');
     const errorEl = document.getElementById('collectionsError');
+    const statusEl = document.getElementById('collectionsStatus');
+    const exportBtn = document.getElementById('exportCollections');
+    const importInput = document.getElementById('importCollections');
 
     function showError(message) {
         if (!errorEl) return;
         errorEl.textContent = message || '';
         errorEl.hidden = !message;
+        if (message && statusEl) statusEl.hidden = true;
+    }
+
+    function showStatus(message) {
+        if (!statusEl) return;
+        statusEl.textContent = message || '';
+        statusEl.hidden = !message;
+        if (message && errorEl) errorEl.hidden = true;
     }
 
     function agentChip(collection, agent) {
@@ -100,6 +111,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameInput.value = '';
                 render();
             }
+        });
+    }
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            if (Collections.names().length === 0) {
+                showError('There is nothing to export yet.');
+                return;
+            }
+            try {
+                const blob = new Blob([Collections.exportAll()], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'agent-collections.json';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showStatus('Exported.');
+            } catch (error) {
+                console.error(error);
+                showError('Could not export.');
+            }
+        });
+    }
+
+    if (importInput) {
+        importInput.addEventListener('change', () => {
+            const file = importInput.files && importInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = Collections.importAll(String(reader.result));
+                if (!result.ok) {
+                    showError(result.reason);
+                } else if (result.added === 0 && result.merged === 0) {
+                    showStatus('Nothing new to import.');
+                } else {
+                    showStatus(`Imported: ${result.added} new, ${result.merged} merged.`);
+                }
+                render();
+                // Allow re-importing the same file.
+                importInput.value = '';
+            };
+            reader.onerror = () => showError('Could not read that file.');
+            reader.readAsText(file);
         });
     }
 

@@ -107,6 +107,67 @@ const Collections = (() => {
         return `/compare?names=${encodeURIComponent(agents.join(','))}`;
     }
 
+    /** Serialise every collection for backup or moving to another browser. */
+    function exportAll() {
+        return JSON.stringify({
+            kind: 'agentdiscovery-collections',
+            version: 1,
+            exported_at: new Date().toISOString(),
+            collections: read(),
+        }, null, 2);
+    }
+
+    /**
+     * Merge an exported payload into the existing collections.
+     *
+     * Merges rather than replaces: importing a backup should not silently
+     * destroy collections made since. A name clash unions the two sets.
+     */
+    function importAll(text) {
+        let payload;
+        try {
+            payload = JSON.parse(text);
+        } catch (error) {
+            return { ok: false, reason: 'That is not valid JSON.' };
+        }
+
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+            return { ok: false, reason: 'Unrecognised file.' };
+        }
+        if (payload.kind !== 'agentdiscovery-collections') {
+            return { ok: false, reason: 'That file is not a collections export.' };
+        }
+        if (!payload.collections || typeof payload.collections !== 'object') {
+            return { ok: false, reason: 'The file has no collections in it.' };
+        }
+
+        const current = read();
+        let added = 0;
+        let merged = 0;
+
+        Object.entries(payload.collections).forEach(([name, agents]) => {
+            if (typeof name !== 'string' || !name.trim() || !Array.isArray(agents)) return;
+
+            const clean = agents.filter(a => typeof a === 'string' && a.trim()).slice(0, MAX_AGENTS);
+            const key = name.trim();
+
+            if (key in current) {
+                const seen = new Set(current[key].map(a => a.toLowerCase()));
+                const extra = clean.filter(a => !seen.has(a.toLowerCase()));
+                if (extra.length) {
+                    current[key] = [...current[key], ...extra].slice(0, MAX_AGENTS);
+                    merged += 1;
+                }
+            } else if (Object.keys(current).length < MAX_COLLECTIONS) {
+                current[key] = clean;
+                added += 1;
+            }
+        });
+
+        if (!write(current)) return { ok: false, reason: 'Could not save; storage is unavailable.' };
+        return { ok: true, added, merged };
+    }
+
     function clear() {
         try {
             localStorage.removeItem(STORAGE_KEY);
@@ -118,7 +179,7 @@ const Collections = (() => {
     return {
         STORAGE_KEY, MAX_COLLECTIONS, MAX_AGENTS,
         read, names, agentsIn, create, add, remove, destroy,
-        containing, compareUrl, clear,
+        containing, compareUrl, exportAll, importAll, clear,
     };
 })();
 

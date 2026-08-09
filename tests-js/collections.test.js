@@ -147,3 +147,90 @@ describe('resilience', () => {
         }
     });
 });
+
+describe('export and import', () => {
+    it('exports a labelled payload', () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        const payload = JSON.parse(C.exportAll());
+        expect(payload.kind).toBe('agentdiscovery-collections');
+        expect(payload.collections.Coding).toEqual(['Aider']);
+        expect(Number.isNaN(Date.parse(payload.exported_at))).toBe(false);
+    });
+
+    it('round-trips through a fresh browser', () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        const backup = C.exportAll();
+
+        localStorage.clear();
+        expect(C.importAll(backup)).toEqual({ ok: true, added: 1, merged: 0 });
+        expect(C.agentsIn('Coding')).toEqual(['Aider']);
+    });
+
+    it('merges rather than replacing', () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        const backup = C.exportAll();
+
+        localStorage.clear();
+        C.create('Coding');
+        C.add('Coding', 'Cursor');
+        C.create('Research');
+
+        const result = C.importAll(backup);
+        expect(result.merged).toBe(1);
+        expect(C.agentsIn('Coding').sort()).toEqual(['Aider', 'Cursor']);
+        expect(C.names()).toContain('Research');   // untouched
+    });
+
+    it('does not duplicate an agent already present', () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        const backup = C.exportAll();
+        C.importAll(backup);
+        expect(C.agentsIn('Coding')).toEqual(['Aider']);
+    });
+
+    it('rejects invalid JSON', () => {
+        expect(C.importAll('{ not json').reason).toContain('valid JSON');
+    });
+
+    it('rejects a file that is not a collections export', () => {
+        expect(C.importAll(JSON.stringify({ kind: 'something-else' })).reason)
+            .toContain('not a collections export');
+    });
+
+    it('rejects an array', () => {
+        expect(C.importAll('[1,2,3]').ok).toBe(false);
+    });
+
+    it('rejects a payload with no collections', () => {
+        expect(C.importAll(JSON.stringify({ kind: 'agentdiscovery-collections' })).reason)
+            .toContain('no collections');
+    });
+
+    it('skips malformed entries inside a valid payload', () => {
+        const result = C.importAll(JSON.stringify({
+            kind: 'agentdiscovery-collections',
+            collections: { Good: ['Aider'], Bad: 'not an array', '  ': ['x'] },
+        }));
+        expect(result.ok).toBe(true);
+        expect(C.names()).toEqual(['Good']);
+    });
+
+    it('respects the collection cap on import', () => {
+        const many = {};
+        for (let i = 0; i < C.MAX_COLLECTIONS + 5; i += 1) many[`c${i}`] = [];
+        C.importAll(JSON.stringify({ kind: 'agentdiscovery-collections', collections: many }));
+        expect(C.names().length).toBeLessThanOrEqual(C.MAX_COLLECTIONS);
+    });
+
+    it('respects the per-collection cap on import', () => {
+        const agents = Array.from({ length: C.MAX_AGENTS + 10 }, (_, i) => `agent${i}`);
+        C.importAll(JSON.stringify({
+            kind: 'agentdiscovery-collections', collections: { Big: agents },
+        }));
+        expect(C.agentsIn('Big').length).toBe(C.MAX_AGENTS);
+    });
+});

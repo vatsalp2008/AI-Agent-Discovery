@@ -126,3 +126,70 @@ describe('escaping', () => {
         expect(globalThis.pwned).toBeUndefined();
     });
 });
+
+describe('export and import controls', () => {
+    it('exports a downloadable file', () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        boot();
+
+        const downloads = [];
+        URL.createObjectURL = () => 'blob:fake';
+        URL.revokeObjectURL = () => {};
+        const realClick = HTMLAnchorElement.prototype.click;
+        HTMLAnchorElement.prototype.click = function () { downloads.push(this.download); };
+
+        try {
+            document.getElementById('exportCollections').click();
+            expect(downloads).toEqual(['agent-collections.json']);
+            expect(document.getElementById('collectionsStatus').textContent).toContain('Exported');
+        } finally {
+            HTMLAnchorElement.prototype.click = realClick;
+        }
+    });
+
+    it('says so when there is nothing to export', () => {
+        boot();
+        document.getElementById('exportCollections').click();
+        expect(document.getElementById('collectionsError').textContent).toContain('nothing to export');
+    });
+
+    it('imports a file and re-renders', async () => {
+        C.create('Coding');
+        C.add('Coding', 'Aider');
+        const backup = C.exportAll();
+        localStorage.clear();
+        boot();
+
+        const input = document.getElementById('importCollections');
+        Object.defineProperty(input, 'files', {
+            value: [new window.File([backup], 'backup.json', { type: 'application/json' })],
+            configurable: true,
+        });
+        input.dispatchEvent(new window.Event('change'));
+
+        await new Promise(r => setTimeout(r, 50));
+        expect(document.querySelector('.collection-card h2').textContent).toBe('Coding (1)');
+        expect(document.getElementById('collectionsStatus').textContent).toContain('1 new');
+    });
+
+    it('reports a malformed import', async () => {
+        boot();
+        const input = document.getElementById('importCollections');
+        Object.defineProperty(input, 'files', {
+            value: [new window.File(['{ not json'], 'bad.json')],
+            configurable: true,
+        });
+        input.dispatchEvent(new window.Event('change'));
+
+        await new Promise(r => setTimeout(r, 50));
+        expect(document.getElementById('collectionsError').textContent).toContain('valid JSON');
+    });
+
+    it('ignores a change event with no file', () => {
+        boot();
+        const input = document.getElementById('importCollections');
+        Object.defineProperty(input, 'files', { value: [], configurable: true });
+        expect(() => input.dispatchEvent(new window.Event('change'))).not.toThrow();
+    });
+});

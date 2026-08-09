@@ -167,7 +167,10 @@ export const COLLECTIONS_HTML = `
       <input type="text" id="newCollectionName">
       <button type="submit">Create</button>
     </form>
+    <button type="button" id="exportCollections">Export</button>
+    <input type="file" id="importCollections">
     <p class="result-message error" id="collectionsError" hidden></p>
+    <p class="result-message" id="collectionsStatus" hidden></p>
     <main id="collectionsArea"></main>
 `;
 
