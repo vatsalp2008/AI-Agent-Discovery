@@ -57,6 +57,9 @@ docker-up:  ## Start Ollama, seed the index, and run the app
 docker-down:  ## Stop the compose stack
 	docker compose down
 
+benchmark: ## measure the hot paths against a real index and Ollama
+	$(PYTHON) ai-agent-discovery/benchmark.py
+
 clean:  ## Remove caches and the generated index
 	rm -rf .pytest_cache .ruff_cache data/faiss_index
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +
