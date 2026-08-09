@@ -671,14 +671,19 @@ def load_agents() -> list[Agent]:
         with open(config.AGENTS_JSON) as f:
             records = _parse_records(f.read())
 
-        if records:
-            agents = [_build_agent(record, i) for i, record in enumerate(records)]
-            _warn_about_duplicates(agents)
+        agents = [_build_agent(record, i) for i, record in enumerate(records)]
+        _warn_about_duplicates(agents)
+        if agents:
             logger.info("Loaded %d agents from %s", len(agents), config.AGENTS_JSON)
-            return agents
-        logger.warning("%s is empty; using the built-in sample agents.", config.AGENTS_JSON)
+        else:
+            # An existing but empty file is a deliberate state — somebody
+            # removed every agent. Falling back to the samples here would
+            # silently repopulate the index with data they just deleted.
+            logger.warning("%s is empty; the index will have no agents.", config.AGENTS_JSON)
+        return agents
 
-    logger.info("Using %d built-in sample agents.", len(SAMPLE_AGENTS))
+    logger.info("No catalogue at %s; using %d built-in sample agents.",
+                config.AGENTS_JSON, len(SAMPLE_AGENTS))
     return list(SAMPLE_AGENTS)
 
 

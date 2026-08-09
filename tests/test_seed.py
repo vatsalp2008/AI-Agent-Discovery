@@ -17,9 +17,11 @@ def test_prefers_the_on_disk_catalogue(agents_json):
     assert [a.name for a in agents] == ["Cursor", "Aider", "GPT Researcher"]
 
 
-def test_empty_catalogue_falls_back_to_samples(agents_json):
+def test_an_emptied_catalogue_stays_empty(agents_json):
+    """This previously fell back to SAMPLE_AGENTS, which meant deleting every
+    agent and reindexing silently restored the samples."""
     agents_json.write_text("[]")
-    assert len(scraper.load_agents()) == len(scraper.SAMPLE_AGENTS)
+    assert scraper.load_agents() == []
 
 
 def test_seeding_does_not_clobber_hand_edited_agents(agents_json, monkeypatch):
@@ -153,3 +155,25 @@ class TestBrokenCatalogue:
         ]))
         agents = scraper.load_agents()
         assert [a.name for a in agents] == ["Fine"]
+
+
+def test_an_empty_catalogue_does_not_resurrect_the_samples(tmp_path, monkeypatch):
+    """Deleting every agent then reindexing must not repopulate the index.
+
+    The sample fallback exists to bootstrap a fresh checkout, where the file
+    is absent. An existing but empty file means somebody emptied it.
+    """
+    import config
+
+    target = tmp_path / "agents.json"
+    target.write_text("[]")
+    monkeypatch.setattr(config, "AGENTS_JSON", target)
+
+    assert scraper.load_agents() == []
+
+
+def test_a_missing_catalogue_still_bootstraps_from_samples(tmp_path, monkeypatch):
+    import config
+
+    monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "absent.json")
+    assert len(scraper.load_agents()) == len(scraper.SAMPLE_AGENTS)
