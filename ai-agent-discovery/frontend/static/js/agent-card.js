@@ -103,6 +103,70 @@ const AgentCard = (() => {
     }
 
     /**
+     * A control for filing this agent into a collection.
+     *
+     * Rendered only when the Collections module is loaded, so pages that do
+     * not include it (the dashboard) are unaffected.
+     */
+    function saveControl(agent) {
+        if (typeof Collections === 'undefined') return null;
+
+        const name = (agent.metadata || {}).name || agent.name;
+        if (!name) return null;
+
+        const wrapper = el('span', 'save-control');
+        const select = document.createElement('select');
+        select.className = 'save-select';
+        select.setAttribute('aria-label', `Add ${name} to a collection`);
+
+        function refresh() {
+            const holding = new Set(Collections.containing(name));
+            const options = [el('option', null, 'Save to…')];
+            options[0].value = '';
+
+            Collections.names().forEach(collection => {
+                const option = el('option', null,
+                    holding.has(collection) ? `${collection} ✓` : collection);
+                option.value = collection;
+                option.disabled = holding.has(collection);
+                options.push(option);
+            });
+
+            const create = el('option', null, '+ New collection…');
+            create.value = '__new__';
+            options.push(create);
+
+            select.replaceChildren(...options);
+        }
+
+        select.addEventListener('change', () => {
+            const choice = select.value;
+            select.value = '';
+            if (!choice) return;
+
+            let target = choice;
+            if (choice === '__new__') {
+                const entered = window.prompt('Name the new collection:');
+                if (!entered) return;
+                const created = Collections.create(entered);
+                if (!created.ok) {
+                    window.alert(created.reason);
+                    return;
+                }
+                target = created.name;
+            }
+
+            const result = Collections.add(target, name);
+            if (!result.ok) window.alert(result.reason);
+            refresh();
+        });
+
+        refresh();
+        wrapper.appendChild(select);
+        return wrapper;
+    }
+
+    /**
      * A link that compares `agent` against the others shown alongside it.
      * Returns null when there is nothing to compare against.
      */
@@ -127,10 +191,13 @@ const AgentCard = (() => {
         const grid = el('div', 'results-grid');
         agents.forEach(agent => {
             const card = create(agent);
-            const compare = compareLink(agent, agents);
-            if (compare) {
-                const footer = card.querySelector('.card-footer');
-                if (footer) footer.insertBefore(compare, footer.lastChild);
+            const footer = card.querySelector('.card-footer');
+            if (footer) {
+                const compare = compareLink(agent, agents);
+                if (compare) footer.insertBefore(compare, footer.lastChild);
+
+                const save = saveControl(agent);
+                if (save) footer.insertBefore(save, footer.lastChild);
             }
             grid.appendChild(card);
         });
@@ -138,5 +205,5 @@ const AgentCard = (() => {
         return grid;
     }
 
-    return { create, renderGrid, compareLink, formatStars, parseStack, safeUrl };
+    return { create, renderGrid, compareLink, saveControl, formatStars, parseStack, safeUrl };
 })();

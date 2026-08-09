@@ -1,6 +1,6 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { loadAgentCard, makeAgent } from './helpers.js';
+import { loadAgentCard, loadScript, makeAgent } from './helpers.js';
 
 let AgentCard;
 
@@ -189,5 +189,86 @@ describe('compare links', () => {
         const container = document.createElement('div');
         AgentCard.renderGrid(container, [makeAgent()]);
         expect(container.querySelector('.compare-link')).toBeNull();
+    });
+});
+
+describe('save to collection', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        globalThis.Collections = loadScript('collections.js', 'Collections');
+    });
+
+    afterEach(() => {
+        localStorage.clear();
+        delete globalThis.Collections;
+    });
+
+    it('offers a save control when Collections is available', () => {
+        const control = AgentCard.saveControl(makeAgent());
+        expect(control.querySelector('.save-select')).not.toBeNull();
+    });
+
+    it('is absent when Collections is not loaded', () => {
+        delete globalThis.Collections;
+        expect(AgentCard.saveControl(makeAgent())).toBeNull();
+    });
+
+    it('lists existing collections', () => {
+        Collections.create('Coding');
+        Collections.create('Research');
+        const options = [...AgentCard.saveControl(makeAgent()).querySelectorAll('option')]
+            .map(o => o.textContent);
+        expect(options).toEqual(['Save to…', 'Coding', 'Research', '+ New collection…']);
+    });
+
+    it('adds the agent to the chosen collection', () => {
+        Collections.create('Coding');
+        const control = AgentCard.saveControl(makeAgent());
+        const select = control.querySelector('.save-select');
+        select.value = 'Coding';
+        select.dispatchEvent(new window.Event('change'));
+        expect(Collections.agentsIn('Coding')).toEqual(['Cursor']);
+    });
+
+    it('marks and disables a collection already holding the agent', () => {
+        Collections.create('Coding');
+        Collections.add('Coding', 'Cursor');
+        const option = [...AgentCard.saveControl(makeAgent()).querySelectorAll('option')]
+            .find(o => o.value === 'Coding');
+        expect(option.textContent).toContain('✓');
+        expect(option.disabled).toBe(true);
+    });
+
+    it('creates a collection on the fly', () => {
+        const realPrompt = window.prompt;
+        window.prompt = () => 'Fresh';
+        try {
+            const select = AgentCard.saveControl(makeAgent()).querySelector('.save-select');
+            select.value = '__new__';
+            select.dispatchEvent(new window.Event('change'));
+            expect(Collections.agentsIn('Fresh')).toEqual(['Cursor']);
+        } finally {
+            window.prompt = realPrompt;
+        }
+    });
+
+    it('does nothing when the new-collection prompt is cancelled', () => {
+        const realPrompt = window.prompt;
+        window.prompt = () => null;
+        try {
+            const select = AgentCard.saveControl(makeAgent()).querySelector('.save-select');
+            select.value = '__new__';
+            select.dispatchEvent(new window.Event('change'));
+            expect(Collections.names()).toEqual([]);
+        } finally {
+            window.prompt = realPrompt;
+        }
+    });
+
+    it('appears on rendered cards', () => {
+        Collections.create('Coding');
+        const container = document.createElement('div');
+        AgentCard.renderGrid(container, [makeAgent(), makeAgent({ metadata: { name: 'Aider' } })]);
+        expect(container.querySelectorAll('.save-select')).toHaveLength(2);
     });
 });
