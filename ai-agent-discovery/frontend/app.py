@@ -7,6 +7,7 @@ from flask import Flask, redirect, render_template, url_for
 # Add backend to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
+import admin
 import config
 import request_log
 import security
@@ -22,6 +23,8 @@ app = Flask(__name__,
 
 app.register_blueprint(api_bp)
 register_error_handlers(app)
+app.register_blueprint(admin.admin_bp)
+admin.register_error_handler(app)
 request_log.register(app)
 security.register(app)
 

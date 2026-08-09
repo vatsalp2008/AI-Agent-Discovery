@@ -105,6 +105,11 @@ PORT = _int_env("PORT", 5000)
 # can execute arbitrary code, so it must be opted into explicitly.
 DEBUG = _bool_env("FLASK_DEBUG", False)
 
+# Catalogue editing via /api/admin. Off by default: it is the only part of the
+# app that writes, and it has no authentication, so it must be opted into and
+# kept on a localhost-bound HOST.
+ENABLE_ADMIN = _bool_env("ENABLE_ADMIN", False)
+
 # Optional LLM summary of search results (the generation half of RAG).
 # Requires MODEL_NAME to be pulled in Ollama; search works fine without it.
 ENABLE_SUMMARY = _bool_env("ENABLE_SUMMARY", True)
