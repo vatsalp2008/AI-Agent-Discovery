@@ -250,6 +250,13 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("give my agent long term memory", {"Mem0", "Letta"}),
     ("automate a browser", {"Browser Use", "Skyvern", "Stagehand"}),
     ("multi agent orchestration framework", {"CrewAI", "AutoGen", "LangGraph", "MetaGPT"}),
+    # Categories added as the catalogue grew past 60.
+    ("measure whether my RAG pipeline hallucinates", {"Ragas", "DeepEval", "Giskard", "Phoenix"}),
+    ("trace and monitor my LLM app in production", {"Langfuse", "Opik", "OpenLLMetry", "Phoenix"}),
+    ("stop prompt injection attacks", {"Rebuff", "Garak", "Guardrails", "NeMo Guardrails"}),
+    ("redact personal data before sending to a model", {"Presidio", "Guardrails"}),
+    ("store embeddings in postgres", {"pgvector", "Chroma", "Qdrant"}),
+    ("run language models on my own machine", {"Ollama", "vLLM", "LocalGPT", "Tabby"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
