@@ -1,7 +1,9 @@
+import hashlib
+import json
 import logging
 import time
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, make_response, request
 from werkzeug.exceptions import HTTPException
 
 import config
@@ -73,6 +75,31 @@ def register_error_handlers(app):
         raise e
 
     return app
+
+
+def _etag_response(payload, status=200):
+    """Return `payload` as JSON with an ETag, or 304 if the client has it.
+
+    The catalogue only changes when the index is rebuilt, but the dashboard
+    and comparison pages re-request it on every navigation. An ETag lets the
+    browser skip the transfer entirely once it has a copy.
+
+    Weak validators would be enough here, but a strong one is cheap: the body
+    is deterministic, so hashing it is exact rather than a guess.
+    """
+    body = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    etag = hashlib.sha256(body.encode("utf-8")).hexdigest()[:32]
+
+    if request.if_none_match and etag in request.if_none_match:
+        response = make_response("", 304)
+    else:
+        response = make_response(jsonify(payload), status)
+
+    response.set_etag(etag)
+    # Revalidate every time rather than serving a stale catalogue from cache;
+    # the round trip is cheap once the body is skipped.
+    response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 class BadRequest(Exception):
@@ -358,18 +385,18 @@ def search_agents():
 
 @api_bp.route('/categories', methods=['GET'])
 def get_categories():
-    return jsonify(get_store().get_categories()), 200
+    return _etag_response(get_store().get_categories())
 
 
 @api_bp.route('/tech', methods=['GET'])
 def get_tech_stacks():
     """Technologies across the catalogue, with counts."""
-    return jsonify(get_store().get_tech_stacks()), 200
+    return _etag_response(get_store().get_tech_stacks())
 
 
 @api_bp.route('/stats', methods=['GET'])
 def get_stats():
-    return jsonify(get_store().get_stats()), 200
+    return _etag_response(get_store().get_stats())
 
 
 @api_bp.route('/health', methods=['GET'])

@@ -510,3 +510,36 @@ def test_compare_caps_the_number_of_agents(client):
     response = client.get(f"/api/compare?names={names}")
     assert response.status_code == 400
     assert "at most" in response.get_json()["error"]
+
+
+@pytest.mark.parametrize("path", ["/api/categories", "/api/tech", "/api/stats"])
+def test_catalogue_endpoints_send_an_etag(client, path):
+    response = client.get(path)
+    assert response.status_code == 200
+    assert response.headers.get("ETag")
+    assert response.headers["Cache-Control"] == "no-cache"
+
+
+@pytest.mark.parametrize("path", ["/api/categories", "/api/tech", "/api/stats"])
+def test_matching_etag_returns_304_with_no_body(client, path):
+    etag = client.get(path).headers["ETag"]
+    response = client.get(path, headers={"If-None-Match": etag})
+    assert response.status_code == 304
+    assert response.get_data() == b""
+
+
+def test_stale_etag_returns_the_body(client):
+    response = client.get("/api/categories", headers={"If-None-Match": '"stale"'})
+    assert response.status_code == 200
+    assert response.get_json()
+
+
+def test_etag_changes_when_the_data_changes(client, store, agents):
+    before = client.get("/api/stats").headers["ETag"]
+    store.add_agents(agents)          # index changed
+    after = client.get("/api/stats").headers["ETag"]
+    assert before != after
+
+
+def test_etag_is_stable_for_unchanged_data(client):
+    assert client.get("/api/tech").headers["ETag"] == client.get("/api/tech").headers["ETag"]
