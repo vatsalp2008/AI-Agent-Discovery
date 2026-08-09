@@ -6,13 +6,17 @@ on:
   pull_request:
     branches: [main]
 
-# A run superseded by a newer push tells you nothing useful, and the live job
-# holds an Ollama container for minutes. Cancel in-flight runs for the same
-# ref — except on main, where each commit's result is worth keeping so a
-# failure cannot be masked by the next push cancelling its run.
+# Every commit on main gets its own concurrency group, keyed by SHA, so a run
+# can never be cancelled by a later push — each commit's result stands on its
+# own. Pull requests group by ref instead, where only the latest push matters.
+#
+# The grouping does the work rather than `cancel-in-progress`: an expression
+# there is coerced to a string, and the non-empty "false" reads as truthy, so
+# `cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}` cancelled runs
+# on main anyway. Five results were discarded that way before this was found.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ci-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'pr' }}
+  cancel-in-progress: false
 
 jobs:
   test:
