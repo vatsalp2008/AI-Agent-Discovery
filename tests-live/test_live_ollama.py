@@ -269,3 +269,42 @@ def test_growth_has_not_flattened_the_score_gap(live_store):
     good = live_store.search("agent that edits code in my terminal", limit=1)[0]
     bad = live_store.search("banana bread recipe", limit=1)[0]
     assert good["score"] - bad["score"] > 0.25
+
+
+@needs_embeddings
+def test_every_agent_name_finds_its_own_agent(live_store):
+    """Searching an agent's exact name must return that agent first.
+
+    Verified across the whole catalogue rather than a sample: this is the
+    property most at risk as the catalogue grows, because each new agent is
+    another near neighbour competing for the top slot. Measured at 60/60 when
+    this was written.
+    """
+    agents = live_store.get_all_agents()
+    assert agents, "index is empty"
+
+    misses = []
+    for agent in agents:
+        top = live_store.search(agent["name"], limit=1)
+        if not top or top[0]["name"] != agent["name"]:
+            misses.append((agent["name"], top[0]["name"] if top else None))
+
+    assert not misses, f"{len(misses)} names did not rank themselves first: {misses[:5]}"
+
+
+@needs_embeddings
+@pytest.mark.parametrize("typo,expected", [
+    ("Cursur", "Cursor"),
+    ("langchian", "LangChain"),
+    ("aidor", "Aider"),
+    ("cluade code", "Claude Code"),
+    ("open hands", "OpenHands"),
+])
+def test_misspelled_names_still_find_the_agent(live_store, typo, expected):
+    """Users mistype. Embeddings absorb this; a keyword index would not.
+
+    Top 3 rather than top 1: a typo legitimately sits between neighbours, and
+    pinning the exact rank would make this brittle without adding value.
+    """
+    top = [r["name"] for r in live_store.search(typo, limit=3)]
+    assert expected in top, f"{typo!r} returned {top}"
