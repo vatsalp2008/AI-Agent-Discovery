@@ -121,6 +121,18 @@ and the text, so they are the thing persisted to disk
 (`backend/embedding_cache.py`). Getting this backwards would serve results
 from a catalogue that no longer exists.
 
+**The editor reads the catalogue, not the index.** `/api/agents` is served
+from the FAISS docstore, which carries only the fields search needs — no
+`use_case` — and lags unindexed edits. The editor uses `/api/admin/agents`
+instead. Loading a record from the index and saving it would silently blank
+fields the index does not store, because a PUT replaces the whole record.
+
+**Own-property checks on user-supplied keys.** Collection names come from the
+user, so `name in object` is wrong: it walks the prototype chain and reports
+"constructor" or "toString" as already existing. Use
+`Object.prototype.hasOwnProperty.call`, and note that a key called
+`__proto__` is lost if you copy the object onto a plain `{}`.
+
 **Setup problems should name their fix.** `doctor.py` exists because an
 unreachable Ollama, a missing model and a stale index all present as "no
 results". If you add a dependency on the environment, add a check there that
@@ -163,6 +175,9 @@ Edit `data/agents.json` and re-run `make seed`:
   API rather than editing the numbers by hand. Set `GITHUB_TOKEN` to avoid the
   60 requests/hour unauthenticated limit. A scheduled workflow also does this
   weekly and opens a pull request.
+- Adding through `/admin` warns if the catalogue already has something very
+  similar. `make check-links` finds entries whose project has been renamed or
+  deleted — worth running before a batch of additions.
 - **Verify the repository exists before adding it.** Check the URL against the
   GitHub API and take the description and star count from there. It is very
   easy to write a plausible entry for a project that does something else
@@ -184,6 +199,7 @@ Edit `data/agents.json` and re-run `make seed`:
 | `ai-agent-discovery/mcp_server.py` | MCP server for other agents |
 | `ai-agent-discovery/benchmark.py` | Hot-path measurements |
 | `ai-agent-discovery/doctor.py` | Setup diagnostics |
+| `ai-agent-discovery/check_links.py` | Catalogue link checker |
 | `tests/` | Python tests (pytest) |
 | `tests-js/` | Frontend tests (vitest + jsdom) |
 | `tests-live/` | End-to-end tests against a real Ollama |

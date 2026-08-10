@@ -22,6 +22,7 @@ configuration reference and API documentation, see the
 | `mcp_server.py` | MCP server exposing the index to other agents |
 | `benchmark.py` | Hot-path measurements |
 | `doctor.py` | Setup diagnostics: Ollama, models, catalogue, index |
+| `check_links.py` | Verifies every catalogue URL still resolves |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
@@ -94,6 +95,8 @@ Then open [http://localhost:5000](http://localhost:5000).
 | `POST` | `/api/admin/undo` | Reverse the most recent catalogue change |
 | `GET` | `/api/admin/audit` | Recent catalogue changes, newest first |
 | `GET` | `/api/openapi.json` | Machine-readable API description |
+| `GET` | `/api/admin/agents` | The catalogue as it is on disk (for editing) |
+| `POST` | `/api/admin/similar-check` | Near-duplicates of a draft agent |
 
 Full request/response examples are in the [root README](../README.md).
 
