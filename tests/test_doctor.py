@@ -145,3 +145,29 @@ class TestReport:
             {"check": "x", "status": doctor.OK, "detail": "fine", "fix": "unused", "required": True},
         ])
         assert "unused" not in output
+
+
+class TestExplicitModelTags:
+    """An explicit tag must match exactly; a bare name may match any tag."""
+
+    def test_an_explicit_tag_not_installed_is_reported(self, doctor):
+        """The mismatch doctor exists to catch."""
+        assert not doctor._model_present(["nomic-embed-text:latest"], "nomic-embed-text:v1.5")
+
+    def test_an_explicit_tag_that_is_installed_matches(self, doctor):
+        assert doctor._model_present(["nomic-embed-text:v1.5"], "nomic-embed-text:v1.5")
+
+    def test_a_bare_name_still_matches_any_tag(self, doctor):
+        assert doctor._model_present(["nomic-embed-text:v1.5"], "nomic-embed-text")
+
+    def test_a_bare_name_matches_an_exact_entry(self, doctor):
+        assert doctor._model_present(["nomic-embed-text"], "nomic-embed-text")
+
+    def test_a_different_family_never_matches(self, doctor):
+        assert not doctor._model_present(["llama3.2:latest"], "nomic-embed-text")
+
+
+def test_freshness_uses_the_shared_grace_period(doctor):
+    """doctor and /api/admin/status must not disagree about staleness."""
+    source = DOCTOR_PATH.read_text()
+    assert "FRESHNESS_GRACE_SECONDS" in source, "the grace period is hardcoded again"

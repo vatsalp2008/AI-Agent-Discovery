@@ -54,8 +54,17 @@ def _installed_models():
 
 
 def _model_present(installed, wanted):
-    """Ollama reports "name:tag"; a bare name should match its default tag."""
-    return any(name == wanted or name.split(":")[0] == wanted.split(":")[0] for name in installed)
+    """Is `wanted` among the installed models?
+
+    Ollama reports "name:tag". A bare name should match whatever tag is
+    installed, since `ollama pull nomic-embed-text` gives you `:latest`. But
+    an explicit tag must match exactly — otherwise asking for
+    "nomic-embed-text:v1.5" reports OK when only ":latest" is present, which
+    is precisely the mismatch this check exists to catch.
+    """
+    if ":" in wanted:
+        return wanted in installed
+    return any(name == wanted or name.split(":")[0] == wanted for name in installed)
 
 
 def check_embedding_model():
@@ -143,7 +152,11 @@ def check_catalogue_freshness():
     except (OSError, json.JSONDecodeError, ValueError):
         return None
 
-    if os.path.getmtime(config.AGENTS_JSON) > built_ts + 5:
+    # Same grace period as VectorStore.catalogue_is_stale, taken from there so
+    # doctor and /api/admin/status cannot disagree if it is ever tuned.
+    from vectorstore import VectorStore
+
+    if os.path.getmtime(config.AGENTS_JSON) > built_ts + VectorStore.FRESHNESS_GRACE_SECONDS:
         return _result("freshness", WARN, "the catalogue has changed since the index was built",
                        fix="Run seed.py to pick up the edits.", required=False)
     return _result("freshness", OK, "the index matches the catalogue", required=False)
