@@ -21,6 +21,7 @@ configuration reference and API documentation, see the
 | `backend/embedding_cache.py` | Query embeddings persisted between runs |
 | `mcp_server.py` | MCP server exposing the index to other agents |
 | `benchmark.py` | Hot-path measurements |
+| `doctor.py` | Setup diagnostics: Ollama, models, catalogue, index |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |
@@ -77,7 +78,7 @@ Then open [http://localhost:5000](http://localhost:5000).
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/agents` | Agent list (`limit`, `offset`, `category`, `tech`, `sort`, `order`) |
+| `GET` | `/api/agents` | Agent list (`limit`, `offset`, `category`, `tech`, `q`, `min_stars`, `max_stars`, `sort`, `order`) |
 | `GET` | `/api/agents/<name>` | Single agent, case-insensitive |
 | `POST` | `/api/search` | Semantic search (`query`, `limit`, `category`, `min_score`, `summarize`) |
 | `GET` | `/api/categories` | Categories with counts |
@@ -90,6 +91,9 @@ Then open [http://localhost:5000](http://localhost:5000).
 | `PUT` | `/api/admin/agents/<name>` | Edit an agent |
 | `DELETE` | `/api/admin/agents/<name>` | Remove an agent |
 | `POST` | `/api/admin/reindex` | Rebuild the index from the catalogue |
+| `POST` | `/api/admin/undo` | Reverse the most recent catalogue change |
+| `GET` | `/api/admin/audit` | Recent catalogue changes, newest first |
+| `GET` | `/api/openapi.json` | Machine-readable API description |
 
 Full request/response examples are in the [root README](../README.md).
 
