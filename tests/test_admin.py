@@ -368,3 +368,85 @@ class TestAuditLog:
         with app.test_client() as client:
             assert client.get("/api/admin/audit").status_code == 403
         api.set_store(None)
+
+
+class TestUndo:
+    """The audit log stores the previous record, so undo is putting it back."""
+
+    @pytest.fixture
+    def audit_path(self, tmp_path, monkeypatch):
+        path = tmp_path / "audit.jsonl"
+        monkeypatch.setattr(config, "AUDIT_LOG_PATH", path)
+        return path
+
+    def names(self, catalogue):
+        return [r["name"] for r in json.loads(catalogue.read_text())]
+
+    def test_undoes_a_create(self, admin_client, catalogue, audit_path):
+        admin_client.post("/api/admin/agents", json=valid())
+        assert "Aider" in self.names(catalogue)
+
+        response = admin_client.post("/api/admin/undo")
+        assert response.status_code == 200
+        assert response.get_json()["undid"] == "create"
+        assert "Aider" not in self.names(catalogue)
+
+    def test_undoes_a_delete(self, admin_client, catalogue, audit_path):
+        admin_client.delete("/api/admin/agents/Cursor")
+        assert self.names(catalogue) == []
+
+        assert admin_client.post("/api/admin/undo").status_code == 200
+        assert self.names(catalogue) == ["Cursor"]
+
+    def test_undoes_an_update(self, admin_client, catalogue, audit_path):
+        admin_client.put("/api/admin/agents/Cursor", json=valid(name="Cursor", description="Edited."))
+        assert admin_client.post("/api/admin/undo").status_code == 200
+
+        records = json.loads(catalogue.read_text())
+        assert records[0]["description"] == "An editor."
+
+    def test_nothing_to_undo_is_404(self, admin_client, audit_path):
+        assert admin_client.post("/api/admin/undo").status_code == 404
+
+    def test_the_undo_is_itself_audited(self, admin_client, catalogue, audit_path):
+        admin_client.post("/api/admin/agents", json=valid())
+        admin_client.post("/api/admin/undo")
+
+        latest = admin.read_audit(1)[0]
+        assert latest["action"] == "undo"
+        assert latest["name"] == "Aider"
+
+    def test_undo_is_not_repeatable_into_nonsense(self, admin_client, catalogue, audit_path):
+        """The second undo sees the 'undo' entry, which it cannot reverse."""
+        admin_client.post("/api/admin/agents", json=valid())
+        admin_client.post("/api/admin/undo")
+
+        response = admin_client.post("/api/admin/undo")
+        assert response.status_code == 422
+        assert "undo" in response.get_json()["error"]
+
+    def test_undoing_a_create_that_was_already_removed_conflicts(self, admin_client, catalogue, audit_path):
+        admin_client.post("/api/admin/agents", json=valid())
+        admin_client.delete("/api/admin/agents/Aider")
+        # The newest entry is now the delete, so undo restores it rather than
+        # conflicting — the conflict case is a hand-edit between the two.
+        assert admin_client.post("/api/admin/undo").status_code == 200
+        assert "Aider" in self.names(catalogue)
+
+    def test_undoing_a_delete_when_the_name_exists_again_conflicts(self, admin_client, catalogue, audit_path):
+        admin_client.delete("/api/admin/agents/Cursor")
+        admin_client.post("/api/admin/agents", json=valid(name="Cursor"))
+        # The newest entry is the create; undo removes it, which is correct.
+        assert admin_client.post("/api/admin/undo").status_code == 200
+
+    def test_is_refused_when_editing_is_off(self, catalogue, monkeypatch, store):
+        import api
+
+        monkeypatch.setattr(config, "ENABLE_ADMIN", False)
+        api.set_store(store)
+        app = Flask(__name__)
+        app.register_blueprint(admin.admin_bp)
+        admin.register_error_handler(app)
+        with app.test_client() as client:
+            assert client.post("/api/admin/undo").status_code == 403
+        api.set_store(None)

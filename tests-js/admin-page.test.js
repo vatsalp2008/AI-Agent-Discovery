@@ -243,3 +243,42 @@ describe('the audit trail', () => {
         expect(document.querySelectorAll('.admin-row').length).toBeGreaterThan(0);
     });
 });
+
+describe('undo', () => {
+    it('asks before undoing', async () => {
+        const real = window.confirm;
+        window.confirm = () => false;
+        try {
+            const calls = await boot(routes({ '/api/admin/undo': { body: { undid: 'create', name: 'X' } } }));
+            const before = calls.length;
+            document.getElementById('undoBtn').click();
+            await flush();
+            expect(calls.length).toBe(before);
+        } finally { window.confirm = real; }
+    });
+
+    it('reports what was undone', async () => {
+        const real = window.confirm;
+        window.confirm = () => true;
+        try {
+            await boot(routes({ '/api/admin/undo': { body: { undid: 'delete', name: 'Aider' } } }));
+            document.getElementById('undoBtn').click();
+            await flush();
+            expect(document.getElementById('adminStatus').textContent).toContain('Undid the delete of Aider');
+        } finally { window.confirm = real; }
+    });
+
+    it('surfaces nothing-to-undo', async () => {
+        const real = window.confirm;
+        window.confirm = () => true;
+        try {
+            await boot(routes({
+                '/api/admin/undo': { ok: false, status: 404, body: { error: 'There is nothing to undo.' } },
+            }));
+            document.getElementById('undoBtn').click();
+            await flush();
+            expect(document.getElementById('adminError').textContent).toContain('nothing to undo');
+            expect(document.getElementById('undoBtn').disabled).toBe(false);
+        } finally { window.confirm = real; }
+    });
+});

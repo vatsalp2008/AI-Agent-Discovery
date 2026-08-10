@@ -226,6 +226,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cancelBtn.addEventListener('click', resetForm);
 
+    const undoBtn = document.getElementById('undoBtn');
+    if (undoBtn) {
+        undoBtn.addEventListener('click', async () => {
+            if (!window.confirm('Undo the most recent catalogue change?')) return;
+            undoBtn.disabled = true;
+            try {
+                const response = await fetch('/api/admin/undo', { method: 'POST' });
+                const data = await response.json().catch(() => ({}));
+                if (response.ok) {
+                    say(`Undid the ${data.undid} of ${data.name}. Rebuild the index to apply it.`);
+                    await refresh();
+                } else {
+                    say(data.error || 'Could not undo.', true);
+                }
+            } catch (error) {
+                console.error(error);
+                say('Could not reach the server.', true);
+            } finally {
+                undoBtn.disabled = false;
+            }
+        });
+    }
+
     document.getElementById('reindexBtn').addEventListener('click', async (e) => {
         const button = e.currentTarget;
         button.disabled = true;

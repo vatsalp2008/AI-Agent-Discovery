@@ -307,6 +307,60 @@ def audit():
     return jsonify({"entries": read_audit(limit)}), 200
 
 
+@admin_bp.route('/undo', methods=['POST'])
+def undo():
+    """Reverse the most recent catalogue change.
+
+    The audit log already stores the previous record, so undo is a matter of
+    putting it back: a delete re-adds, a create removes, an update restores.
+    Only the latest entry can be undone — replaying further back would need
+    conflict handling that a local single-user tool does not warrant.
+
+    The undo is itself audited, so the trail stays a complete history rather
+    than quietly rewinding.
+    """
+    _require_enabled()
+
+    recent = read_audit(1)
+    if not recent:
+        raise AdminError("There is nothing to undo.", status=404)
+
+    entry = recent[0]
+    action, name = entry.get("action"), entry.get("name")
+
+    with _write_lock:
+        records = load_catalogue()
+        index = _find(records, name)
+
+        if action == "create":
+            if index is None:
+                raise AdminError(f"{name!r} is already gone; nothing to undo.", status=409)
+            records.pop(index)
+            restored = None
+        elif action == "delete":
+            if index is not None:
+                raise AdminError(f"{name!r} exists again; nothing to undo.", status=409)
+            restored = entry.get("before")
+            if not restored:
+                raise AdminError("That entry has no previous version recorded.", status=422)
+            records.append(restored)
+        elif action == "update":
+            if index is None:
+                raise AdminError(f"{name!r} no longer exists; nothing to undo.", status=409)
+            restored = entry.get("before")
+            if not restored:
+                raise AdminError("That entry has no previous version recorded.", status=422)
+            records[index] = restored
+        else:
+            raise AdminError(f"Cannot undo a {action!r} entry.", status=422)
+
+        save_catalogue(records)
+        _append_audit("undo", name, before=entry.get("after"), after=restored)
+
+    logger.info("Undid %s of %r", action, name)
+    return jsonify({"undid": action, "name": name, "total": len(records)}), 200
+
+
 @admin_bp.route('/status', methods=['GET'])
 def status():
     """Whether editing is available, and whether the index is behind."""

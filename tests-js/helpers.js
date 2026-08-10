@@ -190,6 +190,7 @@ export const ADMIN_HTML = `
       <div class="admin-bar">
         <span id="adminCount"></span>
         <span id="adminStale" hidden></span>
+        <button type="button" id="undoBtn">Undo last change</button>
         <button type="button" id="reindexBtn">Rebuild index</button>
       </div>
       <p id="adminError" hidden></p>
