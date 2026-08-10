@@ -98,3 +98,34 @@ describe('empty and error states', () => {
         expect(document.getElementById('categoryGrid').textContent).toContain('No category specified');
     });
 });
+
+describe('robustness', () => {
+    it('reports the whole category size, not the page size', async () => {
+        await boot('/category/Evaluation', routes({
+            '/api/agents': { body: { agents: [agent('Ragas')], metadata: { total: 40 } } },
+        }));
+        expect(document.getElementById('categoryCount').textContent).toContain('40 agents');
+    });
+
+    it('survives a malformed percent escape in the path', async () => {
+        await boot('/category/100%', routes({
+            '/api/agents': { body: { agents: [], metadata: { total: 0 } } },
+        }));
+        expect(document.getElementById('categoryGrid').getAttribute('aria-busy')).toBe('false');
+        expect(document.getElementById('categoryCount').textContent).not.toContain('Loading');
+    });
+
+    it('does not leave the header on Loading after a failure', async () => {
+        await boot('/category/Evaluation', routes({
+            '/api/agents': { ok: false, status: 500, body: {} },
+        }));
+        expect(document.getElementById('categoryCount').textContent).not.toContain('Loading');
+    });
+
+    it('clears the header for an empty category', async () => {
+        await boot('/category/Nothing', routes({
+            '/api/agents': { body: { agents: [], metadata: { total: 0 } } },
+        }));
+        expect(document.getElementById('categoryCount').textContent).toContain('No agents');
+    });
+});

@@ -3,15 +3,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const countEl = document.getElementById('categoryCount');
     const otherEl = document.getElementById('categoryOther');
 
-    // The name is the last path segment of /category/<name>.
-    const name = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '');
+    // The name is the last path segment of /category/<name>. A malformed
+    // escape (/category/100%) makes decodeURIComponent throw, which would
+    // otherwise kill the whole handler and leave the page saying "Loading…".
+    const rawSegment = window.location.pathname.split('/').filter(Boolean).pop() || '';
+    let name;
+    try {
+        name = decodeURIComponent(rawSegment);
+    } catch (error) {
+        name = rawSegment;
+    }
 
-    function message(text) {
+    function message(text, subtitle) {
         const p = document.createElement('p');
         p.className = 'result-message';
         p.textContent = text;
         grid.replaceChildren(p);
         grid.setAttribute('aria-busy', 'false');
+        // Never leave the header stuck on "Loading…".
+        if (countEl) countEl.textContent = subtitle || '';
     }
 
     /** Links to the other categories, so this is a place to browse from. */
@@ -38,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (!name) {
-        message('No category specified.');
+        message('No category specified.', '');
         return;
     }
 
@@ -51,18 +61,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const agents = body.agents || [];
 
         if (agents.length === 0) {
-            countEl.textContent = 'No agents in this category.';
-            message(`Nothing is filed under "${name}".`);
+            message(`Nothing is filed under "${name}".`, 'No agents in this category.');
             loadOthers();
             return;
         }
 
-        countEl.textContent = `${agents.length} agent${agents.length === 1 ? '' : 's'}, most starred first`;
+        // metadata.total is the size of the whole category; agents.length is
+        // only this page, which the API caps.
+        const total = (body.metadata || {}).total ?? agents.length;
+        countEl.textContent = `${total} agent${total === 1 ? '' : 's'}, most starred first`;
         AgentCard.renderGrid(grid, agents);
         grid.setAttribute('aria-busy', 'false');
     } catch (error) {
         console.error(error);
-        message('Could not load this category.');
+        message('Could not load this category.', 'Could not load.');
     }
 
     loadOthers();

@@ -96,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
         remove.setAttribute('aria-label', `Delete ${agent.name}`);
         remove.addEventListener('click', async () => {
             if (!window.confirm(`Delete ${agent.name}?`)) return;
-            await send(`/api/admin/agents/${encodeURIComponent(agent.name)}`, 'DELETE');
+            await send(`/api/admin/agents/${encodeURIComponent(agent.name)}`, 'DELETE',
+                       undefined, { keepForm: true });
         });
         item.appendChild(remove);
 
@@ -191,7 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function send(url, method, body) {
+    /**
+     * `keepForm` is passed by the caller rather than inferred from the
+     * response: a delete must not discard an edit in progress on another row,
+     * and deciding that from the response shape would break if the API's
+     * body ever changed.
+     */
+    async function send(url, method, body, { keepForm = false } = {}) {
         try {
             const response = await fetch(url, {
                 method,
@@ -204,8 +211,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 say(data.error || `Request failed (${response.status})`, true);
                 return false;
             }
-            say(data.deleted ? `Deleted ${data.deleted}.` : 'Saved. Rebuild the index to apply it.');
-            resetForm();
+            say(keepForm
+                ? `Deleted ${data.deleted || 'agent'}.`
+                : 'Saved. Rebuild the index to apply it.');
+            if (!keepForm) resetForm();
             await refresh();
             return true;
         } catch (error) {

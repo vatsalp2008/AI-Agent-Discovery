@@ -317,3 +317,30 @@ describe('editing preserves every field', () => {
         expect(calls.some(c => c.url.startsWith('/api/agents'))).toBe(false);
     });
 });
+
+describe('deleting while editing', () => {
+    it('keeps an in-progress edit when another row is deleted', async () => {
+        const real = window.confirm;
+        window.confirm = () => true;
+        try {
+            await boot();
+            document.querySelector('.admin-row button').click();     // edit Aider
+            expect(document.getElementById('editingName').value).toBe('Aider');
+
+            // Delete the *other* row.
+            const rows = [...document.querySelectorAll('.admin-row')];
+            rows[1].querySelectorAll('button')[1].click();
+            await flush();
+
+            expect(document.getElementById('editingName').value).toBe('Aider');
+        } finally { window.confirm = real; }
+    });
+
+    it('still clears the form after a save', async () => {
+        await boot();
+        document.querySelector('.admin-row button').click();
+        submit();
+        await flush();
+        expect(document.getElementById('editingName').value).toBe('');
+    });
+});
