@@ -780,6 +780,78 @@ SAMPLE_AGENTS = [
         use_case="Layout-aware document parsing"
     ),
     Agent(
+        name="llama.cpp",
+        description="Runs language models in plain C/C++ with quantisation, from laptops down to phones.",
+        category="Infrastructure",
+        tech_stack=["C++", "GGUF"],
+        github_stars=123333,
+        url="https://github.com/ggml-org/llama.cpp",
+        use_case="Inference on modest hardware"
+    ),
+    Agent(
+        name="MLC LLM",
+        description="Compiles models for whatever hardware you have, including browsers and mobile GPUs.",
+        category="Infrastructure",
+        tech_stack=["Python", "TVM", "WebGPU"],
+        github_stars=23049,
+        url="https://github.com/mlc-ai/mlc-llm",
+        use_case="Deploying models to edge devices"
+    ),
+    Agent(
+        name="MLX",
+        description="Apple's array framework for machine learning on Apple silicon, with a NumPy-like API.",
+        category="Infrastructure",
+        tech_stack=["Python", "C++", "Metal"],
+        github_stars=27898,
+        url="https://github.com/ml-explore/mlx",
+        use_case="Training and inference on Apple silicon"
+    ),
+    Agent(
+        name="LeRobot",
+        description="Models, datasets and tools for real-world robotics, bringing imitation learning within reach.",
+        category="Robotics",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=26550,
+        url="https://github.com/huggingface/lerobot",
+        use_case="Training robot policies"
+    ),
+    Agent(
+        name="PaperQA",
+        description="Answers questions over scientific papers with citations, built for accuracy over fluency.",
+        category="Research",
+        tech_stack=["Python", "RAG"],
+        github_stars=9011,
+        url="https://github.com/Future-House/paper-qa",
+        use_case="Literature review with citations"
+    ),
+    Agent(
+        name="Nougat",
+        description="Reads academic PDFs into markup, recovering equations and tables that plain OCR loses.",
+        category="Research",
+        tech_stack=["Python", "PyTorch", "OCR"],
+        github_stars=10056,
+        url="https://github.com/facebookresearch/nougat",
+        use_case="Parsing scientific papers"
+    ),
+    Agent(
+        name="Swarm",
+        description="OpenAI's teaching framework for lightweight multi-agent coordination and handoffs.",
+        category="Framework",
+        tech_stack=["Python", "OpenAI API"],
+        github_stars=21890,
+        url="https://github.com/openai/swarm",
+        use_case="Learning multi-agent patterns"
+    ),
+    Agent(
+        name="A2A",
+        description="Google's Agent2Agent protocol, a standard for agents built by different vendors to interoperate.",
+        category="Framework",
+        tech_stack=["Protocol", "JSON-RPC"],
+        github_stars=25275,
+        url="https://github.com/google/A2A",
+        use_case="Cross-vendor agent communication"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
