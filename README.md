@@ -184,13 +184,16 @@ paths resolve against the repository root, so commands work from any directory.
 2. Browse the agent previews, or enter a natural language query:
    - "I need an agent to write Python code"
    - "Find me a tool for automating workflows"
-3. Click a category chip to restrict results to that category
-4. Click an agent's name for its detail page, with similar agents
-5. Use **Copy link** to share a search — the query and category live in the
+3. Start typing a name and matching agents are suggested — arrow keys and
+   Enter to pick one. Submitting still runs a full semantic search, so the
+   suggestions complement it rather than replace it
+4. Click a category chip to restrict results to that category
+5. Click an agent's name for its detail page, with similar agents
+6. Use **Copy link** to share a search — the query and category live in the
    URL, so results are bookmarkable and survive the Back button
-6. **Export CSV / JSON** to take a result set elsewhere
-7. Recent queries are remembered locally; they never leave your machine
-8. Toggle light/dark in the header — the choice is saved, and the OS
+7. **Export CSV / JSON** to take a result set elsewhere
+8. Recent queries are remembered locally; they never leave your machine
+9. Toggle light/dark in the header — the choice is saved, and the OS
    preference is honoured until you set one
 
 Keyboard: <kbd>/</kbd> or <kbd>s</kbd> focuses search, <kbd>?</kbd> shows the
@@ -215,6 +218,10 @@ python ai-agent-discovery/cli.py --tech-list                  # technologies wit
 
 # Drop weak matches instead of showing the closest guesses
 python ai-agent-discovery/cli.py "banana bread" --min-score 0.5
+
+# Add agents from a JSON file (an object or an array of them)
+python ai-agent-discovery/cli.py --add new-agents.json --dry-run
+python ai-agent-discovery/cli.py --add new-agents.json
 
 # AI overview of the results, and machine-readable output
 python ai-agent-discovery/cli.py "rag pipeline" --summarize
@@ -531,12 +538,15 @@ AI-Agent-Discovery/
 │   │   ├── static/js/collections.js     # Saved shortlists
 │   │   ├── static/js/admin.js           # Catalogue editor
 │   │   ├── static/js/category.js        # Category browse page
+│   │   ├── static/js/suggest.js         # Name suggestion ranking
+│   │   ├── static/js/setup-banner.js    # Unbuilt-index notice
 │   │   └── templates/          # base, index, dashboard, agent, compare
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
 │   ├── mcp_server.py           # MCP server for other agents
 │   ├── benchmark.py            # Hot-path measurements
 │   ├── doctor.py               # Setup diagnostics
+│   ├── check_links.py          # Catalogue link checker
 │   ├── refresh_stars.py        # Star count refresh
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
@@ -631,6 +641,19 @@ each of those and says what to do:
 
 It exits non-zero when something required is missing, so it can gate a script,
 and `--json` emits the same results as data.
+
+## 🔗 Keeping the catalogue honest
+
+```bash
+make check-links      # verify every URL still resolves
+make refresh-stars    # update star counts from the GitHub API
+```
+
+Projects get renamed, archived and deleted, and a dead link is invisible until
+somebody clicks it. The checker distinguishes the two cases that matter: a
+**broken** link needs fixing, while a **redirect** usually means the project
+moved and the entry could be updated. Both run weekly in a scheduled workflow,
+which commits refreshed star counts and reports link status in its summary.
 
 ## ⚡ Performance
 
