@@ -234,3 +234,49 @@ describe('export and import', () => {
         expect(C.agentsIn('Big').length).toBe(C.MAX_AGENTS);
     });
 });
+
+describe('names that collide with Object prototype members', () => {
+    // `name in object` walks the prototype chain, so these used to report
+    // "already exists" and then blow up when read back as arrays.
+    const dangerous = ['constructor', 'toString', 'hasOwnProperty', 'valueOf', '__proto__'];
+
+    it.each(dangerous)('can create a collection called %s', (name) => {
+        expect(C.create(name).ok).toBe(true);
+        expect(C.names()).toContain(name);
+    });
+
+    it.each(dangerous)('can add an agent to %s', (name) => {
+        C.create(name);
+        expect(C.add(name, 'Aider').ok).toBe(true);
+        expect(C.agentsIn(name)).toEqual(['Aider']);
+    });
+
+    it('reports a genuine duplicate of such a name', () => {
+        C.create('constructor');
+        expect(C.create('constructor').reason).toContain('already exists');
+    });
+
+    it('adding to a non-existent prototype-ish name is refused', () => {
+        expect(C.add('toString', 'Aider').reason).toContain('No such collection');
+    });
+
+    it('imports a payload containing such a key without throwing', () => {
+        const payload = JSON.stringify({
+            kind: 'agentdiscovery-collections',
+            collections: { constructor: ['Aider'], Normal: ['Cursor'] },
+        });
+        expect(() => C.importAll(payload)).not.toThrow();
+        expect(C.agentsIn('constructor')).toEqual(['Aider']);
+        expect(C.agentsIn('Normal')).toEqual(['Cursor']);
+    });
+
+    it('round-trips such a collection through export and import', () => {
+        C.create('toString');
+        C.add('toString', 'Aider');
+        const backup = C.exportAll();
+
+        localStorage.clear();
+        expect(C.importAll(backup).ok).toBe(true);
+        expect(C.agentsIn('toString')).toEqual(['Aider']);
+    });
+});

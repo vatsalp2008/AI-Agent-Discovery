@@ -10,13 +10,23 @@ const Collections = (() => {
     const MAX_COLLECTIONS = 20;
     const MAX_AGENTS = 50;
 
+    /**
+     * Own-property check. Plain `name in object` walks the prototype chain, so
+     * a collection called "constructor" or "toString" would look like it
+     * already exists — and reading it back yields a function, not an array.
+     */
+    function has(object, name) {
+        return Object.prototype.hasOwnProperty.call(object, name);
+    }
+
     function read() {
         try {
             const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
             if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
 
             // Tolerate anything hand-edited or written by an older version.
-            const clean = {};
+            // Null prototype: nothing inherited can be mistaken for an entry.
+            const clean = Object.create(null);
             Object.entries(raw).forEach(([name, agents]) => {
                 if (typeof name === 'string' && name.trim() && Array.isArray(agents)) {
                     clean[name] = agents.filter(a => typeof a === 'string' && a.trim());
@@ -30,6 +40,9 @@ const Collections = (() => {
 
     function write(collections) {
         try {
+            // Stringify the null-prototype object directly. Copying it onto a
+            // plain {} first would lose a key called "__proto__", since that
+            // assignment invokes the prototype setter instead of adding a key.
             localStorage.setItem(STORAGE_KEY, JSON.stringify(collections));
             return true;
         } catch (error) {
@@ -50,10 +63,10 @@ const Collections = (() => {
         if (!trimmed) return { ok: false, reason: 'A collection needs a name.' };
 
         const collections = read();
-        if (Object.keys(collections).length >= MAX_COLLECTIONS && !(trimmed in collections)) {
+        if (Object.keys(collections).length >= MAX_COLLECTIONS && !has(collections, trimmed)) {
             return { ok: false, reason: `You can keep at most ${MAX_COLLECTIONS} collections.` };
         }
-        if (trimmed in collections) return { ok: false, reason: 'That collection already exists.' };
+        if (has(collections, trimmed)) return { ok: false, reason: 'That collection already exists.' };
 
         collections[trimmed] = [];
         return write(collections)
@@ -63,7 +76,7 @@ const Collections = (() => {
 
     function add(name, agent) {
         const collections = read();
-        if (!(name in collections)) return { ok: false, reason: 'No such collection.' };
+        if (!has(collections, name)) return { ok: false, reason: 'No such collection.' };
 
         const list = collections[name];
         if (list.some(a => a.toLowerCase() === agent.toLowerCase())) {
@@ -79,7 +92,7 @@ const Collections = (() => {
 
     function remove(name, agent) {
         const collections = read();
-        if (!(name in collections)) return { ok: false, reason: 'No such collection.' };
+        if (!has(collections, name)) return { ok: false, reason: 'No such collection.' };
 
         collections[name] = collections[name].filter(a => a.toLowerCase() !== agent.toLowerCase());
         return write(collections) ? { ok: true } : { ok: false, reason: 'Could not save.' };
@@ -151,7 +164,7 @@ const Collections = (() => {
             const clean = agents.filter(a => typeof a === 'string' && a.trim()).slice(0, MAX_AGENTS);
             const key = name.trim();
 
-            if (key in current) {
+            if (has(current, key)) {
                 const seen = new Set(current[key].map(a => a.toLowerCase()));
                 const extra = clean.filter(a => !seen.has(a.toLowerCase()));
                 if (extra.length) {
