@@ -21,7 +21,7 @@
       "GPT-4",
       "Git"
     ],
-    "github_stars": 47981,
+    "github_stars": 48101,
     "url": "https://github.com/Aider-AI/aider",
     "use_case": "Terminal-based pair programming"
   },
@@ -59,7 +59,7 @@
       "GPT-4",
       "Pinecone"
     ],
-    "github_stars": 186496,
+    "github_stars": 186497,
     "url": "https://github.com/Significant-Gravitas/AutoGPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
@@ -134,7 +134,7 @@
       "Python",
       "Agents"
     ],
-    "github_stars": 56901,
+    "github_stars": 56902,
     "url": "https://github.com/crewAIInc/crewAI",
     "use_case": "Multi-agent orchestration"
   },
@@ -270,7 +270,7 @@
       "TypeScript",
       "Claude"
     ],
-    "github_stars": 140921,
+    "github_stars": 140923,
     "url": "https://github.com/anthropics/claude-code",
     "use_case": "Terminal-based agentic coding"
   },
@@ -283,7 +283,7 @@
       "Docker",
       "React"
     ],
-    "github_stars": 83629,
+    "github_stars": 83630,
     "url": "https://github.com/OpenHands/OpenHands",
     "use_case": "Autonomous software engineering"
   },
@@ -417,7 +417,7 @@
       "TypeScript",
       "Node.js"
     ],
-    "github_stars": 55307,
+    "github_stars": 55308,
     "url": "https://github.com/FlowiseAI/Flowise",
     "use_case": "No-code agent building"
   },
@@ -441,7 +441,7 @@
       "Python",
       "Playwright"
     ],
-    "github_stars": 108621,
+    "github_stars": 108622,
     "url": "https://github.com/browser-use/browser-use",
     "use_case": "Web browsing automation"
   },
@@ -453,7 +453,7 @@
       "Rust",
       "Python"
     ],
-    "github_stars": 52636,
+    "github_stars": 52637,
     "url": "https://github.com/aaif-goose/goose",
     "use_case": "Local developer automation"
   },
@@ -688,7 +688,7 @@
       "TypeScript",
       "Playwright"
     ],
-    "github_stars": 23795,
+    "github_stars": 23796,
     "url": "https://github.com/browserbase/stagehand",
     "use_case": "Hybrid scripted and AI browsing"
   },
@@ -919,7 +919,7 @@
       "Rust",
       "SQLite"
     ],
-    "github_stars": 29009,
+    "github_stars": 29008,
     "url": "https://github.com/chroma-core/chroma",
     "use_case": "Local vector storage for RAG"
   },
@@ -1155,7 +1155,7 @@
       "Python",
       "PyTorch"
     ],
-    "github_stars": 126173,
+    "github_stars": 126177,
     "url": "https://github.com/Comfy-Org/ComfyUI",
     "use_case": "Composable image generation pipelines"
   },
@@ -1502,7 +1502,7 @@
       "Protocol",
       "JSON-RPC"
     ],
-    "github_stars": 25275,
+    "github_stars": 25276,
     "url": "https://github.com/a2aproject/A2A",
     "use_case": "Cross-vendor agent communication"
   },
