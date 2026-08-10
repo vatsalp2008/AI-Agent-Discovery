@@ -257,6 +257,12 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("redact personal data before sending to a model", {"Presidio", "Guardrails"}),
     ("store embeddings in postgres", {"pgvector", "Chroma", "Qdrant"}),
     ("run language models on my own machine", {"Ollama", "vLLM", "LocalGPT", "Tabby"}),
+    # Categories added as the catalogue grew past 82.
+    ("fine tune a model on one GPU", {"Unsloth", "LLaMA-Factory", "PEFT", "Axolotl"}),
+    ("transcribe speech to text", {"Whisper", "Faster Whisper"}),
+    ("generate images locally", {"Stable Diffusion WebUI", "ComfyUI"}),
+    ("build a realtime voice agent", {"Pipecat", "LiveKit Agents", "Vocode"}),
+    ("serve a model as a production API", {"BentoML", "Ray", "vLLM", "Portkey Gateway"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
