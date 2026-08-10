@@ -450,3 +450,52 @@ class TestUndo:
         with app.test_client() as client:
             assert client.post("/api/admin/undo").status_code == 403
         api.set_store(None)
+
+
+class TestListingForTheEditor:
+    """The editor must see the catalogue as it is on disk.
+
+    /api/agents comes from the search index, which omits use_case and lags
+    unindexed edits; a PUT replaces the whole record, so editing from it would
+    silently blank the field.
+    """
+
+    def test_returns_the_raw_records(self, admin_client):
+        body = admin_client.get("/api/admin/agents").get_json()
+        assert body["total"] == 1
+        assert body["agents"][0]["use_case"] == "Editing"
+
+    def test_includes_every_editable_field(self, admin_client):
+        record = admin_client.get("/api/admin/agents").get_json()["agents"][0]
+        for field in admin.EDITABLE_FIELDS:
+            assert field in record, f"{field} missing from the editor's view"
+
+    def test_shows_an_unindexed_edit_immediately(self, admin_client):
+        admin_client.post("/api/admin/agents", json=valid(name="Fresh"))
+        names = [a["name"] for a in admin_client.get("/api/admin/agents").get_json()["agents"]]
+        assert "Fresh" in names
+
+    def test_is_refused_when_editing_is_off(self, catalogue, monkeypatch, store):
+        import api
+
+        monkeypatch.setattr(config, "ENABLE_ADMIN", False)
+        api.set_store(store)
+        app = Flask(__name__)
+        app.register_blueprint(admin.admin_bp)
+        admin.register_error_handler(app)
+        with app.test_client() as client:
+            assert client.get("/api/admin/agents").status_code == 403
+        api.set_store(None)
+
+
+def test_editing_preserves_use_case(admin_client, catalogue):
+    """A round trip through the editor must not blank a field it did not show."""
+    listed = admin_client.get("/api/admin/agents").get_json()["agents"][0]
+
+    # Exactly what the editor submits: the record it loaded, description changed.
+    edited = {field: listed[field] for field in admin.EDITABLE_FIELDS}
+    edited["description"] = "Edited."
+    assert admin_client.put("/api/admin/agents/Cursor", json=edited).status_code == 200
+
+    saved = json.loads(catalogue.read_text())[0]
+    assert saved["use_case"] == "Editing", "use_case was lost on edit"

@@ -214,6 +214,21 @@ def _find(records, name):
     return None
 
 
+@admin_bp.route('/agents', methods=['GET'])
+def list_agents():
+    """The catalogue exactly as it is on disk.
+
+    The editor must not read /api/agents: that is served from the FAISS
+    docstore, which carries only the fields used for search. `use_case` is
+    absent there, so loading a row from it and saving would blank the field —
+    a PUT replaces the whole record. It also lags unindexed edits, so a second
+    edit would resubmit stale values and revert the first.
+    """
+    _require_enabled()
+    records = load_catalogue()
+    return jsonify({"agents": records, "total": len(records)}), 200
+
+
 @admin_bp.route('/agents', methods=['POST'])
 def create_agent():
     _require_enabled()

@@ -159,24 +159,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /** Load the catalogue straight from disk, so unindexed edits still show. */
+    /**
+     * Load the catalogue from disk via the admin endpoint.
+     *
+     * Not /api/agents: that comes from the search index, which omits
+     * `use_case` and lags unindexed edits. Editing from it would blank the
+     * field on save and revert earlier unindexed changes.
+     */
     async function refresh() {
         try {
             const status = await (await fetch('/api/admin/status')).json();
             countEl.textContent = `${status.total} agents in the catalogue`;
             staleEl.hidden = !status.catalogue_stale;
 
-            const response = await fetch('/api/agents?limit=200&sort=name');
+            const response = await fetch('/api/admin/agents');
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
             const body = await response.json();
-            const agents = (body.agents || []).map(a => ({
-                name: a.name,
-                category: (a.metadata || {}).category,
-                description: (a.metadata || {}).description,
-                tech_stack: ((a.metadata || {}).stack || '').split(',').map(t => t.trim()).filter(Boolean),
-                github_stars: (a.metadata || {}).stars,
-                url: (a.metadata || {}).url,
-                use_case: '',
-            }));
+            const agents = (body.agents || []).slice().sort(
+                (a, b) => String(a.name || '').localeCompare(String(b.name || '')));
 
             const seen = [...new Set(agents.map(a => a.category).filter(Boolean))].sort();
             document.getElementById('categoryOptions').replaceChildren(

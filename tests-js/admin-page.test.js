@@ -2,15 +2,23 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { ADMIN_HTML, bootPage, flush, stubFetch } from './helpers.js';
 
-function agentRow(name, category = 'Automation') {
-    return { name, metadata: { name, category, description: `${name} does things.`, stack: 'Python', stars: 10, url: 'https://example.com' } };
+/** A raw catalogue record, as /api/admin/agents returns it. */
+function record(name, category = 'Automation') {
+    return {
+        name, category,
+        description: `${name} does things.`,
+        tech_stack: ['Python'],
+        github_stars: 10,
+        url: 'https://example.com',
+        use_case: `${name} use case`,
+    };
 }
 
 function routes(overrides = {}) {
     return {
         '/api/admin/status': { body: { enabled: true, total: 2, catalogue_stale: false } },
-        '/api/agents': { body: { agents: [agentRow('Aider'), agentRow('Cursor')], metadata: {} } },
-        '/api/admin/agents': { body: { agent: {}, total: 3 } },
+        '/api/admin/agents': { body: { agents: [record('Aider'), record('Cursor')], total: 2 } },
+
         '/api/admin/reindex': { body: { indexed: 3 } },
         ...overrides,
     };
@@ -280,5 +288,32 @@ describe('undo', () => {
             expect(document.getElementById('adminError').textContent).toContain('nothing to undo');
             expect(document.getElementById('undoBtn').disabled).toBe(false);
         } finally { window.confirm = real; }
+    });
+});
+
+describe('editing preserves every field', () => {
+    it('loads use_case into the form', async () => {
+        await boot();
+        document.querySelector('.admin-row button').click();
+        expect(document.getElementById('fieldUseCase').value).toBe('Aider use case');
+    });
+
+    it('submits use_case back unchanged', async () => {
+        const calls = await boot();
+        document.querySelector('.admin-row button').click();
+        document.getElementById('fieldDescription').value = 'Edited.';
+        submit();
+        await flush();
+
+        const put = calls.find(c => c.options && c.options.method === 'PUT');
+        const body = JSON.parse(put.options.body);
+        expect(body.use_case).toBe('Aider use case');
+        expect(body.description).toBe('Edited.');
+    });
+
+    it('reads the catalogue from disk, not the search index', async () => {
+        const calls = await boot();
+        expect(calls.some(c => c.url.includes('/api/admin/agents'))).toBe(true);
+        expect(calls.some(c => c.url.startsWith('/api/agents'))).toBe(false);
     });
 });
