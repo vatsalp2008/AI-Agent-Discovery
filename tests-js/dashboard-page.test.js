@@ -250,3 +250,54 @@ describe('filter and sort controls', () => {
         expect(document.getElementById('allAgentsGrid').textContent).toContain('No agents match');
     });
 });
+
+describe('category tiles', () => {
+    it('links each category to its browse page', async () => {
+        await boot({
+            '/api/stats': { body: STATS },
+            '/api/categories': { body: [{ name: 'Evaluation', count: 8 }, { name: 'Safety', count: 6 }] },
+            '/api/tech': { body: [] },
+            '/api/agents': page(['Aider']),
+        });
+        await flush();
+
+        const tiles = [...document.querySelectorAll('.category-tile')];
+        expect(tiles.map(t => t.getAttribute('href')))
+            .toEqual(['/category/Evaluation', '/category/Safety']);
+        expect(tiles[0].textContent).toContain('8 agents');
+    });
+
+    it('uses the singular for one agent', async () => {
+        await boot({
+            '/api/stats': { body: STATS },
+            '/api/categories': { body: [{ name: 'Solo', count: 1 }] },
+            '/api/tech': { body: [] },
+            '/api/agents': page(['Aider']),
+        });
+        await flush();
+        expect(document.querySelector('.category-tile').textContent).toContain('1 agent');
+    });
+
+    it('encodes a category with a space', async () => {
+        await boot({
+            '/api/stats': { body: STATS },
+            '/api/categories': { body: [{ name: 'Code Generation', count: 3 }] },
+            '/api/tech': { body: [] },
+            '/api/agents': page(['Aider']),
+        });
+        await flush();
+        expect(document.querySelector('.category-tile').getAttribute('href'))
+            .toBe('/category/Code%20Generation');
+    });
+
+    it('does not break the page when categories fail to load', async () => {
+        await boot({
+            '/api/stats': { body: STATS },
+            '/api/categories': { ok: false, status: 500, body: {} },
+            '/api/tech': { body: [] },
+            '/api/agents': page(['Aider']),
+        });
+        await flush();
+        expect(document.querySelectorAll('.agent-card').length).toBeGreaterThan(0);
+    });
+});

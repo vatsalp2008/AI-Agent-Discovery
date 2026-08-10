@@ -132,6 +132,7 @@ export const DASHBOARD_HTML = `
       <div class="stat-number" id="topCategory">-</div>
       <div class="stat-number" id="totalStars">-</div>
     </div>
+    <div class="category-grid" id="categoryTiles"></div>
     <div class="controls">
       <label class="sr-only" for="filterQuery">Filter by name or description</label>
       <input type="search" id="filterQuery">

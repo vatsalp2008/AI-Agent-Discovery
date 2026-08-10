@@ -1098,3 +1098,43 @@ a.filter-tag {
     text-decoration: none;
     display: inline-block;
 }
+
+/* Category tiles on the dashboard */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.category-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    text-decoration: none;
+    transition: border-color 0.2s;
+}
+
+.category-tile:hover {
+    border-color: var(--accent-color);
+}
+
+.category-tile-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.category-tile-count {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.category-tile:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}

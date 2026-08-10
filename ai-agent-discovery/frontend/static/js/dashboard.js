@@ -28,6 +28,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
+    /** Category tiles linking to each browse page. */
+    async function fillCategoryTiles() {
+        const tiles = document.getElementById('categoryTiles');
+        if (!tiles) return;
+        try {
+            const response = await fetch('/api/categories');
+            if (!response.ok) return;
+
+            const categories = await response.json();
+            if (!Array.isArray(categories) || categories.length === 0) return;
+
+            tiles.replaceChildren(...categories.map(c => {
+                const tile = document.createElement('a');
+                tile.className = 'category-tile';
+                tile.href = `/category/${encodeURIComponent(c.name)}`;
+
+                const name = document.createElement('span');
+                name.className = 'category-tile-name';
+                name.textContent = c.name;
+                tile.appendChild(name);
+
+                const count = document.createElement('span');
+                count.className = 'category-tile-count';
+                count.textContent = `${c.count} agent${c.count === 1 ? '' : 's'}`;
+                tile.appendChild(count);
+
+                return tile;
+            }));
+        } catch (error) {
+            console.error('Could not load categories:', error);
+        }
+    }
+
     /** Populate a <select> from a [{name, count}] facet list. */
     async function fillFacet(select, url) {
         if (!select) return;
@@ -161,6 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderPage(agents, payload.metadata || {});
         grid.setAttribute('aria-busy', 'false');
 
+        fillCategoryTiles();
         fillFacet(controls.category, '/api/categories');
         fillFacet(controls.tech, '/api/tech');
 
