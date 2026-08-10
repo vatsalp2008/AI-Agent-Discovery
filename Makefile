@@ -60,6 +60,9 @@ docker-down:  ## Stop the compose stack
 mcp: ## run the MCP server over stdio
 	$(PYTHON) ai-agent-discovery/mcp_server.py
 
+doctor: ## check Ollama, models, catalogue and index are in place
+	$(PYTHON) ai-agent-discovery/doctor.py
+
 benchmark: ## measure the hot paths against a real index and Ollama
 	$(PYTHON) ai-agent-discovery/benchmark.py
 
