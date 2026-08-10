@@ -138,3 +138,56 @@ def test_every_template_stylesheet_exists(catalogue):
             if not (static / href).exists():
                 missing.append(f"{template.name} -> {href}")
     assert not missing, f"templates reference missing assets: {missing}"
+
+
+def test_readme_documents_every_api_route(catalogue):
+    """A route absent from the README is one nobody will find."""
+    import re
+
+    import config
+
+    api_source = (config.PACKAGE_DIR / "backend" / "api.py").read_text()
+    admin_source = (config.PACKAGE_DIR / "backend" / "admin.py").read_text()
+    readme = (config.REPO_ROOT / "README.md").read_text()
+
+    routes = set()
+    for source, prefix in ((api_source, "/api"), (admin_source, "/api/admin")):
+        for rule in re.findall(r"@\w+_bp\.route\('([^']+)'", source):
+            # Strip Flask's converters: <path:name> -> <name>
+            routes.add(prefix + re.sub(r"<[^:>]+:([^>]+)>", r"<\1>", rule))
+
+    missing = []
+    for route in routes:
+        # The README may write the path with or without the parameter.
+        base = route.split("<")[0].rstrip("/")
+        if base and base not in readme:
+            missing.append(route)
+    assert not missing, f"README does not mention: {sorted(missing)}"
+
+
+def test_readme_agent_count_matches_the_catalogue(catalogue):
+    """A stale count in the README is a small lie that compounds."""
+    import re
+
+    import config
+
+    readme = (config.REPO_ROOT / "README.md").read_text()
+    claimed = re.search(r"Curated collection of (\d+) AI agents", readme)
+    assert claimed, "the README no longer states an agent count"
+    assert int(claimed.group(1)) == len(catalogue), (
+        f"README claims {claimed.group(1)} agents, catalogue has {len(catalogue)}"
+    )
+
+
+def test_every_make_target_referenced_in_docs_exists(catalogue):
+    import re
+
+    import config
+
+    makefile = (config.REPO_ROOT / "Makefile").read_text()
+    targets = set(re.findall(r"^([a-z][a-z-]*):", makefile, re.M))
+
+    for doc in ("README.md", "CONTRIBUTING.md"):
+        text = (config.REPO_ROOT / doc).read_text()
+        for target in re.findall(r"`make ([a-z][a-z-]*)`", text):
+            assert target in targets, f"{doc} references `make {target}`, which does not exist"
