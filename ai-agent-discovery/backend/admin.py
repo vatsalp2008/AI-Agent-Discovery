@@ -19,6 +19,7 @@ import json
 import logging
 import os
 import threading
+from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
 
@@ -148,6 +149,63 @@ def validate(record, existing, original_name=None):
     return cleaned
 
 
+def _append_audit(action, name, before=None, after=None):
+    """Record a catalogue change as one JSON line.
+
+    Edits overwrite agents.json in place, so without this a mistaken change is
+    both untraceable and unrecoverable. One line per change keeps it appendable
+    and greppable, and holding the previous record means a bad edit can be
+    undone by hand.
+
+    Best-effort: an audit failure must not block the edit that succeeded.
+    """
+    if not config.AUDIT_LOG_PATH:
+        return
+    entry = {
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "action": action,
+        "name": name,
+    }
+    if before is not None:
+        entry["before"] = before
+    if after is not None:
+        entry["after"] = after
+
+    try:
+        path = str(config.AUDIT_LOG_PATH)
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError as e:
+        logger.warning("Could not write the audit log at %s: %s", config.AUDIT_LOG_PATH, e)
+
+
+def read_audit(limit=50):
+    """Return the most recent audit entries, newest first."""
+    path = str(config.AUDIT_LOG_PATH or "")
+    if not path or not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            lines = f.readlines()
+    except OSError as e:
+        logger.warning("Could not read the audit log: %s", e)
+        return []
+
+    entries = []
+    for line in reversed(lines):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entries.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue  # a truncated line should not hide the rest
+        if len(entries) >= limit:
+            break
+    return entries
+
+
 def _find(records, name):
     wanted = (name or "").strip().casefold()
     for index, record in enumerate(records):
@@ -165,6 +223,7 @@ def create_agent():
         cleaned = validate(payload, records)
         records.append(cleaned)
         save_catalogue(records)
+        _append_audit("create", cleaned["name"], after=cleaned)
     logger.info("Added agent %r to the catalogue", cleaned["name"])
     return jsonify({"agent": cleaned, "total": len(records)}), 201
 
@@ -179,9 +238,11 @@ def update_agent(name):
         if index is None:
             raise AdminError(f"No agent named {name!r}", status=404)
 
-        cleaned = validate(payload, records, original_name=records[index].get("name"))
+        previous = records[index]
+        cleaned = validate(payload, records, original_name=previous.get("name"))
         records[index] = cleaned
         save_catalogue(records)
+        _append_audit("update", cleaned["name"], before=previous, after=cleaned)
     logger.info("Updated agent %r", cleaned["name"])
     return jsonify({"agent": cleaned, "total": len(records)}), 200
 
@@ -197,6 +258,7 @@ def delete_agent(name):
 
         removed = records.pop(index)
         save_catalogue(records)
+        _append_audit("delete", removed.get("name"), before=removed)
     logger.info("Deleted agent %r", removed.get("name"))
     return jsonify({"deleted": removed.get("name"), "total": len(records)}), 200
 
@@ -232,6 +294,17 @@ def reindex():
         "indexed": stats.get("count", 0),
         "built_at": stats.get("built_at"),
     }), 200
+
+
+@admin_bp.route('/audit', methods=['GET'])
+def audit():
+    """Recent catalogue changes, newest first."""
+    _require_enabled()
+    try:
+        limit = max(1, min(int(request.args.get("limit", 50)), 500))
+    except (TypeError, ValueError) as e:
+        raise AdminError("'limit' must be an integer") from e
+    return jsonify({"entries": read_audit(limit)}), 200
 
 
 @admin_bp.route('/status', methods=['GET'])

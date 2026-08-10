@@ -110,6 +110,10 @@ DEBUG = _bool_env("FLASK_DEBUG", False)
 # kept on a localhost-bound HOST.
 ENABLE_ADMIN = _bool_env("ENABLE_ADMIN", False)
 
+# Append-only record of catalogue edits, so a mistaken change can be traced
+# and undone. Empty disables it.
+AUDIT_LOG_PATH = _resolve(os.getenv("AUDIT_LOG_PATH", ""), DATA_DIR / "catalogue_audit.jsonl")
+
 # Optional LLM summary of search results (the generation half of RAG).
 # Requires MODEL_NAME to be pulled in Ollama; search works fine without it.
 ENABLE_SUMMARY = _bool_env("ENABLE_SUMMARY", True)

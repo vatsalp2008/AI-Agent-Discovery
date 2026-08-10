@@ -9,6 +9,12 @@ import admin
 import config
 
 
+@pytest.fixture(autouse=True)
+def isolate_audit_log(tmp_path, monkeypatch):
+    """Never let a test append to the repository's real audit log."""
+    monkeypatch.setattr(config, "AUDIT_LOG_PATH", tmp_path / "audit.jsonl")
+
+
 @pytest.fixture
 def catalogue(tmp_path, monkeypatch):
     path = tmp_path / "agents.json"
@@ -273,3 +279,92 @@ def test_concurrent_creates_do_not_drop_each_other(catalogue, monkeypatch, store
     names = {r["name"] for r in json.loads(catalogue.read_text())}
     expected = {f"Agent{i}" for i in range(8)} | {"Cursor"}
     assert names == expected, f"lost writes: {sorted(expected - names)}"
+
+
+class TestAuditLog:
+    """Edits overwrite agents.json in place, so a mistaken change would
+    otherwise be untraceable and unrecoverable."""
+
+    @pytest.fixture
+    def audit_path(self, tmp_path, monkeypatch):
+        path = tmp_path / "audit.jsonl"
+        monkeypatch.setattr(config, "AUDIT_LOG_PATH", path)
+        return path
+
+    def entries(self, path):
+        if not path.exists():
+            return []
+        return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+    def test_a_create_is_recorded(self, admin_client, audit_path):
+        admin_client.post("/api/admin/agents", json=valid())
+        entry = self.entries(audit_path)[-1]
+        assert entry["action"] == "create"
+        assert entry["name"] == "Aider"
+        assert entry["after"]["description"]
+        assert entry["at"].endswith("+00:00")
+
+    def test_an_update_records_both_sides(self, admin_client, audit_path):
+        """Keeping the previous record is what makes an edit undoable."""
+        admin_client.put("/api/admin/agents/Cursor", json=valid(name="Cursor", description="Edited."))
+        entry = self.entries(audit_path)[-1]
+        assert entry["action"] == "update"
+        assert entry["before"]["description"] == "An editor."
+        assert entry["after"]["description"] == "Edited."
+
+    def test_a_delete_records_what_was_removed(self, admin_client, audit_path):
+        admin_client.delete("/api/admin/agents/Cursor")
+        entry = self.entries(audit_path)[-1]
+        assert entry["action"] == "delete"
+        assert entry["before"]["name"] == "Cursor"
+
+    def test_entries_accumulate(self, admin_client, audit_path):
+        admin_client.post("/api/admin/agents", json=valid(name="One"))
+        admin_client.post("/api/admin/agents", json=valid(name="Two"))
+        assert [e["name"] for e in self.entries(audit_path)] == ["One", "Two"]
+
+    def test_a_rejected_edit_is_not_recorded(self, admin_client, audit_path):
+        admin_client.post("/api/admin/agents", json=valid(name="  "))
+        assert self.entries(audit_path) == []
+
+    def test_the_endpoint_returns_newest_first(self, admin_client, audit_path):
+        admin_client.post("/api/admin/agents", json=valid(name="One"))
+        admin_client.post("/api/admin/agents", json=valid(name="Two"))
+
+        body = admin_client.get("/api/admin/audit").get_json()
+        assert [e["name"] for e in body["entries"]] == ["Two", "One"]
+
+    def test_the_endpoint_honours_a_limit(self, admin_client, audit_path):
+        for i in range(5):
+            admin_client.post("/api/admin/agents", json=valid(name=f"A{i}"))
+        assert len(admin_client.get("/api/admin/audit?limit=2").get_json()["entries"]) == 2
+
+    def test_a_truncated_line_does_not_hide_the_rest(self, admin_client, audit_path):
+        admin_client.post("/api/admin/agents", json=valid(name="Good"))
+        with open(audit_path, "a") as f:
+            f.write('{"partial": \n')
+
+        names = [e.get("name") for e in admin.read_audit()]
+        assert "Good" in names
+
+    def test_an_unwritable_path_does_not_block_the_edit(self, admin_client, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "AUDIT_LOG_PATH", tmp_path / "nope" / "x" / "audit.jsonl")
+        # Auditing is best-effort; the edit must still succeed.
+        assert admin_client.post("/api/admin/agents", json=valid()).status_code == 201
+
+    def test_auditing_can_be_disabled(self, admin_client, monkeypatch, tmp_path):
+        monkeypatch.setattr(config, "AUDIT_LOG_PATH", "")
+        assert admin_client.post("/api/admin/agents", json=valid()).status_code == 201
+        assert admin.read_audit() == []
+
+    def test_the_endpoint_is_refused_when_editing_is_off(self, catalogue, monkeypatch, store):
+        import api
+
+        monkeypatch.setattr(config, "ENABLE_ADMIN", False)
+        api.set_store(store)
+        app = Flask(__name__)
+        app.register_blueprint(admin.admin_bp)
+        admin.register_error_handler(app)
+        with app.test_client() as client:
+            assert client.get("/api/admin/audit").status_code == 403
+        api.set_store(None)
