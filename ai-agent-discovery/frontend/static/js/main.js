@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const resultsArea = document.getElementById('resultsArea');
     const filters = document.getElementById('filters');
+    const suggestionList = document.getElementById('suggestions');
     const recent = document.getElementById('recent');
     const recentList = document.getElementById('recentList');
     const recentClear = document.getElementById('recentClear');
@@ -378,10 +379,116 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Name suggestions -------------------------------------------------
+    // A complement to semantic search, for when you half-remember a name.
+    let suggestionNames = [];
+    let suggestionItems = [];
+    let activeSuggestion = -1;
+
+    async function loadSuggestionNames() {
+        if (!suggestionList) return;
+        try {
+            const response = await fetch('/api/agents?limit=200&sort=name');
+            if (!response.ok) return;
+            const body = await response.json();
+            suggestionNames = (body.agents || []).map(a => ({ name: a.name }));
+        } catch (error) {
+            console.error('Could not load agent names:', error);
+        }
+    }
+
+    function closeSuggestions() {
+        if (!suggestionList) return;
+        suggestionList.hidden = true;
+        suggestionList.replaceChildren();
+        suggestionItems = [];
+        activeSuggestion = -1;
+        searchInput.setAttribute('aria-expanded', 'false');
+        searchInput.removeAttribute('aria-activedescendant');
+    }
+
+    function highlightSuggestion(index) {
+        suggestionItems.forEach((item, i) => {
+            const active = i === index;
+            item.classList.toggle('active', active);
+            item.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        activeSuggestion = index;
+        if (index >= 0) {
+            searchInput.setAttribute('aria-activedescendant', suggestionItems[index].id);
+        } else {
+            searchInput.removeAttribute('aria-activedescendant');
+        }
+    }
+
+    function chooseSuggestion(name) {
+        searchInput.value = name;
+        closeSuggestions();
+        performSearch(name);
+    }
+
+    function showSuggestions() {
+        if (!suggestionList) return;
+
+        const matches = Suggest.rank(suggestionNames, searchInput.value);
+        if (matches.length === 0) {
+            closeSuggestions();
+            return;
+        }
+
+        suggestionItems = matches.map((match, index) => {
+            const item = document.createElement('li');
+            item.className = 'suggestion';
+            item.id = `suggestion-${index}`;
+            item.setAttribute('role', 'option');
+            item.setAttribute('aria-selected', 'false');
+
+            Suggest.segments(match.name, searchInput.value).forEach(part => {
+                const span = document.createElement(part.match ? 'mark' : 'span');
+                span.textContent = part.text;
+                item.appendChild(span);
+            });
+
+            // mousedown, not click: blur would close the list first.
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                chooseSuggestion(match.name);
+            });
+            return item;
+        });
+
+        suggestionList.replaceChildren(...suggestionItems);
+        suggestionList.hidden = false;
+        searchInput.setAttribute('aria-expanded', 'true');
+        highlightSuggestion(-1);
+    }
+
+    if (suggestionList) {
+        searchInput.addEventListener('input', showSuggestions);
+        searchInput.addEventListener('blur', () => setTimeout(closeSuggestions, 120));
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (suggestionList.hidden) return;
+
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightSuggestion(
+                    Suggest.nextIndex(activeSuggestion, suggestionItems.length,
+                                      e.key === 'ArrowDown' ? 1 : -1));
+            } else if (e.key === 'Enter' && activeSuggestion >= 0) {
+                e.preventDefault();
+                chooseSuggestion(suggestionItems[activeSuggestion].textContent);
+            } else if (e.key === 'Escape') {
+                closeSuggestions();
+            }
+        });
+    }
+
     // Event Listeners. A submit handler covers the button, the Enter key and
     // the browser's own search-field affordances in one place.
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        closeSuggestions();
         performSearch(searchInput.value);
     });
 
@@ -413,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadCategories();
+    loadSuggestionNames();
     renderRecent();
     applyState(initial);
 });

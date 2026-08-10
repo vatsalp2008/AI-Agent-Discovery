@@ -1138,3 +1138,43 @@ a.filter-tag {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* Name suggestions under the search box */
+.search-container { position: relative; }
+
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    margin-top: 0.35rem;
+    padding: 0.3rem;
+    list-style: none;
+    text-align: left;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.suggestions[hidden] { display: none; }
+
+.suggestion {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.suggestion.active,
+.suggestion:hover {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.suggestion mark {
+    background: none;
+    color: var(--accent-color);
+    font-weight: 600;
+}

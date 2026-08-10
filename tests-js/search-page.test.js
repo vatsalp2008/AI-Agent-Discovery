@@ -39,6 +39,7 @@ async function boot(routes = defaultRoutes()) {
         // index.html loads search-state.js before main.js.
         extraScripts: [
             { file: 'search-state.js', global: 'SearchState' },
+            { file: 'suggest.js', global: 'Suggest' },
             { file: 'recent-searches.js', global: 'RecentSearches' },
             { file: 'export-results.js', global: 'ExportResults' },
         ],
@@ -444,5 +445,120 @@ describe('exporting results', () => {
         const button = document.querySelector('.export-btn');
         button.click();
         expect(button.textContent).toBe('Export failed');
+    });
+});
+
+describe('name suggestions', () => {
+    function type(value) {
+        const input = document.getElementById('searchInput');
+        input.value = value;
+        input.dispatchEvent(new window.Event('input'));
+    }
+
+    function press(key) {
+        const event = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+        document.getElementById('searchInput').dispatchEvent(event);
+        return event;
+    }
+
+    function suggestionRoutes() {
+        return defaultRoutes({
+            '/api/agents': { body: {
+                agents: [makeResult('ComfyUI'), makeResult('Cursor'), makeResult('Vocode')],
+                metadata: { total: 3, has_more: false },
+            } },
+        });
+    }
+
+    it('offers matching names as you type', async () => {
+        await boot(suggestionRoutes());
+        type('cu');
+        const items = [...document.querySelectorAll('.suggestion')].map(i => i.textContent);
+        expect(items).toEqual(['Cursor']);
+        expect(document.getElementById('suggestions').hidden).toBe(false);
+    });
+
+    it('highlights the matched span', async () => {
+        await boot(suggestionRoutes());
+        type('urs');
+        expect(document.querySelector('.suggestion mark').textContent).toBe('urs');
+    });
+
+    it('hides when nothing matches', async () => {
+        await boot(suggestionRoutes());
+        type('zzzz');
+        expect(document.getElementById('suggestions').hidden).toBe(true);
+    });
+
+    it('hides when the box is emptied', async () => {
+        await boot(suggestionRoutes());
+        type('cu');
+        type('');
+        expect(document.getElementById('suggestions').hidden).toBe(true);
+    });
+
+    it('moves through the list with the arrow keys', async () => {
+        await boot(suggestionRoutes());
+        type('c');
+        press('ArrowDown');
+        expect(document.querySelectorAll('.suggestion')[0].classList.contains('active')).toBe(true);
+        press('ArrowDown');
+        expect(document.querySelectorAll('.suggestion')[1].classList.contains('active')).toBe(true);
+    });
+
+    it('searches for the highlighted name on Enter', async () => {
+        const calls = await boot(suggestionRoutes());
+        type('c');
+        press('ArrowDown');
+        press('Enter');
+        await flush();
+
+        expect(document.getElementById('searchInput').value).toBe('ComfyUI');
+        const search = calls.filter(c => c.url.includes('/api/search')).pop();
+        expect(JSON.parse(search.options.body).query).toBe('ComfyUI');
+    });
+
+    it('Escape closes the list without searching', async () => {
+        const calls = await boot(suggestionRoutes());
+        type('c');
+        const before = calls.filter(c => c.url.includes('/api/search')).length;
+        press('Escape');
+
+        expect(document.getElementById('suggestions').hidden).toBe(true);
+        expect(calls.filter(c => c.url.includes('/api/search')).length).toBe(before);
+    });
+
+    it('clicking a suggestion searches for it', async () => {
+        const calls = await boot(suggestionRoutes());
+        type('cu');
+        document.querySelector('.suggestion').dispatchEvent(
+            new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        await flush();
+
+        const search = calls.filter(c => c.url.includes('/api/search')).pop();
+        expect(JSON.parse(search.options.body).query).toBe('Cursor');
+    });
+
+    it('exposes combobox state to assistive tech', async () => {
+        await boot(suggestionRoutes());
+        const input = document.getElementById('searchInput');
+        expect(input.getAttribute('aria-expanded')).toBe('false');
+
+        type('c');
+        expect(input.getAttribute('aria-expanded')).toBe('true');
+
+        press('ArrowDown');
+        expect(input.getAttribute('aria-activedescendant')).toBe('suggestion-0');
+    });
+
+    it('submitting normally still runs a semantic search', async () => {
+        const calls = await boot(suggestionRoutes());
+        type('something vague');
+        submitSearch('something vague');
+        await flush();
+
+        expect(document.getElementById('suggestions').hidden).toBe(true);
+        const search = calls.filter(c => c.url.includes('/api/search')).pop();
+        expect(JSON.parse(search.options.body).query).toBe('something vague');
     });
 });

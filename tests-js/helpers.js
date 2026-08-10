@@ -113,7 +113,8 @@ export function stubFetch(routes) {
 export const SEARCH_HTML = `
     <form id="searchForm">
       <label class="sr-only" for="searchInput">Search for an AI agent</label>
-      <input id="searchInput" type="search">
+      <input id="searchInput" type="search" role="combobox" aria-expanded="false">
+      <ul id="suggestions" role="listbox" aria-label="Matching agent names" hidden></ul>
       <button id="searchBtn" type="submit">go</button>
     </form>
     <div id="filters"></div>
