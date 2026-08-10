@@ -46,7 +46,7 @@
       "Llama 2",
       "GPT-4"
     ],
-    "github_stars": 67939,
+    "github_stars": 67941,
     "url": "https://github.com/OpenInterpreter/open-interpreter",
     "use_case": "Local system control, script execution"
   },
@@ -59,7 +59,7 @@
       "GPT-4",
       "Pinecone"
     ],
-    "github_stars": 186493,
+    "github_stars": 186496,
     "url": "https://github.com/Significant-Gravitas/Auto-GPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
@@ -72,7 +72,7 @@
       "LangChain",
       "Selenium"
     ],
-    "github_stars": 28914,
+    "github_stars": 28916,
     "url": "https://github.com/assafelovic/gpt-researcher",
     "use_case": "Deep web research, report generation"
   },
@@ -122,7 +122,7 @@
       "Python",
       "TypeScript"
     ],
-    "github_stars": 143758,
+    "github_stars": 143899,
     "url": "https://github.com/langchain-ai/langchain",
     "use_case": "LLM orchestration"
   },
@@ -134,7 +134,7 @@
       "Python",
       "Agents"
     ],
-    "github_stars": 56821,
+    "github_stars": 56901,
     "url": "https://github.com/joaomdmoura/crewAI",
     "use_case": "Multi-agent orchestration"
   },
@@ -207,7 +207,7 @@
       "Python",
       "Role-Playing"
     ],
-    "github_stars": 33975,
+    "github_stars": 33974,
     "url": "https://github.com/OpenBMB/ChatDev",
     "use_case": "Full software project generation"
   },
@@ -220,7 +220,7 @@
       "LlamaIndex",
       "Local LLM"
     ],
-    "github_stars": 57414,
+    "github_stars": 57424,
     "url": "https://github.com/imartinez/privateGPT",
     "use_case": "Document QA, RAG"
   },
@@ -270,7 +270,7 @@
       "TypeScript",
       "Claude"
     ],
-    "github_stars": 140909,
+    "github_stars": 140921,
     "url": "https://github.com/anthropics/claude-code",
     "use_case": "Terminal-based agentic coding"
   },
@@ -283,7 +283,7 @@
       "Docker",
       "React"
     ],
-    "github_stars": 83614,
+    "github_stars": 83629,
     "url": "https://github.com/All-Hands-AI/OpenHands",
     "use_case": "Autonomous software engineering"
   },
@@ -295,7 +295,7 @@
       "TypeScript",
       "VS Code"
     ],
-    "github_stars": 65966,
+    "github_stars": 65961,
     "url": "https://github.com/cline/cline",
     "use_case": "In-editor agentic coding"
   },
@@ -308,7 +308,7 @@
       "VS Code",
       "JetBrains"
     ],
-    "github_stars": 35425,
+    "github_stars": 35427,
     "url": "https://github.com/continuedev/continue",
     "use_case": "Customisable IDE assistant"
   },
@@ -355,7 +355,7 @@
       "Python",
       "LangChain"
     ],
-    "github_stars": 39260,
+    "github_stars": 39376,
     "url": "https://github.com/langchain-ai/langgraph",
     "use_case": "Stateful agent graphs"
   },
@@ -392,7 +392,7 @@
       "Python",
       "Elasticsearch"
     ],
-    "github_stars": 26167,
+    "github_stars": 26168,
     "url": "https://github.com/deepset-ai/haystack",
     "use_case": "Production RAG pipelines"
   },
@@ -405,7 +405,7 @@
       "Python",
       "Docker"
     ],
-    "github_stars": 151713,
+    "github_stars": 151984,
     "url": "https://github.com/langgenius/dify",
     "use_case": "Visual LLM app development"
   },
@@ -417,7 +417,7 @@
       "TypeScript",
       "Node.js"
     ],
-    "github_stars": 55305,
+    "github_stars": 55307,
     "url": "https://github.com/FlowiseAI/Flowise",
     "use_case": "No-code agent building"
   },
@@ -429,7 +429,7 @@
       "JavaScript",
       "Docker"
     ],
-    "github_stars": 64555,
+    "github_stars": 64562,
     "url": "https://github.com/Mintplex-Labs/anything-llm",
     "use_case": "Private document chat"
   },
@@ -441,7 +441,7 @@
       "Python",
       "Playwright"
     ],
-    "github_stars": 108610,
+    "github_stars": 108621,
     "url": "https://github.com/browser-use/browser-use",
     "use_case": "Web browsing automation"
   },
@@ -453,7 +453,7 @@
       "Rust",
       "Python"
     ],
-    "github_stars": 52628,
+    "github_stars": 52636,
     "url": "https://github.com/block/goose",
     "use_case": "Local developer automation"
   },
@@ -478,7 +478,7 @@
       "Python",
       "JupyterLab"
     ],
-    "github_stars": 4358,
+    "github_stars": 4361,
     "url": "https://github.com/jupyterlab/jupyter-ai",
     "use_case": "AI assistance inside notebooks"
   },
@@ -552,7 +552,7 @@
       "Rust",
       "Local LLM"
     ],
-    "github_stars": 33821,
+    "github_stars": 33822,
     "url": "https://github.com/TabbyML/tabby",
     "use_case": "Self-hosted code completion"
   },
@@ -601,7 +601,7 @@
       "Elasticsearch",
       "Docker"
     ],
-    "github_stars": 87096,
+    "github_stars": 87196,
     "url": "https://github.com/infiniflow/ragflow",
     "use_case": "Document-grounded question answering"
   },
@@ -627,7 +627,7 @@
       "Django",
       "Local LLM"
     ],
-    "github_stars": 36399,
+    "github_stars": 36428,
     "url": "https://github.com/khoj-ai/khoj",
     "use_case": "Personal knowledge search"
   },
@@ -651,7 +651,7 @@
       "Python",
       "PostgreSQL"
     ],
-    "github_stars": 24148,
+    "github_stars": 24177,
     "url": "https://github.com/letta-ai/letta",
     "use_case": "Stateful agents with self-managed memory"
   },
@@ -688,7 +688,7 @@
       "TypeScript",
       "Playwright"
     ],
-    "github_stars": 23788,
+    "github_stars": 23795,
     "url": "https://github.com/browserbase/stagehand",
     "use_case": "Hybrid scripted and AI browsing"
   },
@@ -700,7 +700,7 @@
       "TypeScript",
       "Node.js"
     ],
-    "github_stars": 23698,
+    "github_stars": 23703,
     "url": "https://github.com/activepieces/activepieces",
     "use_case": "Open source workflow automation"
   },
@@ -725,7 +725,7 @@
       "Ruby",
       "Vue.js"
     ],
-    "github_stars": 35686,
+    "github_stars": 35693,
     "url": "https://github.com/chatwoot/chatwoot",
     "use_case": "Omnichannel customer support"
   },
@@ -737,7 +737,7 @@
       "Go",
       "Kubernetes"
     ],
-    "github_stars": 8057,
+    "github_stars": 8062,
     "url": "https://github.com/k8sgpt-ai/k8sgpt",
     "use_case": "Cluster diagnostics and triage"
   },
@@ -750,7 +750,7 @@
       "PostgreSQL",
       "OpenTelemetry"
     ],
-    "github_stars": 32763,
+    "github_stars": 32837,
     "url": "https://github.com/langfuse/langfuse",
     "use_case": "Tracing and evaluating LLM applications"
   },
@@ -762,7 +762,7 @@
       "Python",
       "OpenTelemetry"
     ],
-    "github_stars": 10973,
+    "github_stars": 10975,
     "url": "https://github.com/Arize-ai/phoenix",
     "use_case": "Debugging retrieval and agent traces"
   },
@@ -774,7 +774,7 @@
       "Python",
       "pytest"
     ],
-    "github_stars": 17502,
+    "github_stars": 17504,
     "url": "https://github.com/confident-ai/deepeval",
     "use_case": "Regression testing LLM behaviour"
   },
@@ -810,7 +810,7 @@
       "Python",
       "TypeScript"
     ],
-    "github_stars": 21274,
+    "github_stars": 21276,
     "url": "https://github.com/comet-ml/opik",
     "use_case": "Production monitoring of LLM apps"
   },
@@ -822,7 +822,7 @@
       "Python",
       "LangChain"
     ],
-    "github_stars": 15259,
+    "github_stars": 15260,
     "url": "https://github.com/explodinggradients/ragas",
     "use_case": "Measuring RAG quality"
   },
@@ -858,7 +858,7 @@
       "Python",
       "Colang"
     ],
-    "github_stars": 6905,
+    "github_stars": 6906,
     "url": "https://github.com/NVIDIA/NeMo-Guardrails",
     "use_case": "Constraining what a chatbot will discuss"
   },
@@ -881,7 +881,7 @@
     "tech_stack": [
       "Python"
     ],
-    "github_stars": 8739,
+    "github_stars": 8755,
     "url": "https://github.com/leondz/garak",
     "use_case": "Red teaming a model before deployment"
   },
@@ -906,7 +906,7 @@
       "Rust",
       "Proxy"
     ],
-    "github_stars": 56033,
+    "github_stars": 56041,
     "url": "https://github.com/BerriAI/litellm",
     "use_case": "Provider-agnostic model access"
   },
@@ -980,7 +980,7 @@
       "C++",
       "Python"
     ],
-    "github_stars": 40702,
+    "github_stars": 40703,
     "url": "https://github.com/facebookresearch/faiss",
     "use_case": "In-process vector indexing"
   },
@@ -1030,7 +1030,7 @@
       "PyTorch",
       "LoRA"
     ],
-    "github_stars": 73949,
+    "github_stars": 73972,
     "url": "https://github.com/hiyouga/LLaMA-Factory",
     "use_case": "Fine-tuning many model families from one tool"
   },
@@ -1043,7 +1043,7 @@
       "PyTorch",
       "DeepSpeed"
     ],
-    "github_stars": 12331,
+    "github_stars": 12332,
     "url": "https://github.com/axolotl-ai-cloud/axolotl",
     "use_case": "Reproducible fine-tuning runs"
   },
@@ -1056,7 +1056,7 @@
       "PyTorch",
       "Transformers"
     ],
-    "github_stars": 21523,
+    "github_stars": 21522,
     "url": "https://github.com/huggingface/peft",
     "use_case": "Adapter-based fine-tuning"
   },
@@ -1069,7 +1069,7 @@
       "PyTorch",
       "Transformers"
     ],
-    "github_stars": 19030,
+    "github_stars": 19040,
     "url": "https://github.com/huggingface/trl",
     "use_case": "Preference and reward-based training"
   },
@@ -1131,7 +1131,7 @@
       "Python",
       "CTranslate2"
     ],
-    "github_stars": 24839,
+    "github_stars": 24842,
     "url": "https://github.com/SYSTRAN/faster-whisper",
     "use_case": "Fast local transcription"
   },
@@ -1155,7 +1155,7 @@
       "Python",
       "PyTorch"
     ],
-    "github_stars": 126103,
+    "github_stars": 126173,
     "url": "https://github.com/comfyanonymous/ComfyUI",
     "use_case": "Composable image generation pipelines"
   },
@@ -1168,7 +1168,7 @@
       "Gradio",
       "PyTorch"
     ],
-    "github_stars": 164462,
+    "github_stars": 164461,
     "url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
     "use_case": "Local image generation"
   },
@@ -1205,7 +1205,7 @@
       "WebRTC",
       "Node.js"
     ],
-    "github_stars": 12850,
+    "github_stars": 12887,
     "url": "https://github.com/livekit/agents",
     "use_case": "Voice agents over phone and web"
   },
@@ -1278,7 +1278,7 @@
       "TypeScript",
       "Hono"
     ],
-    "github_stars": 12680,
+    "github_stars": 12683,
     "url": "https://github.com/Portkey-AI/gateway",
     "use_case": "Reliable multi-provider model access"
   },
