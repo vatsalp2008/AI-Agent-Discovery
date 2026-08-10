@@ -746,6 +746,7 @@ put it in a file under `static/js/` instead.
 ```bash
 make help          # list every target
 make check         # lint + Python tests + frontend tests, as CI runs them
+make verify        # all of the above, plus doctor, live tests and link checking
 make test          # Python only
 make test-js       # frontend only (needs: make install-js)
 make test-live     # end-to-end against a real Ollama + seeded index

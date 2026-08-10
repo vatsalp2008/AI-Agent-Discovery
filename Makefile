@@ -60,6 +60,16 @@ docker-down:  ## Stop the compose stack
 mcp: ## run the MCP server over stdio
 	$(PYTHON) ai-agent-discovery/mcp_server.py
 
+verify: ## everything: lint, all suites, setup and catalogue health
+	@echo "== lint and fast suites =="
+	@$(MAKE) --no-print-directory check PYTHON=$(PYTHON)
+	@echo "\n== setup =="
+	@$(PYTHON) ai-agent-discovery/doctor.py
+	@echo "\n== live tests (needs Ollama and a seeded index) =="
+	@$(PYTHON) -m pytest tests-live -q
+	@echo "\n== catalogue links =="
+	@$(PYTHON) ai-agent-discovery/check_links.py
+
 check-links: ## verify every catalogue URL still resolves
 	$(PYTHON) ai-agent-discovery/check_links.py
 

@@ -45,7 +45,8 @@ index is missing.
 ## Before opening a pull request
 
 1. `make check` passes. `make doctor` is a quick way to rule out a broken
-   local setup before assuming a real failure.
+   local setup before assuming a real failure, and `make verify` runs
+   everything — lint, all three suites, diagnostics and link checking.
 2. New behaviour has a test. Bug fixes should have a test that fails before
    the fix.
 3. Commit messages are short and imperative ("Add category filtering", not
