@@ -564,6 +564,78 @@ SAMPLE_AGENTS = [
         use_case="Productionising ML pipelines"
     ),
     Agent(
+        name="Whisper",
+        description="OpenAI's speech recognition model, robust across accents, background noise and languages.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=106984,
+        url="https://github.com/openai/whisper",
+        use_case="Transcribing audio"
+    ),
+    Agent(
+        name="Faster Whisper",
+        description="A CTranslate2 reimplementation of Whisper that transcribes several times faster for less memory.",
+        category="Multimodal",
+        tech_stack=["Python", "CTranslate2"],
+        github_stars=24833,
+        url="https://github.com/SYSTRAN/faster-whisper",
+        use_case="Fast local transcription"
+    ),
+    Agent(
+        name="Coqui TTS",
+        description="A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=45872,
+        url="https://github.com/coqui-ai/TTS",
+        use_case="Speech synthesis and voice cloning"
+    ),
+    Agent(
+        name="ComfyUI",
+        description="A node-based interface for diffusion models, where the whole generation graph is explicit.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=125727,
+        url="https://github.com/comfyanonymous/ComfyUI",
+        use_case="Composable image generation pipelines"
+    ),
+    Agent(
+        name="Stable Diffusion WebUI",
+        description="A browser interface for Stable Diffusion with an extensive extension ecosystem.",
+        category="Multimodal",
+        tech_stack=["Python", "Gradio", "PyTorch"],
+        github_stars=164462,
+        url="https://github.com/AUTOMATIC1111/stable-diffusion-webui",
+        use_case="Local image generation"
+    ),
+    Agent(
+        name="CLIP",
+        description="Joint text and image embeddings, the basis for most image search and captioning pipelines.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=34150,
+        url="https://github.com/openai/CLIP",
+        use_case="Image and text similarity search"
+    ),
+    Agent(
+        name="Pipecat",
+        description="A framework for realtime voice and multimodal agents, handling turn-taking and interruption.",
+        category="Customer Service",
+        tech_stack=["Python", "WebRTC"],
+        github_stars=14031,
+        url="https://github.com/pipecat-ai/pipecat",
+        use_case="Realtime conversational agents"
+    ),
+    Agent(
+        name="LiveKit Agents",
+        description="Builds realtime voice AI agents on WebRTC, with telephony and streaming built in.",
+        category="Customer Service",
+        tech_stack=["Python", "WebRTC", "Node.js"],
+        github_stars=12850,
+        url="https://github.com/livekit/agents",
+        use_case="Voice agents over phone and web"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
