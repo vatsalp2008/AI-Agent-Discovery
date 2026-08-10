@@ -1007,5 +1007,108 @@
     "github_stars": 88563,
     "url": "https://github.com/vllm-project/vllm",
     "use_case": "Serving models at high throughput"
+  },
+  {
+    "name": "Unsloth",
+    "description": "Fine-tunes language models several times faster and with far less memory through custom kernels.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "Triton",
+      "CUDA"
+    ],
+    "github_stars": 69775,
+    "url": "https://github.com/unslothai/unsloth",
+    "use_case": "Fast low-memory fine-tuning"
+  },
+  {
+    "name": "LLaMA-Factory",
+    "description": "A unified framework for fine-tuning a hundred-plus language and vision models, with a web UI.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "LoRA"
+    ],
+    "github_stars": 73949,
+    "url": "https://github.com/hiyouga/LLaMA-Factory",
+    "use_case": "Fine-tuning many model families from one tool"
+  },
+  {
+    "name": "Axolotl",
+    "description": "Configuration-driven fine-tuning: describe the run in YAML rather than writing training code.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "DeepSpeed"
+    ],
+    "github_stars": 12331,
+    "url": "https://github.com/axolotl-ai-cloud/axolotl",
+    "use_case": "Reproducible fine-tuning runs"
+  },
+  {
+    "name": "PEFT",
+    "description": "Hugging Face's parameter-efficient fine-tuning library, including LoRA and QLoRA adapters.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Transformers"
+    ],
+    "github_stars": 21523,
+    "url": "https://github.com/huggingface/peft",
+    "use_case": "Adapter-based fine-tuning"
+  },
+  {
+    "name": "TRL",
+    "description": "Trains language models with reinforcement learning, covering SFT, DPO and PPO.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Transformers"
+    ],
+    "github_stars": 19030,
+    "url": "https://github.com/huggingface/trl",
+    "use_case": "Preference and reward-based training"
+  },
+  {
+    "name": "Argilla",
+    "description": "A collaboration tool for building and curating the datasets that fine-tuning and evaluation need.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "Elasticsearch"
+    ],
+    "github_stars": 5078,
+    "url": "https://github.com/argilla-io/argilla",
+    "use_case": "Human feedback and dataset curation"
+  },
+  {
+    "name": "SDV",
+    "description": "Generates synthetic tabular data that preserves the statistical shape of the original.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "Pandas",
+      "ML"
+    ],
+    "github_stars": 3541,
+    "url": "https://github.com/sdv-dev/SDV",
+    "use_case": "Synthetic datasets for testing"
+  },
+  {
+    "name": "Metaflow",
+    "description": "Netflix's framework for building and deploying data and ML workflows from notebook to production.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "AWS",
+      "Kubernetes"
+    ],
+    "github_stars": 10206,
+    "url": "https://github.com/Netflix/metaflow",
+    "use_case": "Productionising ML pipelines"
   }
 ]
