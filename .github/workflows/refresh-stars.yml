@@ -1,4 +1,4 @@
-name: Refresh star counts
+name: Refresh catalogue
 
 # Star counts in data/agents.json drift as projects grow. This re-reads them
 # weekly from the GitHub API and commits the result directly.
@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r ai-agent-discovery/requirements.txt
 
-      - name: Refresh star counts
+      - name: Refresh catalogue
         env:
           # Raises the API limit from 60/hour to 5000/hour, which matters
           # because the catalogue has more agents than the anonymous budget.
@@ -61,3 +61,16 @@ jobs:
       # rather than leaving the catalogue and index quietly out of step.
       - name: Note that the index needs rebuilding
         run: echo "Run \`make seed\` to rebuild the index with the new counts." >> "$GITHUB_STEP_SUMMARY"
+
+      # Projects get renamed, archived and deleted. Reported rather than
+      # enforced: a redirect is worth knowing about but is not a failure, and
+      # a transient outage should not turn the weekly job red.
+      - name: Check catalogue links
+        run: |
+          python ai-agent-discovery/check_links.py > links.log 2>&1 || true
+          {
+            echo "### Catalogue links"
+            echo '```'
+            tail -30 links.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
