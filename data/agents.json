@@ -1208,5 +1208,104 @@
     "github_stars": 12850,
     "url": "https://github.com/livekit/agents",
     "use_case": "Voice agents over phone and web"
+  },
+  {
+    "name": "Pydantic AI",
+    "description": "An agent framework that uses Pydantic models for structured, validated tool arguments and outputs.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "Pydantic"
+    ],
+    "github_stars": 19181,
+    "url": "https://github.com/pydantic/pydantic-ai",
+    "use_case": "Type-safe agent development"
+  },
+  {
+    "name": "OpenAI Agents SDK",
+    "description": "A small framework for multi-agent workflows, with handoffs, guardrails and tracing built in.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "OpenAI API"
+    ],
+    "github_stars": 28516,
+    "url": "https://github.com/openai/openai-agents-python",
+    "use_case": "Multi-agent handoffs and tracing"
+  },
+  {
+    "name": "Agno",
+    "description": "A framework for building and running agent platforms, with memory, knowledge and tools included.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "Vector DB"
+    ],
+    "github_stars": 41638,
+    "url": "https://github.com/agno-agi/agno",
+    "use_case": "Full-stack agent platforms"
+  },
+  {
+    "name": "MCP Servers",
+    "description": "The reference collection of Model Context Protocol servers, giving agents access to external systems.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Python",
+      "MCP"
+    ],
+    "github_stars": 89384,
+    "url": "https://github.com/modelcontextprotocol/servers",
+    "use_case": "Connecting agents to tools and data"
+  },
+  {
+    "name": "Superagent",
+    "description": "A runtime that guards AI applications against prompt injection, data exfiltration and unsafe tool calls.",
+    "category": "Safety",
+    "tech_stack": [
+      "TypeScript",
+      "Python"
+    ],
+    "github_stars": 6708,
+    "url": "https://github.com/superagent-ai/superagent",
+    "use_case": "Runtime protection for agents"
+  },
+  {
+    "name": "Portkey Gateway",
+    "description": "A fast AI gateway with routing, retries, caching and guardrails across many model providers.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "TypeScript",
+      "Hono"
+    ],
+    "github_stars": 12676,
+    "url": "https://github.com/Portkey-AI/gateway",
+    "use_case": "Reliable multi-provider model access"
+  },
+  {
+    "name": "BentoML",
+    "description": "Packages models and AI applications into production services with batching and autoscaling.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "Docker",
+      "Kubernetes"
+    ],
+    "github_stars": 8774,
+    "url": "https://github.com/bentoml/BentoML",
+    "use_case": "Serving models as production APIs"
+  },
+  {
+    "name": "Ray",
+    "description": "A distributed compute engine for scaling Python and AI workloads across a cluster.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "C++",
+      "Kubernetes"
+    ],
+    "github_stars": 43481,
+    "url": "https://github.com/ray-project/ray",
+    "use_case": "Distributed training and inference"
   }
 ]
