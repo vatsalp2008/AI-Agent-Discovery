@@ -49,10 +49,19 @@ jobs:
       # would otherwise hide.
       - name: Check backend imports resolve
         working-directory: ai-agent-discovery/backend
-        run: python -c "import admin, api, config, embedding_cache, embeddings, generation, models, rate_limit, request_log, scoring, scraper, security, vectorstore"
+        run: python -c "import admin, api, config, embedding_cache, embeddings, generation, logging_setup, models, rate_limit, request_log, scoring, scraper, security, vectorstore"
 
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
+
+      # doctor must run without an index or a reachable Ollama; it is the
+      # thing people run *because* their setup is broken.
+      - name: Check doctor runs on a bare checkout
+        run: |
+          set -eo pipefail
+          OLLAMA_BASE_URL=http://localhost:59999 python ai-agent-discovery/doctor.py > doctor.log 2>&1 || true
+          grep -q "cannot reach" doctor.log
+          grep -q "ollama serve" doctor.log
 
   # Exercises the real embedding and chat models against a throwaway Ollama.
   # Kept separate from `test` so an Ollama outage cannot block ordinary CI, and
@@ -95,6 +104,11 @@ jobs:
 
       - name: Seed the index
         run: python ai-agent-discovery/seed.py
+
+      # Exits non-zero if anything required is missing, so a broken setup
+      # fails here with a clear message rather than as odd test failures.
+      - name: Check the setup with doctor
+        run: python ai-agent-discovery/doctor.py
 
       # The MCP server is a separate entry point, so a break in it would not
       # show up in the other suites. Drive it the way a client would.
