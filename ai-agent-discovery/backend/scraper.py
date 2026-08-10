@@ -133,7 +133,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Windsurf",
-        description="An agentic IDE from Codeium whose Cascade mode keeps context across a whole multi-file change.",
+        description="An agentic IDE whose Cascade mode keeps context across a whole multi-file change rather than one buffer at a time.",
         category="Code Generation",
         tech_stack=["Electron", "TypeScript"],
         github_stars=0,
@@ -864,7 +864,7 @@ SAMPLE_AGENTS = [
     # Frameworks (acting as base for agents but often valid searches)
     Agent(
         name="LangChain",
-        description="Building applications with LLMs through composability.",
+        description="A framework for composing LLM applications from chains, agents and tools, with integrations for most models and vector stores.",
         category="Framework",
         tech_stack=["Python", "TypeScript"],
         github_stars=85000,
@@ -951,7 +951,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Quivr",
-        description="Your Second Brain, empowered by Generative AI.",
+        description="A personal knowledge assistant that ingests your files and answers questions over them, backed by a vector store.",
         category="Research",
         tech_stack=["TypeScript", "Supabase", "React"],
         github_stars=32000,

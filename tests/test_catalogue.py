@@ -233,3 +233,32 @@ def test_every_css_class_used_in_js_exists(catalogue):
                     missing.setdefault(script.name, set()).add(cls)
 
     assert not missing, f"classes used in JS but absent from the stylesheet: {missing}"
+
+
+def test_descriptions_carry_enough_signal(catalogue):
+    """The description is what gets embedded, so a tagline is not enough.
+
+    "Your Second Brain, empowered by Generative AI" told the index nothing
+    about files, documents or search, so Quivr did not surface for its own
+    use case.
+    """
+    thin = [r["name"] for r in catalogue if len(r.get("description", "")) < 60]
+    assert not thin, f"descriptions too short to embed usefully: {thin}"
+
+
+def test_no_two_agents_share_a_description(catalogue):
+    """Identical text would make two agents indistinguishable to search."""
+    from collections import Counter
+
+    counts = Counter(r.get("description", "") for r in catalogue)
+    assert [d for d, n in counts.items() if n > 1] == []
+
+
+def test_every_agent_has_a_use_case(catalogue):
+    missing = [r["name"] for r in catalogue if not r.get("use_case", "").strip()]
+    assert not missing, f"missing use_case: {missing}"
+
+
+def test_every_agent_has_a_tech_stack(catalogue):
+    missing = [r["name"] for r in catalogue if not r.get("tech_stack")]
+    assert not missing, f"missing tech_stack: {missing}"
