@@ -852,6 +852,60 @@ SAMPLE_AGENTS = [
         use_case="Cross-vendor agent communication"
     ),
     Agent(
+        name="Isaac Lab",
+        description="NVIDIA's framework for robot learning in simulation, with GPU-accelerated physics and parallel environments.",
+        category="Robotics",
+        tech_stack=["Python", "Isaac Sim", "CUDA"],
+        github_stars=7870,
+        url="https://github.com/isaac-sim/IsaacLab",
+        use_case="Training robot policies in simulation"
+    ),
+    Agent(
+        name="MuJoCo",
+        description="A physics engine for contact-rich simulation, widely used to train and evaluate control policies.",
+        category="Robotics",
+        tech_stack=["C", "Python"],
+        github_stars=14507,
+        url="https://github.com/google-deepmind/mujoco",
+        use_case="Physics simulation for control research"
+    ),
+    Agent(
+        name="Gymnasium",
+        description="The standard API for reinforcement learning environments, and the successor to OpenAI Gym.",
+        category="Robotics",
+        tech_stack=["Python", "NumPy"],
+        github_stars=12307,
+        url="https://github.com/Farama-Foundation/Gymnasium",
+        use_case="Standard interface for RL environments"
+    ),
+    Agent(
+        name="Isaac GR00T",
+        description="NVIDIA's open foundation model for generalist humanoid robots, taking language and vision to actions.",
+        category="Robotics",
+        tech_stack=["Python", "PyTorch", "VLA"],
+        github_stars=7789,
+        url="https://github.com/NVIDIA/Isaac-GR00T",
+        use_case="Foundation model for humanoid control"
+    ),
+    Agent(
+        name="Habitat Lab",
+        description="Trains embodied agents to navigate and manipulate in photorealistic indoor simulations.",
+        category="Robotics",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=3095,
+        url="https://github.com/facebookresearch/habitat-lab",
+        use_case="Embodied navigation research"
+    ),
+    Agent(
+        name="Nav2",
+        description="The ROS 2 navigation stack: planning, control and recovery behaviours for mobile robots.",
+        category="Robotics",
+        tech_stack=["C++", "ROS 2"],
+        github_stars=4572,
+        url="https://github.com/ros-navigation/navigation2",
+        use_case="Autonomous navigation for mobile robots"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
