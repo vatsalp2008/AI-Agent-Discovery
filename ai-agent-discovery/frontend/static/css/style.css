@@ -1178,3 +1178,71 @@ a.filter-tag {
     color: var(--accent-color);
     font-weight: 600;
 }
+
+/* ---------------------------------------------------------------------------
+   Narrow screens.
+   The layout is fluid down to about 600px on its own; below that the fixed
+   min-widths (detail labels, admin and audit rows, the comparison table) are
+   what force horizontal scrolling, so they are the ones relaxed here.
+   --------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+    .container { padding: 1rem; }
+
+    header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+    nav a { margin-left: 0; }
+    .theme-toggle { margin-left: 0.5rem; }
+
+    .hero h1 { font-size: 1.9rem; }
+
+    /* Stack label above value instead of reserving a fixed label column. */
+    .detail-row { flex-direction: column; gap: 0.2rem; }
+    .detail-label { flex: none; }
+
+    /* Rows become blocks so long names wrap rather than overflow. */
+    .admin-row,
+    .audit-row {
+        flex-wrap: wrap;
+        gap: 0.4rem 0.75rem;
+    }
+
+    .admin-row-name,
+    .audit-when,
+    .audit-name { min-width: 0; }
+
+    .admin-row-category,
+    .audit-detail { margin-right: 0; margin-left: 0; }
+
+    .controls { flex-direction: column; align-items: stretch; }
+    .control-input { flex: 1 1 auto; }
+
+    /* A table cannot reflow; let it scroll on its own rather than the page. */
+    .compare-table { display: block; overflow-x: auto; white-space: nowrap; }
+    .compare-table td { white-space: normal; min-width: 12rem; }
+
+    .stats-grid { grid-template-columns: 1fr; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }
+
+    .results-bar { flex-wrap: wrap; }
+
+    .help-dialog {
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+    }
+}
+
+/* Phones. Below this the grid must be a single column or cards clip. */
+@media (max-width: 480px) {
+    .results-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.6rem; }
+    .search-input { font-size: 1rem; }
+    .filters { gap: 0.4rem; }
+    .filter-tag { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+}

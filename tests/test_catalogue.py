@@ -191,3 +191,45 @@ def test_every_make_target_referenced_in_docs_exists(catalogue):
         text = (config.REPO_ROOT / doc).read_text()
         for target in re.findall(r"`make ([a-z][a-z-]*)`", text):
             assert target in targets, f"{doc} references `make {target}`, which does not exist"
+
+
+def test_stylesheet_has_responsive_breakpoints(catalogue):
+    """The layout had none, so every fixed min-width forced a phone to scroll."""
+    import re
+
+    import config
+
+    css = (config.PACKAGE_DIR / "frontend" / "static" / "css" / "style.css").read_text()
+    widths = re.findall(r"@media\s*\(\s*max-width:\s*(\d+)px", css)
+    assert widths, "no max-width breakpoints"
+    assert any(int(w) <= 500 for w in widths), "nothing targets phone widths"
+
+
+def test_stylesheet_braces_are_balanced(catalogue):
+    """A stray brace silently disables everything after it."""
+    import config
+
+    css = (config.PACKAGE_DIR / "frontend" / "static" / "css" / "style.css").read_text()
+    assert css.count("{") == css.count("}")
+
+
+def test_every_css_class_used_in_js_exists(catalogue):
+    """A typo'd class name renders unstyled and is easy to miss."""
+    import re
+
+    import config
+
+    static = config.PACKAGE_DIR / "frontend" / "static"
+    css = (static / "css" / "style.css").read_text()
+    defined = set(re.findall(r"\.([a-z][a-z0-9-]+)", css))
+
+    missing = {}
+    for script in (static / "js").glob("*.js"):
+        source = script.read_text()
+        # className = 'x' and className = `x` forms used throughout.
+        for name in re.findall(r"className\s*=\s*['\"]([a-z][a-z0-9 -]*)['\"]", source):
+            for cls in name.split():
+                if cls not in defined:
+                    missing.setdefault(script.name, set()).add(cls)
+
+    assert not missing, f"classes used in JS but absent from the stylesheet: {missing}"
