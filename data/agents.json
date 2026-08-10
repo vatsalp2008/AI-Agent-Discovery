@@ -1307,5 +1307,104 @@
     "github_stars": 43481,
     "url": "https://github.com/ray-project/ray",
     "use_case": "Distributed training and inference"
+  },
+  {
+    "name": "Langflow",
+    "description": "A visual builder for LLM applications and agents, where flows are wired up on a canvas.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "React"
+    ],
+    "github_stars": 153024,
+    "url": "https://github.com/langflow-ai/langflow",
+    "use_case": "Building agent flows without writing code"
+  },
+  {
+    "name": "Marvin",
+    "description": "A library for folding AI into ordinary Python: typed functions, classifiers and extractors.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "Pydantic"
+    ],
+    "github_stars": 6188,
+    "url": "https://github.com/PrefectHQ/marvin",
+    "use_case": "AI as ordinary typed functions"
+  },
+  {
+    "name": "GraphRAG",
+    "description": "Builds a knowledge graph from documents so retrieval can answer questions spanning many sources.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "Graph",
+      "LLM"
+    ],
+    "github_stars": 35388,
+    "url": "https://github.com/microsoft/graphrag",
+    "use_case": "Question answering across whole corpora"
+  },
+  {
+    "name": "DSPy",
+    "description": "Programs language models with declarative modules and optimises the prompts for you.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "ML"
+    ],
+    "github_stars": 37030,
+    "url": "https://github.com/stanfordnlp/dspy",
+    "use_case": "Optimising prompts programmatically"
+  },
+  {
+    "name": "ScrapeGraphAI",
+    "description": "Scrapes websites by describing what you want rather than writing selectors.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "Playwright",
+      "Graph"
+    ],
+    "github_stars": 29320,
+    "url": "https://github.com/ScrapeGraphAI/Scrapegraph-ai",
+    "use_case": "Structured extraction from web pages"
+  },
+  {
+    "name": "Jina Reader",
+    "description": "Turns any URL into clean, LLM-friendly text, stripping navigation and boilerplate.",
+    "category": "Research",
+    "tech_stack": [
+      "TypeScript",
+      "Puppeteer"
+    ],
+    "github_stars": 11845,
+    "url": "https://github.com/jina-ai/reader",
+    "use_case": "Feeding web pages to a model"
+  },
+  {
+    "name": "MarkItDown",
+    "description": "Converts PDFs, Office documents, images and audio into Markdown for language models.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "OCR"
+    ],
+    "github_stars": 172891,
+    "url": "https://github.com/microsoft/markitdown",
+    "use_case": "Normalising documents before indexing"
+  },
+  {
+    "name": "Docling",
+    "description": "Parses documents with layout understanding, preserving tables and reading order for RAG.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "OCR"
+    ],
+    "github_stars": 64546,
+    "url": "https://github.com/docling-project/docling",
+    "use_case": "Layout-aware document parsing"
   }
 ]
