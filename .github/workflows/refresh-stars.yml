@@ -1,9 +1,13 @@
 name: Refresh star counts
 
-# Star counts in data/agents.json are hand-entered and drift as projects grow.
-# This re-reads them weekly and opens a pull request with the changes rather
-# than committing to main directly: the numbers feed the catalogue and the
-# dashboard, so they deserve a human glance before landing.
+# Star counts in data/agents.json drift as projects grow. This re-reads them
+# weekly from the GitHub API and commits the result directly.
+#
+# It opened a pull request originally, but creating one requires the repo
+# setting "Allow GitHub Actions to create and approve pull requests", which is
+# off by default — the job pushed its branch and then failed every week. There
+# is nothing to review here anyway: the numbers come from an authoritative API
+# and git history is the audit trail.
 on:
   schedule:
     # Mondays, 06:00 UTC. Off-peak, so the GitHub API is responsive.
@@ -12,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   refresh:
@@ -34,19 +37,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python ai-agent-discovery/refresh_stars.py
 
-      - name: Open a pull request if anything changed
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: Refresh GitHub star counts
-          title: Refresh GitHub star counts
-          body: |
-            Automated weekly refresh of `github_stars` in `data/agents.json`.
+      # Only data/agents.json is staged, so a stray file from the run cannot
+      # ride along. `git diff --quiet` keeps a no-change week from making an
+      # empty commit.
+      - name: Commit any changes
+        run: |
+          set -eo pipefail
+          if git diff --quiet -- data/agents.json; then
+            echo "Star counts are unchanged; nothing to commit."
+            exit 0
+          fi
 
-            Re-seed after merging so the index reflects the new numbers:
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/agents.json
+          git commit -m "Refresh GitHub star counts"
+          git push
 
-            ```bash
-            make seed
-            ```
-          branch: chore/refresh-stars
-          delete-branch: true
-          add-paths: data/agents.json
+          echo "### Star counts refreshed" >> "$GITHUB_STEP_SUMMARY"
+          git show --stat --oneline HEAD >> "$GITHUB_STEP_SUMMARY"
+
+      # The index still holds the old numbers until someone re-seeds; say so
+      # rather than leaving the catalogue and index quietly out of step.
+      - name: Note that the index needs rebuilding
+        run: echo "Run \`make seed\` to rebuild the index with the new counts." >> "$GITHUB_STEP_SUMMARY"
