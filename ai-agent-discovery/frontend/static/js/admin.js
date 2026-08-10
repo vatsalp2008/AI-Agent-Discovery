@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const disabled = document.getElementById('adminDisabled');
     const form = document.getElementById('agentForm');
     const list = document.getElementById('adminList');
+    const auditList = document.getElementById('auditList');
     const errorEl = document.getElementById('adminError');
     const statusEl = document.getElementById('adminStatus');
     const countEl = document.getElementById('adminCount');
@@ -102,6 +103,62 @@ document.addEventListener('DOMContentLoaded', () => {
         return item;
     }
 
+    function auditRow(entry) {
+        const row = document.createElement('div');
+        row.className = 'audit-row';
+
+        const when = document.createElement('span');
+        when.className = 'audit-when';
+        // The log stores UTC; show it in the reader's own timezone.
+        const parsed = new Date(entry.at);
+        when.textContent = Number.isNaN(parsed.getTime()) ? (entry.at || '') : parsed.toLocaleString();
+        row.appendChild(when);
+
+        const action = document.createElement('span');
+        action.className = `audit-action audit-${entry.action}`;
+        action.textContent = entry.action;
+        row.appendChild(action);
+
+        const name = document.createElement('span');
+        name.className = 'audit-name';
+        name.textContent = entry.name || '';
+        row.appendChild(name);
+
+        // What actually changed, so the line is useful without expanding it.
+        const detail = document.createElement('span');
+        detail.className = 'audit-detail';
+        if (entry.action === 'update' && entry.before && entry.after) {
+            const changed = Object.keys(entry.after).filter(
+                k => JSON.stringify(entry.after[k]) !== JSON.stringify(entry.before[k]));
+            detail.textContent = changed.length ? `changed ${changed.join(', ')}` : 'no field changed';
+        } else if (entry.action === 'delete' && entry.before) {
+            detail.textContent = entry.before.category || '';
+        }
+        row.appendChild(detail);
+
+        return row;
+    }
+
+    async function refreshAudit() {
+        if (!auditList) return;
+        try {
+            const response = await fetch('/api/admin/audit?limit=20');
+            if (!response.ok) return;
+
+            const entries = (await response.json()).entries || [];
+            if (entries.length === 0) {
+                const empty = document.createElement('p');
+                empty.className = 'result-message';
+                empty.textContent = 'No changes recorded yet.';
+                auditList.replaceChildren(empty);
+                return;
+            }
+            auditList.replaceChildren(...entries.map(auditRow));
+        } catch (error) {
+            console.error('Could not load the audit log:', error);
+        }
+    }
+
     /** Load the catalogue straight from disk, so unindexed edits still show. */
     async function refresh() {
         try {
@@ -126,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...seen.map(c => Object.assign(document.createElement('option'), { value: c })));
 
             list.replaceChildren(...agents.map(row));
+            await refreshAudit();
         } catch (error) {
             console.error(error);
             say('Could not load the catalogue.', true);

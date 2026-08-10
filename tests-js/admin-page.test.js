@@ -187,3 +187,59 @@ describe('reindexing', () => {
         expect(document.getElementById('adminError').textContent).toContain('broken catalogue');
     });
 });
+
+describe('the audit trail', () => {
+    function withAudit(entries, overrides = {}) {
+        return routes({ '/api/admin/audit': { body: { entries } }, ...overrides });
+    }
+
+    it('lists recent changes', async () => {
+        await boot(withAudit([
+            { at: '2026-08-09T10:00:00+00:00', action: 'create', name: 'Aider', after: {} },
+            { at: '2026-08-09T09:00:00+00:00', action: 'delete', name: 'Old', before: { category: 'Automation' } },
+        ]));
+        await flush();
+
+        const rows = [...document.querySelectorAll('.audit-row')];
+        expect(rows).toHaveLength(2);
+        expect(rows[0].textContent).toContain('create');
+        expect(rows[0].textContent).toContain('Aider');
+    });
+
+    it('names the fields an update changed', async () => {
+        await boot(withAudit([{
+            at: '2026-08-09T10:00:00+00:00', action: 'update', name: 'Aider',
+            before: { description: 'Old', github_stars: 1 },
+            after: { description: 'New', github_stars: 1 },
+        }]));
+        await flush();
+        expect(document.querySelector('.audit-detail').textContent).toBe('changed description');
+    });
+
+    it('handles an update that changed nothing', async () => {
+        await boot(withAudit([{
+            at: '2026-08-09T10:00:00+00:00', action: 'update', name: 'Aider',
+            before: { description: 'Same' }, after: { description: 'Same' },
+        }]));
+        await flush();
+        expect(document.querySelector('.audit-detail').textContent).toBe('no field changed');
+    });
+
+    it('says so when nothing has been changed yet', async () => {
+        await boot(withAudit([]));
+        await flush();
+        expect(document.getElementById('auditList').textContent).toContain('No changes recorded');
+    });
+
+    it('tolerates an unparseable timestamp', async () => {
+        await boot(withAudit([{ at: 'not a date', action: 'create', name: 'X' }]));
+        await flush();
+        expect(document.querySelector('.audit-when').textContent).toBe('not a date');
+    });
+
+    it('does not break the page when the audit endpoint fails', async () => {
+        await boot(routes({ '/api/admin/audit': { ok: false, status: 500, body: {} } }));
+        await flush();
+        expect(document.querySelectorAll('.admin-row').length).toBeGreaterThan(0);
+    });
+});

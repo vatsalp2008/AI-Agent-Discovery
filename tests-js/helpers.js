@@ -216,5 +216,6 @@ export const ADMIN_HTML = `
         <button type="button" id="cancelBtn" hidden>Cancel</button>
       </form>
       <div id="adminList"></div>
+      <div id="auditList"></div>
     </div>
 `;

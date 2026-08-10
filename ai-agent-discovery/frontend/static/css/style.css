@@ -1051,3 +1051,34 @@ nav a:focus-visible,
     font-size: 0.85rem;
     margin-right: auto;
 }
+
+/* Catalogue audit trail */
+.audit-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+}
+
+.audit-when {
+    color: var(--text-secondary);
+    min-width: 12rem;
+}
+
+.audit-action {
+    font-weight: 600;
+    min-width: 4.5rem;
+}
+
+.audit-create { color: #22c55e; }
+.audit-update { color: #f59e0b; }
+.audit-delete { color: #ef4444; }
+
+.audit-name { min-width: 10rem; }
+
+.audit-detail {
+    color: var(--text-secondary);
+    margin-left: auto;
+}
