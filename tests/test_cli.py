@@ -1,4 +1,5 @@
 import importlib.util
+import json
 
 import pytest
 from conftest import BACKEND
@@ -225,3 +226,87 @@ def test_listing_with_no_matches_exits_nonzero(cli, capsys, monkeypatch):
     monkeypatch.setattr(cli, "_build_store", lambda: FakeStore())
     assert cli.main(["--list", "--category", "Nonexistent"]) == 1
     assert "No matching agents" in capsys.readouterr().err
+
+
+class TestAddFromFile:
+    """Catalogue edits from the terminal reuse backend.admin, so the CLI and
+    the web editor cannot disagree about what a valid agent is."""
+
+    @pytest.fixture
+    def catalogue(self, tmp_path, monkeypatch):
+        import config
+
+        path = tmp_path / "agents.json"
+        path.write_text(json.dumps([{
+            "name": "Existing", "description": "Already here.", "category": "Automation",
+            "tech_stack": [], "github_stars": 0, "url": "", "use_case": "",
+        }]))
+        monkeypatch.setattr(config, "AGENTS_JSON", path)
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+        monkeypatch.setattr(config, "AUDIT_LOG_PATH", tmp_path / "audit.jsonl")
+        return path
+
+    def draft(self, tmp_path, payload):
+        path = tmp_path / "draft.json"
+        path.write_text(json.dumps(payload))
+        return str(path)
+
+    def valid(self, **overrides):
+        record = {"name": "Added", "description": "A new one.", "category": "Automation",
+                  "tech_stack": ["Python"], "github_stars": 5, "url": "https://example.com",
+                  "use_case": "testing"}
+        record.update(overrides)
+        return record
+
+    def test_adds_a_single_object(self, cli, catalogue, tmp_path):
+        assert cli.main(["--add", self.draft(tmp_path, self.valid())]) == 0
+        assert "Added" in [r["name"] for r in json.loads(catalogue.read_text())]
+
+    def test_adds_an_array(self, cli, catalogue, tmp_path):
+        drafts = [self.valid(name="One"), self.valid(name="Two")]
+        assert cli.main(["--add", self.draft(tmp_path, drafts)]) == 0
+        names = [r["name"] for r in json.loads(catalogue.read_text())]
+        assert {"One", "Two"} <= set(names)
+
+    def test_dry_run_changes_nothing(self, cli, catalogue, tmp_path):
+        before = catalogue.read_text()
+        assert cli.main(["--add", self.draft(tmp_path, self.valid()), "--dry-run"]) == 0
+        assert catalogue.read_text() == before
+
+    def test_rejects_an_invalid_record_but_keeps_the_rest(self, cli, catalogue, tmp_path, capsys):
+        drafts = [self.valid(name="Good"), self.valid(name="  ")]
+        assert cli.main(["--add", self.draft(tmp_path, drafts)]) == 0
+
+        assert "'name' is required" in capsys.readouterr().err
+        assert "Good" in [r["name"] for r in json.loads(catalogue.read_text())]
+
+    def test_rejects_a_duplicate_of_the_existing_catalogue(self, cli, catalogue, tmp_path, capsys):
+        assert cli.main(["--add", self.draft(tmp_path, self.valid(name="existing"))]) == 1
+        assert "already exists" in capsys.readouterr().err
+
+    def test_rejects_a_duplicate_within_the_same_file(self, cli, catalogue, tmp_path, capsys):
+        drafts = [self.valid(name="Twin"), self.valid(name="twin")]
+        assert cli.main(["--add", self.draft(tmp_path, drafts)]) == 0
+        names = [r["name"] for r in json.loads(catalogue.read_text())]
+        assert names.count("Twin") == 1
+
+    def test_reports_malformed_json(self, cli, catalogue, tmp_path, capsys):
+        path = tmp_path / "bad.json"
+        path.write_text("{ not json")
+        assert cli.main(["--add", str(path)]) == 1
+        assert "error:" in capsys.readouterr().err
+
+    def test_reports_a_missing_file(self, cli, catalogue, tmp_path, capsys):
+        assert cli.main(["--add", str(tmp_path / "absent.json")]) == 1
+        assert "error:" in capsys.readouterr().err
+
+    def test_rejects_a_top_level_string(self, cli, catalogue, tmp_path, capsys):
+        path = tmp_path / "odd.json"
+        path.write_text('"just a string"')
+        assert cli.main(["--add", str(path)]) == 1
+
+    def test_the_addition_is_audited(self, cli, catalogue, tmp_path):
+        import admin
+
+        cli.main(["--add", self.draft(tmp_path, self.valid())])
+        assert [e["name"] for e in admin.read_audit()] == ["Added"]

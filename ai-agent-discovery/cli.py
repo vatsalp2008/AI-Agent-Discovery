@@ -44,6 +44,10 @@ def build_parser():
                         help="show index statistics and exit")
     parser.add_argument("--tech-list", action="store_true", dest="tech_list",
                         help="list technologies across the catalogue and exit")
+    parser.add_argument("--add", metavar="FILE", dest="add_file",
+                        help="add agents from a JSON file (an object or an array)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="with --add, report what would change without writing")
     parser.add_argument("--summarize", action="store_true",
                         help="add an AI overview of the results")
     parser.add_argument("--json", action="store_true", dest="as_json",
@@ -118,6 +122,66 @@ def filter_agents(agents, category=None, tech=None):
     return agents
 
 
+def load_drafts(path):
+    """Read one agent or a list of them from a JSON file."""
+    with open(path) as f:
+        payload = json.load(f)
+    if isinstance(payload, dict):
+        return [payload]
+    if isinstance(payload, list):
+        return payload
+    raise ValueError("Expected a JSON object or array of agents")
+
+
+def add_agents_from_file(path, dry_run=False):
+    """Validate and append drafts to the catalogue.
+
+    Reuses backend.admin so the terminal and the web editor cannot diverge on
+    what counts as a valid agent — the validation, the uniqueness rule and the
+    audit log are all the same code.
+    """
+    import admin
+
+    try:
+        drafts = load_drafts(path)
+    except (OSError, json.JSONDecodeError, ValueError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+
+    records = admin.load_catalogue()
+    accepted, rejected = [], []
+
+    for index, draft in enumerate(drafts):
+        try:
+            cleaned = admin.validate(draft, records + accepted)
+            accepted.append(cleaned)
+        except admin.AdminError as e:
+            rejected.append((index, draft.get("name") if isinstance(draft, dict) else None, str(e)))
+
+    for index, name, reason in rejected:
+        label = f"entry {index}" + (f" ({name!r})" if name else "")
+        print(f"  rejected {label}: {reason}", file=sys.stderr)
+
+    if not accepted:
+        print("Nothing to add.", file=sys.stderr)
+        return 1
+
+    for cleaned in accepted:
+        print(f"  {'would add' if dry_run else 'added'} {cleaned['name']}")
+
+    if dry_run:
+        print(f"\n{len(accepted)} agent(s) would be added, {len(rejected)} rejected.")
+        return 0
+
+    admin.save_catalogue(records + accepted)
+    for cleaned in accepted:
+        admin._append_audit("create", cleaned["name"], after=cleaned)
+
+    print(f"\n{len(accepted)} agent(s) added, {len(rejected)} rejected. "
+          "Run seed.py to rebuild the index.")
+    return 0
+
+
 def _build_store():
     """Construct the vector store. Separated so tests can substitute a fake."""
     from vectorstore import VectorStore
@@ -128,6 +192,11 @@ def _build_store():
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # Catalogue edits do not need the index, so handle them before building it.
+    if args.add_file:
+        configure("DEBUG" if args.verbose else "WARNING")
+        return add_agents_from_file(args.add_file, dry_run=args.dry_run)
 
     if not (args.query or args.list_agents or args.stats or args.tech_list):
         parser.print_help()
