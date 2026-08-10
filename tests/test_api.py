@@ -85,7 +85,9 @@ def test_agents_endpoint_paginates(client):
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
         "total": 3, "count": 2, "limit": 2, "offset": 0,
-        "category": None, "tech": None, "q": None, "sort": "name", "order": "asc", "has_more": True,
+        "category": None, "tech": None, "q": None,
+        "min_stars": None, "max_stars": None,
+        "sort": "name", "order": "asc", "has_more": True,
     }
 
     second = client.get("/api/agents?limit=2&offset=2").get_json()
@@ -586,3 +588,41 @@ class TestOpenApi:
     def test_the_spec_itself_is_listed(self, client):
         spec = client.get("/api/openapi.json").get_json()
         assert "/api/openapi.json" in spec["paths"]
+
+
+class TestStarsFilter:
+    def test_min_stars_excludes_smaller_projects(self, client):
+        """Cursor 35000, GPT Researcher 14000, Aider 12000."""
+        body = client.get("/api/agents?min_stars=13000").get_json()
+        assert sorted(a["name"] for a in body["agents"]) == ["Cursor", "GPT Researcher"]
+        assert body["metadata"]["min_stars"] == 13000
+
+    def test_max_stars_excludes_larger_projects(self, client):
+        body = client.get("/api/agents?max_stars=13000").get_json()
+        assert [a["name"] for a in body["agents"]] == ["Aider"]
+
+    def test_a_range_selects_between(self, client):
+        body = client.get("/api/agents?min_stars=13000&max_stars=20000").get_json()
+        assert [a["name"] for a in body["agents"]] == ["GPT Researcher"]
+
+    def test_bounds_are_inclusive(self, client):
+        assert client.get("/api/agents?min_stars=35000").get_json()["metadata"]["total"] == 1
+        assert client.get("/api/agents?max_stars=12000").get_json()["metadata"]["total"] == 1
+
+    def test_an_inverted_range_is_rejected(self, client):
+        response = client.get("/api/agents?min_stars=100&max_stars=10")
+        assert response.status_code == 400
+        assert "cannot exceed" in response.get_json()["error"]
+
+    def test_negative_bounds_are_rejected(self, client):
+        assert client.get("/api/agents?min_stars=-1").status_code == 400
+
+    def test_combines_with_the_other_filters(self, client):
+        body = client.get("/api/agents?min_stars=1&category=Code Generation").get_json()
+        for agent in body["agents"]:
+            assert agent["metadata"]["category"] == "Code Generation"
+
+    def test_absent_by_default(self, client):
+        metadata = client.get("/api/agents").get_json()["metadata"]
+        assert metadata["min_stars"] is None
+        assert metadata["max_stars"] is None

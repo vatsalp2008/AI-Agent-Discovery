@@ -218,8 +218,13 @@ def get_agents():
         limit = _parse_int_arg('limit', config.AGENTS_PAGE_SIZE, 1, config.AGENTS_MAX_PAGE_SIZE)
         offset = _parse_int_arg('offset', 0, 0)
         sort_key, order = _parse_sort()
+        min_stars = _parse_int_arg('min_stars', None, 0)
+        max_stars = _parse_int_arg('max_stars', None, 0)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
+
+    if min_stars is not None and max_stars is not None and min_stars > max_stars:
+        return jsonify({"error": "'min_stars' cannot exceed 'max_stars'"}), 400
 
     category = (request.args.get('category') or '').strip() or None
     tech = (request.args.get('tech') or '').strip() or None
@@ -246,6 +251,11 @@ def get_agents():
             if wanted in {t.strip().casefold() for t in str(a["metadata"].get("stack") or "").split(",")}
         ]
 
+    if min_stars is not None:
+        agents = [a for a in agents if int(a["metadata"].get("stars") or 0) >= min_stars]
+    if max_stars is not None:
+        agents = [a for a in agents if int(a["metadata"].get("stars") or 0) <= max_stars]
+
     agents.sort(key=AGENT_SORTS[sort_key][0], reverse=(order == "desc"))
     page = agents[offset:offset + limit]
 
@@ -259,6 +269,8 @@ def get_agents():
             "category": category,
             "tech": tech,
             "q": keyword,
+            "min_stars": min_stars,
+            "max_stars": max_stars,
             "sort": sort_key,
             "order": order,
             "has_more": offset + len(page) < len(agents),
