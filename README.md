@@ -15,7 +15,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
-- 📊 **Rich Agent Database** - Curated collection of 82 AI agents, frameworks and developer tools
+- 📊 **Rich Agent Database** - Curated collection of 106 AI agents, frameworks and developer tools
 
 ## 🚀 Features
 
@@ -173,6 +173,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/agent/<name>` | One agent in detail, plus similar agents |
 | `/compare?names=A,B` | Agents side by side |
 | `/collections` | Saved shortlists, kept in your browser |
+| `/category/<name>` | Everything in one category, most starred first |
 | `/admin` | Catalogue editor (needs `ENABLE_ADMIN=true`) |
 
 ### Web Interface
@@ -299,6 +300,7 @@ GET /api/agents?limit=20&offset=0
 GET /api/agents?category=Code%20Generation      # case-insensitive
 GET /api/agents?tech=Python                     # matches whole stack entries
 GET /api/agents?q=cursor                        # substring of name or description
+GET /api/agents?min_stars=10000&max_stars=50000 # by popularity
 GET /api/agents?sort=stars                      # name | stars | category
 GET /api/agents?sort=name&order=desc            # asc | desc
 ```
@@ -307,8 +309,9 @@ GET /api/agents?sort=name&order=desc            # asc | desc
 {
   "agents": [ { "name": "Aider", "description": "...", "metadata": { } } ],
   "metadata": {
-    "total": 82, "count": 20, "limit": 20, "offset": 0,
-    "category": null, "tech": null, "q": null, "sort": "name", "order": "asc",
+    "total": 106, "count": 20, "limit": 20, "offset": 0,
+    "category": null, "tech": null, "q": null,
+    "min_stars": null, "max_stars": null, "sort": "name", "order": "asc",
     "has_more": true
   }
 }
@@ -379,7 +382,7 @@ must be scalars); this endpoint splits it back into individual technologies.
 
 ```bash
 GET /api/stats
-# {"count": 82, "categories": 10, "top_category": {"name": "Code Generation", "count": 9},
+# {"count": 106, "categories": 12, "top_category": {"name": "Code Generation", "count": 9},
 #  "total_stars": 653000, "average_stars": 17648, "embedding_model": "nomic-embed-text",
 #  "built_at": "2026-08-06T20:48:31+00:00"}
 ```
@@ -404,10 +407,28 @@ POST   /api/admin/agents           # add    (409 on a duplicate name)
 PUT    /api/admin/agents/<name>    # edit   (404 if unknown)
 DELETE /api/admin/agents/<name>    # remove
 POST   /api/admin/reindex          # rebuild the index from the catalogue
+POST   /api/admin/undo             # reverse the most recent change
+GET    /api/admin/audit            # recent changes, newest first
 GET    /api/admin/status           # whether editing is on, and if the index is behind
 ```
 
+Every change is appended to an audit log (`data/catalogue_audit.jsonl`) with
+the record as it was before, which is what makes undo possible — edits
+overwrite `agents.json` in place, so without it a mistake would be
+unrecoverable. The editor shows the recent trail and offers **Undo last
+change**.
+
 Writes are atomic, so an interrupted request cannot truncate `agents.json`.
+
+#### Machine-readable spec
+
+```bash
+GET /api/openapi.json
+```
+
+Generated from the live URL map rather than hand-written, so it cannot drift
+from the routes that actually exist; summaries come from the handler
+docstrings.
 
 #### Response headers
 
@@ -500,11 +521,13 @@ AI-Agent-Discovery/
 │   │   ├── static/js/export-results.js  # CSV and JSON export
 │   │   ├── static/js/collections.js     # Saved shortlists
 │   │   ├── static/js/admin.js           # Catalogue editor
+│   │   ├── static/js/category.js        # Category browse page
 │   │   └── templates/          # base, index, dashboard, agent, compare
 │   ├── .env.example            # Configuration template
 │   ├── cli.py                  # Terminal search tool
 │   ├── mcp_server.py           # MCP server for other agents
 │   ├── benchmark.py            # Hot-path measurements
+│   ├── doctor.py               # Setup diagnostics
 │   ├── refresh_stars.py        # Star count refresh
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
@@ -578,6 +601,27 @@ chat model is never contacted and `llama3.2` is not needed at all.
 
 Re-running `seed.py` **rebuilds** the index rather than appending, so repeated
 runs are idempotent. Pass `--append` to add to an existing index instead.
+
+## 🩺 Diagnosing setup problems
+
+```bash
+make doctor
+```
+
+Setup failures otherwise surface as confusing symptoms: an unreachable Ollama
+looks like "no results", a missing model looks like a hang, and an index built
+by a different embedding model looks like nonsense rankings. `doctor` checks
+each of those and says what to do:
+
+```
+  [ok  ] ollama             reachable at http://localhost:11434
+  [ok  ] embedding model    nomic-embed-text is installed
+  [FAIL] index              built with 'llama3.2', but 'nomic-embed-text' is configured
+         -> Run seed.py to rebuild it; vectors from one model are unusable by another.
+```
+
+It exits non-zero when something required is missing, so it can gate a script,
+and `--json` emits the same results as data.
 
 ## ⚡ Performance
 
