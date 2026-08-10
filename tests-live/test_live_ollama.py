@@ -321,3 +321,45 @@ def test_misspelled_names_still_find_the_agent(live_store, typo, expected):
     """
     top = [r["name"] for r in live_store.search(typo, limit=3)]
     assert expected in top, f"{typo!r} returned {top}"
+
+
+@needs_embeddings
+def test_the_catalogue_and_index_agree(live_store):
+    """A mismatch means somebody edited agents.json without re-seeding.
+
+    Cheap to check and easy to get wrong: search keeps working either way, it
+    just quietly returns the previous contents.
+    """
+    import json
+
+    import config
+
+    with open(config.AGENTS_JSON) as f:
+        catalogue = json.load(f)
+
+    indexed = {a["name"] for a in live_store.get_all_agents()}
+    on_disk = {r["name"] for r in catalogue}
+
+    assert indexed == on_disk, (
+        f"only in the index: {sorted(indexed - on_disk)}; "
+        f"only in the catalogue: {sorted(on_disk - indexed)}. Run seed.py."
+    )
+
+
+@needs_embeddings
+def test_every_category_is_reachable_by_search(live_store):
+    """Each category should surface for a query naming it.
+
+    A category nothing can find is dead weight in the taxonomy.
+    """
+    categories = live_store.get_categories()
+    assert categories
+
+    unreachable = []
+    for entry in categories:
+        name = entry["name"]
+        found = {r["metadata"].get("category") for r in live_store.search(name, limit=5)}
+        if name not in found:
+            unreachable.append(name)
+
+    assert not unreachable, f"no agent surfaced for these categories: {unreachable}"
