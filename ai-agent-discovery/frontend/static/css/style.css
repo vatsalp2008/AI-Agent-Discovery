@@ -1246,3 +1246,34 @@ a.filter-tag {
     .filters { gap: 0.4rem; }
     .filter-tag { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
 }
+
+/* Shown when the index is missing or out of date */
+.setup-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 0.75rem;
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 10px;
+    padding: 0.9rem 1.15rem;
+    margin-bottom: 1.5rem;
+}
+
+.setup-banner strong { color: var(--text-primary); }
+
+.setup-banner-detail {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.setup-banner-command {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 0.15rem 0.5rem;
+    margin-left: auto;
+}
