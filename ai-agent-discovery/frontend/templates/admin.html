@@ -66,7 +66,15 @@
         </div>
     </form>
 
-    <h2 class="section-heading">Agents</h2>
+    <h2 class="section-heading" id="agentsHeading">Agents</h2>
+
+    <div class="controls" role="group" aria-labelledby="agentsHeading">
+        <label class="sr-only" for="adminFilter">Filter agents</label>
+        <input type="search" id="adminFilter" class="control-input"
+               placeholder="Filter by name or category…" autocomplete="off">
+        <span id="adminFilterCount" class="admin-count"></span>
+    </div>
+
     <div id="adminList"></div>
 
     <h2 class="section-heading">Recent changes</h2>

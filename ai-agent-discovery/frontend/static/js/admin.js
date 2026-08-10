@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('agentForm');
     const list = document.getElementById('adminList');
     const auditList = document.getElementById('auditList');
+    const rowFilter = document.getElementById('adminFilter');
+    const rowCount = document.getElementById('adminFilterCount');
     const errorEl = document.getElementById('adminError');
     const statusEl = document.getElementById('adminStatus');
     const countEl = document.getElementById('adminCount');
@@ -12,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelBtn');
     const editingName = document.getElementById('editingName');
+
+    // Filter for the row list. The catalogue is served whole (it is a local
+    // file), so filtering happens here rather than as another request.
+    let allRecords = [];
 
     const fields = {
         name: document.getElementById('fieldName'),
@@ -180,11 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const agents = (body.agents || []).slice().sort(
                 (a, b) => String(a.name || '').localeCompare(String(b.name || '')));
 
+            allRecords = agents;
+
             const seen = [...new Set(agents.map(a => a.category).filter(Boolean))].sort();
             document.getElementById('categoryOptions').replaceChildren(
                 ...seen.map(c => Object.assign(document.createElement('option'), { value: c })));
 
-            list.replaceChildren(...agents.map(row));
+            renderRows();
             await refreshAudit();
         } catch (error) {
             console.error(error);
@@ -198,6 +206,31 @@ document.addEventListener('DOMContentLoaded', () => {
      * and deciding that from the response shape would break if the API's
      * body ever changed.
      */
+    /** Draw the rows matching the current filter. */
+    function renderRows() {
+        const needle = (rowFilter && rowFilter.value.trim().toLowerCase()) || '';
+        const matching = needle
+            ? allRecords.filter(a =>
+                String(a.name || '').toLowerCase().includes(needle)
+                || String(a.category || '').toLowerCase().includes(needle))
+            : allRecords;
+
+        if (matching.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'result-message';
+            empty.textContent = needle ? 'No agents match that filter.' : 'The catalogue is empty.';
+            list.replaceChildren(empty);
+        } else {
+            list.replaceChildren(...matching.map(row));
+        }
+
+        if (rowCount) {
+            rowCount.textContent = needle
+                ? `${matching.length} of ${allRecords.length} shown`
+                : '';
+        }
+    }
+
     async function send(url, method, body, { keepForm = false } = {}) {
         try {
             const response = await fetch(url, {
@@ -235,6 +268,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     cancelBtn.addEventListener('click', resetForm);
+
+    if (rowFilter) {
+        rowFilter.addEventListener('input', renderRows);
+    }
 
     const undoBtn = document.getElementById('undoBtn');
     if (undoBtn) {

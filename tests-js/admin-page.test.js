@@ -344,3 +344,55 @@ describe('deleting while editing', () => {
         expect(document.getElementById('editingName').value).toBe('');
     });
 });
+
+describe('filtering the agent list', () => {
+    it('narrows the rows by name', async () => {
+        await boot();
+        const filter = document.getElementById('adminFilter');
+        filter.value = 'aid';
+        filter.dispatchEvent(new window.Event('input'));
+
+        const names = [...document.querySelectorAll('.admin-row-name')].map(n => n.textContent);
+        expect(names).toEqual(['Aider']);
+    });
+
+    it('matches on category too', async () => {
+        await boot();
+        const filter = document.getElementById('adminFilter');
+        filter.value = 'automation';
+        filter.dispatchEvent(new window.Event('input'));
+        expect(document.querySelectorAll('.admin-row')).toHaveLength(2);
+    });
+
+    it('reports how many are shown', async () => {
+        await boot();
+        const filter = document.getElementById('adminFilter');
+        filter.value = 'aid';
+        filter.dispatchEvent(new window.Event('input'));
+        expect(document.getElementById('adminFilterCount').textContent).toBe('1 of 2 shown');
+    });
+
+    it('says so when nothing matches', async () => {
+        await boot();
+        const filter = document.getElementById('adminFilter');
+        filter.value = 'zzzz';
+        filter.dispatchEvent(new window.Event('input'));
+        expect(document.getElementById('adminList').textContent).toContain('No agents match');
+    });
+
+    it('restores every row when cleared', async () => {
+        await boot();
+        const filter = document.getElementById('adminFilter');
+        filter.value = 'aid';
+        filter.dispatchEvent(new window.Event('input'));
+        filter.value = '';
+        filter.dispatchEvent(new window.Event('input'));
+        expect(document.querySelectorAll('.admin-row')).toHaveLength(2);
+        expect(document.getElementById('adminFilterCount').textContent).toBe('');
+    });
+
+    it('reports an empty catalogue', async () => {
+        await boot(routes({ '/api/admin/agents': { body: { agents: [], total: 0 } } }));
+        expect(document.getElementById('adminList').textContent).toContain('catalogue is empty');
+    });
+});

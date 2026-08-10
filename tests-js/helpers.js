@@ -217,6 +217,9 @@ export const ADMIN_HTML = `
         <button type="submit" id="saveBtn">Add agent</button>
         <button type="button" id="cancelBtn" hidden>Cancel</button>
       </form>
+      <label class="sr-only" for="adminFilter">Filter agents</label>
+      <input type="search" id="adminFilter">
+      <span id="adminFilterCount"></span>
       <div id="adminList"></div>
       <div id="auditList"></div>
     </div>
