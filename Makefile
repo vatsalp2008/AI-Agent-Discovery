@@ -60,6 +60,9 @@ docker-down:  ## Stop the compose stack
 mcp: ## run the MCP server over stdio
 	$(PYTHON) ai-agent-discovery/mcp_server.py
 
+check-links: ## verify every catalogue URL still resolves
+	$(PYTHON) ai-agent-discovery/check_links.py
+
 doctor: ## check Ollama, models, catalogue and index are in place
 	$(PYTHON) ai-agent-discovery/doctor.py
 
