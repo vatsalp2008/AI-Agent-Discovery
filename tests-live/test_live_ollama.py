@@ -263,6 +263,12 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("generate images locally", {"Stable Diffusion WebUI", "ComfyUI"}),
     ("build a realtime voice agent", {"Pipecat", "LiveKit Agents", "Vocode"}),
     ("serve a model as a production API", {"BentoML", "Ray", "vLLM", "Portkey Gateway"}),
+    # Categories added as the catalogue grew past 106.
+    ("run a model on apple silicon", {"MLX", "MLC LLM", "llama.cpp"}),
+    ("train a robot policy", {"LeRobot"}),
+    ("answer questions about scientific papers", {"PaperQA", "Nougat", "GraphRAG"}),
+    ("convert a PDF into text for my model", {"MarkItDown", "Docling", "Unstructured", "Nougat"}),
+    ("build an agent flow without writing code", {"Langflow", "Flowise", "n8n", "Dify"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
