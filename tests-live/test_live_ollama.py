@@ -269,6 +269,8 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("answer questions about scientific papers", {"PaperQA", "Nougat", "GraphRAG"}),
     ("convert a PDF into text for my model", {"MarkItDown", "Docling", "Unstructured", "Nougat"}),
     ("build an agent flow without writing code", {"Langflow", "Flowise", "n8n", "Dify"}),
+    ("simulate robot physics for training", {"MuJoCo", "Isaac Lab", "Habitat Lab"}),
+    ("standard interface for reinforcement learning environments", {"Gymnasium"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.

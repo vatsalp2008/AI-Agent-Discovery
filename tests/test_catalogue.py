@@ -262,3 +262,17 @@ def test_every_agent_has_a_use_case(catalogue):
 def test_every_agent_has_a_tech_stack(catalogue):
     missing = [r["name"] for r in catalogue if not r.get("tech_stack")]
     assert not missing, f"missing tech_stack: {missing}"
+
+
+def test_no_category_holds_a_single_agent(catalogue):
+    """A category of one is usually a mis-file or an unfinished addition.
+
+    "Task Automation" held only BabyAGI and belonged in "Autonomous Agent";
+    "Robotics" held only LeRobot until the category was filled out. Either
+    fold it into a neighbour or add its siblings.
+    """
+    from collections import Counter
+
+    counts = Counter(r["category"] for r in catalogue)
+    singletons = [name for name, count in counts.items() if count == 1]
+    assert not singletons, f"categories with one agent: {singletons}"
