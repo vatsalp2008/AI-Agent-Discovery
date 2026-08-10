@@ -126,4 +126,29 @@ describe('changing the selection', () => {
         const options = [...document.querySelectorAll('#comparePick option')].map(o => o.value);
         expect(options).toEqual(['', 'Aider', 'Cursor']);
     });
+
+    it('groups the picker by category', async () => {
+        await boot('/compare?names=Aider', routes({
+            '/api/agents?': { body: {
+                agents: [
+                    agent('Aider', { category: 'Code Generation' }),
+                    agent('Ragas', { category: 'Evaluation' }),
+                    agent('Cursor', { category: 'Code Generation' }),
+                ],
+                metadata: {},
+            } },
+        }));
+
+        const groups = [...document.querySelectorAll('#comparePick optgroup')];
+        expect(groups.map(g => g.label)).toEqual(['Code Generation (2)', 'Evaluation (1)']);
+        expect([...groups[0].querySelectorAll('option')].map(o => o.value)).toEqual(['Aider', 'Cursor']);
+    });
+
+    it('files an agent with no category under Uncategorized', async () => {
+        await boot('/compare?names=Aider', routes({
+            '/api/agents?': { body: { agents: [{ name: 'Bare', metadata: {} }], metadata: {} } },
+        }));
+        expect([...document.querySelectorAll('#comparePick optgroup')].map(g => g.label))
+            .toEqual(['Uncategorized (1)']);
+    });
 });

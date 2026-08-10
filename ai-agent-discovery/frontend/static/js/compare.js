@@ -126,18 +126,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Fill the picker, grouped by category.
+     *
+     * A flat list of a hundred-plus names is hard to scan; <optgroup> gives
+     * the browser's own type-ahead something to work with and keeps related
+     * agents together.
+     */
     async function fillPicker() {
         if (!picker) return;
         try {
-            const response = await fetch('/api/agents?limit=200&sort=name');
+            const response = await fetch('/api/agents?limit=200&sort=category');
             if (!response.ok) return;
+
             const body = await response.json();
-            (body.agents || []).forEach(agent => {
-                const option = document.createElement('option');
-                option.value = agent.name;
-                option.textContent = agent.name;
-                picker.appendChild(option);
+            const agents = body.agents || [];
+
+            const byCategory = new Map();
+            agents.forEach(agent => {
+                const category = (agent.metadata || {}).category || 'Uncategorized';
+                if (!byCategory.has(category)) byCategory.set(category, []);
+                byCategory.get(category).push(agent.name);
             });
+
+            [...byCategory.entries()]
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .forEach(([category, names]) => {
+                    const group = document.createElement('optgroup');
+                    group.label = `${category} (${names.length})`;
+                    names.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        group.appendChild(option);
+                    });
+                    picker.appendChild(group);
+                });
         } catch (error) {
             console.error('Could not load the agent list:', error);
         }
