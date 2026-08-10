@@ -396,3 +396,69 @@ describe('filtering the agent list', () => {
         expect(document.getElementById('adminList').textContent).toContain('catalogue is empty');
     });
 });
+
+describe('duplicate warning', () => {
+    function withSimilar(similar) {
+        return routes({ '/api/admin/similar-check': { body: { similar, checked: true } } });
+    }
+
+    it('warns before adding something that already exists', async () => {
+        const real = window.confirm;
+        const asked = [];
+        window.confirm = (m) => { asked.push(m); return false; };
+        try {
+            const calls = await boot(withSimilar([{ name: 'Aider', score: 0.93 }]));
+            fill();
+            submit();
+            await flush();
+
+            expect(asked[0]).toContain('Aider');
+            expect(asked[0]).toContain('93%');
+            expect(calls.some(c => c.options && c.options.method === 'POST'
+                                   && c.url.endsWith('/api/admin/agents'))).toBe(false);
+        } finally { window.confirm = real; }
+    });
+
+    it('adds anyway when confirmed', async () => {
+        const real = window.confirm;
+        window.confirm = () => true;
+        try {
+            const calls = await boot(withSimilar([{ name: 'Aider', score: 0.93 }]));
+            fill();
+            submit();
+            await flush();
+            expect(calls.some(c => c.options && c.options.method === 'POST')).toBe(true);
+        } finally { window.confirm = real; }
+    });
+
+    it('does not ask when nothing is similar', async () => {
+        const real = window.confirm;
+        let asked = 0;
+        window.confirm = () => { asked += 1; return true; };
+        try {
+            await boot(withSimilar([]));
+            fill();
+            submit();
+            await flush();
+            expect(asked).toBe(0);
+        } finally { window.confirm = real; }
+    });
+
+    it('does not check when editing an existing agent', async () => {
+        const calls = await boot(withSimilar([{ name: 'X', score: 0.9 }]));
+        document.querySelector('.admin-row button').click();
+        submit();
+        await flush();
+        expect(calls.some(c => c.url.includes('similar-check'))).toBe(false);
+    });
+
+    it('never blocks a save when the check itself fails', async () => {
+        const calls = await boot(routes({
+            '/api/admin/similar-check': new Error('offline'),
+        }));
+        fill();
+        submit();
+        await flush();
+        expect(calls.some(c => c.options && c.options.method === 'POST')).toBe(true);
+    });
+});

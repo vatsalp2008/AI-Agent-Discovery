@@ -229,6 +229,48 @@ def list_agents():
     return jsonify({"agents": records, "total": len(records)}), 200
 
 
+@admin_bp.route('/similar-check', methods=['POST'])
+def similar_check():
+    """Warn about agents already in the catalogue that resemble a draft.
+
+    Exact-name collisions are rejected outright by validate(); this catches
+    the softer case — the same tool under a different name, or a genuine
+    near-duplicate. Advisory only: it returns candidates and lets the person
+    decide, because "similar" is not the same as "the same".
+    """
+    _require_enabled()
+
+    payload = request.get_json(silent=True) or {}
+    description = (payload.get("description") or "").strip()
+    name = (payload.get("name") or "").strip()
+    if not (description or name):
+        raise AdminError("Provide a name or description to check")
+
+    from api import get_store
+
+    store = get_store()
+    if store.vector_store is None:
+        # Nothing to compare against; not an error.
+        return jsonify({"similar": [], "checked": False}), 200
+
+    results = store.search(f"{name}. {description}".strip(". "), limit=4)
+
+    wanted = name.casefold()
+    similar = [
+        {
+            "name": r["name"],
+            "score": round(r["score"], 4),
+            "category": r["metadata"].get("category"),
+            "description": r["metadata"].get("description", ""),
+        }
+        for r in results
+        if (r["name"] or "").casefold() != wanted
+        and r["score"] >= config.DUPLICATE_SCORE
+    ][:3]
+
+    return jsonify({"similar": similar, "checked": True}), 200
+
+
 @admin_bp.route('/agents', methods=['POST'])
 def create_agent():
     _require_enabled()

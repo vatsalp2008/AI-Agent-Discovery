@@ -257,13 +257,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Warn about near-duplicates before adding. Advisory: the person decides,
+     * since "similar" is not "the same". Skipped when editing an existing
+     * agent, where a close match to itself is expected.
+     */
+    async function confirmNotDuplicate(values) {
+        try {
+            const response = await fetch('/api/admin/similar-check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: values.name, description: values.description }),
+            });
+            if (!response.ok) return true;
+
+            const data = await response.json();
+            const similar = data.similar || [];
+            if (similar.length === 0) return true;
+
+            const names = similar.map(s => `${s.name} (${Math.round(s.score * 100)}% similar)`);
+            return window.confirm(
+                `The catalogue already has:\n\n${names.join('\n')}\n\nAdd anyway?`);
+        } catch (error) {
+            console.error('Could not check for duplicates:', error);
+            return true;   // never block a save on this
+        }
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const existing = editingName.value;
+        const values = formValues();
         if (existing) {
-            await send(`/api/admin/agents/${encodeURIComponent(existing)}`, 'PUT', formValues());
+            await send(`/api/admin/agents/${encodeURIComponent(existing)}`, 'PUT', values);
         } else {
-            await send('/api/admin/agents', 'POST', formValues());
+            if (!(await confirmNotDuplicate(values))) return;
+            await send('/api/admin/agents', 'POST', values);
         }
     });
 

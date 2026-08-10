@@ -110,6 +110,11 @@ DEBUG = _bool_env("FLASK_DEBUG", False)
 # kept on a localhost-bound HOST.
 ENABLE_ADMIN = _bool_env("ENABLE_ADMIN", False)
 
+# A draft scoring at least this against an existing agent is flagged as a
+# possible duplicate when adding. Advisory only. Set high: at 0.5 (the search
+# confidence floor) most agents in a category look alike.
+DUPLICATE_SCORE = _float_env("DUPLICATE_SCORE", 0.75)
+
 # Append-only record of catalogue edits, so a mistaken change can be traced
 # and undone. Empty disables it.
 AUDIT_LOG_PATH = _resolve(os.getenv("AUDIT_LOG_PATH", ""), DATA_DIR / "catalogue_audit.jsonl")

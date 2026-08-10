@@ -146,6 +146,8 @@ paths resolve against the repository root, so commands work from any directory.
 | `EMBEDDING_CACHE_SIZE` | `500` | Query embeddings kept on disk; `0` disables |
 | `EMBEDDING_CACHE_PATH` | `data/embedding_cache.json` | Where they are stored |
 | `ENABLE_ADMIN` | `false` | Catalogue editing — see the warning above |
+| `DUPLICATE_SCORE` | `0.75` | Similarity above which a draft is flagged as a duplicate |
+| `AUDIT_LOG_PATH` | `data/catalogue_audit.jsonl` | Record of catalogue edits |
 | `LOG_FORMAT` | `text` | `text` or `json` (one object per line) |
 | `HOST` / `PORT` | `127.0.0.1` / `5000` | Bind address |
 | `FLASK_DEBUG` | `false` | Werkzeug debugger — see warning below |
@@ -408,9 +410,16 @@ PUT    /api/admin/agents/<name>    # edit   (404 if unknown)
 DELETE /api/admin/agents/<name>    # remove
 POST   /api/admin/reindex          # rebuild the index from the catalogue
 POST   /api/admin/undo             # reverse the most recent change
+POST   /api/admin/similar-check    # near-duplicates of a draft agent
+GET    /api/admin/agents           # the catalogue as it is on disk
 GET    /api/admin/audit            # recent changes, newest first
 GET    /api/admin/status           # whether editing is on, and if the index is behind
 ```
+
+Adding an agent runs the draft through the index first and warns if the
+catalogue already has something very similar — an exact name is rejected
+outright, but the same tool under a different name is easy to miss at a
+hundred-plus entries. It is advisory; you can add anyway.
 
 Every change is appended to an audit log (`data/catalogue_audit.jsonl`) with
 the record as it was before, which is what makes undo possible — edits

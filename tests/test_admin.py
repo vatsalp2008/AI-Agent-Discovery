@@ -499,3 +499,59 @@ def test_editing_preserves_use_case(admin_client, catalogue):
 
     saved = json.loads(catalogue.read_text())[0]
     assert saved["use_case"] == "Editing", "use_case was lost on edit"
+
+
+class TestDuplicateCheck:
+    """Exact names are rejected by validate; this catches near-duplicates."""
+
+    def test_flags_a_very_similar_agent(self, admin_client, monkeypatch):
+        monkeypatch.setattr(config, "DUPLICATE_SCORE", 0.0)
+        body = admin_client.post("/api/admin/similar-check",
+                                 json={"name": "New", "description": "An editor."}).get_json()
+        assert body["checked"] is True
+        assert body["similar"]
+        assert "score" in body["similar"][0]
+
+    def test_excludes_the_draft_itself_when_renaming(self, admin_client, monkeypatch):
+        monkeypatch.setattr(config, "DUPLICATE_SCORE", 0.0)
+        body = admin_client.post("/api/admin/similar-check",
+                                 json={"name": "Cursor", "description": "An editor."}).get_json()
+        assert "Cursor" not in [s["name"] for s in body["similar"]]
+
+    def test_weak_matches_are_not_flagged(self, admin_client, weak_store):
+        """Everything in a category looks alike; only close matches count."""
+        import api
+
+        api.set_store(weak_store)
+        body = admin_client.post("/api/admin/similar-check",
+                                 json={"name": "X", "description": "totally unrelated"}).get_json()
+        assert body["checked"] is True
+        assert body["similar"] == []
+
+    def test_requires_something_to_check(self, admin_client):
+        assert admin_client.post("/api/admin/similar-check", json={}).status_code == 400
+
+    def test_reports_when_there_is_no_index(self, admin_client, tmp_path, monkeypatch):
+        import api
+        from vectorstore import VectorStore
+
+        api.set_store(VectorStore(persist_directory=tmp_path / "none", embedding_function=object()))
+        body = admin_client.post("/api/admin/similar-check", json={"name": "X"}).get_json()
+        assert body == {"similar": [], "checked": False}
+
+    def test_caps_the_number_of_candidates(self, admin_client, monkeypatch):
+        monkeypatch.setattr(config, "DUPLICATE_SCORE", 0.0)
+        body = admin_client.post("/api/admin/similar-check", json={"name": "X", "description": "y"}).get_json()
+        assert len(body["similar"]) <= 3
+
+    def test_is_refused_when_editing_is_off(self, catalogue, monkeypatch, store):
+        import api
+
+        monkeypatch.setattr(config, "ENABLE_ADMIN", False)
+        api.set_store(store)
+        app = Flask(__name__)
+        app.register_blueprint(admin.admin_bp)
+        admin.register_error_handler(app)
+        with app.test_client() as client:
+            assert client.post("/api/admin/similar-check", json={"name": "X"}).status_code == 403
+        api.set_store(None)
