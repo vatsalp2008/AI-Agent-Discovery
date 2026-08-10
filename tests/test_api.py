@@ -543,3 +543,46 @@ def test_etag_changes_when_the_data_changes(client, store, agents):
 
 def test_etag_is_stable_for_unchanged_data(client):
     assert client.get("/api/tech").headers["ETag"] == client.get("/api/tech").headers["ETag"]
+
+
+class TestOpenApi:
+    """Generated from the live URL map, so it cannot drift from the routes."""
+
+    def test_describes_itself_as_openapi(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert spec["openapi"].startswith("3.")
+        assert spec["info"]["title"]
+
+    def test_every_api_route_appears(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        for path in ["/api/search", "/api/agents", "/api/categories",
+                     "/api/tech", "/api/stats", "/api/health", "/api/compare"]:
+            assert path in spec["paths"], f"{path} missing from the spec"
+
+    def test_no_non_api_route_leaks_in(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert all(p.startswith("/api/") for p in spec["paths"])
+
+    def test_path_parameters_use_openapi_syntax(self, client):
+        """Flask writes <path:name>; OpenAPI wants {name}."""
+        spec = client.get("/api/openapi.json").get_json()
+        assert "/api/agents/{name}" in spec["paths"]
+        assert not any("<" in p for p in spec["paths"])
+
+    def test_path_parameters_are_declared(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        params = spec["paths"]["/api/agents/{name}"]["get"]["parameters"]
+        assert [p["name"] for p in params] == ["name"]
+
+    def test_methods_match_the_routes(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert set(spec["paths"]["/api/search"]) == {"post"}
+        assert set(spec["paths"]["/api/agents"]) == {"get"}
+
+    def test_summaries_come_from_docstrings(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert "similar" in spec["paths"]["/api/agents/{name}/similar"]["get"]["summary"].lower()
+
+    def test_the_spec_itself_is_listed(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert "/api/openapi.json" in spec["paths"]

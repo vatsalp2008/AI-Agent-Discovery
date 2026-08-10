@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import re
 import time
 
 from flask import Blueprint, jsonify, make_response, request
@@ -397,6 +398,50 @@ def get_tech_stacks():
 @api_bp.route('/stats', methods=['GET'])
 def get_stats():
     return _etag_response(get_store().get_stats())
+
+
+@api_bp.route('/openapi.json', methods=['GET'])
+def openapi():
+    """A machine-readable description of this API.
+
+    Generated from the live URL map rather than hand-written, so it cannot
+    drift from the routes that actually exist. Descriptions come from each
+    handler's docstring.
+    """
+    from flask import current_app
+
+    paths = {}
+    for rule in current_app.url_map.iter_rules():
+        if not rule.rule.startswith(api_bp.url_prefix + "/"):
+            continue
+
+        handler = current_app.view_functions.get(rule.endpoint)
+        summary = ((handler.__doc__ or "").strip().split("\n")[0]) if handler else ""
+
+        # Flask writes <converter:name>; OpenAPI wants {name}.
+        path = re.sub(r"<(?:[^:<>]+:)?([^<>]+)>", r"{\1}", rule.rule)
+        entry = paths.setdefault(path, {})
+
+        for method in sorted(rule.methods - {"HEAD", "OPTIONS"}):
+            operation = {"summary": summary, "responses": {"200": {"description": "Success"}}}
+
+            parameters = [
+                {"name": name, "in": "path", "required": True, "schema": {"type": "string"}}
+                for name in rule.arguments
+            ]
+            if parameters:
+                operation["parameters"] = parameters
+            entry[method.lower()] = operation
+
+    return jsonify({
+        "openapi": "3.0.3",
+        "info": {
+            "title": "AI Agent Discovery",
+            "version": "1.0.0",
+            "description": "Semantic search over a curated catalogue of AI agents and developer tools.",
+        },
+        "paths": paths,
+    }), 200
 
 
 @api_bp.route('/health', methods=['GET'])
