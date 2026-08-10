@@ -9,7 +9,7 @@
       "VS Code"
     ],
     "github_stars": 35000,
-    "url": "https://cursor.sh",
+    "url": "https://cursor.com",
     "use_case": "Code editing, refactoring, generation"
   },
   {
@@ -22,7 +22,7 @@
       "Git"
     ],
     "github_stars": 47981,
-    "url": "https://github.com/paul-gauthier/aider",
+    "url": "https://github.com/Aider-AI/aider",
     "use_case": "Terminal-based pair programming"
   },
   {
@@ -47,7 +47,7 @@
       "GPT-4"
     ],
     "github_stars": 67941,
-    "url": "https://github.com/OpenInterpreter/open-interpreter",
+    "url": "https://github.com/openinterpreter/openinterpreter",
     "use_case": "Local system control, script execution"
   },
   {
@@ -60,7 +60,7 @@
       "Pinecone"
     ],
     "github_stars": 186496,
-    "url": "https://github.com/Significant-Gravitas/Auto-GPT",
+    "url": "https://github.com/Significant-Gravitas/AutoGPT",
     "use_case": "Goal-oriented autonomous tasks"
   },
   {
@@ -99,7 +99,7 @@
       "LLMs"
     ],
     "github_stars": 23738,
-    "url": "https://github.com/gventuri/pandas-ai",
+    "url": "https://github.com/sinaptik-ai/pandas-ai",
     "use_case": "Chat with data, analysis"
   },
   {
@@ -111,7 +111,7 @@
       "Multi-Agent"
     ],
     "github_stars": 69757,
-    "url": "https://github.com/geekan/MetaGPT",
+    "url": "https://github.com/FoundationAgents/MetaGPT",
     "use_case": "Software development lifecycle automation"
   },
   {
@@ -135,7 +135,7 @@
       "Agents"
     ],
     "github_stars": 56901,
-    "url": "https://github.com/joaomdmoura/crewAI",
+    "url": "https://github.com/crewAIInc/crewAI",
     "use_case": "Multi-agent orchestration"
   },
   {
@@ -221,7 +221,7 @@
       "Local LLM"
     ],
     "github_stars": 57424,
-    "url": "https://github.com/imartinez/privateGPT",
+    "url": "https://github.com/zylon-ai/private-gpt",
     "use_case": "Document QA, RAG"
   },
   {
@@ -234,7 +234,7 @@
       "React"
     ],
     "github_stars": 39390,
-    "url": "https://github.com/StanGirard/quivr",
+    "url": "https://github.com/QuivrHQ/quivr",
     "use_case": "Personal knowledge base"
   },
   {
@@ -284,7 +284,7 @@
       "React"
     ],
     "github_stars": 83629,
-    "url": "https://github.com/All-Hands-AI/OpenHands",
+    "url": "https://github.com/OpenHands/OpenHands",
     "use_case": "Autonomous software engineering"
   },
   {
@@ -454,7 +454,7 @@
       "Python"
     ],
     "github_stars": 52636,
-    "url": "https://github.com/block/goose",
+    "url": "https://github.com/aaif-goose/goose",
     "use_case": "Local developer automation"
   },
   {
@@ -529,7 +529,7 @@
       "TypeScript"
     ],
     "github_stars": 0,
-    "url": "https://codeium.com/windsurf",
+    "url": "https://windsurf.com/editor",
     "use_case": "Agentic multi-file editing in an IDE"
   },
   {
@@ -589,7 +589,7 @@
       "GitHub API"
     ],
     "github_stars": 0,
-    "url": "https://coderabbit.ai",
+    "url": "https://www.coderabbit.ai",
     "use_case": "Automated pull request review"
   },
   {
@@ -823,7 +823,7 @@
       "LangChain"
     ],
     "github_stars": 15260,
-    "url": "https://github.com/explodinggradients/ragas",
+    "url": "https://github.com/vibrantlabsai/ragas",
     "use_case": "Measuring RAG quality"
   },
   {
@@ -835,7 +835,7 @@
       "ML"
     ],
     "github_stars": 5743,
-    "url": "https://github.com/Giskard-AI/giskard",
+    "url": "https://github.com/Giskard-AI/giskard-oss",
     "use_case": "Automated vulnerability scanning for models"
   },
   {
@@ -859,7 +859,7 @@
       "Colang"
     ],
     "github_stars": 6906,
-    "url": "https://github.com/NVIDIA/NeMo-Guardrails",
+    "url": "https://github.com/NVIDIA-NeMo/Guardrails",
     "use_case": "Constraining what a chatbot will discuss"
   },
   {
@@ -882,7 +882,7 @@
       "Python"
     ],
     "github_stars": 8755,
-    "url": "https://github.com/leondz/garak",
+    "url": "https://github.com/NVIDIA/garak",
     "use_case": "Red teaming a model before deployment"
   },
   {
@@ -894,7 +894,7 @@
       "spaCy"
     ],
     "github_stars": 10395,
-    "url": "https://github.com/microsoft/presidio",
+    "url": "https://github.com/data-privacy-stack/presidio",
     "use_case": "Stripping PII before it reaches a model"
   },
   {
@@ -1031,7 +1031,7 @@
       "LoRA"
     ],
     "github_stars": 73972,
-    "url": "https://github.com/hiyouga/LLaMA-Factory",
+    "url": "https://github.com/hiyouga/LlamaFactory",
     "use_case": "Fine-tuning many model families from one tool"
   },
   {
@@ -1156,7 +1156,7 @@
       "PyTorch"
     ],
     "github_stars": 126173,
-    "url": "https://github.com/comfyanonymous/ComfyUI",
+    "url": "https://github.com/Comfy-Org/ComfyUI",
     "use_case": "Composable image generation pipelines"
   },
   {
@@ -1503,7 +1503,7 @@
       "JSON-RPC"
     ],
     "github_stars": 25275,
-    "url": "https://github.com/google/A2A",
+    "url": "https://github.com/a2aproject/A2A",
     "use_case": "Cross-vendor agent communication"
   }
 ]
