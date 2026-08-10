@@ -1082,3 +1082,19 @@ nav a:focus-visible,
     color: var(--text-secondary);
     margin-left: auto;
 }
+
+/* Category link on a card */
+.agent-category-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.agent-category-link:hover {
+    text-decoration: underline;
+}
+
+/* Category chips rendered as links on the browse page */
+a.filter-tag {
+    text-decoration: none;
+    display: inline-block;
+}

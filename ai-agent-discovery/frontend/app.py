@@ -57,6 +57,11 @@ def admin_page():
     writes unless ENABLE_ADMIN is set, and the page says so."""
     return render_template('admin.html', page='admin')
 
+@app.route('/category/<path:name>')
+def category(name):
+    """Browse one category. Agents are fetched client-side from the API."""
+    return render_template('category.html', page='dashboard', name=name)
+
 @app.route('/agent/<path:name>')
 def agent_detail(name):
     """Detail page. The agent itself is fetched client-side from the API."""

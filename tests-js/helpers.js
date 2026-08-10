@@ -220,3 +220,11 @@ export const ADMIN_HTML = `
       <div id="auditList"></div>
     </div>
 `;
+
+/** The category browse page's markup, mirroring templates/category.html. */
+export const CATEGORY_HTML = `
+    <h1 id="categoryHeading">Evaluation</h1>
+    <p id="categoryCount">Loading…</p>
+    <div id="categoryOther"></div>
+    <main id="categoryGrid" aria-busy="true"></main>
+`;

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }} agents | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/dashboard">Dashboard</a> <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ name }}</span>
+</nav>
+
+<section class="hero hero-compact">
+    <h1 id="categoryHeading">{{ name }}</h1>
+    <p id="categoryCount">Loading…</p>
+</section>
+
+<div id="categoryOther" class="filters" role="group" aria-label="Other categories"></div>
+
+<main id="categoryGrid" class="results-grid" aria-live="polite" aria-busy="true"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/collections.js"></script>
+<script src="/static/js/category.js"></script>
+{% endblock %}

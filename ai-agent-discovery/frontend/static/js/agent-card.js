@@ -59,7 +59,16 @@ const AgentCard = (() => {
             nameEl.textContent = 'Unnamed agent';
         }
         header.appendChild(nameEl);
-        header.appendChild(el('div', 'agent-category', meta.category || 'Uncategorized'));
+        // The category links to its browse page.
+        const categoryEl = el('div', 'agent-category');
+        if (meta.category) {
+            const link = el('a', 'agent-category-link', meta.category);
+            link.href = `/category/${encodeURIComponent(meta.category)}`;
+            categoryEl.appendChild(link);
+        } else {
+            categoryEl.textContent = 'Uncategorized';
+        }
+        header.appendChild(categoryEl);
         card.appendChild(header);
 
         if (typeof agent.score === 'number') {
