@@ -1311,6 +1311,10 @@ def seed_data(rebuild: bool = True):
 
     write_agents_json(agents)
     logger.info("Seeding complete: %d agents indexed.", len(agents))
+    # The live suite asserts which agents surface for a set of known queries.
+    # A new agent can displace an expected one, and `make check` does not run
+    # those tests, so the failure would only appear in CI.
+    logger.info("Run `make test-live` to check the retrieval guards still hold.")
 
 if __name__ == "__main__":
     import sys

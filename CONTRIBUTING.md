@@ -47,11 +47,17 @@ index is missing.
 1. `make check` passes. `make doctor` is a quick way to rule out a broken
    local setup before assuming a real failure, and `make verify` runs
    everything — lint, all three suites, diagnostics and link checking.
-2. New behaviour has a test. Bug fixes should have a test that fails before
+2. **If you changed `data/agents.json`, run `make verify`, not just
+   `make check`.** `make check` deliberately excludes the live tests, since
+   they need Ollama — but those are exactly the ones a catalogue change can
+   break. Adding an agent can displace an expected one from a top-3 assertion
+   in `tests-live`. Five CI runs failed that way in a single afternoon before
+   this was written down.
+3. New behaviour has a test. Bug fixes should have a test that fails before
    the fix.
-3. Commit messages are short and imperative ("Add category filtering", not
+4. Commit messages are short and imperative ("Add category filtering", not
    "added category filtering and some other stuff").
-4. Docs are updated if you changed the API surface, configuration, or setup.
+5. Docs are updated if you changed the API surface, configuration, or setup.
 
 CI runs the same checks on Python 3.10 and 3.12 plus the frontend suite, and a
 `live` job that starts an Ollama container, seeds an index, drives the MCP
