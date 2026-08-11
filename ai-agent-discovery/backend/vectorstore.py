@@ -231,11 +231,58 @@ class VectorStore:
                 "score": relevance_score(distance)
             })
 
-        agents.sort(key=lambda agent: agent["score"], reverse=True)
+        agents = self._hoist_exact_name(query, agents)
+
         if min_score is not None:
             agents = [a for a in agents if a["score"] >= min_score]
         agents = agents[:limit]
         self._cache_put(cache_key, agents)
+        return agents
+
+    def _hoist_exact_name(self, query, agents):
+        """Sort by score, then make sure an exactly-named agent is first.
+
+        Semantic similarity alone is not enough when a product is named after
+        an ordinary word. Searching "Evidently" did not return the tool called
+        Evidently *anywhere* in the top ten — the bare adverb reads as generic
+        English, and every result scored below the confidence floor. So this
+        looks the name up directly and inserts it if the vector search missed
+        it, rather than only reordering what came back.
+
+        Such a result is marked `match: "name"` and scored 1.0. That is not a
+        similarity score and pretending otherwise would be misleading: it is
+        an exact match on the thing the user typed.
+
+        Deliberately narrow — a full-string, case-insensitive match on the
+        name only. A substring would let "Code" hijack the ranking.
+        """
+        agents.sort(key=lambda agent: agent["score"], reverse=True)
+        for agent in agents:
+            agent.setdefault("match", "semantic")
+
+        wanted = (query or "").strip().casefold()
+        if not wanted:
+            return agents
+
+        for index, agent in enumerate(agents):
+            if (agent["name"] or "").casefold() == wanted:
+                if index:
+                    agents.insert(0, agents.pop(index))
+                agents[0]["match"] = "name"
+                return agents
+
+        # The vector search missed it entirely; look it up by name.
+        exact = self.get_agent(wanted)
+        if exact is not None:
+            agents.insert(0, {
+                "name": exact["name"],
+                "description": exact["metadata"].get("description", ""),
+                "matched_text": exact["metadata"].get("description", ""),
+                "metadata": exact["metadata"],
+                "distance": 0.0,
+                "score": 1.0,
+                "match": "name",
+            })
         return agents
 
     def _cache_get(self, key):

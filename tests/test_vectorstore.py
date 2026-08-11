@@ -168,3 +168,49 @@ def test_a_successful_rebuild_replaces_the_index(store, agents):
     store.replace_agents(agents)
     assert store.vector_store is not None
     assert len(store.get_all_agents()) == len(agents)
+
+
+class TestExactNameMatching:
+    """A product named after an ordinary word cannot be found by similarity.
+
+    Searching "Evidently" did not return the tool called Evidently anywhere in
+    the top ten — the bare adverb reads as generic English.
+    """
+
+    def test_an_exact_name_is_ranked_first(self, store):
+        results = store.search("GPT Researcher", limit=3)
+        assert results[0]["name"] == "GPT Researcher"
+        assert results[0]["match"] == "name"
+
+    def test_matching_is_case_insensitive(self, store):
+        assert store.search("gpt researcher", limit=3)[0]["name"] == "GPT Researcher"
+
+    def test_surrounding_whitespace_is_ignored(self, store):
+        assert store.search("  Cursor  ", limit=3)[0]["name"] == "Cursor"
+
+    def test_a_substring_does_not_hoist(self, store):
+        """"Code" must not hijack the ranking for "Claude Code"."""
+        results = store.search("Cur", limit=3)
+        assert all(r["match"] == "semantic" for r in results)
+
+    def test_ordinary_queries_keep_score_order(self, store):
+        results = store.search("agent", limit=3)
+        assert [r["score"] for r in results] == sorted((r["score"] for r in results), reverse=True)
+        assert all(r["match"] == "semantic" for r in results)
+
+    def test_the_limit_is_still_respected(self, store):
+        assert len(store.search("Cursor", limit=1)) == 1
+
+    def test_an_unknown_name_changes_nothing(self, store):
+        results = store.search("NoSuchAgentAnywhere", limit=3)
+        assert all(r["match"] == "semantic" for r in results)
+
+    def test_a_name_match_is_labelled_not_disguised(self, store):
+        """Reporting 1.0 as a similarity score would be misleading."""
+        result = store.search("Cursor", limit=1)[0]
+        assert result["match"] == "name"
+        assert result["score"] == 1.0
+
+    def test_it_does_not_duplicate_an_agent_already_returned(self, store):
+        results = store.search("Cursor", limit=5)
+        assert [r["name"] for r in results].count("Cursor") == 1
