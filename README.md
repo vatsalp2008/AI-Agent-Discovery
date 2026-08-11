@@ -298,6 +298,11 @@ anywhere in the top ten, since the bare adverb reads as generic English. Only a
 full-string, case-insensitive match on the name qualifies — a substring would
 let `Code` hijack the ranking.
 
+A name match always scores `1.0`, whether the vector search happened to return
+the agent or it had to be looked up. That is deliberate: otherwise the same
+query would score differently depending on an accident of retrieval, and a
+`min_score` filter could drop the very agent you named.
+
 **Weak matches.** Vector search always returns *something*, so a nonsense query
 still comes back with a full page of results. `metadata.confident` is `false`
 when the best result scored below `SEARCH_MIN_SCORE` (default `0.5`); the web UI
