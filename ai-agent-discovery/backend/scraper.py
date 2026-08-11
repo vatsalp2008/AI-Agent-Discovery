@@ -925,7 +925,7 @@ SAMPLE_AGENTS = [
         category="MLOps",
         tech_stack=["Python", "Git"],
         github_stars=15808,
-        url="https://github.com/iterative/dvc",
+        url="https://github.com/treeverse/dvc",
         use_case="Versioning data alongside code"
     ),
     Agent(
@@ -934,7 +934,7 @@ SAMPLE_AGENTS = [
         category="MLOps",
         tech_stack=["Python", "SQL"],
         github_stars=11706,
-        url="https://github.com/great-expectations/great_expectations",
+        url="https://github.com/fivetran/great_expectations",
         use_case="Data quality checks in a pipeline"
     ),
     Agent(
@@ -997,7 +997,7 @@ SAMPLE_AGENTS = [
         category="Fine-tuning",
         tech_stack=["Python", "PyTorch"],
         github_stars=5797,
-        url="https://github.com/pytorch/torchtune",
+        url="https://github.com/meta-pytorch/torchtune",
         use_case="Fine-tuning with PyTorch-native recipes"
     ),
     Agent(
@@ -1024,7 +1024,7 @@ SAMPLE_AGENTS = [
         category="Customer Service",
         tech_stack=["TypeScript", "Next.js"],
         github_stars=81504,
-        url="https://github.com/lobehub/lobe-chat",
+        url="https://github.com/lobehub/lobehub",
         use_case="Extensible chat with plugins"
     ),
     Agent(
@@ -1033,7 +1033,7 @@ SAMPLE_AGENTS = [
         category="Code Generation",
         tech_stack=["TypeScript", "Go"],
         github_stars=196186,
-        url="https://github.com/sst/opencode",
+        url="https://github.com/anomalyco/opencode",
         use_case="Provider-agnostic terminal coding"
     ),
     Agent(
