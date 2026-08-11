@@ -38,7 +38,7 @@ def test_search_returns_slim_records(mcp):
     result = mcp.call_tool("search_agents", {"query": "code editor"})
     first = result["results"][0]
     assert set(first) == {"name", "description", "category", "tech_stack",
-                          "github_stars", "url", "score"}
+                          "github_stars", "url", "score", "match"}
     assert "matched_text" not in first
     assert "metadata" not in first
 
@@ -181,3 +181,19 @@ def test_the_entry_point_persists_the_embedding_cache():
     source = MCP_PATH.read_text()
     assert "atexit.register" in source
     assert "save_cache" in source
+
+
+def test_search_says_which_kind_of_match_it_is(mcp):
+    """A name match scores 1.0 for a different reason than a close semantic
+    match; a calling model that cannot distinguish them would overstate it."""
+    results = mcp.call_tool("search_agents", {"query": "code editor"})["results"]
+    assert all(r["match"] == "semantic" for r in results)
+
+    exact = mcp.call_tool("search_agents", {"query": "Cursor"})["results"]
+    assert exact[0]["name"] == "Cursor"
+    assert exact[0]["match"] == "name"
+
+
+def test_get_agent_carries_no_match_label(mcp):
+    """It was fetched by name, not ranked, so there is no score to qualify."""
+    assert "match" not in mcp.call_tool("get_agent", {"name": "Cursor"})

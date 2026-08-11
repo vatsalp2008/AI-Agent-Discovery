@@ -119,6 +119,10 @@ def _slim(result):
     }
     if "score" in result:
         slim["score"] = round(result["score"], 4)
+        # Say which kind of match this is. A name match scores 1.0 because the
+        # query was the agent's name, not because the embedding ranked it top;
+        # a calling model that cannot tell them apart would overstate it.
+        slim["match"] = result.get("match", "semantic")
     return slim
 
 
