@@ -15,7 +15,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - 🎯 **Relevance Scored** - Every result carries a 0–1 score derived from vector distance
 - 💬 **AI Overviews** - An optional local LLM explains which result fits your need, grounded only in what was retrieved
 - 🎨 **Modern UI** - Clean, dark-themed interface inspired by developer tools
-- 📊 **Rich Agent Database** - Curated collection of 128 AI agents, frameworks and developer tools
+- 📊 **Rich Agent Database** - Curated collection of 134 AI agents, frameworks and developer tools
 
 ## 🚀 Features
 

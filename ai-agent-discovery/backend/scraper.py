@@ -906,6 +906,78 @@ SAMPLE_AGENTS = [
         use_case="Autonomous navigation for mobile robots"
     ),
     Agent(
+        name="Argilla",
+        description="A collaboration tool for building and curating the datasets that fine-tuning and evaluation depend on.",
+        category="Evaluation",
+        tech_stack=["Python", "Elasticsearch"],
+        github_stars=5079,
+        url="https://github.com/argilla-io/argilla",
+        use_case="Human-in-the-loop dataset curation"
+    ),
+    Agent(
+        name="Metaflow",
+        description="Netflix's framework for building and deploying ML and AI systems, from a laptop to production.",
+        category="MLOps",
+        tech_stack=["Python", "AWS", "Kubernetes"],
+        github_stars=10207,
+        url="https://github.com/Netflix/metaflow",
+        use_case="Taking ML pipelines to production"
+    ),
+    Agent(
+        name="MLflow",
+        description="Tracks experiments, packages models and manages their lifecycle, now including LLM evaluation.",
+        category="MLOps",
+        tech_stack=["Python", "REST"],
+        github_stars=27471,
+        url="https://github.com/mlflow/mlflow",
+        use_case="Experiment tracking and model registry"
+    ),
+    Agent(
+        name="Weights & Biases",
+        description="Logs experiments, datasets and model artifacts, with tracing for LLM and agent runs.",
+        category="MLOps",
+        tech_stack=["Python", "SaaS"],
+        github_stars=11228,
+        url="https://github.com/wandb/wandb",
+        use_case="Experiment tracking and comparison"
+    ),
+    Agent(
+        name="DVC",
+        description="Version control for datasets and models, keeping large files out of git while staying reproducible.",
+        category="MLOps",
+        tech_stack=["Python", "Git"],
+        github_stars=15808,
+        url="https://github.com/iterative/dvc",
+        use_case="Versioning data alongside code"
+    ),
+    Agent(
+        name="Great Expectations",
+        description="Declares what your data should look like and fails loudly when it does not.",
+        category="MLOps",
+        tech_stack=["Python", "SQL"],
+        github_stars=11706,
+        url="https://github.com/great-expectations/great_expectations",
+        use_case="Data quality checks in a pipeline"
+    ),
+    Agent(
+        name="Evidently",
+        description="Monitors ML and LLM systems in production, reporting drift and quality regressions.",
+        category="MLOps",
+        tech_stack=["Python", "Pandas"],
+        github_stars=7797,
+        url="https://github.com/evidentlyai/evidently",
+        use_case="Detecting drift after deployment"
+    ),
+    Agent(
+        name="whylogs",
+        description="Logs statistical profiles of data rather than the data itself, so monitoring does not copy your dataset.",
+        category="MLOps",
+        tech_stack=["Python", "Protobuf"],
+        github_stars=2830,
+        url="https://github.com/whylabs/whylogs",
+        use_case="Privacy-preserving data monitoring"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",

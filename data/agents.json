@@ -1579,5 +1579,77 @@
     "github_stars": 4572,
     "url": "https://github.com/ros-navigation/navigation2",
     "use_case": "Autonomous navigation for mobile robots"
+  },
+  {
+    "name": "MLflow",
+    "description": "Tracks experiments, packages models and manages their lifecycle, now including LLM evaluation.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "REST"
+    ],
+    "github_stars": 27471,
+    "url": "https://github.com/mlflow/mlflow",
+    "use_case": "Experiment tracking and model registry"
+  },
+  {
+    "name": "Weights & Biases",
+    "description": "Logs experiments, datasets and model artifacts, with tracing for LLM and agent runs.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "SaaS"
+    ],
+    "github_stars": 11228,
+    "url": "https://github.com/wandb/wandb",
+    "use_case": "Experiment tracking and comparison"
+  },
+  {
+    "name": "DVC",
+    "description": "Version control for datasets and models, keeping large files out of git while staying reproducible.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Git"
+    ],
+    "github_stars": 15808,
+    "url": "https://github.com/iterative/dvc",
+    "use_case": "Versioning data alongside code"
+  },
+  {
+    "name": "Great Expectations",
+    "description": "Declares what your data should look like and fails loudly when it does not.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "SQL"
+    ],
+    "github_stars": 11706,
+    "url": "https://github.com/great-expectations/great_expectations",
+    "use_case": "Data quality checks in a pipeline"
+  },
+  {
+    "name": "Evidently",
+    "description": "Monitors ML and LLM systems in production, reporting drift and quality regressions.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Pandas"
+    ],
+    "github_stars": 7797,
+    "url": "https://github.com/evidentlyai/evidently",
+    "use_case": "Detecting drift after deployment"
+  },
+  {
+    "name": "whylogs",
+    "description": "Logs statistical profiles of data rather than the data itself, so monitoring does not copy your dataset.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Protobuf"
+    ],
+    "github_stars": 2830,
+    "url": "https://github.com/whylabs/whylogs",
+    "use_case": "Privacy-preserving data monitoring"
   }
 ]
