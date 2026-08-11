@@ -271,6 +271,10 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("build an agent flow without writing code", {"Langflow", "Flowise", "n8n", "Dify"}),
     ("simulate robot physics for training", {"MuJoCo", "Isaac Lab", "Habitat Lab"}),
     ("standard interface for reinforcement learning environments", {"Gymnasium"}),
+    ("self hosted chat interface for local models", {"Open WebUI", "LibreChat", "LobeChat"}),
+    ("sandbox for running generated code", {"E2B", "OpenInterpreter"}),
+    ("automate a windows desktop application", {"UFO", "OpenAdapt"}),
+    ("track machine learning experiments", {"MLflow", "Weights & Biases", "Metaflow"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
@@ -290,6 +294,31 @@ def test_growth_has_not_flattened_the_score_gap(live_store):
     good = live_store.search("agent that edits code in my terminal", limit=1)[0]
     bad = live_store.search("banana bread recipe", limit=1)[0]
     assert good["score"] - bad["score"] > 0.25
+
+
+@needs_embeddings
+def test_a_name_that_is_an_ordinary_word_still_finds_its_agent(live_store):
+    """The case that broke the property at 150 agents.
+
+    "Evidently" did not appear anywhere in the top ten by similarity — the
+    bare adverb reads as generic English — so search now looks an exact name
+    up directly rather than relying on the embedding alone.
+    """
+    results = live_store.search("Evidently", limit=3)
+    assert results, "no results at all"
+    assert results[0]["name"] == "Evidently"
+    assert results[0]["match"] == "name"
+
+
+@needs_embeddings
+def test_a_name_match_is_not_disguised_as_similarity(live_store):
+    """It scores 1.0 because it matched the name, not because it is similar."""
+    top = live_store.search("Evidently", limit=1)[0]
+    assert top["match"] == "name"
+
+    # The same agent found semantically is labelled as such.
+    semantic = live_store.search("detect model drift in production", limit=1)[0]
+    assert semantic["match"] == "semantic"
 
 
 @needs_embeddings
