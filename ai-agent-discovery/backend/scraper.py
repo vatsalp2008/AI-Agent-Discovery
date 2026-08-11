@@ -1073,6 +1073,33 @@ SAMPLE_AGENTS = [
         use_case="Local-first personal knowledge base"
     ),
     Agent(
+        name="OpenAdapt",
+        description="Records a demonstrated GUI workflow and replays it, generalising across applications.",
+        category="Automation",
+        tech_stack=["Python", "Vision"],
+        github_stars=1673,
+        url="https://github.com/OpenAdaptAI/OpenAdapt",
+        use_case="Automating desktop workflows by demonstration"
+    ),
+    Agent(
+        name="UFO",
+        description="Microsoft's agent for driving Windows applications through their own user interfaces.",
+        category="Automation",
+        tech_stack=["Python", "Windows", "Vision"],
+        github_stars=9453,
+        url="https://github.com/microsoft/UFO",
+        use_case="Operating desktop applications"
+    ),
+    Agent(
+        name="Cloudflare Agents",
+        description="A framework for agents that run at the edge, with durable state and scheduled execution.",
+        category="Framework",
+        tech_stack=["TypeScript", "Workers"],
+        github_stars=5423,
+        url="https://github.com/cloudflare/agents",
+        use_case="Deploying agents to the edge"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
@@ -1170,15 +1197,6 @@ SAMPLE_AGENTS = [
         github_stars=32000,
         url="https://github.com/StanGirard/quivr",
         use_case="Personal knowledge base"
-    ),
-    Agent(
-        name="LocalGPT",
-        description="Chat with your documents on your local device using GPT models. No data leaves your device.",
-        category="Research",
-        tech_stack=["Python", "LangChain", "ChromaDB"],
-        github_stars=18000,
-        url="https://github.com/PromtEngineer/localGPT",
-        use_case="Local RAG"
     ),
 ]
 

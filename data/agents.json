@@ -1811,5 +1811,42 @@
     "github_stars": 45741,
     "url": "https://github.com/siyuan-note/siyuan",
     "use_case": "Local-first personal knowledge base"
+  },
+  {
+    "name": "OpenAdapt",
+    "description": "Records a demonstrated GUI workflow and replays it, generalising across applications.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "Vision"
+    ],
+    "github_stars": 1673,
+    "url": "https://github.com/OpenAdaptAI/OpenAdapt",
+    "use_case": "Automating desktop workflows by demonstration"
+  },
+  {
+    "name": "UFO",
+    "description": "Microsoft's agent for driving Windows applications through their own user interfaces.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "Windows",
+      "Vision"
+    ],
+    "github_stars": 9453,
+    "url": "https://github.com/microsoft/UFO",
+    "use_case": "Operating desktop applications"
+  },
+  {
+    "name": "Cloudflare Agents",
+    "description": "A framework for agents that run at the edge, with durable state and scheduled execution.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Workers"
+    ],
+    "github_stars": 5423,
+    "url": "https://github.com/cloudflare/agents",
+    "use_case": "Deploying agents to the edge"
   }
 ]
