@@ -1277,3 +1277,9 @@ a.filter-tag {
     padding: 0.15rem 0.5rem;
     margin-left: auto;
 }
+
+/* An exact name match, distinguished from a similarity percentage */
+.match-score.match-name {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}

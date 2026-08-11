@@ -72,9 +72,16 @@ const AgentCard = (() => {
         card.appendChild(header);
 
         if (typeof agent.score === 'number') {
-            const match = el('div', 'match-score', `${Math.round(agent.score * 100)}% match`);
-            match.title = 'Semantic relevance to your query';
-            card.appendChild(match);
+            // A name match is not a similarity score. Showing it as "100%
+            // match" would imply the embedding ranked it top, when in fact
+            // the query was simply this agent's name.
+            const byName = agent.match === 'name';
+            const label = el('div', byName ? 'match-score match-name' : 'match-score',
+                             byName ? 'name match' : `${Math.round(agent.score * 100)}% match`);
+            label.title = byName
+                ? 'Your query is this agent\u2019s name'
+                : 'Semantic relevance to your query';
+            card.appendChild(label);
         }
 
         const description = meta.description || agent.description || 'No description available.';

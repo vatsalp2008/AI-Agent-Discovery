@@ -272,3 +272,31 @@ describe('save to collection', () => {
         expect(container.querySelectorAll('.save-select')).toHaveLength(2);
     });
 });
+
+describe('match labelling', () => {
+    it('shows a percentage for a semantic match', () => {
+        const card = AgentCard.create(makeAgent({ score: 0.82, match: 'semantic' }));
+        expect(card.querySelector('.match-score').textContent).toBe('82% match');
+        expect(card.querySelector('.match-name')).toBeNull();
+    });
+
+    it('does not dress a name match up as 100% similarity', () => {
+        const card = AgentCard.create(makeAgent({ score: 1.0, match: 'name' }));
+        const label = card.querySelector('.match-score');
+        expect(label.textContent).toBe('name match');
+        expect(label.classList.contains('match-name')).toBe(true);
+        expect(label.title).toContain('name');
+    });
+
+    it('treats an unlabelled result as semantic', () => {
+        const agent = makeAgent({ score: 0.5 });
+        delete agent.match;
+        expect(AgentCard.create(agent).querySelector('.match-score').textContent).toBe('50% match');
+    });
+
+    it('shows nothing when there is no score', () => {
+        const agent = makeAgent();
+        delete agent.score;
+        expect(AgentCard.create(agent).querySelector('.match-score')).toBeNull();
+    });
+});
