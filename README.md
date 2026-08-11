@@ -266,7 +266,8 @@ Content-Type: application/json
         "url": "https://cursor.sh"
       },
       "distance": 0.42,
-      "score": 0.7042
+      "score": 0.7042,
+      "match": "semantic"
     }
   ],
   "summary": "Cursor is a full editor, while Aider works from the terminal.",
@@ -284,6 +285,18 @@ embedding models emit). Measured against this catalogue: a verbatim
 description scores ≈0.91, a good semantic match ≈0.71, and an unrelated query
 ≈0.34. `description` is the agent's own text; `matched_text` is the composite
 string that was actually embedded.
+
+**Exact names.** `match` is `"semantic"` for a normal similarity hit and
+`"name"` when the query was exactly an agent's name. A name match is placed
+first and scored `1.0`, and the UI labels it "name match" rather than "100%
+match" — it is not a similarity score, and presenting it as one would overstate
+it.
+
+This exists because similarity alone is not enough for a product named after an
+ordinary word: searching `Evidently` did not return the tool called Evidently
+anywhere in the top ten, since the bare adverb reads as generic English. Only a
+full-string, case-insensitive match on the name qualifies — a substring would
+let `Code` hijack the ranking.
 
 **Weak matches.** Vector search always returns *something*, so a nonsense query
 still comes back with a full page of results. `metadata.confident` is `false`
@@ -652,8 +665,15 @@ make refresh-stars    # update star counts from the GitHub API
 Projects get renamed, archived and deleted, and a dead link is invisible until
 somebody clicks it. The checker distinguishes the two cases that matter: a
 **broken** link needs fixing, while a **redirect** usually means the project
-moved and the entry could be updated. Both run weekly in a scheduled workflow,
-which commits refreshed star counts and reports link status in its summary.
+moved and the entry could be updated.
+
+Both run weekly in a scheduled workflow, which commits refreshed star counts
+directly and **fails on a broken link** — a summary nobody reads is not a
+signal. Redirects are reported but tolerated, since the link still works, and
+the check runs twice before failing so one flaky host does not turn the job red.
+
+Renames are worth acting on: following them caught that Windsurf now ships as
+Devin Desktop, which had left that entry stale in name, description and URL.
 
 ## ⚡ Performance
 
