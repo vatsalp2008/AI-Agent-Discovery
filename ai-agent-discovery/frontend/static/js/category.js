@@ -53,11 +53,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch(
-            `/api/agents?category=${encodeURIComponent(name)}&limit=200&sort=stars`);
-        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
-
-        const body = await response.json();
+        // Paged: a category could hold more agents than one page returns.
+        const body = await AgentsApi.fetchAll({ category: name, sort: 'stars' });
+        if (body.failed) throw new Error('Could not load this category.');
         const agents = body.agents || [];
 
         if (agents.length === 0) {
@@ -66,9 +64,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // metadata.total is the size of the whole category; agents.length is
-        // only this page, which the API caps.
-        const total = (body.metadata || {}).total ?? agents.length;
+        // body.total is the size of the whole category; agents.length is only
+        // what was fetched.
+        const total = body.total ?? agents.length;
         countEl.textContent = `${total} agent${total === 1 ? '' : 's'}, most starred first`;
         AgentCard.renderGrid(grid, agents);
         grid.setAttribute('aria-busy', 'false');

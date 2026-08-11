@@ -20,7 +20,8 @@ function routes(overrides = {}) {
 async function boot(path = '/compare?names=Aider,Cursor', r = routes()) {
     window.history.replaceState({}, '', path);
     const calls = stubFetch(r);
-    bootPage({ html: COMPARE_HTML, script: 'compare.js' });
+    bootPage({ html: COMPARE_HTML, script: 'compare.js',
+               extraScripts: [{ file: 'agents-api.js', global: 'AgentsApi' }] });
     await flush();
     return calls;
 }

@@ -385,39 +385,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let suggestionItems = [];
     let activeSuggestion = -1;
 
-    /**
-     * Fetch every agent name, following pagination.
-     *
-     * A single request cannot be relied on: the server caps `limit` at
-     * AGENTS_MAX_PAGE_SIZE, so asking for a big number silently truncates and
-     * later-alphabet names stop being suggested with no error. `has_more`
-     * says whether to keep going.
-     */
+    /** Every agent name, for the suggestion list. */
     async function loadSuggestionNames() {
         if (!suggestionList) return;
-
-        const names = [];
-        let offset = 0;
-
-        try {
-            // Bounded so a runaway `has_more` cannot spin forever.
-            for (let page = 0; page < 20; page += 1) {
-                const response = await fetch(`/api/agents?limit=200&offset=${offset}&sort=name`);
-                if (!response.ok) break;
-
-                const body = await response.json();
-                const agents = body.agents || [];
-                agents.forEach(a => names.push({ name: a.name }));
-
-                const metadata = body.metadata || {};
-                offset += agents.length;
-                if (!metadata.has_more || agents.length === 0) break;
-            }
-            suggestionNames = names;
-        } catch (error) {
-            console.error('Could not load agent names:', error);
-            suggestionNames = names;   // keep whatever arrived
-        }
+        const body = await AgentsApi.fetchAll({ sort: 'name' });
+        suggestionNames = (body.agents || []).map(a => ({ name: a.name }));
     }
 
     function closeSuggestions() {

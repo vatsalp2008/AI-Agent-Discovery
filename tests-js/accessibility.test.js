@@ -65,6 +65,7 @@ describe('rendered controls have accessible names', () => {
             html: SEARCH_HTML,
             script: 'main.js',
             extraScripts: [
+                { file: 'agents-api.js', global: 'AgentsApi' },
                 { file: 'search-state.js', global: 'SearchState' },
                 { file: 'recent-searches.js', global: 'RecentSearches' },
                 { file: 'export-results.js', global: 'ExportResults' },

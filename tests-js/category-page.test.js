@@ -17,7 +17,8 @@ function routes(overrides = {}) {
 async function boot(path = '/category/Evaluation', r = routes()) {
     window.history.replaceState({}, '', path);
     const calls = stubFetch(r);
-    bootPage({ html: CATEGORY_HTML, script: 'category.js' });
+    bootPage({ html: CATEGORY_HTML, script: 'category.js',
+               extraScripts: [{ file: 'agents-api.js', global: 'AgentsApi' }] });
     await flush();
     return calls;
 }
@@ -53,8 +54,9 @@ describe('browsing a category', () => {
 
     it('decodes a category with a space', async () => {
         const calls = await boot('/category/Code%20Generation');
-        expect(decodeURIComponent(calls.find(c => c.url.includes('/api/agents')).url))
-            .toContain('category=Code Generation');
+        // URLSearchParams encodes a space as "+", which is valid in a query.
+        expect(calls.find(c => c.url.includes('/api/agents')).url)
+            .toContain('category=Code+Generation');
     });
 
     it('clears aria-busy when done', async () => {

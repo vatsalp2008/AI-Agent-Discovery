@@ -38,6 +38,7 @@ async function boot(routes = defaultRoutes()) {
         script: 'main.js',
         // index.html loads search-state.js before main.js.
         extraScripts: [
+            { file: 'agents-api.js', global: 'AgentsApi' },
             { file: 'search-state.js', global: 'SearchState' },
             { file: 'suggest.js', global: 'Suggest' },
             { file: 'recent-searches.js', global: 'RecentSearches' },
@@ -622,6 +623,7 @@ describe('loading every suggestable name', () => {
         const calls = await boot(defaultRoutes({
             '/api/agents': { body: { agents: [makeResult('Loop')], metadata: { has_more: true } } },
         }));
-        expect(pageCalls(calls).length).toBeLessThanOrEqual(20);
+        // AgentsApi caps the walk; the exact number is its business.
+        expect(pageCalls(calls).length).toBeLessThanOrEqual(globalThis.AgentsApi.MAX_PAGES);
     });
 });
