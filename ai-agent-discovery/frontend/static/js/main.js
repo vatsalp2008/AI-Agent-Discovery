@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Category chips act as a real server-side filter, not just a canned query.
     let activeCategory = null;
+    // Reused by the no-match notice, which suggests somewhere to go instead.
+    let loadedCategories = [];
 
     // Guards against a slow summary landing after a newer search started.
     let searchToken = 0;
@@ -176,6 +178,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return button;
     }
 
+    /**
+     * A notice offering categories to browse instead.
+     *
+     * "Nothing matched" is honest but a dead end. With a catalogue this size
+     * the useful next step is usually a category, so offer the largest few
+     * rather than leaving the user to guess what is in here.
+     */
+    function makeNoMatchNotice(text) {
+        const notice = makeNotice(text);
+
+        const categories = loadedCategories.slice(0, 4);
+        if (categories.length === 0) return notice;
+
+        const suggestion = document.createElement('span');
+        suggestion.className = 'notice-suggestion';
+        suggestion.append(' Try browsing ');
+
+        categories.forEach((category, index) => {
+            if (index) suggestion.append(index === categories.length - 1 ? ' or ' : ', ');
+            const link = document.createElement('a');
+            link.href = `/category/${encodeURIComponent(category.name)}`;
+            link.textContent = category.name;
+            suggestion.appendChild(link);
+        });
+        suggestion.append('.');
+
+        notice.appendChild(suggestion);
+        return notice;
+    }
+
     function makeNotice(text) {
         const notice = document.createElement('p');
         notice.className = 'result-notice';
@@ -280,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultsArea.prepend(bar);
 
                 if (data.metadata && data.metadata.confident === false) {
-                    resultsArea.prepend(makeNotice(
+                    resultsArea.prepend(makeNoMatchNotice(
                         'Nothing matched your query well. Showing the closest agents anyway.'
                     ));
                 } else {
@@ -341,6 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
             const categories = await response.json();
             if (!Array.isArray(categories) || categories.length === 0) return;
+            loadedCategories = categories;
             categories.forEach(c => filters.appendChild(makeChip(c.name, c.count)));
             // Re-apply a category that arrived in the URL.
             if (activeCategory) setActiveChip(activeCategory);

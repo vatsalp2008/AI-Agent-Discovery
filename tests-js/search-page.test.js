@@ -627,3 +627,48 @@ describe('loading every suggestable name', () => {
         expect(pageCalls(calls).length).toBeLessThanOrEqual(globalThis.AgentsApi.MAX_PAGES);
     });
 });
+
+describe('when nothing matches well', () => {
+    const weak = () => defaultRoutes({
+        '/api/search': { body: { results: [makeResult('Cursor', 0.3)], metadata: { confident: false } } },
+    });
+
+    it('offers categories to browse instead of a dead end', async () => {
+        await boot(weak());
+        submitSearch('banana bread');
+        await flush();
+
+        const notice = document.querySelector('.result-notice');
+        expect(notice.textContent).toContain('Nothing matched');
+        const links = [...notice.querySelectorAll('a')].map(a => a.textContent);
+        expect(links).toEqual(['Code Generation', 'Research']);
+    });
+
+    it('links each suggestion to its category page', async () => {
+        await boot(weak());
+        submitSearch('banana bread');
+        await flush();
+        expect(document.querySelector('.result-notice a').getAttribute('href'))
+            .toBe('/category/Code%20Generation');
+    });
+
+    it('still shows the notice when categories failed to load', async () => {
+        await boot(defaultRoutes({
+            '/api/categories': new Error('offline'),
+            '/api/search': { body: { results: [makeResult('X', 0.2)], metadata: { confident: false } } },
+        }));
+        submitSearch('banana bread');
+        await flush();
+
+        const notice = document.querySelector('.result-notice');
+        expect(notice.textContent).toContain('Nothing matched');
+        expect(notice.querySelector('a')).toBeNull();
+    });
+
+    it('adds no suggestion when the match was confident', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        expect(document.querySelector('.result-notice')).toBeNull();
+    });
+});

@@ -1283,3 +1283,11 @@ a.filter-tag {
     color: var(--accent-color);
     border-color: var(--accent-color);
 }
+
+/* Category suggestions inside the no-match notice */
+.notice-suggestion a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.notice-suggestion a:hover { text-decoration: underline; }
