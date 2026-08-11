@@ -37,7 +37,7 @@ SAMPLE_AGENTS = [
         url="https://github.com/features/copilot",
         use_case="Code completion, suggestions"
     ),
-     Agent(
+    Agent(
         name="OpenInterpreter",
         description="A natural language interface for computers. Lets LLMs run code (Python, Javascript, Shell) locally.",
         category="Code Generation",
@@ -46,8 +46,6 @@ SAMPLE_AGENTS = [
         url="https://github.com/OpenInterpreter/open-interpreter",
         use_case="Local system control, script execution"
     ),
-
-    # Research & Autonomous
     Agent(
         name="AutoGPT",
         description="An experimental open-source attempt to make GPT-4 fully autonomous.",
@@ -75,8 +73,6 @@ SAMPLE_AGENTS = [
         url="https://github.com/yoheinakajima/babyagi",
         use_case="Task management, loop execution"
     ),
-
-    # Data Analysis
     Agent(
         name="PandasAI",
         description="A Python library that integrates generative artificial intelligence capabilities into pandas, making dataframes conversational.",
@@ -906,24 +902,6 @@ SAMPLE_AGENTS = [
         use_case="Autonomous navigation for mobile robots"
     ),
     Agent(
-        name="Argilla",
-        description="A collaboration tool for building and curating the datasets that fine-tuning and evaluation depend on.",
-        category="Evaluation",
-        tech_stack=["Python", "Elasticsearch"],
-        github_stars=5079,
-        url="https://github.com/argilla-io/argilla",
-        use_case="Human-in-the-loop dataset curation"
-    ),
-    Agent(
-        name="Metaflow",
-        description="Netflix's framework for building and deploying ML and AI systems, from a laptop to production.",
-        category="MLOps",
-        tech_stack=["Python", "AWS", "Kubernetes"],
-        github_stars=10207,
-        url="https://github.com/Netflix/metaflow",
-        use_case="Taking ML pipelines to production"
-    ),
-    Agent(
         name="MLflow",
         description="Tracks experiments, packages models and manages their lifecycle, now including LLM evaluation.",
         category="MLOps",
@@ -1023,15 +1001,6 @@ SAMPLE_AGENTS = [
         use_case="Fine-tuning with PyTorch-native recipes"
     ),
     Agent(
-        name="MCP Servers",
-        description="The reference Model Context Protocol servers, giving agents access to files, git, databases and more.",
-        category="Framework",
-        tech_stack=["TypeScript", "Python", "MCP"],
-        github_stars=89448,
-        url="https://github.com/modelcontextprotocol/servers",
-        use_case="Standard tool access for agents"
-    ),
-    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
@@ -1040,8 +1009,6 @@ SAMPLE_AGENTS = [
         url="https://github.com/geekan/MetaGPT",
         use_case="Software development lifecycle automation"
     ),
-
-    # Frameworks (acting as base for agents but often valid searches)
     Agent(
         name="LangChain",
         description="A framework for composing LLM applications from chains, agents and tools, with integrations for most models and vector stores.",
@@ -1060,8 +1027,6 @@ SAMPLE_AGENTS = [
         url="https://github.com/joaomdmoura/crewAI",
         use_case="Multi-agent orchestration"
     ),
-
-    # Customer Service / Chat
     Agent(
         name="Rasa",
         description="Open source machine learning framework for automated text and voice-based conversations.",
@@ -1080,8 +1045,6 @@ SAMPLE_AGENTS = [
         url="https://botpress.com",
         use_case="Visual chatbot builder"
     ),
-
-    # Automation
     Agent(
         name="Zapier AI Actions",
         description="Equip AI agents with the ability to run 20,000+ actions on Zapier.",
@@ -1100,8 +1063,6 @@ SAMPLE_AGENTS = [
         url="https://n8n.io",
         use_case="Workflow automation"
     ),
-
-     # More Agents to hit 20+
     Agent(
         name="SuperAGI",
         description="Open Source autonomous AI agent framework to develop and deploy useful autonomous agents.",
@@ -1147,15 +1108,6 @@ SAMPLE_AGENTS = [
         url="https://github.com/PromtEngineer/localGPT",
         use_case="Local RAG"
     ),
-    Agent(
-        name="Sweep",
-        description="Sweep is an AI junior developer that transforms bug reports and feature requests into code changes.",
-        category="Code Generation",
-        tech_stack=["Python", "GitHub API"],
-        github_stars=7000,
-        url="https://github.com/sweepai/sweep",
-        use_case="Bug fixing, feature implementation"
-    )
 ]
 
 class CatalogueError(Exception):

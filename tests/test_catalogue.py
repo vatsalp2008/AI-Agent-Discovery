@@ -276,3 +276,27 @@ def test_no_category_holds_a_single_agent(catalogue):
     counts = Counter(r["category"] for r in catalogue)
     singletons = [name for name, count in counts.items() if count == 1]
     assert not singletons, f"categories with one agent: {singletons}"
+
+
+def test_built_in_samples_have_unique_names():
+    """SAMPLE_AGENTS seeds a fresh checkout, so a duplicate there would index
+    the same agent twice. The catalogue check above does not cover it —
+    a duplicate was added and went unnoticed until a seed produced two rows."""
+    from collections import Counter
+
+    import scraper
+
+    counts = Counter(a.name.casefold() for a in scraper.SAMPLE_AGENTS)
+    assert [n for n, c in counts.items() if c > 1] == []
+
+
+def test_built_in_samples_are_valid_agents():
+    """They bypass the admin validation path, so check them directly."""
+    import scraper
+
+    for agent in scraper.SAMPLE_AGENTS:
+        assert agent.name.strip(), "an unnamed sample agent"
+        assert agent.description.strip(), f"{agent.name}: no description"
+        assert agent.category.strip(), f"{agent.name}: no category"
+        for tech in agent.tech_stack:
+            assert "," not in tech, f"{agent.name}: comma in tech entry {tech!r}"
