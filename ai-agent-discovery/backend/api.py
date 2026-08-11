@@ -412,6 +412,64 @@ def get_stats():
     return _etag_response(get_store().get_stats())
 
 
+# Described by hand because the meaning of these fields is not derivable from
+# the route: `score` is a cosine similarity except when `match` is "name", in
+# which case it is 1.0 because the query was the agent's name.
+_SCHEMAS = {
+    "SearchResult": {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "description": {"type": "string", "description": "The agent's own description."},
+            "matched_text": {"type": "string", "description": "The composite text that was embedded."},
+            "distance": {"type": "number", "description": "L2 distance from the query vector."},
+            "score": {
+                "type": "number",
+                "description": (
+                    "Cosine similarity in 0..1, recovered from the distance. "
+                    "Exactly 1.0 when match is 'name' — that is an exact match "
+                    "on the name, not a similarity measurement."
+                ),
+            },
+            "match": {
+                "type": "string",
+                "enum": ["semantic", "name"],
+                "description": (
+                    "'semantic' for a similarity hit; 'name' when the query was "
+                    "exactly this agent's name, in which case it is ranked first."
+                ),
+            },
+            "metadata": {"type": "object"},
+        },
+    },
+    "SearchResponse": {
+        "type": "object",
+        "properties": {
+            "results": {"type": "array", "items": {"$ref": "#/components/schemas/SearchResult"}},
+            "summary": {
+                "type": ["string", "null"],
+                "description": "LLM overview; null unless requested and generation succeeded.",
+            },
+            "metadata": {
+                "type": "object",
+                "properties": {
+                    "count": {"type": "integer"},
+                    "limit": {"type": "integer"},
+                    "category": {"type": ["string", "null"]},
+                    "min_score": {"type": ["number", "null"]},
+                    "confident": {
+                        "type": "boolean",
+                        "description": "False when the best result scored below SEARCH_MIN_SCORE.",
+                    },
+                    "summarized": {"type": "boolean"},
+                    "duration": {"type": "string"},
+                },
+            },
+        },
+    },
+}
+
+
 @api_bp.route('/openapi.json', methods=['GET'])
 def openapi():
     """A machine-readable description of this API.
@@ -445,6 +503,17 @@ def openapi():
                 operation["parameters"] = parameters
             entry[method.lower()] = operation
 
+    # Only the search response is described in full. The rest are generated
+    # from the URL map with a generic 200, which is honest about what is
+    # known; hand-writing schemas for every route would drift the moment a
+    # handler changed. Search is the exception because callers have to
+    # interpret `score` and `match` correctly to use it at all.
+    if "/api/search" in paths and "post" in paths["/api/search"]:
+        paths["/api/search"]["post"]["responses"]["200"] = {
+            "description": "Ranked results",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SearchResponse"}}},
+        }
+
     return jsonify({
         "openapi": "3.0.3",
         "info": {
@@ -453,6 +522,7 @@ def openapi():
             "description": "Semantic search over a curated catalogue of AI agents and developer tools.",
         },
         "paths": paths,
+        "components": {"schemas": _SCHEMAS},
     }), 200
 
 

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 import api
@@ -626,3 +628,31 @@ class TestStarsFilter:
         metadata = client.get("/api/agents").get_json()["metadata"]
         assert metadata["min_stars"] is None
         assert metadata["max_stars"] is None
+
+
+class TestOpenApiSchemas:
+    def test_the_search_response_is_described(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        assert "SearchResponse" in spec["components"]["schemas"]
+        ref = spec["paths"]["/api/search"]["post"]["responses"]["200"]
+        assert "SearchResponse" in json.dumps(ref)
+
+    def test_the_match_field_is_documented(self, client):
+        """A caller has to know 1.0 can mean 'name match', not 'perfect similarity'."""
+        result = client.get("/api/openapi.json").get_json()["components"]["schemas"]["SearchResult"]
+        assert result["properties"]["match"]["enum"] == ["semantic", "name"]
+        assert "not a similarity" in result["properties"]["score"]["description"]
+
+    def test_confidence_is_documented(self, client):
+        spec = client.get("/api/openapi.json").get_json()
+        meta = spec["components"]["schemas"]["SearchResponse"]["properties"]["metadata"]
+        assert "SEARCH_MIN_SCORE" in meta["properties"]["confident"]["description"]
+
+    def test_every_schema_reference_resolves(self, client):
+        """A dangling $ref makes the spec unusable in a generator."""
+        import re
+
+        spec = client.get("/api/openapi.json").get_json()
+        defined = set(spec["components"]["schemas"])
+        referenced = set(re.findall(r"#/components/schemas/(\w+)", json.dumps(spec)))
+        assert referenced <= defined, f"dangling refs: {referenced - defined}"
