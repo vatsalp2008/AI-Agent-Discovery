@@ -400,3 +400,21 @@ def test_every_category_is_reachable_by_search(live_store):
             unreachable.append(name)
 
     assert not unreachable, f"no agent surfaced for these categories: {unreachable}"
+
+
+@needs_embeddings
+def test_every_name_match_scores_the_same(live_store):
+    """Whether the vector search returned the agent is an accident of
+    retrieval. Scoring one path 1.0 and the other by similarity meant a
+    min_score filter could drop an agent the user asked for by name."""
+    for agent in live_store.get_all_agents()[:25]:
+        top = live_store.search(agent["name"], limit=1)[0]
+        assert top["name"] == agent["name"]
+        assert top["match"] == "name"
+        assert top["score"] == 1.0, f"{agent['name']} scored {top['score']}"
+
+
+@needs_embeddings
+def test_min_score_keeps_an_agent_asked_for_by_name(live_store):
+    results = live_store.search("Evidently", limit=3, min_score=0.9)
+    assert [r["name"] for r in results] == ["Evidently"]
