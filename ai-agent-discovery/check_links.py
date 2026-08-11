@@ -99,17 +99,25 @@ def check_catalogue(records, workers=8, timeout=10):
 
 
 def render(results):
+    """Format the report.
+
+    Names come from a hand-edited catalogue, so one may be missing entirely;
+    a format spec on None raises and would discard every other result.
+    """
+    def label(result):
+        return result.get("name") or "(unnamed)"
+
     broken = [r for r in results if r["status"] == BROKEN]
     redirected = [r for r in results if r["status"] == REDIRECT]
     skipped = [r for r in results if r["status"] == SKIPPED]
 
     lines = []
     for r in broken:
-        lines.append(f"  BROKEN   {r['name']:<22} {r['url']}\n           {r['detail']}")
+        lines.append(f"  BROKEN   {label(r):<22} {r['url']}\n           {r['detail']}")
     for r in redirected:
-        lines.append(f"  moved    {r['name']:<22} {r['detail']}")
+        lines.append(f"  moved    {label(r):<22} {r['detail']}")
     for r in skipped:
-        lines.append(f"  skipped  {r['name']:<22} {r['detail']}")
+        lines.append(f"  skipped  {label(r):<22} {r['detail']}")
 
     lines.append("")
     lines.append(f"{len(results)} checked: {len(broken)} broken, "
@@ -125,6 +133,11 @@ def main(argv=None):
     parser.add_argument("--fail-on-broken", action="store_true",
                         help="exit non-zero if any link is broken")
     args = parser.parse_args(argv)
+
+    if args.workers < 1:
+        parser.error("--workers must be at least 1")
+    if args.timeout <= 0:
+        parser.error("--timeout must be greater than 0")
 
     configure("WARNING")
 

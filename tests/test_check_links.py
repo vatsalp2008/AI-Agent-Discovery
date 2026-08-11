@@ -121,3 +121,40 @@ class TestReport:
             {"name": "A", "url": "https://gone.example", "status": links.BROKEN, "detail": "404"},
         ])
         assert "https://gone.example" in output
+
+
+class TestMalformedInput:
+    """The catalogue is hand-edited; one bad record must not lose the report."""
+
+    def test_a_record_without_a_name_still_renders(self, links):
+        output = links.render([
+            {"name": None, "url": "https://gone.example", "status": links.BROKEN, "detail": "404"},
+            {"name": "Fine", "url": "https://ok.example", "status": links.OK, "detail": "200"},
+        ])
+        assert "(unnamed)" in output
+        assert "2 checked" in output
+
+    def test_a_missing_name_key_still_renders(self, links):
+        output = links.render([{"url": "u", "status": links.REDIRECT, "detail": "-> v"}])
+        assert "(unnamed)" in output
+
+    def test_sorting_tolerates_a_missing_name(self, links, monkeypatch):
+        monkeypatch.setattr(links, "check_url", lambda url, timeout=0: (links.OK, "200"))
+        results = links.check_catalogue([{"url": "u"}, {"name": "B", "url": "v"}], workers=2)
+        assert len(results) == 2
+
+
+class TestArgumentValidation:
+    """These reached ThreadPoolExecutor and raised an unhandled ValueError."""
+
+    def test_zero_workers_is_rejected(self, links):
+        with pytest.raises(SystemExit):
+            links.main(["--workers", "0"])
+
+    def test_negative_workers_is_rejected(self, links):
+        with pytest.raises(SystemExit):
+            links.main(["--workers", "-1"])
+
+    def test_zero_timeout_is_rejected(self, links):
+        with pytest.raises(SystemExit):
+            links.main(["--timeout", "0"])
