@@ -1711,5 +1711,105 @@
     "github_stars": 5797,
     "url": "https://github.com/pytorch/torchtune",
     "use_case": "Fine-tuning with PyTorch-native recipes"
+  },
+  {
+    "name": "LibreChat",
+    "description": "A self-hosted chat interface supporting many providers, with agents, tools and multi-user accounts.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "TypeScript",
+      "MongoDB",
+      "React"
+    ],
+    "github_stars": 41925,
+    "url": "https://github.com/danny-avila/LibreChat",
+    "use_case": "Self-hosted chat across providers"
+  },
+  {
+    "name": "Open WebUI",
+    "description": "A self-hosted interface for local models, with RAG over your documents and a plugin system.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "Svelte",
+      "Ollama"
+    ],
+    "github_stars": 148501,
+    "url": "https://github.com/open-webui/open-webui",
+    "use_case": "A front end for locally-run models"
+  },
+  {
+    "name": "LobeChat",
+    "description": "A chat framework with plugins, function calling and multi-modal input across many providers.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "TypeScript",
+      "Next.js"
+    ],
+    "github_stars": 81504,
+    "url": "https://github.com/lobehub/lobe-chat",
+    "use_case": "Extensible chat with plugins"
+  },
+  {
+    "name": "OpenCode",
+    "description": "An open source terminal coding agent that works with any model provider.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "Go"
+    ],
+    "github_stars": 196186,
+    "url": "https://github.com/sst/opencode",
+    "use_case": "Provider-agnostic terminal coding"
+  },
+  {
+    "name": "AgentGPT",
+    "description": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "TypeScript",
+      "Next.js",
+      "Python"
+    ],
+    "github_stars": 36304,
+    "url": "https://github.com/reworkd/AgentGPT",
+    "use_case": "Running autonomous agents in a browser"
+  },
+  {
+    "name": "E2B",
+    "description": "Secure cloud sandboxes where an AI agent can run code it wrote without touching your machine.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "TypeScript",
+      "Firecracker"
+    ],
+    "github_stars": 13355,
+    "url": "https://github.com/e2b-dev/E2B",
+    "use_case": "Sandboxed execution of generated code"
+  },
+  {
+    "name": "Firecrawl",
+    "description": "Turns websites into clean, structured data for agents, handling crawling, scraping and extraction.",
+    "category": "Automation",
+    "tech_stack": [
+      "TypeScript",
+      "Playwright"
+    ],
+    "github_stars": 165821,
+    "url": "https://github.com/firecrawl/firecrawl",
+    "use_case": "Web data extraction for agents"
+  },
+  {
+    "name": "SiYuan",
+    "description": "A privacy-first knowledge base that keeps notes local and answers questions over them.",
+    "category": "Research",
+    "tech_stack": [
+      "Go",
+      "TypeScript"
+    ],
+    "github_stars": 45741,
+    "url": "https://github.com/siyuan-note/siyuan",
+    "use_case": "Local-first personal knowledge base"
   }
 ]
