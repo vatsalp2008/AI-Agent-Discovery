@@ -300,3 +300,77 @@ def test_built_in_samples_are_valid_agents():
         assert agent.category.strip(), f"{agent.name}: no category"
         for tech in agent.tech_stack:
             assert "," not in tech, f"{agent.name}: comma in tech entry {tech!r}"
+
+
+def test_every_script_is_loaded_by_some_template(catalogue):
+    """A JS file no template loads is dead code; the reverse is a 404.
+
+    Both are silent — the page just misses a feature, and nothing fails.
+    """
+    import re
+
+    import config
+
+    static = config.PACKAGE_DIR / "frontend" / "static" / "js"
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+
+    loaded = set()
+    for template in templates.glob("*.html"):
+        loaded |= set(re.findall(r'<script src="/static/js/([^"]+)"', template.read_text()))
+
+    present = {p.name for p in static.glob("*.js")}
+    assert not (present - loaded), f"scripts no template loads: {sorted(present - loaded)}"
+    assert not (loaded - present), f"templates load missing scripts: {sorted(loaded - present)}"
+
+
+def test_scripts_load_after_their_dependencies(catalogue):
+    """A global used before its defining file is loaded is undefined at runtime.
+
+    main.js calls AgentsApi and SearchState; compare.js and category.js call
+    AgentsApi. Order in the template is what makes that work.
+
+    Usage guarded by `typeof X === 'undefined'` is exempt: that is how an
+    optional dependency is declared. agent-card.js uses Collections that way,
+    so it renders a save control on pages that load collections.js and skips
+    it on those that do not.
+    """
+    import re
+
+    import config
+
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+    base = (templates / "base.html").read_text()
+
+    provides = {
+        "agents-api.js": "AgentsApi",
+        "search-state.js": "SearchState",
+        "agent-card.js": "AgentCard",
+        "collections.js": "Collections",
+        "suggest.js": "Suggest",
+        "dashboard-stats.js": "DashboardStats",
+        "export-results.js": "ExportResults",
+    }
+
+    problems = []
+    for template in templates.glob("*.html"):
+        if template.name == "base.html":
+            continue
+        # base.html's scripts load first, then the page's own block.
+        order = (re.findall(r'<script src="/static/js/([^"]+)"', base)
+                 + re.findall(r'<script src="/static/js/([^"]+)"', template.read_text()))
+
+        available = set()
+        for script in order:
+            source = (config.PACKAGE_DIR / "frontend" / "static" / "js" / script).read_text()
+            for dependency, global_name in provides.items():
+                if dependency == script:
+                    continue
+                if global_name in available:
+                    continue
+                guarded = re.search(rf"typeof\s+{global_name}\s*===?\s*['\"]undefined", source)
+                if re.search(rf"\b{global_name}\.", source) and not guarded:
+                    problems.append(f"{template.name}: {script} uses {global_name} before it loads")
+            if script in provides:
+                available.add(provides[script])
+
+    assert not problems, problems
