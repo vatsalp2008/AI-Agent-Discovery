@@ -23,6 +23,8 @@ configuration reference and API documentation, see the
 | `benchmark.py` | Hot-path measurements |
 | `doctor.py` | Setup diagnostics: Ollama, models, catalogue, index |
 | `check_links.py` | Verifies every catalogue URL still resolves |
+| `frontend/static/js/agents-api.js` | Paged fetching of agent lists |
+| `frontend/static/js/suggest.js` | Name suggestion ranking |
 | `backend/request_log.py` | Per-request timing |
 | `backend/scraper.py` | Built-in sample agents and catalogue loading |
 | `backend/logging_setup.py` | Shared logging configuration |

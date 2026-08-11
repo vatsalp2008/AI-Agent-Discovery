@@ -122,6 +122,18 @@ and the text, so they are the thing persisted to disk
 (`backend/embedding_cache.py`). Getting this backwards would serve results
 from a catalogue that no longer exists.
 
+**Page through agent lists; never assume one request is enough.** The API caps
+`limit` at `AGENTS_MAX_PAGE_SIZE` and silently truncates beyond it — no error,
+just missing agents once the catalogue outgrows the cap. Three separate callers
+had that bug. Use `AgentsApi.fetchAll` (`static/js/agents-api.js`), which
+follows `has_more` and reports `failed` so a caller can tell an empty result
+from a request that never arrived.
+
+**Say what a score means.** A result carries `match: "semantic" | "name"`. A
+name match scores 1.0 because the query *was* the agent's name, not because the
+embedding ranked it top; the UI and the MCP tools both surface the distinction
+rather than showing "100% match".
+
 **The editor reads the catalogue, not the index.** `/api/agents` is served
 from the FAISS docstore, which carries only the fields search needs — no
 `use_case` — and lags unindexed edits. The editor uses `/api/admin/agents`
@@ -179,6 +191,10 @@ Edit `data/agents.json` and re-run `make seed`:
 - Adding through `/admin` warns if the catalogue already has something very
   similar. `make check-links` finds entries whose project has been renamed or
   deleted — worth running before a batch of additions.
+- Names are checked for uniqueness in `data/agents.json` **and** in
+  `SAMPLE_AGENTS`. Adding to the samples an agent already in the catalogue is
+  easy to do — the catalogue-side dedup hides it, and only a fresh seed would
+  reveal the duplicate.
 - **Verify the repository exists before adding it.** Check the URL against the
   GitHub API and take the description and star count from there. It is very
   easy to write a plausible entry for a project that does something else
