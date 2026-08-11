@@ -14,10 +14,40 @@ const SetupBanner = (() => {
     function message(health) {
         if (!health) return null;
 
-        // Checked before the status: /api/health reports a stale catalogue as
-        // status "ok" with a warning, since searches still work — they just
-        // return the previous contents. Returning early on "ok" would hide
-        // the most common thing worth telling someone about.
+        // Order matters. An unusable index is checked first: a stale catalogue
+        // is only a warning (searches still work, they return the previous
+        // contents), but an empty or mismatched index means they return
+        // nothing at all. Reporting the milder problem first would tell
+        // someone their index is "out of date" when it is not there.
+        const unusable = health.status !== 'ok' || health.indexed_agents === 0;
+
+        if (unusable) {
+            if (health.detail && health.detail.includes('embedding model')) {
+                return {
+                    title: 'The index was built with a different embedding model.',
+                    detail: health.detail,
+                    command: 'make seed',
+                };
+            }
+
+            // The store threw — Ollama unreachable, most likely. Seeding would
+            // fail the same way, so do not offer it as the remedy.
+            if (health.status === 'error') {
+                return {
+                    title: 'The search index could not be loaded.',
+                    detail: health.detail || 'The server could not open the index.',
+                    command: 'make doctor',
+                };
+            }
+
+            return {
+                title: 'No agents are indexed yet.',
+                detail: health.detail
+                    || 'The search index has not been built, so every search will come back empty.',
+                command: 'make seed',
+            };
+        }
+
         if (health.catalogue_stale) {
             return {
                 title: 'The index is out of date.',
@@ -26,19 +56,7 @@ const SetupBanner = (() => {
             };
         }
 
-        if (health.status === 'ok') return null;
-        if (health.detail && health.detail.includes('embedding model')) {
-            return {
-                title: 'The index was built with a different embedding model.',
-                detail: health.detail,
-                command: 'make seed',
-            };
-        }
-        return {
-            title: 'No agents are indexed yet.',
-            detail: 'The search index has not been built, so every search will come back empty.',
-            command: 'make seed',
-        };
+        return null;
     }
 
     function render(info) {

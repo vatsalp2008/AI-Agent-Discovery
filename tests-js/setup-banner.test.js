@@ -12,14 +12,34 @@ describe('deciding what to say', () => {
         expect(Banner.message({ status: 'ok', indexed_agents: 106 })).toBeNull();
     });
 
+    it('reports an empty index as missing, not merely stale', () => {
+        // Both flags set: the index has no vectors AND the catalogue moved on.
+        // "Out of date" would understate it — searches return nothing at all.
+        const info = Banner.message({ status: 'degraded', indexed_agents: 0, catalogue_stale: true });
+        expect(info.title).toContain('No agents are indexed');
+    });
+
+    it('does not suggest seeding when the store could not be loaded', () => {
+        // Ollama unreachable: `make seed` fails the same way.
+        const info = Banner.message({ status: 'error', indexed_agents: 0, detail: 'connection refused' });
+        expect(info.title).toContain('could not be loaded');
+        expect(info.detail).toContain('connection refused');
+        expect(info.command).toBe('make doctor');
+    });
+
+    it('passes the server own detail through', () => {
+        const info = Banner.message({ status: 'degraded', indexed_agents: 0, detail: 'Run seed.py to populate it.' });
+        expect(info.detail).toBe('Run seed.py to populate it.');
+    });
+
     it('explains an unseeded index', () => {
-        const info = Banner.message({ status: 'degraded', detail: 'No agents indexed. Run seed.py...' });
+        const info = Banner.message({ status: 'degraded', indexed_agents: 0, detail: 'No agents indexed. Run seed.py...' });
         expect(info.title).toContain('No agents are indexed');
         expect(info.command).toBe('make seed');
     });
 
-    it('explains a stale catalogue', () => {
-        const info = Banner.message({ status: 'ok', catalogue_stale: true });
+    it('explains a stale catalogue on an otherwise healthy index', () => {
+        const info = Banner.message({ status: 'ok', indexed_agents: 128, catalogue_stale: true });
         expect(info.title).toContain('out of date');
     });
 
