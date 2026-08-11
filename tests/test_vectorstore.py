@@ -214,3 +214,16 @@ class TestExactNameMatching:
     def test_it_does_not_duplicate_an_agent_already_returned(self, store):
         results = store.search("Cursor", limit=5)
         assert [r["name"] for r in results].count("Cursor") == 1
+
+
+def test_a_name_match_scores_the_same_either_way(store, weak_store):
+    """Whether the vector search happened to return the agent is an accident
+    of retrieval; it must not change the score the caller sees."""
+    result = weak_store.search("Cursor", limit=3)[0]
+    assert result["match"] == "name"
+    assert result["score"] == 1.0
+
+
+def test_min_score_never_drops_an_agent_asked_for_by_name(weak_store):
+    results = weak_store.search("Cursor", limit=3, min_score=0.9)
+    assert [r["name"] for r in results] == ["Cursor"]

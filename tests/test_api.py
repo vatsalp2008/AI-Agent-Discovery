@@ -656,3 +656,33 @@ class TestOpenApiSchemas:
         defined = set(spec["components"]["schemas"])
         referenced = set(re.findall(r"#/components/schemas/(\w+)", json.dumps(spec)))
         assert referenced <= defined, f"dangling refs: {referenced - defined}"
+
+
+class TestNameMatchAndConfidence:
+    """A name match scores 1.0, which necessarily makes the response confident.
+
+    That is the intent — searching an agent's exact name is not a guess — but
+    it interacts with two other behaviours, so pin it rather than leave it to
+    be rediscovered.
+    """
+
+    def test_a_name_match_is_treated_as_confident(self, client):
+        body = client.post("/api/search", json={"query": "Cursor"}).get_json()
+        assert body["results"][0]["match"] == "name"
+        assert body["metadata"]["confident"] is True
+
+    def test_no_weak_match_notice_for_a_name_match(self, weak_store, client):
+        """Even when every semantic score is poor, naming an agent is not a
+        failed search, so it must not be reported as one."""
+        body = client.post("/api/search", json={"query": "Cursor"}).get_json()
+        assert body["results"][0]["name"] == "Cursor"
+        assert body["metadata"]["confident"] is True
+
+    def test_min_score_does_not_filter_out_a_name_match(self, weak_store, client):
+        """It scores 1.0, so any threshold keeps it."""
+        body = client.post("/api/search", json={"query": "Cursor", "min_score": 0.9}).get_json()
+        assert [r["name"] for r in body["results"]] == ["Cursor"]
+
+    def test_a_nonsense_query_is_still_flagged(self, weak_store, client):
+        body = client.post("/api/search", json={"query": "banana bread"}).get_json()
+        assert body["metadata"]["confident"] is False

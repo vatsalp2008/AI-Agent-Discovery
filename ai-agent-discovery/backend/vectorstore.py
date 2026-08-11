@@ -269,6 +269,12 @@ class VectorStore:
                 if index:
                     agents.insert(0, agents.pop(index))
                 agents[0]["match"] = "name"
+                # Scored 1.0 here too, not just on the lookup path below.
+                # Otherwise the same query scores differently depending on
+                # whether the vector search happened to return the agent —
+                # and a min_score filter would then drop a result the user
+                # asked for by name.
+                agents[0]["score"] = 1.0
                 return agents
 
         # The vector search missed it entirely; look it up by name.
