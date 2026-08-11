@@ -86,3 +86,38 @@ def test_json_output_round_trips(bench, tmp_path):
     path = tmp_path / "run.json"
     path.write_text(json.dumps(payload))
     assert json.loads(path.read_text()) == payload
+
+
+def test_scaled_catalogue_reaches_the_target(bench, monkeypatch, tmp_path):
+    """Synthetic agents reuse real descriptions so embeddings stay realistic."""
+    import json
+
+    import config
+
+    catalogue = tmp_path / "agents.json"
+    catalogue.write_text(json.dumps([
+        {"name": "A", "description": "d", "category": "c", "tech_stack": [], "github_stars": 0,
+         "url": "", "use_case": ""},
+        {"name": "B", "description": "e", "category": "c", "tech_stack": [], "github_stars": 0,
+         "url": "", "use_case": ""},
+    ]))
+    monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
+
+    scaled = bench.scaled_catalogue(7)
+    assert len(scaled) == 7
+    assert len({r["name"] for r in scaled}) == 7, "names must stay unique"
+    assert scaled[0]["name"] == "A", "the first copy keeps the real names"
+    assert scaled[0]["description"] == "d", "descriptions are reused, not invented"
+
+
+def test_scaled_catalogue_refuses_an_empty_source(bench, monkeypatch, tmp_path):
+    import json
+
+    import config
+
+    catalogue = tmp_path / "agents.json"
+    catalogue.write_text(json.dumps([]))
+    monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
+
+    with pytest.raises(SystemExit):
+        bench.scaled_catalogue(5)

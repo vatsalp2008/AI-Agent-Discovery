@@ -111,15 +111,86 @@ def compare(current, baseline):
     return "\n".join(lines)
 
 
+def scaled_catalogue(target):
+    """Repeat the real catalogue up to `target` agents, with distinct names.
+
+    Reusing real descriptions keeps the embeddings representative — random
+    strings would cluster differently and make the timings meaningless.
+    """
+    import json
+
+    with open(config.AGENTS_JSON) as f:
+        real = json.load(f)
+    if not real:
+        raise SystemExit("the catalogue is empty; run seed.py first")
+
+    scaled, copy = [], 0
+    while len(scaled) < target:
+        for record in real:
+            if len(scaled) >= target:
+                break
+            clone = dict(record)
+            if copy:
+                clone["name"] = f"{record['name']} v{copy}"
+            scaled.append(clone)
+        copy += 1
+    return scaled
+
+
+def measure_at_scale(target, runs=15):
+    """Time the hot paths against a temporary index of `target` agents."""
+    import shutil
+    import tempfile
+
+    from models import Agent
+    from vectorstore import VectorStore
+
+    agents = [Agent.from_dict(r) for r in scaled_catalogue(target)]
+    directory = tempfile.mkdtemp()
+    try:
+        index_dir = os.path.join(directory, "index")
+
+        start = time.perf_counter()
+        VectorStore(persist_directory=index_dir).replace_agents(agents)
+        build = (time.perf_counter() - start) * 1000
+
+        start = time.perf_counter()
+        store = VectorStore(persist_directory=index_dir)
+        load = (time.perf_counter() - start) * 1000
+
+        store.search("warm up", limit=5)
+        results = {
+            "build_index": {"runs": 1, "median_ms": round(build, 3)},
+            "load_index": {"runs": 1, "median_ms": round(load, 3)},
+            "search_uncached": summarize(timed(
+                lambda i: store.search(f"scale probe {i}", limit=10), runs)),
+            "get_all_agents": summarize(timed(lambda i: store.get_all_agents(), runs)),
+            "get_agent": summarize(timed(lambda i: store.get_agent(agents[-1].name), runs)),
+            "get_stats": summarize(timed(lambda i: store.get_stats(), runs)),
+            "_meta": {"agents": target, "embedding_model": config.EMBEDDING_MODEL, "synthetic": True},
+        }
+        return results
+    finally:
+        shutil.rmtree(directory, ignore_errors=True)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="benchmark.py", description=__doc__.split("\n")[0])
     parser.add_argument("--json", action="store_true", help="emit JSON instead of a table")
     parser.add_argument("--runs", type=int, default=15, help="samples per operation")
     parser.add_argument("--compare", metavar="FILE", help="compare against a saved JSON run")
+    parser.add_argument("--scale", type=int, metavar="N",
+                        help="build a throwaway index of N synthetic agents and measure that "
+                             "instead, to see how the hot paths behave at a size the catalogue "
+                             "has not reached yet")
     args = parser.parse_args(argv)
 
     configure("WARNING")
-    results = measure(args.runs)
+    if args.scale:
+        print(f"Building a throwaway index of {args.scale} synthetic agents…", file=sys.stderr)
+        results = measure_at_scale(args.scale, args.runs)
+    else:
+        results = measure(args.runs)
     if results is None:
         return 1
 

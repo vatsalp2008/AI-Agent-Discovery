@@ -681,6 +681,7 @@ Devin Desktop, which had left that entry stale in name, description and URL.
 make benchmark                                     # measure the hot paths
 python ai-agent-discovery/benchmark.py --json > before.json
 python ai-agent-discovery/benchmark.py --compare before.json
+python ai-agent-discovery/benchmark.py --scale 600 # try a size we have not reached
 ```
 
 Measured on an M-series laptop with 82 agents:
@@ -692,6 +693,12 @@ Measured on an M-series laptop with 82 agents:
 | Search (uncached) | ~13ms | 91% of it is the Ollama embedding call |
 | Search (cached) | <0.1ms | in-memory, and persisted across restarts |
 | `/api/agents`, `/api/stats` | <0.1ms | the agent list is memoized |
+
+`--scale N` builds a throwaway index of N synthetic agents from the real
+descriptions, to answer "what happens when this grows" before it does. At 600
+agents — four times the current catalogue — search is still ~11ms and the
+memoized lookups stay under a millisecond; only the one-off index build grows,
+since it embeds every agent.
 
 Three things make the difference:
 
