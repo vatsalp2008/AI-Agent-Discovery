@@ -978,6 +978,60 @@ SAMPLE_AGENTS = [
         use_case="Privacy-preserving data monitoring"
     ),
     Agent(
+        name="Qwen-Agent",
+        description="Alibaba's agent framework built around Qwen, with tool use, code interpreter and browser assistant.",
+        category="Framework",
+        tech_stack=["Python", "Qwen"],
+        github_stars=16952,
+        url="https://github.com/QwenLM/Qwen-Agent",
+        use_case="Building agents on Qwen models"
+    ),
+    Agent(
+        name="CAMEL",
+        description="A framework for studying multi-agent societies, where agents role-play to solve a task together.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "Multi-Agent"],
+        github_stars=17574,
+        url="https://github.com/camel-ai/camel",
+        use_case="Researching agent collaboration"
+    ),
+    Agent(
+        name="XAgent",
+        description="An autonomous agent that decomposes complex tasks into subtasks and runs them in a sandbox.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "Docker"],
+        github_stars=8531,
+        url="https://github.com/OpenBMB/XAgent",
+        use_case="Autonomous execution of complex tasks"
+    ),
+    Agent(
+        name="TransformerLens",
+        description="A library for mechanistic interpretability: inspect and intervene on the internals of a transformer.",
+        category="Evaluation",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=3777,
+        url="https://github.com/TransformerLensOrg/TransformerLens",
+        use_case="Understanding what a model has learned"
+    ),
+    Agent(
+        name="torchtune",
+        description="PyTorch's native library for post-training: fine-tuning, distillation and RLHF recipes.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=5797,
+        url="https://github.com/pytorch/torchtune",
+        use_case="Fine-tuning with PyTorch-native recipes"
+    ),
+    Agent(
+        name="MCP Servers",
+        description="The reference Model Context Protocol servers, giving agents access to files, git, databases and more.",
+        category="Framework",
+        tech_stack=["TypeScript", "Python", "MCP"],
+        github_stars=89448,
+        url="https://github.com/modelcontextprotocol/servers",
+        use_case="Standard tool access for agents"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
