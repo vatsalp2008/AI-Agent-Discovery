@@ -128,12 +128,12 @@ SAMPLE_AGENTS = [
         use_case="Private database question answering"
     ),
     Agent(
-        name="Windsurf",
-        description="An agentic IDE whose Cascade mode keeps context across a whole multi-file change rather than one buffer at a time.",
+        name="Devin Desktop",
+        description="A desktop surface for managing fleets of local and cloud coding agents: plan, delegate, review and ship. Formerly Windsurf.",
         category="Code Generation",
         tech_stack=["Electron", "TypeScript"],
         github_stars=0,
-        url="https://codeium.com/windsurf",
+        url="https://devin.ai/desktop",
         use_case="Agentic multi-file editing in an IDE"
     ),
     Agent(
