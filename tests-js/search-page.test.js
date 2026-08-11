@@ -562,3 +562,66 @@ describe('name suggestions', () => {
         expect(JSON.parse(search.options.body).query).toBe('something vague');
     });
 });
+
+describe('loading every suggestable name', () => {
+    // The preview grid also calls /api/agents (limit=6); only the limit=200
+    // requests belong to the suggestion loader.
+    const pageCalls = (calls) => calls.filter(c => c.url.includes('limit=200'));
+
+    it('follows pagination past the server cap', async () => {
+        // The server caps limit; a single request would truncate silently.
+        let page = 0;
+        const calls = await boot(defaultRoutes({
+            '/api/agents': (url) => {
+                if (!url.includes('limit=200')) {
+                    return { body: { agents: [], metadata: { total: 0, has_more: false } } };
+                }
+                page += 1;
+                return page === 1
+                    ? { body: { agents: [makeResult('Aardvark')], metadata: { total: 2, has_more: true } } }
+                    : { body: { agents: [makeResult('Zebra')], metadata: { total: 2, has_more: false } } };
+            },
+        }));
+
+        const agentCalls = pageCalls(calls);
+        expect(agentCalls.length).toBeGreaterThanOrEqual(2);
+        expect(agentCalls[1].url).toContain('offset=1');
+
+        document.getElementById('searchInput').value = 'zeb';
+        document.getElementById('searchInput').dispatchEvent(new window.Event('input'));
+        expect([...document.querySelectorAll('.suggestion')].map(i => i.textContent)).toEqual(['Zebra']);
+    });
+
+    it('stops when there are no more pages', async () => {
+        const calls = await boot(defaultRoutes({
+            '/api/agents': { body: { agents: [makeResult('Only')], metadata: { total: 1, has_more: false } } },
+        }));
+        expect(pageCalls(calls).length).toBe(1);
+    });
+
+    it('keeps whatever arrived when a later page fails', async () => {
+        let page = 0;
+        await boot(defaultRoutes({
+            '/api/agents': (url) => {
+                if (!url.includes('limit=200')) {
+                    return { body: { agents: [], metadata: { has_more: false } } };
+                }
+                page += 1;
+                return page === 1
+                    ? { body: { agents: [makeResult('First')], metadata: { has_more: true } } }
+                    : new Error('offline');
+            },
+        }));
+
+        document.getElementById('searchInput').value = 'fir';
+        document.getElementById('searchInput').dispatchEvent(new window.Event('input'));
+        expect([...document.querySelectorAll('.suggestion')].map(i => i.textContent)).toEqual(['First']);
+    });
+
+    it('does not loop forever if has_more never clears', async () => {
+        const calls = await boot(defaultRoutes({
+            '/api/agents': { body: { agents: [makeResult('Loop')], metadata: { has_more: true } } },
+        }));
+        expect(pageCalls(calls).length).toBeLessThanOrEqual(20);
+    });
+});
