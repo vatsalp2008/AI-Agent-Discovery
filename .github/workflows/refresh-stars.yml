@@ -62,15 +62,28 @@ jobs:
       - name: Note that the index needs rebuilding
         run: echo "Run \`make seed\` to rebuild the index with the new counts." >> "$GITHUB_STEP_SUMMARY"
 
-      # Projects get renamed, archived and deleted. Reported rather than
-      # enforced: a redirect is worth knowing about but is not a failure, and
-      # a transient outage should not turn the weekly job red.
+      # Projects get renamed, archived and deleted. A redirect is reported but
+      # tolerated — the link still works. A *broken* link is a real defect in
+      # the catalogue, and a summary nobody reads is not a signal, so the job
+      # fails on one. Run twice before failing, so a transient outage on a
+      # single host does not turn the weekly job red.
       - name: Check catalogue links
         run: |
-          python ai-agent-discovery/check_links.py > links.log 2>&1 || true
+          set -o pipefail
+          if ! python ai-agent-discovery/check_links.py --fail-on-broken > links.log 2>&1; then
+            echo "Broken links found; re-checking to rule out a transient failure." >&2
+            sleep 20
+            python ai-agent-discovery/check_links.py --fail-on-broken > links.log 2>&1 || FAILED=1
+          fi
+
           {
             echo "### Catalogue links"
             echo '```'
             tail -30 links.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "${FAILED:-}" ]; then
+            echo "::error::The catalogue contains broken links (see the summary)."
+            exit 1
+          fi
