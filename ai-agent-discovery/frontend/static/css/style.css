@@ -1291,3 +1291,17 @@ a.filter-tag {
 }
 
 .notice-suggestion a:hover { text-decoration: underline; }
+
+/* Pending submissions awaiting review */
+.submission-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.submission-row .admin-row-category {
+    flex: 1 1 auto;
+    margin-right: auto;
+}

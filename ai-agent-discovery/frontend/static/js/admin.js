@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('adminList');
     const auditList = document.getElementById('auditList');
     const rowFilter = document.getElementById('adminFilter');
+    const submissionsSection = document.getElementById('submissionsSection');
+    const submissionsList = document.getElementById('submissionsList');
+    const submissionsCount = document.getElementById('submissionsCount');
     const rowCount = document.getElementById('adminFilterCount');
     const errorEl = document.getElementById('adminError');
     const statusEl = document.getElementById('adminStatus');
@@ -193,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...seen.map(c => Object.assign(document.createElement('option'), { value: c })));
 
             renderRows();
+            await refreshSubmissions();
             await refreshAudit();
         } catch (error) {
             console.error(error);
@@ -206,6 +210,65 @@ document.addEventListener('DOMContentLoaded', () => {
      * and deciding that from the response shape would break if the API's
      * body ever changed.
      */
+    /** One card per pending proposal, with approve and reject. */
+    function submissionRow(entry) {
+        const agent = entry.agent || {};
+        const row = document.createElement('div');
+        row.className = 'submission-row';
+
+        const name = document.createElement('span');
+        name.className = 'admin-row-name';
+        name.textContent = agent.name || '(unnamed)';
+        row.appendChild(name);
+
+        const detail = document.createElement('span');
+        detail.className = 'admin-row-category';
+        detail.textContent = `${agent.category || ''} — ${agent.description || ''}`;
+        row.appendChild(detail);
+
+        const approve = document.createElement('button');
+        approve.type = 'button';
+        approve.className = 'control-button';
+        approve.textContent = 'Approve';
+        approve.setAttribute('aria-label', `Approve ${agent.name}`);
+        approve.addEventListener('click', () =>
+            send(`/api/admin/submissions/${encodeURIComponent(entry.id)}/approve`, 'POST',
+                 undefined, { keepForm: true }));
+        row.appendChild(approve);
+
+        const reject = document.createElement('button');
+        reject.type = 'button';
+        reject.className = 'control-button';
+        reject.textContent = 'Reject';
+        reject.setAttribute('aria-label', `Reject ${agent.name}`);
+        reject.addEventListener('click', () => {
+            const note = window.prompt(`Why is ${agent.name} being rejected? (optional)`);
+            if (note === null) return;   // cancelled
+            send(`/api/admin/submissions/${encodeURIComponent(entry.id)}/reject`, 'POST',
+                 { note }, { keepForm: true });
+        });
+        row.appendChild(reject);
+
+        return row;
+    }
+
+    async function refreshSubmissions() {
+        if (!submissionsSection) return;
+        try {
+            const response = await fetch('/api/admin/submissions?status=pending');
+            if (!response.ok) return;
+
+            const body = await response.json();
+            const entries = body.submissions || [];
+
+            submissionsSection.hidden = entries.length === 0;
+            if (submissionsCount) submissionsCount.textContent = `(${entries.length})`;
+            submissionsList.replaceChildren(...entries.map(submissionRow));
+        } catch (error) {
+            console.error('Could not load submissions:', error);
+        }
+    }
+
     /** Draw the rows matching the current filter. */
     function renderRows() {
         const needle = (rowFilter && rowFilter.value.trim().toLowerCase()) || '';

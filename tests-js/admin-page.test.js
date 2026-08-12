@@ -462,3 +462,67 @@ describe('duplicate warning', () => {
         expect(calls.some(c => c.options && c.options.method === 'POST')).toBe(true);
     });
 });
+
+describe('reviewing submissions', () => {
+    function pending(entries) {
+        return routes({ '/api/admin/submissions': { body: { submissions: entries, pending: entries.length } } });
+    }
+
+    const proposal = (id, name) => ({
+        id, status: 'pending',
+        agent: { name, category: 'Automation', description: `${name} does things.` },
+    });
+
+    it('stays hidden when there is nothing to review', async () => {
+        await boot(pending([]));
+        expect(document.getElementById('submissionsSection').hidden).toBe(true);
+    });
+
+    it('lists pending proposals', async () => {
+        await boot(pending([proposal('a1', 'Alpha'), proposal('b2', 'Beta')]));
+        expect(document.getElementById('submissionsSection').hidden).toBe(false);
+        expect([...document.querySelectorAll('.submission-row .admin-row-name')].map(n => n.textContent))
+            .toEqual(['Alpha', 'Beta']);
+        expect(document.getElementById('submissionsCount').textContent).toBe('(2)');
+    });
+
+    it('approves a proposal', async () => {
+        const calls = await boot(pending([proposal('a1', 'Alpha')]));
+        document.querySelector('.submission-row button').click();
+        await flush();
+
+        const call = calls.find(c => c.url.includes('/approve'));
+        expect(call.url).toContain('/api/admin/submissions/a1/approve');
+        expect(call.options.method).toBe('POST');
+    });
+
+    it('asks why before rejecting', async () => {
+        const real = window.prompt;
+        window.prompt = () => 'duplicate';
+        try {
+            const calls = await boot(pending([proposal('a1', 'Alpha')]));
+            [...document.querySelectorAll('.submission-row button')][1].click();
+            await flush();
+
+            const call = calls.find(c => c.url.includes('/reject'));
+            expect(JSON.parse(call.options.body).note).toBe('duplicate');
+        } finally { window.prompt = real; }
+    });
+
+    it('cancelling the reason does not reject', async () => {
+        const real = window.prompt;
+        window.prompt = () => null;
+        try {
+            const calls = await boot(pending([proposal('a1', 'Alpha')]));
+            [...document.querySelectorAll('.submission-row button')][1].click();
+            await flush();
+            expect(calls.some(c => c.url.includes('/reject'))).toBe(false);
+        } finally { window.prompt = real; }
+    });
+
+    it('escapes proposal text', async () => {
+        await boot(pending([{ id: 'x', agent: { name: '<img src=x onerror="globalThis.pwned=1">' } }]));
+        expect(document.querySelector('#submissionsList img')).toBeNull();
+        expect(globalThis.pwned).toBeUndefined();
+    });
+});
