@@ -280,6 +280,18 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("sandbox for running generated code", {"E2B", "OpenInterpreter"}),
     ("automate a windows desktop application", {"UFO", "OpenAdapt"}),
     ("track machine learning experiments", {"MLflow", "Weights & Biases", "Metaflow"}),
+    # The thin categories filled out past 162. Each of these had no good
+    # answer before, so they are the cases most likely to drift back.
+    ("plan robot arm motion in ROS", {"MoveIt 2", "Nav2"}),
+    ("rlhf and dpo alignment training", {"OpenRLHF", "TRL"}),
+    ("train a model too large for one gpu", {"Megatron-LM", "OpenRLHF"}),
+    ("ask questions about my database in plain english", {"Chat2DB", "Vanna AI", "DB-GPT"}),
+    ("explore a dataframe visually in a notebook", {"PyGWalker", "Jupyter AI", "Sketch"}),
+    ("automated machine learning on tabular data", {"AutoGluon", "SDV"}),
+    ("scan a model file for malicious code", {"ModelScan", "Garak"}),
+    ("block prompt injection and pii in model output", {"LLM Guard", "Rebuff", "Presidio", "Guardrails"}),
+    ("self hosted customer support helpdesk", {"Chaskiq", "Chatwoot"}),
+    ("score text for toxicity", {"Detoxify", "LLM Guard"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
