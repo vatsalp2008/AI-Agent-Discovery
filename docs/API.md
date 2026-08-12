@@ -7,7 +7,20 @@ map so it cannot drift from the routes that exist.
 See the [README](../README.md) for setup and the [contributing
 guide](../CONTRIBUTING.md) for conventions.
 
-Every endpoint returns JSON, including errors.
+## Contents
+
+- [Search agents](#search-agents)
+- [List agents (paginated, filterable, sortable)](#list-agents-paginated-filterable-sortable)
+- [Get a single agent](#get-a-single-agent)
+- [List categories](#list-categories)
+- [Similar agents](#similar-agents)
+- [Compare agents](#compare-agents)
+- [List technologies](#list-technologies)
+- [Statistics](#statistics)
+- [Health](#health)
+- [Catalogue editing](#catalogue-editing)
+- [Machine-readable spec](#machine-readable-spec)
+- [Response headers](#response-headers)
 
 ## Search agents
 
@@ -245,50 +258,3 @@ Every response carries a baseline security policy: a Content-Security-Policy
 that disallows inline and third-party scripts (beyond the two CDNs the pages
 use), plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and
 `Permissions-Policy`. `X-Response-Time` reports server-side duration.
-
-## 🔌 MCP Server
-
-The catalogue is also available over [MCP](https://modelcontextprotocol.io), so
-other AI agents can search it directly:
-
-```bash
-python ai-agent-discovery/mcp_server.py        # speaks MCP over stdio
-```
-
-The repo ships a `.mcp.json`, so an MCP client that reads it picks the server
-up automatically. To register it with Claude Code by hand:
-
-```bash
-claude mcp add agent-discovery -- python /path/to/ai-agent-discovery/mcp_server.py
-```
-
-| Tool | What it does |
-|------|--------------|
-| `search_agents` | Natural-language search, with scores and a confidence flag |
-| `get_agent` | One agent by name |
-| `find_similar` | Neighbours of a named agent |
-| `list_categories` | Categories with counts |
-| `list_technologies` | Technologies with counts |
-| `catalogue_stats` | Index summary |
-
-The tools are read-only by design: an agent querying this should be able to
-read the catalogue, not rewrite it. Results are trimmed to the fields a caller
-needs, rather than the full record, to keep them cheap in a context window.
-
-## ✏️ Editing the Catalogue
-
-`data/agents.json` can be hand-edited, but `/admin` does the same job with
-validation and a clear error when something is wrong:
-
-```bash
-echo "ENABLE_ADMIN=true" >> ai-agent-discovery/.env
-make run          # then open http://localhost:5000/admin
-```
-
-**Off by default on purpose.** It is the only part of the app that writes, and
-it has no authentication, so enable it only on a localhost-bound `HOST`.
-
-Edits go to `agents.json`; the index is rebuilt separately with the **Rebuild
-index** button (or `make seed`), so a batch of edits costs one re-embed rather
-than one per change. `/api/health` reports `catalogue_stale` when the index is
-behind.

@@ -405,3 +405,20 @@ def test_docs_links_resolve(catalogue):
         for target in re.findall(r"\]\((?!https?://|#)([^)#]+)", text):
             resolved = (source.parent / target).resolve()
             assert resolved.exists(), f"{source.name} links to missing {target}"
+
+
+def test_api_doc_contents_anchors_resolve(catalogue):
+    """A table of contents pointing at headings that do not exist is worse
+    than none: it looks navigable and is not."""
+    import re
+
+    import config
+
+    text = (config.REPO_ROOT / "docs" / "API.md").read_text()
+
+    def slug(heading):
+        return re.sub(r"\s+", "-", re.sub(r"[^\w\s-]", "", heading.lower()).strip())
+
+    headings = {slug(h) for h in re.findall(r"^## (.+)$", text, flags=re.M)}
+    anchors = set(re.findall(r"\]\(#([^)]+)\)", text))
+    assert anchors <= headings, f"dangling anchors: {sorted(anchors - headings)}"
