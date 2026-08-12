@@ -227,8 +227,7 @@ export const ADMIN_HTML = `
         <button type="button" id="undoBtn">Undo last change</button>
         <button type="button" id="reindexBtn">Rebuild index</button>
       </div>
-      <p id="adminError" hidden></p>
-      <p id="adminStatus" hidden></p>
+      <div id="adminResult" aria-live="polite"></div>
       <form id="agentForm">
         <h2 id="formHeading">Add an agent</h2>
         <input type="hidden" id="editingName" value="">
@@ -274,14 +273,19 @@ export const CATEGORY_HTML = `
 export const SUBMIT_HTML = `
     <p id="submitClosed" hidden></p>
     <form id="submitForm">
-      <p id="submitError" hidden></p>
-      <p id="submitStatus" hidden></p>
+      <div id="submitResult" aria-live="polite"></div>
+      <label for="submitName">Name</label>
       <input type="text" id="submitName">
+      <label for="submitCategory">Category</label>
       <input type="text" id="submitCategory" list="submitCategories">
       <datalist id="submitCategories"></datalist>
+      <label for="submitDescription">Description</label>
       <textarea id="submitDescription"></textarea>
+      <label for="submitStack">Tech stack</label>
       <input type="text" id="submitStack">
+      <label for="submitUrl">URL</label>
       <input type="url" id="submitUrl">
+      <label for="submitUseCase">Use case</label>
       <input type="text" id="submitUseCase">
       <button type="submit" id="submitBtn">Submit for review</button>
     </form>

@@ -21,8 +21,10 @@
         <button type="button" id="reindexBtn" class="control-button">Rebuild index</button>
     </div>
 
-    <p class="result-message error" id="adminError" hidden></p>
-    <p class="result-message" id="adminStatus" hidden></p>
+    <!-- One live region rather than two toggled paragraphs: a hidden
+         element's contents are never announced, so the outcome of a save or
+         a delete reached sighted users only. -->
+    <div id="adminResult" aria-live="polite"></div>
 
     <form class="admin-form" id="agentForm">
         <h2 id="formHeading">Add an agent</h2>
@@ -90,5 +92,6 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/ui.js"></script>
 <script src="/static/js/admin.js"></script>
 {% endblock %}

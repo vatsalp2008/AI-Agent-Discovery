@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submissionsList = document.getElementById('submissionsList');
     const submissionsCount = document.getElementById('submissionsCount');
     const rowCount = document.getElementById('adminFilterCount');
-    const errorEl = document.getElementById('adminError');
-    const statusEl = document.getElementById('adminStatus');
+    const result = document.getElementById('adminResult');
     const countEl = document.getElementById('adminCount');
     const staleEl = document.getElementById('adminStale');
     const heading = document.getElementById('formHeading');
@@ -33,11 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function say(message, isError) {
-        const target = isError ? errorEl : statusEl;
-        const other = isError ? statusEl : errorEl;
-        target.textContent = message || '';
-        target.hidden = !message;
-        other.hidden = true;
+        UI.showMessage(result, message, { error: Boolean(isError) });
     }
 
     function formValues() {

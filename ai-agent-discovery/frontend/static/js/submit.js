@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('submitForm');
     const closed = document.getElementById('submitClosed');
-    const errorEl = document.getElementById('submitError');
-    const statusEl = document.getElementById('submitStatus');
+    const result = document.getElementById('submitResult');
     const button = document.getElementById('submitBtn');
 
     const fields = {
@@ -15,11 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function say(message, isError) {
-        const target = isError ? errorEl : statusEl;
-        const other = isError ? statusEl : errorEl;
-        target.textContent = message || '';
-        target.hidden = !message;
-        other.hidden = true;
+        UI.showMessage(result, message, { error: Boolean(isError) });
     }
 
     function values() {
@@ -74,7 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            say(`Thanks — ${data.agent.name} is queued for review.`);
+            // The body is parsed with a fallback, so it may be {}. Naming
+            // the agent is a nicety; reading through a missing `agent` would
+            // throw into the catch below and report a failure for a
+            // submission that succeeded.
+            const name = data.agent && data.agent.name;
+            say(name ? `Thanks — ${name} is queued for review.`
+                     : 'Thanks — your submission is queued for review.');
             form.reset();
         } catch (error) {
             console.error(error);

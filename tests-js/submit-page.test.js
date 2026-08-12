@@ -57,7 +57,7 @@ describe('the form', () => {
         submit();
         await flush();
 
-        expect(document.getElementById('submitStatus').textContent).toContain('queued for review');
+        expect(document.getElementById('submitResult').textContent).toContain('queued for review');
         expect(document.getElementById('submitName').value).toBe('');
     });
 
@@ -68,7 +68,7 @@ describe('the form', () => {
         fill();
         submit();
         await flush();
-        expect(document.getElementById('submitError').textContent).toContain("'name' is required");
+        expect(document.getElementById('submitResult').textContent).toContain("'name' is required");
     });
 
     it('reports being rate limited', async () => {
@@ -78,7 +78,7 @@ describe('the form', () => {
         fill();
         submit();
         await flush();
-        expect(document.getElementById('submitError').textContent).toContain('Too many');
+        expect(document.getElementById('submitResult').textContent).toContain('Too many');
     });
 
     it('hides the form when submissions are closed', async () => {

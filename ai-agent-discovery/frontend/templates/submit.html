@@ -14,8 +14,10 @@
 </p>
 
 <form class="admin-form" id="submitForm">
-    <p class="result-message error" id="submitError" hidden></p>
-    <p class="result-message" id="submitStatus" hidden></p>
+    <!-- One live region rather than two toggled paragraphs: a hidden
+         element's contents are not announced, so the previous markup told a
+         screen-reader user nothing about whether the submission worked. -->
+    <div id="submitResult" aria-live="polite"></div>
 
     <div class="admin-field">
         <label for="submitName">Name</label>
@@ -57,6 +59,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/ui.js"></script>
 <script src="/static/js/agents-api.js"></script>
 <script src="/static/js/submit.js"></script>
 {% endblock %}

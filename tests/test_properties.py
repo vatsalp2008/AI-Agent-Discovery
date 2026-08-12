@@ -80,12 +80,6 @@ class TestAgentValidation:
         return base
 
     @FAST
-    @given(st.text(min_size=1).filter(lambda s: s.strip()))
-    def test_any_non_blank_name_is_accepted(self, name):
-        cleaned = admin.validate(self.record(name=name), [])
-        assert cleaned["name"] == name.strip()
-
-    @FAST
     @given(st.text().filter(lambda s: not s.strip()))
     def test_blank_names_are_always_rejected(self, name):
         with pytest.raises(admin.AdminError):

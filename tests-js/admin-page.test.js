@@ -111,7 +111,7 @@ describe('creating', () => {
         fill();
         submit();
         await flush();
-        expect(document.getElementById('adminError').textContent).toContain("'name' is required");
+        expect(document.getElementById('adminResult').textContent).toContain("'name' is required");
     });
 
     it('does not submit the form normally', async () => {
@@ -183,7 +183,7 @@ describe('reindexing', () => {
         await boot();
         document.getElementById('reindexBtn').click();
         await flush();
-        expect(document.getElementById('adminStatus').textContent).toContain('Reindexed 3');
+        expect(document.getElementById('adminResult').textContent).toContain('Reindexed 3');
     });
 
     it('re-enables the button after a failure', async () => {
@@ -192,7 +192,7 @@ describe('reindexing', () => {
         button.click();
         await flush();
         expect(button.disabled).toBe(false);
-        expect(document.getElementById('adminError').textContent).toContain('broken catalogue');
+        expect(document.getElementById('adminResult').textContent).toContain('broken catalogue');
     });
 });
 
@@ -272,7 +272,7 @@ describe('undo', () => {
             await boot(routes({ '/api/admin/undo': { body: { undid: 'delete', name: 'Aider' } } }));
             document.getElementById('undoBtn').click();
             await flush();
-            expect(document.getElementById('adminStatus').textContent).toContain('Undid the delete of Aider');
+            expect(document.getElementById('adminResult').textContent).toContain('Undid the delete of Aider');
         } finally { window.confirm = real; }
     });
 
@@ -285,7 +285,7 @@ describe('undo', () => {
             }));
             document.getElementById('undoBtn').click();
             await flush();
-            expect(document.getElementById('adminError').textContent).toContain('nothing to undo');
+            expect(document.getElementById('adminResult').textContent).toContain('nothing to undo');
             expect(document.getElementById('undoBtn').disabled).toBe(false);
         } finally { window.confirm = real; }
     });

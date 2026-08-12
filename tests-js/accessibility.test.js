@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
-    DASHBOARD_HTML, flush, SEARCH_HTML, scriptsFor, stubFetch,
+    DASHBOARD_HTML, flush, SEARCH_HTML, scriptsFor, stubFetch, SUBMIT_HTML,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -144,4 +144,12 @@ describe('rendered controls have accessible names', () => {
         await flush();
         expect(unnamedControls()).toEqual([]);
     });
+
+    it('submission form', async () => {
+        stubFetch({ '/api/categories': { body: [{ name: 'Automation', count: 3 }] } });
+        bootPage({ html: SUBMIT_HTML, script: 'submit.js' });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
 });
+

@@ -458,3 +458,27 @@ def test_every_agent_would_still_be_accepted_today(catalogue):
                  for t in stack if len(t) > admin.MAX_TECH_LENGTH]
 
     assert not over, f"these fields exceed the validation limits: {over}"
+
+
+def test_every_page_that_reports_an_outcome_announces_it():
+    """A result that only appears visually is invisible to a screen reader.
+
+    The live region also has to be present and visible from the start:
+    content added to a `hidden` element is not announced, which is exactly
+    the bug the submit page shipped with.
+    """
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+    reporting = ["index.html", "dashboard.html", "compare.html",
+                 "collections.html", "category.html", "submit.html",
+                 "admin.html", "agent.html"]
+
+    missing = []
+    for name in reporting:
+        text = (templates / name).read_text()
+        regions = re.findall(r"<[^>]*(?:aria-live|role=\"status\")[^>]*>", text)
+        if not regions:
+            missing.append(f"{name}: no live region")
+        elif all("hidden" in tag for tag in regions):
+            missing.append(f"{name}: every live region is hidden")
+
+    assert not missing, missing
