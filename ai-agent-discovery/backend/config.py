@@ -115,6 +115,12 @@ ENABLE_ADMIN = _bool_env("ENABLE_ADMIN", False)
 # confidence floor) most agents in a category look alike.
 DUPLICATE_SCORE = _float_env("DUPLICATE_SCORE", 0.75)
 
+# Queue of proposed agents awaiting review. Unlike ENABLE_ADMIN this is safe
+# to leave on: a submission is only a proposal, and nothing reaches the
+# catalogue until a maintainer approves it through the admin API.
+SUBMISSIONS_PATH = _resolve(os.getenv("SUBMISSIONS_PATH", ""), DATA_DIR / "submissions.jsonl")
+ENABLE_SUBMISSIONS = _bool_env("ENABLE_SUBMISSIONS", True)
+
 # Append-only record of catalogue edits, so a mistaken change can be traced
 # and undone. Empty disables it.
 AUDIT_LOG_PATH = _resolve(os.getenv("AUDIT_LOG_PATH", ""), DATA_DIR / "catalogue_audit.jsonl")
@@ -134,3 +140,5 @@ SUMMARY_TEMPERATURE = _float_env("SUMMARY_TEMPERATURE", 0.2)
 # capped lower because each one costs a text generation.
 RATE_LIMIT_SEARCHES = _int_env("RATE_LIMIT_SEARCHES", 60)
 RATE_LIMIT_SUMMARIES = _int_env("RATE_LIMIT_SUMMARIES", 20)
+# Submissions are public and write to disk, so they are capped tighter.
+RATE_LIMIT_SUBMISSIONS = _int_env("RATE_LIMIT_SUBMISSIONS", 10)

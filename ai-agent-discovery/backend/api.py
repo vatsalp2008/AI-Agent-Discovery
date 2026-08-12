@@ -526,6 +526,40 @@ def openapi():
     }), 200
 
 
+@api_bp.route('/submissions', methods=['POST'])
+def submit_agent():
+    """Propose an agent for the catalogue.
+
+    Public, unlike /api/admin: a submission is only a proposal. It is
+    validated with the same rules as a direct edit, then queued — nothing
+    reaches the catalogue until a maintainer approves it, so the write path
+    stays as restricted as it was.
+    """
+    if not config.ENABLE_SUBMISSIONS:
+        return jsonify({"error": "Submissions are closed."}), 403
+
+    import submissions
+    from admin import AdminError
+
+    allowed, retry_after = rate_limit.submission_limiter.check(rate_limit.client_key(request))
+    if not allowed:
+        response = jsonify({"error": "Too many submissions. Try again shortly."})
+        response.headers["Retry-After"] = str(retry_after)
+        return response, 429
+
+    try:
+        entry = submissions.submit(request.get_json(silent=True))
+    except AdminError as e:
+        return jsonify({"error": str(e)}), e.status
+
+    return jsonify({
+        "id": entry["id"],
+        "status": entry["status"],
+        "agent": entry["agent"],
+        "note": "Queued for review. It will appear once a maintainer approves it.",
+    }), 202
+
+
 @api_bp.route('/health', methods=['GET'])
 def health():
     """Readiness probe: reports whether the index is actually usable.

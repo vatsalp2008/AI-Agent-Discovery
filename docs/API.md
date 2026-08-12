@@ -18,6 +18,8 @@ guide](../CONTRIBUTING.md) for conventions.
 - [List technologies](#list-technologies)
 - [Statistics](#statistics)
 - [Health](#health)
+- [Proposing an agent](#proposing-an-agent)
+- [Reviewing submissions](#reviewing-submissions)
 - [Catalogue editing](#catalogue-editing)
 - [Machine-readable spec](#machine-readable-spec)
 - [Response headers](#response-headers)
@@ -212,6 +214,53 @@ Returns `200` when the index is usable, and `503` with a `detail` explaining why
 when it is not — unseeded, unreachable, or built by a different embedding model.
 The payload also reports `index_built_at`, so you can tell whether the index
 predates your current `agents.json`.
+
+## Proposing an agent
+
+Public, unlike the editing endpoints below. A submission is only a proposal:
+it is validated with the same rules as a direct edit, then queued. Nothing
+reaches the catalogue until a maintainer approves it, so the write path stays
+as restricted as it was.
+
+```bash
+POST /api/submissions
+Content-Type: application/json
+
+{
+  "name": "Your Agent",
+  "description": "One or two sentences on what it does.",
+  "category": "Automation",
+  "tech_stack": ["Python"],
+  "github_stars": 1000,
+  "url": "https://github.com/owner/repo",
+  "use_case": "The specific job it is good at"
+}
+```
+
+Returns `202` with an id and `status: "pending"`. A name already in the
+catalogue — or already proposed and awaiting review — is rejected up front
+rather than queued for someone to discover later.
+
+Rate limited by `RATE_LIMIT_SUBMISSIONS` (default 10/minute), tighter than
+search: this is public and writes to disk. Set `ENABLE_SUBMISSIONS=false` to
+close the queue.
+
+## Reviewing submissions
+
+Requires `ENABLE_ADMIN=true`.
+
+```bash
+GET  /api/admin/submissions?status=pending      # pending | approved | rejected
+POST /api/admin/submissions/<id>/approve        # adds it to the catalogue
+POST /api/admin/submissions/<id>/reject         # optional {"note": "why"}
+```
+
+Approving goes through the same write path as a direct add — same validation,
+lock and audit entry — so it cannot smuggle in a record a normal edit would
+reject. If the catalogue moved on and the name is now taken, approval fails
+with `409` and the proposal returns to pending rather than being consumed.
+
+`GET /api/admin/status` reports `pending_submissions`.
 
 ## Catalogue editing
 

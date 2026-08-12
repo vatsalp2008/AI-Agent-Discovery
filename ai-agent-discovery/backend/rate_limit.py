@@ -65,9 +65,11 @@ class SlidingWindowLimiter:
             self._hits.clear()
 
 
-# One limiter for ordinary searches, a tighter one for generation.
+# One limiter for ordinary searches, a tighter one for generation, and a
+# tighter one still for submissions — those are public and write to disk.
 search_limiter = SlidingWindowLimiter(config.RATE_LIMIT_SEARCHES)
 summary_limiter = SlidingWindowLimiter(config.RATE_LIMIT_SUMMARIES)
+submission_limiter = SlidingWindowLimiter(config.RATE_LIMIT_SUBMISSIONS)
 
 
 def client_key(request) -> str:
@@ -79,3 +81,4 @@ def reset_all():
     """Clear all counters. Used by tests."""
     search_limiter.reset()
     summary_limiter.reset()
+    submission_limiter.reset()

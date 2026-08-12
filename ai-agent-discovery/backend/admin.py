@@ -418,12 +418,79 @@ def undo():
     return jsonify({"undid": action, "name": name, "total": len(records)}), 200
 
 
+@admin_bp.route('/submissions', methods=['GET'])
+def list_submissions():
+    """Proposals awaiting review. Reviewing is a maintainer action."""
+    _require_enabled()
+    import submissions
+
+    status = (request.args.get('status') or '').strip() or None
+    if status and status not in (submissions.PENDING, submissions.APPROVED, submissions.REJECTED):
+        raise AdminError(f"Unknown status {status!r}")
+
+    entries = submissions.read_all(status=status)
+    return jsonify({"submissions": entries, "pending": submissions.pending_count()}), 200
+
+
+@admin_bp.route('/submissions/<submission_id>/approve', methods=['POST'])
+def approve_submission(submission_id):
+    """Accept a proposal and add it to the catalogue.
+
+    Goes through the same write path as a direct add — same validation, same
+    lock, same audit entry — so approving cannot smuggle in a record that a
+    normal edit would have rejected. The catalogue may have changed since the
+    proposal was made, so a name that is now taken fails here.
+    """
+    _require_enabled()
+    import submissions
+
+    entry = submissions.decide(submission_id, submissions.APPROVED)
+    payload = entry["agent"]
+
+    with _write_lock:
+        records = load_catalogue()
+        try:
+            cleaned = validate(payload, records)
+        except AdminError:
+            # Put it back: the catalogue moved on, and a rejected approval
+            # should leave the proposal reviewable rather than silently gone.
+            submissions.decide_reset(submission_id)
+            raise
+        records.append(cleaned)
+        save_catalogue(records)
+
+    _append_audit("approve", cleaned["name"], after=cleaned)
+    logger.info("Approved submission %s (%r)", submission_id, cleaned["name"])
+    return jsonify({"agent": cleaned, "total": len(records)}), 201
+
+
+@admin_bp.route('/submissions/<submission_id>/reject', methods=['POST'])
+def reject_submission(submission_id):
+    """Decline a proposal, optionally saying why."""
+    _require_enabled()
+    import submissions
+
+    payload = request.get_json(silent=True) or {}
+    note = payload.get("note")
+    if note is not None and not isinstance(note, str):
+        raise AdminError("'note' must be a string")
+
+    entry = submissions.decide(submission_id, submissions.REJECTED, note=note)
+    return jsonify({"submission": entry}), 200
+
+
 @admin_bp.route('/status', methods=['GET'])
 def status():
     """Whether editing is available, and whether the index is behind."""
+    import submissions
     from api import get_store
 
-    payload = {"enabled": bool(config.ENABLE_ADMIN), "catalogue_stale": None, "total": 0}
+    payload = {
+        "enabled": bool(config.ENABLE_ADMIN),
+        "catalogue_stale": None,
+        "total": 0,
+        "pending_submissions": submissions.pending_count(),
+    }
     try:
         payload["total"] = len(load_catalogue())
         payload["catalogue_stale"] = get_store().catalogue_is_stale

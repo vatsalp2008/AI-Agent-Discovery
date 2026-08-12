@@ -27,3 +27,4 @@ data/faiss_index/
 .DS_Store
 data/embedding_cache.json
 data/catalogue_audit.jsonl
+data/submissions.jsonl
