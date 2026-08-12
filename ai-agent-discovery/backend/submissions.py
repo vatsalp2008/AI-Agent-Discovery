@@ -68,17 +68,52 @@ def read_all(status=None):
     return entries
 
 
+def _unparsable_lines():
+    """Lines read_all() had to skip.
+
+    Rewriting the queue from the parsed entries alone would silently delete
+    them — a truncated line from an interrupted write would survive being
+    *read* and then vanish on the next approve or reject.
+    """
+    path = _path()
+    if not path or not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            lines = f.readlines()
+    except OSError:
+        return []
+
+    kept = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            if isinstance(json.loads(stripped), dict):
+                continue
+        except json.JSONDecodeError:
+            pass
+        kept.append(stripped)
+    return kept
+
+
 def _write_all(entries):
     """Rewrite the queue atomically, oldest first."""
     path = _path()
     if not path:
         return
+
+    salvaged = _unparsable_lines()
     try:
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         tmp = f"{path}.tmp"
         with open(tmp, "w") as f:
             for entry in reversed(entries):
                 f.write(json.dumps(entry) + "\n")
+            # Kept at the end so a human can see and fix them.
+            for line in salvaged:
+                f.write(line + "\n")
         os.replace(tmp, path)
     except OSError as e:
         raise AdminError(f"Could not write the submission queue: {e}", status=500) from e

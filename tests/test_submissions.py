@@ -157,10 +157,15 @@ class TestEndpoints:
         names = [r["name"] for r in json.loads(paths["catalogue"].read_text())]
         assert "Proposed" in names
 
-    def test_approving_is_audited(self, client, paths):
+    def test_approving_is_audited_as_a_create(self, client, paths):
+        """undo() understands create/delete/update; a bespoke "approve"
+        action would block undo for every earlier change too."""
         submitted = client.post("/api/submissions", json=proposal()).get_json()
         client.post(f"/api/admin/submissions/{submitted['id']}/approve")
-        assert any(e["action"] == "approve" for e in admin.read_audit())
+
+        entries = admin.read_audit()
+        assert entries[0]["action"] == "create"
+        assert entries[0]["name"] == "Proposed"
 
     def test_rejecting_keeps_it_out_of_the_catalogue(self, client, paths):
         submitted = client.post("/api/submissions", json=proposal()).get_json()
@@ -212,3 +217,58 @@ class TestEndpoints:
         response = client.post("/api/submissions", json=proposal(name="C"))
         assert response.status_code == 429
         assert response.headers["Retry-After"]
+
+
+class TestApprovalIsRecoverable:
+    """A decision that cannot be carried out must not strand the proposal."""
+
+    def test_a_write_failure_returns_it_to_pending(self, client, paths, monkeypatch):
+        submitted = client.post("/api/submissions", json=proposal()).get_json()
+
+        # Fails once, then works — monkeypatch.undo() would also revert the
+        # ENABLE_ADMIN patch and make the follow-up request 403.
+        original = admin.save_catalogue
+        calls = []
+
+        def explode_once(records):
+            calls.append(1)
+            if len(calls) == 1:
+                raise admin.AdminError("disk full", status=500)
+            return original(records)
+
+        monkeypatch.setattr(admin, "save_catalogue", explode_once)
+        assert client.post(f"/api/admin/submissions/{submitted['id']}/approve").status_code == 500
+
+        pending = client.get("/api/admin/submissions?status=pending").get_json()
+        assert [s["id"] for s in pending["submissions"]] == [submitted["id"]]
+
+    def test_a_corrupt_catalogue_returns_it_to_pending(self, client, paths):
+        submitted = client.post("/api/submissions", json=proposal()).get_json()
+        paths["catalogue"].write_text("{ not json")
+
+        assert client.post(f"/api/admin/submissions/{submitted['id']}/approve").status_code == 500
+        assert submissions.pending_count() == 1
+
+    def test_an_approval_can_be_undone(self, client, paths):
+        """Audited as a create so undo() understands it; a bespoke action
+        would block undo for every earlier change too."""
+        submitted = client.post("/api/submissions", json=proposal()).get_json()
+        client.post(f"/api/admin/submissions/{submitted['id']}/approve")
+
+        assert client.post("/api/admin/undo").status_code == 200
+        names = [r["name"] for r in json.loads(paths["catalogue"].read_text())]
+        assert "Proposed" not in names
+
+
+def test_rewriting_the_queue_keeps_lines_it_could_not_parse(paths):
+    """An interrupted write leaves a truncated line. Reading tolerates it;
+    rewriting used to delete it."""
+    first = submissions.submit(proposal(name="Keeper"))
+    with open(paths["queue"], "a") as f:
+        f.write('{"id": "trunc", "agen\n')
+
+    submissions.decide(first["id"], submissions.REJECTED)
+
+    text = paths["queue"].read_text()
+    assert '{"id": "trunc", "agen' in text, "the truncated line was destroyed"
+    assert len(submissions.read_all()) == 1

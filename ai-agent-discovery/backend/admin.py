@@ -447,19 +447,23 @@ def approve_submission(submission_id):
     entry = submissions.decide(submission_id, submissions.APPROVED)
     payload = entry["agent"]
 
-    with _write_lock:
-        records = load_catalogue()
-        try:
+    # Everything after the decision is inside the reset: a read-only data
+    # directory or a malformed catalogue would otherwise leave the proposal
+    # marked approved but never added, and decide() then refuses it forever.
+    try:
+        with _write_lock:
+            records = load_catalogue()
             cleaned = validate(payload, records)
-        except AdminError:
-            # Put it back: the catalogue moved on, and a rejected approval
-            # should leave the proposal reviewable rather than silently gone.
-            submissions.decide_reset(submission_id)
-            raise
-        records.append(cleaned)
-        save_catalogue(records)
+            records.append(cleaned)
+            save_catalogue(records)
+    except Exception:
+        submissions.decide_reset(submission_id)
+        raise
 
-    _append_audit("approve", cleaned["name"], after=cleaned)
+    # Audited as a create, not an "approve": undo() only understands
+    # create/delete/update, so a bespoke action would make this change — and
+    # every earlier one behind it — permanently un-undoable.
+    _append_audit("create", cleaned["name"], after=cleaned)
     logger.info("Approved submission %s (%r)", submission_id, cleaned["name"])
     return jsonify({"agent": cleaned, "total": len(records)}), 201
 
