@@ -227,3 +227,28 @@ def test_a_name_match_scores_the_same_either_way(store, weak_store):
 def test_min_score_never_drops_an_agent_asked_for_by_name(weak_store):
     results = weak_store.search("Cursor", limit=3, min_score=0.9)
     assert [r["name"] for r in results] == ["Cursor"]
+
+
+class TestNameMatchRespectsFilters:
+    """An injected name match must obey the filters search() applied.
+
+    Searching "Cursor" inside category=Robotics returned Cursor at rank 0
+    while metadata.category still claimed the filter held, and min_score
+    could not suppress it.
+    """
+
+    def test_a_name_match_outside_the_category_is_not_injected(self, store):
+        results = store.search("Cursor", limit=3, category="Research")
+        assert "Cursor" not in [r["name"] for r in results]
+        assert all(r["metadata"]["category"] == "Research" for r in results)
+
+    def test_a_name_match_inside_the_category_is_still_hoisted(self, store):
+        results = store.search("Cursor", limit=3, category="Code Generation")
+        assert results[0]["name"] == "Cursor"
+        assert results[0]["match"] == "name"
+
+    def test_an_unfiltered_search_is_unaffected(self, store):
+        assert store.search("Cursor", limit=1)[0]["match"] == "name"
+
+    def test_the_category_filter_is_case_insensitive_here_too(self, store):
+        assert store.search("Cursor", limit=3, category="code generation")[0]["name"] == "Cursor"

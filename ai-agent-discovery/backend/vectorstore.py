@@ -231,7 +231,7 @@ class VectorStore:
                 "score": relevance_score(distance)
             })
 
-        agents = self._hoist_exact_name(query, agents)
+        agents = self._hoist_exact_name(query, agents, category=wanted)
 
         if min_score is not None:
             agents = [a for a in agents if a["score"] >= min_score]
@@ -239,7 +239,7 @@ class VectorStore:
         self._cache_put(cache_key, agents)
         return agents
 
-    def _hoist_exact_name(self, query, agents):
+    def _hoist_exact_name(self, query, agents, category=None):
         """Sort by score, then make sure an exactly-named agent is first.
 
         Semantic similarity alone is not enough when a product is named after
@@ -255,6 +255,11 @@ class VectorStore:
 
         Deliberately narrow — a full-string, case-insensitive match on the
         name only. A substring would let "Code" hijack the ranking.
+
+        `category` is the filter search() already applied. An injected agent
+        has to respect it: without this, searching "Cursor" inside
+        category=Robotics returned Cursor at rank 0 while the response still
+        claimed the filter held, and min_score could not suppress it.
         """
         agents.sort(key=lambda agent: agent["score"], reverse=True)
         for agent in agents:
@@ -279,6 +284,10 @@ class VectorStore:
 
         # The vector search missed it entirely; look it up by name.
         exact = self.get_agent(wanted)
+        if exact is not None and category:
+            # Honour the filter the caller asked for.
+            if (exact["metadata"].get("category") or "").casefold() != category:
+                exact = None
         if exact is not None:
             agents.insert(0, {
                 "name": exact["name"],
