@@ -2,6 +2,7 @@
   "name": "ai-agent-discovery-frontend",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Frontend tests for AI Agent Discovery",
   "scripts": {
     "test": "vitest run",
