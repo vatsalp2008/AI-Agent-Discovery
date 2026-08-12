@@ -33,8 +33,11 @@ security.register(app)
 
 @app.context_processor
 def inject_flags():
-    """Template globals. admin_enabled gates the nav link."""
-    return {"admin_enabled": config.ENABLE_ADMIN}
+    """Template globals. Each gates a nav link and the page behind it."""
+    return {
+        "admin_enabled": config.ENABLE_ADMIN,
+        "submissions_enabled": config.ENABLE_SUBMISSIONS,
+    }
 
 @app.route('/')
 def index():
@@ -67,7 +70,11 @@ def category(name):
 
 @app.route('/submit')
 def submit_page():
-    """Propose an agent. Public; the API queues it for review."""
+    """Propose an agent. Public; the API queues it for review.
+
+    With submissions closed the page still resolves — a link to it may be
+    saved or shared — but renders the notice instead of a form nobody can
+    successfully post."""
     return render_template('submit.html', page='submit')
 
 @app.route('/agent/<path:name>')

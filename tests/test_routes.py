@@ -34,7 +34,10 @@ def app(store, agents_json, monkeypatch):
 
     @application.context_processor
     def flags():
-        return {"admin_enabled": config.ENABLE_ADMIN}
+        return {
+            "admin_enabled": config.ENABLE_ADMIN,
+            "submissions_enabled": config.ENABLE_SUBMISSIONS,
+        }
 
     for path, template, page in [
         ("/", "index.html", "search"),
@@ -42,6 +45,7 @@ def app(store, agents_json, monkeypatch):
         ("/compare", "compare.html", "compare"),
         ("/collections", "collections.html", "collections"),
         ("/admin", "admin.html", "admin"),
+        ("/submit", "submit.html", "submit"),
     ]:
         application.add_url_rule(
             path, f"page_{page}",
@@ -54,8 +58,27 @@ def app(store, agents_json, monkeypatch):
 
 def test_every_page_renders(app):
     with app.test_client() as client:
-        for path in ["/", "/dashboard", "/compare", "/collections", "/admin"]:
+        for path in ["/", "/dashboard", "/compare", "/collections", "/admin", "/submit"]:
             assert client.get(path).status_code == 200, path
+
+
+def test_the_fixture_offers_the_same_flags_as_the_real_app(app):
+    """This fixture reimplements app.inject_flags rather than importing it.
+
+    A flag added there and missed here renders as undefined in Jinja, which
+    is falsy — so a gated element silently disappears from every test while
+    working fine in the app.
+    """
+    import re
+
+    import config
+
+    source = (config.PACKAGE_DIR / "frontend" / "app.py").read_text()
+    body = source[source.index("def inject_flags"):source.index("@app.route('/')")]
+    real = set(re.findall(r'"(\w+)":', body))
+
+    fixture = set(app.template_context_processors[None][-1]())
+    assert real <= fixture, f"the fixture is missing: {sorted(real - fixture)}"
 
 
 def test_every_get_api_route_responds(app):
@@ -92,3 +115,55 @@ def test_security_headers_are_on_every_response(app):
             headers = client.get(path).headers
             assert "Content-Security-Policy" in headers, path
             assert headers["X-Content-Type-Options"] == "nosniff", path
+
+
+def _is_hidden(body, element_id):
+    """Whether the element with `element_id` carries the hidden attribute.
+
+    Matched on the tag rather than an exact string so reformatting the
+    template cannot fail this for the wrong reason.
+    """
+    import re
+
+    tag = re.search(rf'<[^>]*id="{element_id}"[^>]*>', body)
+    assert tag, f"no element with id {element_id!r}"
+    return "hidden" in tag.group(0)
+
+
+class TestSubmissionsGating:
+    """With the queue closed, the page must say so before someone fills in
+    the whole form — and the nav must not advertise it."""
+
+    def test_the_nav_offers_the_page_when_the_queue_is_open(self, app, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", True)
+        body = app.test_client().get("/").get_data(as_text=True)
+        assert 'href="/submit"' in body
+
+    def test_the_nav_hides_the_page_when_the_queue_is_closed(self, app, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", False)
+        body = app.test_client().get("/").get_data(as_text=True)
+        assert 'href="/submit"' not in body
+
+    def test_a_closed_queue_still_answers_a_shared_link(self, app, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", False)
+        response = app.test_client().get("/submit")
+        assert response.status_code == 200
+
+    def test_a_closed_queue_renders_the_notice_not_the_form(self, app, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", False)
+        body = app.test_client().get("/submit").get_data(as_text=True)
+
+        assert not _is_hidden(body, "submitClosed"), "the closed notice is still hidden"
+        assert _is_hidden(body, "submitForm"), "the form is still offered"
+
+    def test_an_open_queue_renders_the_form_not_the_notice(self, app, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", True)
+        body = app.test_client().get("/submit").get_data(as_text=True)
+
+        assert _is_hidden(body, "submitClosed")
+        assert not _is_hidden(body, "submitForm")

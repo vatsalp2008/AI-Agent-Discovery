@@ -9,11 +9,16 @@
        submission before it joins the catalogue.</p>
 </section>
 
-<p class="result-notice" id="submitClosed" hidden>
-    Submissions are closed at the moment.
+<!-- The server knows whether the queue is open, so the state is decided
+     here rather than after someone fills in the whole form and is turned
+     away by a 403. The script still handles that 403, for the case where
+     the queue fills while the page is open. -->
+<p class="result-notice" id="submitClosed" {% if submissions_enabled %}hidden{% endif %}>
+    Submissions are closed at the moment. The catalogue is still browsable,
+    and the queue reopens once the pending proposals have been reviewed.
 </p>
 
-<form class="admin-form" id="submitForm">
+<form class="admin-form" id="submitForm" {% if not submissions_enabled %}hidden{% endif %}>
     <!-- One live region rather than two toggled paragraphs: a hidden
          element's contents are not announced, so the previous markup told a
          screen-reader user nothing about whether the submission worked. -->

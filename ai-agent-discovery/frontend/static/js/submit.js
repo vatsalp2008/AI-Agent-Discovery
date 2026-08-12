@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('submitForm');
+    // Rendered hidden when ENABLE_SUBMISSIONS is off. Nothing here would
+    // work, and fetching the categories for a form nobody can see is waste.
+    if (!form || form.hidden) return;
+
     const closed = document.getElementById('submitClosed');
     const result = document.getElementById('submitResult');
     const button = document.getElementById('submitBtn');
