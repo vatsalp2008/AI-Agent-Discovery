@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Suggest an agent | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>Suggest an agent</h1>
+    <p>Know a tool that belongs here? Propose it — a maintainer reviews every
+       submission before it joins the catalogue.</p>
+</section>
+
+<p class="result-notice" id="submitClosed" hidden>
+    Submissions are closed at the moment.
+</p>
+
+<form class="admin-form" id="submitForm">
+    <p class="result-message error" id="submitError" hidden></p>
+    <p class="result-message" id="submitStatus" hidden></p>
+
+    <div class="admin-field">
+        <label for="submitName">Name</label>
+        <input type="text" id="submitName" class="control-input" required maxlength="80">
+    </div>
+    <div class="admin-field">
+        <label for="submitCategory">Category</label>
+        <input type="text" id="submitCategory" class="control-input" required maxlength="60"
+               list="submitCategories">
+        <datalist id="submitCategories"></datalist>
+    </div>
+    <div class="admin-field">
+        <label for="submitDescription">Description</label>
+        <textarea id="submitDescription" class="control-input" rows="3" required
+                  minlength="60" maxlength="200"></textarea>
+        <span class="field-hint" id="submitDescriptionHint">
+            One or two sentences. This is what search matches against, so say
+            what it does rather than quoting a tagline.
+        </span>
+    </div>
+    <div class="admin-field">
+        <label for="submitStack">Tech stack</label>
+        <input type="text" id="submitStack" class="control-input"
+               placeholder="Comma separated, e.g. Python, Git">
+    </div>
+    <div class="admin-field">
+        <label for="submitUrl">URL</label>
+        <input type="url" id="submitUrl" class="control-input" placeholder="https://…">
+    </div>
+    <div class="admin-field">
+        <label for="submitUseCase">Use case</label>
+        <input type="text" id="submitUseCase" class="control-input" maxlength="120">
+    </div>
+
+    <div class="admin-actions">
+        <button type="submit" class="control-button" id="submitBtn">Submit for review</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/agents-api.js"></script>
+<script src="/static/js/submit.js"></script>
+{% endblock %}

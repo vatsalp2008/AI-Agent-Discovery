@@ -1,0 +1,89 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('submitForm');
+    const closed = document.getElementById('submitClosed');
+    const errorEl = document.getElementById('submitError');
+    const statusEl = document.getElementById('submitStatus');
+    const button = document.getElementById('submitBtn');
+
+    const fields = {
+        name: document.getElementById('submitName'),
+        category: document.getElementById('submitCategory'),
+        description: document.getElementById('submitDescription'),
+        stack: document.getElementById('submitStack'),
+        url: document.getElementById('submitUrl'),
+        use_case: document.getElementById('submitUseCase'),
+    };
+
+    function say(message, isError) {
+        const target = isError ? errorEl : statusEl;
+        const other = isError ? statusEl : errorEl;
+        target.textContent = message || '';
+        target.hidden = !message;
+        other.hidden = true;
+    }
+
+    function values() {
+        return {
+            name: fields.name.value.trim(),
+            category: fields.category.value.trim(),
+            description: fields.description.value.trim(),
+            tech_stack: fields.stack.value.split(',').map(t => t.trim()).filter(Boolean),
+            github_stars: 0,   // filled in later by the star refresh
+            url: fields.url.value.trim(),
+            use_case: fields.use_case.value.trim(),
+        };
+    }
+
+    /** Offer the categories already in use, so proposals cluster sensibly. */
+    async function fillCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            if (!response.ok) return;
+
+            const categories = await response.json();
+            if (!Array.isArray(categories)) return;
+
+            document.getElementById('submitCategories').replaceChildren(
+                ...categories.map(c => Object.assign(document.createElement('option'),
+                                                     { value: c.name })));
+        } catch (error) {
+            console.error('Could not load categories:', error);
+        }
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        button.disabled = true;
+        button.textContent = 'Submitting…';
+
+        try {
+            const response = await fetch('/api/submissions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values()),
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (response.status === 403) {
+                closed.hidden = false;
+                form.hidden = true;
+                return;
+            }
+            if (!response.ok) {
+                say(data.error || `Submission failed (${response.status})`, true);
+                return;
+            }
+
+            say(`Thanks — ${data.agent.name} is queued for review.`);
+            form.reset();
+        } catch (error) {
+            console.error(error);
+            say('Could not reach the server.', true);
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Submit for review';
+        }
+    });
+
+    fillCategories();
+});

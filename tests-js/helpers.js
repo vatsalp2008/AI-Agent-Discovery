@@ -269,3 +269,20 @@ export const CATEGORY_HTML = `
     <div id="categoryOther"></div>
     <main id="categoryGrid" aria-busy="true"></main>
 `;
+
+/** The submission form's markup, mirroring templates/submit.html. */
+export const SUBMIT_HTML = `
+    <p id="submitClosed" hidden></p>
+    <form id="submitForm">
+      <p id="submitError" hidden></p>
+      <p id="submitStatus" hidden></p>
+      <input type="text" id="submitName">
+      <input type="text" id="submitCategory" list="submitCategories">
+      <datalist id="submitCategories"></datalist>
+      <textarea id="submitDescription"></textarea>
+      <input type="text" id="submitStack">
+      <input type="url" id="submitUrl">
+      <input type="text" id="submitUseCase">
+      <button type="submit" id="submitBtn">Submit for review</button>
+    </form>
+`;
