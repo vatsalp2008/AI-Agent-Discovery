@@ -1150,7 +1150,7 @@ SAMPLE_AGENTS = [
         category="Multimodal",
         tech_stack=['Python', 'PyTorch', 'Vision'],
         github_stars=19778,
-        url="https://github.com/QwenLM/Qwen2.5-VL",
+        url="https://github.com/QwenLM/Qwen3-VL",
         use_case="Document and video understanding"
     ),
     Agent(
