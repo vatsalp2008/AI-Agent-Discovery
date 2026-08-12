@@ -1994,5 +1994,223 @@
     "github_stars": 12482,
     "url": "https://github.com/bentoml/OpenLLM",
     "use_case": "Self-hosted model serving"
+  },
+  {
+    "name": "MoveIt 2",
+    "description": "Motion planning, kinematics and collision checking for ROS 2 arms, and the reference stack most manipulation projects start from.",
+    "category": "Robotics",
+    "tech_stack": [
+      "C++",
+      "Python",
+      "ROS 2"
+    ],
+    "github_stars": 1956,
+    "url": "https://github.com/moveit/moveit2",
+    "use_case": "Arm motion planning"
+  },
+  {
+    "name": "Genesis",
+    "description": "A generative physics platform that simulates rigid bodies, cloth and fluids fast enough to train policies on a single machine.",
+    "category": "Robotics",
+    "tech_stack": [
+      "Python",
+      "Taichi"
+    ],
+    "github_stars": 29739,
+    "url": "https://github.com/Genesis-Embodied-AI/Genesis",
+    "use_case": "Fast physics simulation"
+  },
+  {
+    "name": "robosuite",
+    "description": "Standardised manipulation tasks on MuJoCo, so a policy can be compared against published results rather than a bespoke setup.",
+    "category": "Robotics",
+    "tech_stack": [
+      "Python",
+      "MuJoCo"
+    ],
+    "github_stars": 2556,
+    "url": "https://github.com/ARISE-Initiative/robosuite",
+    "use_case": "Benchmarking manipulation"
+  },
+  {
+    "name": "Drake",
+    "description": "Model-based design and verification for robotics, with the optimisation and control tooling to prove a plan before running it.",
+    "category": "Robotics",
+    "tech_stack": [
+      "C++",
+      "Python"
+    ],
+    "github_stars": 4147,
+    "url": "https://github.com/RobotLocomotion/drake",
+    "use_case": "Control and verification"
+  },
+  {
+    "name": "ms-swift",
+    "description": "Fine-tuning and deployment for hundreds of text and multimodal models under one CLI, covering LoRA through full-parameter runs.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 15135,
+    "url": "https://github.com/modelscope/ms-swift",
+    "use_case": "Multimodal fine-tuning"
+  },
+  {
+    "name": "LitGPT",
+    "description": "Readable from-scratch implementations of open LLMs with pretraining, fine-tuning and deployment recipes, built for modification.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Lightning"
+    ],
+    "github_stars": 13611,
+    "url": "https://github.com/Lightning-AI/litgpt",
+    "use_case": "Hackable training recipes"
+  },
+  {
+    "name": "OpenRLHF",
+    "description": "An RLHF framework covering PPO, DPO and GRPO at scale, built on Ray and vLLM so the rollout phase is not the bottleneck.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "Ray",
+      "vLLM"
+    ],
+    "github_stars": 9906,
+    "url": "https://github.com/OpenRLHF/OpenRLHF",
+    "use_case": "Alignment training"
+  },
+  {
+    "name": "Megatron-LM",
+    "description": "NVIDIA's tensor, pipeline and sequence parallelism for training models past the point where one GPU's memory is the limit.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "CUDA"
+    ],
+    "github_stars": 17403,
+    "url": "https://github.com/NVIDIA/Megatron-LM",
+    "use_case": "Large-scale pretraining"
+  },
+  {
+    "name": "Data Formulator",
+    "description": "Describe the chart you want and iterate on it; the AI writes the reshaping code, so exploration is not gated on remembering pandas.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 16020,
+    "url": "https://github.com/microsoft/data-formulator",
+    "use_case": "Conversational charting"
+  },
+  {
+    "name": "PyGWalker",
+    "description": "Turns a dataframe into a drag-and-drop exploration UI inside a notebook, closing the gap between pandas and a BI tool.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 15937,
+    "url": "https://github.com/Kanaries/pygwalker",
+    "use_case": "Visual dataframe exploration"
+  },
+  {
+    "name": "AutoGluon",
+    "description": "AutoML that trains and ensembles models over tabular, text, image and time-series data from three lines of code.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 10594,
+    "url": "https://github.com/autogluon/autogluon",
+    "use_case": "Automated modelling"
+  },
+  {
+    "name": "Chat2DB",
+    "description": "A database client that turns a question into SQL against the live schema, then explains and optimises the query it produced.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Java",
+      "TypeScript"
+    ],
+    "github_stars": 27945,
+    "url": "https://github.com/CodePhiliaX/Chat2DB",
+    "use_case": "Natural language SQL"
+  },
+  {
+    "name": "LLM Guard",
+    "description": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call.",
+    "category": "Safety",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 3201,
+    "url": "https://github.com/protectai/llm-guard",
+    "use_case": "Filtering model I/O"
+  },
+  {
+    "name": "Detoxify",
+    "description": "Trained classifiers for toxicity, insult and identity attack, giving a numeric score where a prompt-based check gives an opinion.",
+    "category": "Safety",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 1289,
+    "url": "https://github.com/unitaryai/detoxify",
+    "use_case": "Toxicity scoring"
+  },
+  {
+    "name": "ModelScan",
+    "description": "Scans model files for code that executes on load, catching the pickle deserialisation path that makes a downloaded model a risk.",
+    "category": "Safety",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 762,
+    "url": "https://github.com/protectai/modelscan",
+    "use_case": "Model supply chain scanning"
+  },
+  {
+    "name": "Typebot",
+    "description": "A visual builder for conversational forms that embed anywhere, with branching logic and an AI step for the open-ended parts.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "TypeScript",
+      "Next.js"
+    ],
+    "github_stars": 10254,
+    "url": "https://github.com/baptisteArno/typebot.io",
+    "use_case": "Conversational forms"
+  },
+  {
+    "name": "FastGPT",
+    "description": "A knowledge-base platform that handles ingestion, retrieval and a visual workflow editor, so a support bot is configured not coded.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "TypeScript",
+      "Next.js"
+    ],
+    "github_stars": 29344,
+    "url": "https://github.com/labring/FastGPT",
+    "use_case": "Knowledge-base assistants"
+  },
+  {
+    "name": "Chaskiq",
+    "description": "An open-source conversational marketing and support suite \u2014 live chat, help centre and campaigns \u2014 self-hosted end to end.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Ruby",
+      "React"
+    ],
+    "github_stars": 3554,
+    "url": "https://github.com/chaskiq/chaskiq",
+    "use_case": "Self-hosted support desk"
   }
 ]
