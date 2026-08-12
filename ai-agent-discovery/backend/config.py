@@ -120,6 +120,13 @@ DUPLICATE_SCORE = _float_env("DUPLICATE_SCORE", 0.75)
 # catalogue until a maintainer approves it through the admin API.
 SUBMISSIONS_PATH = _resolve(os.getenv("SUBMISSIONS_PATH", ""), DATA_DIR / "submissions.jsonl")
 ENABLE_SUBMISSIONS = _bool_env("ENABLE_SUBMISSIONS", True)
+# Pending proposals held at once. Both submitting and the admin status poll
+# re-read the queue, so letting it grow without bound degrades the whole app.
+MAX_PENDING_SUBMISSIONS = _int_env("MAX_PENDING_SUBMISSIONS", 200)
+
+# Largest request body Flask will accept, so a public endpoint cannot be used
+# to fill the disk. Ample for an agent record.
+MAX_REQUEST_BYTES = _int_env("MAX_REQUEST_BYTES", 64 * 1024)
 
 # Append-only record of catalogue edits, so a mistaken change can be traced
 # and undone. Empty disables it.

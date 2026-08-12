@@ -63,6 +63,18 @@ def register_error_handlers(app):
             return jsonify({"error": f"Method {request.method} not allowed for {request.path}"}), 405
         return e.get_response()
 
+    @app.errorhandler(413)
+    def handle_too_large(e):
+        # Werkzeug's default wording does not say what the limit is, and the
+        # body is rejected before any route runs, so the client would
+        # otherwise have no way to tell how much to trim.
+        if is_api_request():
+            return jsonify({
+                "error": "Request body too large",
+                "max_bytes": config.MAX_REQUEST_BYTES,
+            }), 413
+        return e.get_response()
+
     @app.errorhandler(Exception)
     def handle_unexpected(e):
         # Let real HTTP errors keep their status; only 500s land here.

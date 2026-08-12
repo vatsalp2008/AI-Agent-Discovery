@@ -103,10 +103,30 @@ class TestAgentValidation:
             admin.validate(self.record(github_stars=stars), [])
 
     @FAST
-    @given(st.lists(st.text(min_size=1).filter(lambda s: s.strip() and "," not in s), max_size=8))
+    @given(st.lists(st.text(min_size=1, max_size=admin.MAX_TECH_LENGTH)
+                    .filter(lambda s: s.strip() and "," not in s),
+                    max_size=admin.MAX_TECH_STACK))
     def test_comma_free_stacks_round_trip(self, stack):
         cleaned = admin.validate(self.record(tech_stack=stack), [])
         assert cleaned["tech_stack"] == [t.strip() for t in stack if t.strip()]
+
+    @FAST
+    @given(st.text(min_size=admin.MAX_TECH_LENGTH + 1).filter(lambda s: "," not in s))
+    def test_an_overlong_technology_is_always_rejected(self, tech):
+        with pytest.raises(admin.AdminError, match="at most"):
+            admin.validate(self.record(tech_stack=[tech]), [])
+
+    @FAST
+    @given(st.text(min_size=1, max_size=200))
+    def test_a_name_is_accepted_exactly_when_it_fits(self, name):
+        """The length check runs on the stripped value, so whitespace must
+        not push an otherwise-valid name over the limit."""
+        fits = 0 < len(name.strip()) <= admin.FIELD_LIMITS["name"]
+        if fits:
+            assert admin.validate(self.record(name=name), [])["name"] == name.strip()
+        else:
+            with pytest.raises(admin.AdminError):
+                admin.validate(self.record(name=name), [])
 
     @FAST
     @given(st.lists(st.text(min_size=1).map(lambda s: s + ","), min_size=1, max_size=4))

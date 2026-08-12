@@ -132,6 +132,14 @@ def submit(record):
         raise AdminError("Submissions are disabled.", status=403)
 
     with _queue_lock:
+        if len(read_all(status=PENDING)) >= config.MAX_PENDING_SUBMISSIONS:
+            # Every submit() and every /api/admin/status poll re-reads this
+            # file, so an unbounded queue degrades the whole app, not just
+            # the review page.
+            raise AdminError(
+                "The review queue is full. Please try again once submissions "
+                "have been reviewed.", status=429)
+
         existing = load_catalogue()
         pending = read_all(status=PENDING)
         # validate() only understands catalogue records, so present the

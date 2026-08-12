@@ -33,6 +33,19 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 EDITABLE_FIELDS = ("name", "description", "category", "tech_stack",
                    "github_stars", "url", "use_case")
 
+# Upper bounds on each field. Generous for real entries — the longest
+# description in the catalogue is around 130 characters — but /api/submissions
+# is public and writes to disk, so an unbounded field is a way to fill it.
+FIELD_LIMITS = {
+    "name": 80,
+    "category": 60,
+    "description": 500,
+    "url": 500,
+    "use_case": 200,
+}
+MAX_TECH_STACK = 12
+MAX_TECH_LENGTH = 40
+
 # Every edit is a read-modify-write of the whole catalogue. Flask's dev server
 # is threaded, so two concurrent edits would both read the same list and the
 # second write would silently discard the first — with both returning success.
@@ -102,7 +115,10 @@ def validate(record, existing, original_name=None):
         value = record.get(field)
         if not isinstance(value, str) or not value.strip():
             raise AdminError(f"'{field}' is required")
-        cleaned[field] = value.strip()
+        value = value.strip()
+        if len(value) > FIELD_LIMITS[field]:
+            raise AdminError(f"'{field}' must be at most {FIELD_LIMITS[field]} characters")
+        cleaned[field] = value
 
     stack = record.get("tech_stack", [])
     if not isinstance(stack, list) or not all(isinstance(t, str) for t in stack):
@@ -110,6 +126,10 @@ def validate(record, existing, original_name=None):
     # Commas would split one entry into two, since stack is stored joined.
     if any("," in t for t in stack):
         raise AdminError("'tech_stack' entries must not contain commas")
+    if len(stack) > MAX_TECH_STACK:
+        raise AdminError(f"'tech_stack' may list at most {MAX_TECH_STACK} technologies")
+    if any(len(t) > MAX_TECH_LENGTH for t in stack):
+        raise AdminError(f"each technology must be at most {MAX_TECH_LENGTH} characters")
     cleaned["tech_stack"] = [t.strip() for t in stack if t.strip()]
 
     stars = record.get("github_stars", 0)
@@ -123,12 +143,17 @@ def validate(record, existing, original_name=None):
     url = url.strip()
     if url and not url.startswith(("http://", "https://")):
         raise AdminError("'url' must start with http:// or https://")
+    if len(url) > FIELD_LIMITS["url"]:
+        raise AdminError(f"'url' must be at most {FIELD_LIMITS['url']} characters")
     cleaned["url"] = url
 
     use_case = record.get("use_case", "")
     if not isinstance(use_case, str):
         raise AdminError("'use_case' must be a string")
-    cleaned["use_case"] = use_case.strip()
+    use_case = use_case.strip()
+    if len(use_case) > FIELD_LIMITS["use_case"]:
+        raise AdminError(f"'use_case' must be at most {FIELD_LIMITS['use_case']} characters")
+    cleaned["use_case"] = use_case
 
     # Names identify agents everywhere else, so they have to stay unique.
     # Existing records are read from a hand-editable file, so they may be

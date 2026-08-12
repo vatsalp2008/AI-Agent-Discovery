@@ -272,3 +272,75 @@ def test_rewriting_the_queue_keeps_lines_it_could_not_parse(paths):
     text = paths["queue"].read_text()
     assert '{"id": "trunc", "agen' in text, "the truncated line was destroyed"
     assert len(submissions.read_all()) == 1
+
+
+class TestLimits:
+    """/api/submissions is public, unauthenticated and writes to disk, so
+    every dimension a caller controls needs a bound."""
+
+    def test_the_queue_stops_accepting_once_full(self, paths, monkeypatch):
+        monkeypatch.setattr(config, "MAX_PENDING_SUBMISSIONS", 2)
+        submissions.submit(proposal(name="One"))
+        submissions.submit(proposal(name="Two"))
+
+        with pytest.raises(admin.AdminError) as excinfo:
+            submissions.submit(proposal(name="Three"))
+        assert excinfo.value.status == 429
+        assert submissions.pending_count() == 2
+
+    def test_reviewing_makes_room_again(self, paths, monkeypatch):
+        monkeypatch.setattr(config, "MAX_PENDING_SUBMISSIONS", 1)
+        first = submissions.submit(proposal(name="One"))
+        submissions.decide(first["id"], submissions.REJECTED)
+
+        # A decided submission still occupies a line in the file but no
+        # longer blocks the queue.
+        assert submissions.submit(proposal(name="Two"))["status"] == submissions.PENDING
+
+    @pytest.mark.parametrize("field", ["name", "description", "category", "url", "use_case"])
+    def test_an_overlong_field_is_refused(self, paths, field):
+        value = "x" * (admin.FIELD_LIMITS[field] + 1)
+        if field == "url":
+            value = "https://example.com/" + value
+        with pytest.raises(admin.AdminError, match="at most"):
+            submissions.submit(proposal(**{field: value}))
+
+    def test_a_field_at_the_limit_is_accepted(self, paths):
+        entry = submissions.submit(proposal(name="x" * admin.FIELD_LIMITS["name"]))
+        assert entry["status"] == submissions.PENDING
+
+    def test_a_huge_tech_stack_is_refused(self, paths):
+        stack = [f"tech{i}" for i in range(admin.MAX_TECH_STACK + 1)]
+        with pytest.raises(admin.AdminError, match="at most"):
+            submissions.submit(proposal(tech_stack=stack))
+
+    def test_one_overlong_technology_is_refused(self, paths):
+        with pytest.raises(admin.AdminError, match="at most"):
+            submissions.submit(proposal(tech_stack=["x" * (admin.MAX_TECH_LENGTH + 1)]))
+
+    def test_nothing_reaches_disk_when_the_queue_is_full(self, paths, monkeypatch):
+        monkeypatch.setattr(config, "MAX_PENDING_SUBMISSIONS", 1)
+        submissions.submit(proposal(name="One"))
+        before = paths["queue"].read_text()
+
+        with pytest.raises(admin.AdminError):
+            submissions.submit(proposal(name="Two"))
+        assert paths["queue"].read_text() == before
+
+
+def test_an_oversized_body_is_rejected_before_it_is_read(paths, monkeypatch):
+    """MAX_CONTENT_LENGTH short-circuits the request, so the JSON error must
+    come from an app-level handler rather than the route."""
+    monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", True)
+    app = Flask(__name__)
+    app.config["MAX_CONTENT_LENGTH"] = config.MAX_REQUEST_BYTES
+    from api import api_bp, register_error_handlers
+    app.register_blueprint(api_bp)
+    register_error_handlers(app)
+
+    huge = proposal(description="x" * (config.MAX_REQUEST_BYTES + 1))
+    response = app.test_client().post("/api/submissions", json=huge)
+
+    assert response.status_code == 413
+    body = response.get_json()
+    assert body["max_bytes"] == config.MAX_REQUEST_BYTES

@@ -21,6 +21,9 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 
+# Reject oversized bodies before they are read into memory.
+app.config["MAX_CONTENT_LENGTH"] = config.MAX_REQUEST_BYTES
+
 app.register_blueprint(api_bp)
 register_error_handlers(app)
 app.register_blueprint(admin.admin_bp)

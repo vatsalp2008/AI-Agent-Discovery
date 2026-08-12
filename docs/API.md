@@ -245,6 +245,20 @@ Rate limited by `RATE_LIMIT_SUBMISSIONS` (default 10/minute), tighter than
 search: this is public and writes to disk. Set `ENABLE_SUBMISSIONS=false` to
 close the queue.
 
+Because the endpoint is public, every dimension the caller controls is bounded:
+
+| Bound | Default | On breach |
+| --- | --- | --- |
+| Request body | `MAX_REQUEST_BYTES` = 64 KiB | `413` with `max_bytes` |
+| `name` / `category` | 80 / 60 characters | `400` |
+| `description` / `url` | 500 characters | `400` |
+| `use_case` | 200 characters | `400` |
+| `tech_stack` | 12 entries, 40 characters each | `400` |
+| Pending queue | `MAX_PENDING_SUBMISSIONS` = 200 | `429` |
+
+The field limits apply to `/api/admin` edits too — both paths share
+`validate()`, so the catalogue cannot be given a record the queue would refuse.
+
 ## Reviewing submissions
 
 Requires `ENABLE_ADMIN=true`.

@@ -438,3 +438,23 @@ def test_ci_imports_every_backend_module(catalogue):
     present = {p.stem for p in backend.glob("*.py")} - {"__init__", "logging_setup"}
 
     assert not (present - checked), f"CI does not import: {sorted(present - checked)}"
+
+
+def test_every_agent_would_still_be_accepted_today(catalogue):
+    """The limits on /api/submissions apply to the editor too. Tightening one
+    below what the catalogue already holds would make existing agents
+    un-editable — a save would fail on a record nobody touched."""
+    import admin
+
+    over = []
+    for record in catalogue:
+        for field, limit in admin.FIELD_LIMITS.items():
+            if len(str(record.get(field, ""))) > limit:
+                over.append(f"{record['name']}.{field}")
+        stack = record.get("tech_stack", [])
+        if len(stack) > admin.MAX_TECH_STACK:
+            over.append(f"{record['name']}.tech_stack")
+        over += [f"{record['name']}.tech_stack[{t}]"
+                 for t in stack if len(t) > admin.MAX_TECH_LENGTH]
+
+    assert not over, f"these fields exceed the validation limits: {over}"
