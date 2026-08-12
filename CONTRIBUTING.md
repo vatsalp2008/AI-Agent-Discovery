@@ -111,6 +111,13 @@ means somebody emptied it deliberately, and reindexing must respect that.
 before releasing the previous one, so an Ollama outage part-way through cannot
 strand a running app with nothing to search.
 
+**Proposals are not writes.** `backend/submissions.py` is public and on by
+default; `backend/admin.py` is neither. A submission is validated with the same
+rules as an edit and then queued, so the only path into `agents.json` remains
+the flag-guarded one. Approving a proposal calls that same path rather than
+writing directly, which is what keeps the validation, locking and audit trail
+from being bypassed.
+
 **Writes are opt-in and validated.** `backend/admin.py` is the only module that
 writes, and it is disabled unless `ENABLE_ADMIN=true`. It has no
 authentication, so it must stay off by default and behind a localhost `HOST`.
@@ -221,6 +228,8 @@ Edit `data/agents.json` and re-run `make seed`:
 | `ai-agent-discovery/refresh_stars.py` | Star count refresh |
 | `ai-agent-discovery/mcp_server.py` | MCP server for other agents |
 | `ai-agent-discovery/benchmark.py` | Hot-path measurements |
+| `backend/submissions.py` | Proposal queue |
+| `frontend/static/js/ui.js` | Shared DOM helpers for page scripts |
 | `ai-agent-discovery/doctor.py` | Setup diagnostics |
 | `ai-agent-discovery/check_links.py` | Catalogue link checker |
 | `tests/` | Python tests (pytest) |

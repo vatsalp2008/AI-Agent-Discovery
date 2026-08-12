@@ -175,6 +175,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/agent/<name>` | One agent in detail, plus similar agents |
 | `/compare?names=A,B` | Agents side by side |
 | `/collections` | Saved shortlists, kept in your browser |
+| `/submit` | Propose an agent for review |
 | `/category/<name>` | Everything in one category, most starred first |
 | `/admin` | Catalogue editor (needs `ENABLE_ADMIN=true`) |
 
@@ -278,6 +279,22 @@ The tools are read-only by design: an agent querying this should be able to
 read the catalogue, not rewrite it. Results are trimmed to the fields a caller
 needs, rather than the full record, to keep them cheap in a context window.
 
+## 📥 Suggesting an Agent
+
+Anyone can propose an agent at `/submit`, or by posting to `/api/submissions`.
+A proposal is validated with the same rules as a direct edit, then queued —
+nothing reaches the catalogue until a maintainer approves it, so the write
+path stays as restricted as it was.
+
+Maintainers review pending proposals at the top of `/admin`, with **Approve**
+and **Reject**. Approving goes through the same write path as a direct add:
+same validation, same lock, same audit entry. If the catalogue moved on and
+the name has since been taken, approval fails and the proposal returns to
+pending rather than being consumed.
+
+Set `ENABLE_SUBMISSIONS=false` to close the queue. It is on by default —
+unlike editing, a proposal is not a write.
+
 ## ✏️ Editing the Catalogue
 
 `data/agents.json` can be hand-edited, but `/admin` does the same job with
@@ -314,6 +331,7 @@ AI-Agent-Discovery/
 │   │   ├── scraper.py          # Sample data and catalogue loading
 │   │   ├── security.py         # CSP and other response headers
 │   │   ├── admin.py            # Catalogue write API (flag-guarded)
+│   │   ├── submissions.py      # Proposal queue awaiting review
 │   │   ├── embedding_cache.py  # Persisted query embeddings
 │   │   └── vectorstore.py      # FAISS index, search, caching
 │   ├── frontend/
@@ -333,6 +351,8 @@ AI-Agent-Discovery/
 │   │   ├── static/js/export-results.js  # CSV and JSON export
 │   │   ├── static/js/collections.js     # Saved shortlists
 │   │   ├── static/js/admin.js           # Catalogue editor
+│   │   ├── static/js/submit.js          # Proposal form
+│   │   ├── static/js/ui.js              # Shared DOM helpers
 │   │   ├── static/js/category.js        # Category browse page
 │   │   ├── static/js/suggest.js         # Name suggestion ranking
 │   │   ├── static/js/setup-banner.js    # Unbuilt-index notice
