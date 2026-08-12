@@ -1154,6 +1154,60 @@ SAMPLE_AGENTS = [
         use_case="Document and video understanding"
     ),
     Agent(
+        name="PurpleLlama",
+        description="Meta's tools for assessing and improving LLM safety, including input and output guardrails.",
+        category="Safety",
+        tech_stack=['Python', 'PyTorch'],
+        github_stars=4344,
+        url="https://github.com/meta-llama/PurpleLlama",
+        use_case="Safety benchmarking and guardrails"
+    ),
+    Agent(
+        name="PyRIT",
+        description="Microsoft's risk identification toolkit for automating red-team probes against generative systems.",
+        category="Safety",
+        tech_stack=['Python'],
+        github_stars=114,
+        url="https://github.com/Azure/PyRIT",
+        use_case="Automated red teaming"
+    ),
+    Agent(
+        name="Kubeflow",
+        description="Runs machine learning workflows on Kubernetes, from notebooks through pipelines to serving.",
+        category="MLOps",
+        tech_stack=['Python', 'Kubernetes', 'Go'],
+        github_stars=15811,
+        url="https://github.com/kubeflow/kubeflow",
+        use_case="ML workflows on Kubernetes"
+    ),
+    Agent(
+        name="ZenML",
+        description="A portable pipeline framework that keeps ML code the same across local runs and cloud stacks.",
+        category="MLOps",
+        tech_stack=['Python', 'Docker'],
+        github_stars=5553,
+        url="https://github.com/zenml-io/zenml",
+        use_case="Portable ML pipelines"
+    ),
+    Agent(
+        name="Dagster",
+        description="An orchestrator built around data assets, with typed inputs and lineage across pipelines.",
+        category="MLOps",
+        tech_stack=['Python', 'React'],
+        github_stars=15978,
+        url="https://github.com/dagster-io/dagster",
+        use_case="Asset-aware data orchestration"
+    ),
+    Agent(
+        name="OpenLLM",
+        description="Serves open models behind an OpenAI-compatible API, with quantisation and cloud deployment.",
+        category="Infrastructure",
+        tech_stack=['Python', 'BentoML'],
+        github_stars=12482,
+        url="https://github.com/bentoml/OpenLLM",
+        use_case="Self-hosted model serving"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
