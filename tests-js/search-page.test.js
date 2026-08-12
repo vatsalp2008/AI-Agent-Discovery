@@ -41,6 +41,7 @@ async function boot(routes = defaultRoutes()) {
             { file: 'agents-api.js', global: 'AgentsApi' },
             { file: 'search-state.js', global: 'SearchState' },
             { file: 'suggest.js', global: 'Suggest' },
+            { file: 'search-suggestions.js', global: 'SearchSuggestions' },
             { file: 'recent-searches.js', global: 'RecentSearches' },
             { file: 'export-results.js', global: 'ExportResults' },
         ],

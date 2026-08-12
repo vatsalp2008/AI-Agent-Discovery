@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
-    DASHBOARD_HTML, flush, SEARCH_HTML, stubFetch,
+    DASHBOARD_HTML, flush, SEARCH_HTML, scriptsFor, stubFetch,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -64,13 +64,9 @@ describe('rendered controls have accessible names', () => {
         bootPage({
             html: SEARCH_HTML,
             script: 'main.js',
-            extraScripts: [
-                { file: 'agents-api.js', global: 'AgentsApi' },
-                { file: 'search-state.js', global: 'SearchState' },
-                { file: 'recent-searches.js', global: 'RecentSearches' },
-                { file: 'export-results.js', global: 'ExportResults' },
-                { file: 'collections.js', global: 'Collections' },
-            ],
+            // Taken from the template, so adding a dependency cannot leave
+            // this booting an incomplete page.
+            extraScripts: scriptsFor('index.html', 'main.js'),
         });
         await flush();
 
@@ -92,7 +88,7 @@ describe('rendered controls have accessible names', () => {
         bootPage({
             html: DASHBOARD_HTML,
             script: 'dashboard.js',
-            extraScripts: [{ file: 'dashboard-stats.js', global: 'DashboardStats' }],
+            extraScripts: scriptsFor('dashboard.html', 'dashboard.js'),
         });
         await flush();
         expect(unnamedControls()).toEqual([]);

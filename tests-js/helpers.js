@@ -47,6 +47,36 @@ export function makeAgent(overrides = {}) {
  * Returns once the listener's synchronous part has run; awaiting `flush()`
  * lets any fetch chains it kicked off settle.
  */
+/**
+ * The scripts a template loads, in order, excluding the page script itself.
+ *
+ * Reading this from the template rather than restating it in each test means
+ * adding a dependency cannot leave a test booting an incomplete page — which
+ * it would only notice if the missing global happened to be used during boot.
+ */
+export function scriptsFor(templateName, pageScript) {
+    const TEMPLATES = resolve(here, '..', 'ai-agent-discovery', 'frontend', 'templates');
+
+    // Read the global from the file rather than deriving it from the name:
+    // ui.js defines UI, not Ui, and any such acronym would break the guess.
+    const globalFor = (file) => {
+        const source = readFileSync(resolve(STATIC_JS, file), 'utf8');
+        const declared = source.match(/^const (\w+) = \(\(\) => \{/m);
+        return declared ? declared[1] : null;
+    };
+
+    const read = (name) => readFileSync(resolve(TEMPLATES, name), 'utf8');
+    const sources = [read('base.html'), read(templateName)].join('\n');
+
+    return [...sources.matchAll(/<script src="\/static\/js\/([^"]+)"/g)]
+        .map(m => m[1])
+        .filter(file => file !== pageScript)
+        .map(file => ({ file, global: globalFor(file) }))
+        // Scripts that define no global (page scripts pulled in by base.html,
+        // like shortcuts.js) still need loading, just not exposing.
+        .filter(entry => entry.global !== null);
+}
+
 export function bootPage({ html, script, extraScripts = [] }) {
     document.body.innerHTML = html;
     // base.html loads ui.js before every page script.
