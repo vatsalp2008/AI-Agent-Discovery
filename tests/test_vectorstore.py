@@ -252,3 +252,44 @@ class TestNameMatchRespectsFilters:
 
     def test_the_category_filter_is_case_insensitive_here_too(self, store):
         assert store.search("Cursor", limit=3, category="code generation")[0]["name"] == "Cursor"
+
+
+class TestRebuildingWithNoAgents:
+    """Deleting every agent then reindexing is a legitimate state.
+
+    add_agents early-returns on an empty list, so replace_agents used to null
+    the store and stop — leaving the memoized agent list serving the deleted
+    agents while stats reported zero, and the untouched index on disk
+    resurrecting them all on the next restart.
+    """
+
+    def test_search_returns_nothing(self, store):
+        store.replace_agents([])
+        assert store.search("agent") == []
+
+    def test_the_agent_list_is_not_stale(self, store):
+        store.get_all_agents()          # warm the memo
+        store.replace_agents([])
+        assert store.get_all_agents() == []
+
+    def test_stats_agree_with_the_listing(self, store):
+        store.replace_agents([])
+        assert store.get_stats()["count"] == 0
+        assert store.get_categories() == []
+
+    def test_the_sidecar_records_the_empty_index(self, store):
+        """Otherwise a restart reloads the old index and resurrects them."""
+        store.replace_agents([])
+        assert store._read_meta().get("agent_count") == 0
+
+    def test_lookup_by_name_finds_nothing(self, store):
+        store.get_agent("Cursor")       # warm the name index
+        store.replace_agents([])
+        assert store.get_agent("Cursor") is None
+
+    def test_a_direct_add_of_nothing_still_changes_nothing(self, store):
+        """add_agents([]) is a no-op; only replace_agents([]) empties."""
+        before = store.vector_store
+        store.add_agents([])
+        assert store.vector_store is before
+        assert len(store.get_all_agents()) == 3

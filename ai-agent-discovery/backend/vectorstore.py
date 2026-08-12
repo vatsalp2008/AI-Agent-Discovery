@@ -149,6 +149,18 @@ class VectorStore:
         the previous index serving. Nulling first would strand a running app
         with an empty index until restart, despite an intact copy on disk.
         """
+        if not agents:
+            # Deleting every agent is a legitimate state, but add_agents
+            # early-returns on an empty list — so without this the store would
+            # be left nulled while the memoized agent list kept serving the
+            # deleted agents, and the untouched index on disk would resurrect
+            # them all on the next restart.
+            logger.warning("Rebuilding with no agents; the index will be empty.")
+            self.vector_store = None
+            self.clear_cache()
+            self._write_meta(0)
+            return
+
         previous = self.vector_store
         self.vector_store = None
         try:
