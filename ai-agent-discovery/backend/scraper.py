@@ -1100,6 +1100,60 @@ SAMPLE_AGENTS = [
         use_case="Deploying agents to the edge"
     ),
     Agent(
+        name="Parler TTS",
+        description="A text-to-speech library where the voice, tone and pacing are described in plain language.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch'],
+        github_stars=5587,
+        url="https://github.com/huggingface/parler-tts",
+        use_case="Controllable speech synthesis"
+    ),
+    Agent(
+        name="WhisperX",
+        description="Speech recognition with word-level timestamps and speaker diarisation on top of Whisper.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch'],
+        github_stars=23546,
+        url="https://github.com/m-bain/whisperX",
+        use_case="Transcription with speaker labels"
+    ),
+    Agent(
+        name="Bark",
+        description="A generative audio model that produces speech, music and sound effects from text prompts.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch'],
+        github_stars=39236,
+        url="https://github.com/suno-ai/bark",
+        use_case="Generating speech and sound from text"
+    ),
+    Agent(
+        name="SeamlessM4T",
+        description="Meta's foundation model for speech and text translation across roughly a hundred languages.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch'],
+        github_stars=11839,
+        url="https://github.com/facebookresearch/seamless_communication",
+        use_case="Multilingual speech translation"
+    ),
+    Agent(
+        name="LLaVA",
+        description="A visual instruction-tuned assistant that answers questions about images.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch', 'Vision'],
+        github_stars=24977,
+        url="https://github.com/haotian-liu/LLaVA",
+        use_case="Visual question answering"
+    ),
+    Agent(
+        name="Qwen-VL",
+        description="Alibaba's multimodal model family, reading documents, charts and video alongside text.",
+        category="Multimodal",
+        tech_stack=['Python', 'PyTorch', 'Vision'],
+        github_stars=19778,
+        url="https://github.com/QwenLM/Qwen2.5-VL",
+        use_case="Document and video understanding"
+    ),
+    Agent(
         name="MetaGPT",
         description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
         category="Autonomous Agent",
@@ -1188,15 +1242,6 @@ SAMPLE_AGENTS = [
         github_stars=55000,
         url="https://github.com/imartinez/privateGPT",
         use_case="Document QA, RAG"
-    ),
-    Agent(
-        name="Quivr",
-        description="A personal knowledge assistant that ingests your files and answers questions over them, backed by a vector store.",
-        category="Research",
-        tech_stack=["TypeScript", "Supabase", "React"],
-        github_stars=32000,
-        url="https://github.com/StanGirard/quivr",
-        use_case="Personal knowledge base"
     ),
 ]
 
