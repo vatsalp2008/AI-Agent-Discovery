@@ -121,3 +121,40 @@ def test_scaled_catalogue_refuses_an_empty_source(bench, monkeypatch, tmp_path):
 
     with pytest.raises(SystemExit):
         bench.scaled_catalogue(5)
+
+
+class TestComparingDifferentRuns:
+    """Timings only mean something at the same catalogue size."""
+
+    def test_refuses_a_different_agent_count(self, bench):
+        output = bench.compare(
+            {"search": {"runs": 1, "median_ms": 12.0}, "_meta": {"agents": 5000}},
+            {"search": {"runs": 1, "median_ms": 12.0}, "_meta": {"agents": 150}},
+        )
+        assert "Refusing to compare" in output
+        assert "5000" in output and "150" in output
+
+    def test_refuses_synthetic_against_real(self, bench):
+        output = bench.compare(
+            {"search": {"runs": 1, "median_ms": 12.0}, "_meta": {"agents": 150, "synthetic": True}},
+            {"search": {"runs": 1, "median_ms": 12.0}, "_meta": {"agents": 150}},
+        )
+        assert "synthetic" in output
+
+    def test_compares_two_matching_runs(self, bench):
+        output = bench.compare(
+            {"search": {"runs": 1, "median_ms": 24.0}, "_meta": {"agents": 150}},
+            {"search": {"runs": 1, "median_ms": 12.0}, "_meta": {"agents": 150}},
+        )
+        assert "+100.0%" in output
+        assert "slower" in output
+
+
+def test_render_marks_a_synthetic_run(bench):
+    output = bench.render({"_meta": {"agents": 600, "synthetic": True, "embedding_model": "m"}})
+    assert "synthetic" in output
+
+
+def test_render_does_not_mark_a_real_run(bench):
+    output = bench.render({"_meta": {"agents": 150, "embedding_model": "m"}})
+    assert "synthetic" not in output

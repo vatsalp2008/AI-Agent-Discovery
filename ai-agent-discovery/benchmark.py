@@ -86,7 +86,9 @@ def measure(runs=15):
 
 def render(results):
     meta = results.get("_meta", {})
-    lines = [f"{meta.get('agents', '?')} agents, embedding model {meta.get('embedding_model', '?')}", ""]
+    scale = " (synthetic)" if meta.get("synthetic") else ""
+    lines = [f"{meta.get('agents', '?')} agents{scale}, "
+             f"embedding model {meta.get('embedding_model', '?')}", ""]
     lines.append(f"{'operation':<20} {'median':>10} {'p90':>10} {'runs':>6}")
     for name, stats in results.items():
         if name.startswith("_"):
@@ -97,7 +99,20 @@ def render(results):
 
 
 def compare(current, baseline):
-    """Report how the current run moved against a saved baseline."""
+    """Report how the current run moved against a saved baseline.
+
+    Refuses to compare runs of different sizes. A --scale 5000 run diffed
+    against a real 150-agent baseline would print a fabricated multi-thousand
+    percent "slower" that means nothing.
+    """
+    current_meta, baseline_meta = current.get("_meta", {}), baseline.get("_meta", {})
+    if current_meta.get("agents") != baseline_meta.get("agents"):
+        return (f"Refusing to compare: this run has {current_meta.get('agents', '?')} agents "
+                f"and the baseline has {baseline_meta.get('agents', '?')}. "
+                "Timings only mean something at the same size.")
+    if bool(current_meta.get("synthetic")) != bool(baseline_meta.get("synthetic")):
+        return ("Refusing to compare: one run is synthetic (--scale) and the other is not.")
+
     lines = [f"{'operation':<20} {'baseline':>11} {'current':>11} {'change':>10}"]
     for name, stats in current.items():
         if name.startswith("_") or name not in baseline:
