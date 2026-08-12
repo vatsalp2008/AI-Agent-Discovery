@@ -37,10 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showMessage(text, isError) {
-        const p = document.createElement('p');
-        p.className = isError ? 'result-message error' : 'result-message';
-        p.textContent = text;
-        resultsArea.replaceChildren(p);
+        UI.showMessage(resultsArea, text, { error: isError });
     }
 
     /**

@@ -30,10 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function message(text) {
-        const p = document.createElement('p');
-        p.className = 'result-message';
-        p.textContent = text;
-        area.replaceChildren(p);
+        UI.showMessage(area, text);
     }
 
     /** One column per agent, one row per attribute. */

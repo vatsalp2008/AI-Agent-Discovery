@@ -49,6 +49,8 @@ export function makeAgent(overrides = {}) {
  */
 export function bootPage({ html, script, extraScripts = [] }) {
     document.body.innerHTML = html;
+    // base.html loads ui.js before every page script.
+    loadScript('ui.js', 'UI');
     loadAgentCard();
     extraScripts.forEach(({ file, global }) => loadScript(file, global));
 

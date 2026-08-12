@@ -15,11 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function message(text, subtitle) {
-        const p = document.createElement('p');
-        p.className = 'result-message';
-        p.textContent = text;
-        grid.replaceChildren(p);
-        grid.setAttribute('aria-busy', 'false');
+        UI.showMessage(grid, text);
         // Never leave the header stuck on "Loading…".
         if (countEl) countEl.textContent = subtitle || '';
     }

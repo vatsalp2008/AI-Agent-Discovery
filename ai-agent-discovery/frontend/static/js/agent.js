@@ -7,11 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const name = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '');
 
     function showError(text) {
-        const p = document.createElement('p');
-        p.className = 'result-message error';
-        p.textContent = text;
-        detail.replaceChildren(p);
-        detail.setAttribute('aria-busy', 'false');
+        UI.showError(detail, text);
     }
 
     function field(label, value) {

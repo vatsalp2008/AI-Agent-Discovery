@@ -97,12 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function showMessage(text) {
-        const p = document.createElement('p');
-        p.className = 'result-message error';
-        p.textContent = text;
-        grid.replaceChildren(p);
-        grid.setAttribute('aria-busy', 'false');
-        statsGrid.setAttribute('aria-busy', 'false');
+        UI.showError(grid, text);
+        UI.setBusy(false, statsGrid);
         footer.replaceChildren();
     }
 
