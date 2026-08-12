@@ -138,3 +138,29 @@ describe('signalling failure', () => {
         expect(result.failed).toBe(false);
     });
 });
+
+describe('running out of pages', () => {
+    it('reports a failure rather than truncating silently', async () => {
+        // A server that always says there is more.
+        const fetchImpl = async () => ({
+            ok: true,
+            json: async () => ({ agents: [{ name: 'x' }], metadata: { total: 9999, has_more: true } }),
+        });
+
+        const result = await AgentsApi.fetchAll({}, { fetchImpl });
+        expect(result.exhausted).toBe(true);
+        expect(result.failed).toBe(true);
+        expect(result.agents).toHaveLength(AgentsApi.MAX_PAGES);
+    });
+
+    it('does not flag a list that finished normally', async () => {
+        const fetchImpl = async () => ({
+            ok: true,
+            json: async () => ({ agents: [{ name: 'x' }], metadata: { total: 1, has_more: false } }),
+        });
+
+        const result = await AgentsApi.fetchAll({}, { fetchImpl });
+        expect(result.exhausted).toBe(false);
+        expect(result.failed).toBe(false);
+    });
+});

@@ -136,11 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fillPicker() {
         if (!picker) return;
         try {
-            const response = await fetch('/api/agents?limit=200&sort=category');
-            if (!response.ok) return;
-
-            const body = await response.json();
-            const agents = body.agents || [];
+            // Paged: past AGENTS_MAX_PAGE_SIZE the server clamps and whole
+            // late-alphabet categories would vanish from the picker.
+            const { agents, failed } = await AgentsApi.fetchAll({ sort: 'category' });
+            if (failed) {
+                console.error('Could not load the full agent list for the picker.');
+            }
 
             const byCategory = new Map();
             agents.forEach(agent => {

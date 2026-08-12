@@ -34,6 +34,7 @@ const AgentsApi = (() => {
         let offset = 0;
         let total = null;
         let failed = false;
+        let exhausted = false;
 
         for (let page = 0; page < MAX_PAGES; page += 1) {
             let body;
@@ -59,9 +60,26 @@ const AgentsApi = (() => {
 
             offset += batch.length;
             if (!metadata.has_more || batch.length === 0) break;
+
+            // Still more to come, and this was the last page we will fetch.
+            // Report it as a failure: silently returning a truncated list is
+            // exactly the mode this module exists to prevent, and a caller
+            // would otherwise render 5,000 cards under a "6,000 agents"
+            // heading with nothing wrong on screen.
+            if (page === MAX_PAGES - 1) {
+                console.error(
+                    `Stopped after ${MAX_PAGES} pages with more agents remaining; ` +
+                    'the list is incomplete.');
+                exhausted = true;
+            }
         }
 
-        return { agents, total: total === null ? agents.length : total, failed };
+        return {
+            agents,
+            total: total === null ? agents.length : total,
+            failed: failed || exhausted,
+            exhausted,
+        };
     }
 
     return { PAGE_SIZE, MAX_PAGES, query, fetchAll };
