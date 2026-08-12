@@ -422,3 +422,19 @@ def test_api_doc_contents_anchors_resolve(catalogue):
     headings = {slug(h) for h in re.findall(r"^## (.+)$", text, flags=re.M)}
     anchors = set(re.findall(r"\]\(#([^)]+)\)", text))
     assert anchors <= headings, f"dangling anchors: {sorted(anchors - headings)}"
+
+
+def test_ci_imports_every_backend_module(catalogue):
+    """A module absent from the import check can break without CI noticing —
+    the unit tests stub most of them, so a bad import only shows at runtime."""
+    import re
+
+    import config
+
+    workflow = (config.REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
+    checked = set(re.search(r'python -c "import ([^"]+)"', workflow).group(1).split(", "))
+
+    backend = config.PACKAGE_DIR / "backend"
+    present = {p.stem for p in backend.glob("*.py")} - {"__init__", "logging_setup"}
+
+    assert not (present - checked), f"CI does not import: {sorted(present - checked)}"

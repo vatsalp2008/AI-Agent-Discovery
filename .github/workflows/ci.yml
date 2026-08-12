@@ -49,7 +49,7 @@ jobs:
       # would otherwise hide.
       - name: Check backend imports resolve
         working-directory: ai-agent-discovery/backend
-        run: python -c "import admin, api, config, embedding_cache, embeddings, generation, logging_setup, models, rate_limit, request_log, scoring, scraper, security, vectorstore"
+        run: python -c "import admin, api, config, embedding_cache, embeddings, generation, logging_setup, models, rate_limit, request_log, scoring, scraper, security, submissions, vectorstore"
 
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
