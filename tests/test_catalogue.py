@@ -140,15 +140,20 @@ def test_every_template_stylesheet_exists(catalogue):
     assert not missing, f"templates reference missing assets: {missing}"
 
 
-def test_readme_documents_every_api_route(catalogue):
-    """A route absent from the README is one nobody will find."""
+def test_docs_cover_every_api_route(catalogue):
+    """A route documented nowhere is one nobody will find.
+
+    Checked across the README and docs/API.md: the reference moved out of the
+    README when it passed 880 lines, so either is a valid home.
+    """
     import re
 
     import config
 
     api_source = (config.PACKAGE_DIR / "backend" / "api.py").read_text()
     admin_source = (config.PACKAGE_DIR / "backend" / "admin.py").read_text()
-    readme = (config.REPO_ROOT / "README.md").read_text()
+    docs = ((config.REPO_ROOT / "README.md").read_text()
+            + (config.REPO_ROOT / "docs" / "API.md").read_text())
 
     routes = set()
     for source, prefix in ((api_source, "/api"), (admin_source, "/api/admin")):
@@ -160,9 +165,9 @@ def test_readme_documents_every_api_route(catalogue):
     for route in routes:
         # The README may write the path with or without the parameter.
         base = route.split("<")[0].rstrip("/")
-        if base and base not in readme:
+        if base and base not in docs:
             missing.append(route)
-    assert not missing, f"README does not mention: {sorted(missing)}"
+    assert not missing, f"neither README nor docs/API.md mentions: {sorted(missing)}"
 
 
 def test_readme_agent_count_matches_the_catalogue(catalogue):
@@ -374,3 +379,29 @@ def test_scripts_load_after_their_dependencies(catalogue):
                 available.add(provides[script])
 
     assert not problems, problems
+
+
+def test_the_readme_stays_navigable(catalogue):
+    """It reached 881 lines before the API reference moved to docs/API.md.
+
+    Not a style rule: a README nobody scrolls to the end of is one where the
+    setup instructions stop being found.
+    """
+    import config
+
+    lines = (config.REPO_ROOT / "README.md").read_text().count("\n")
+    assert lines < 700, f"README is {lines} lines; consider moving a section into docs/"
+
+
+def test_docs_links_resolve(catalogue):
+    """A broken relative link in the docs is invisible until someone clicks."""
+    import re
+
+    import config
+
+    for source in (config.REPO_ROOT / "README.md", config.REPO_ROOT / "docs" / "API.md",
+                   config.REPO_ROOT / "CONTRIBUTING.md"):
+        text = source.read_text()
+        for target in re.findall(r"\]\((?!https?://|#)([^)#]+)", text):
+            resolved = (source.parent / target).resolve()
+            assert resolved.exists(), f"{source.name} links to missing {target}"
