@@ -34,14 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.isArray(body.results) ? body.results : [];
     }
 
-    function describeChanges(changes) {
-        const parts = [];
-        if (changes.added.length) parts.push(`${changes.added.length} new`);
-        if (changes.removed.length) parts.push(`${changes.removed.length} gone`);
-        if (changes.moved.length) parts.push(`${changes.moved.length} moved`);
-        return parts.join(', ');
-    }
-
     function changeList(changes) {
         const list = document.createElement('ul');
         list.className = 'change-list';
@@ -140,13 +132,23 @@ document.addEventListener('DOMContentLoaded', () => {
         container.replaceChildren(changeList(changes));
     }
 
+    /** The saved entry as it stands now, not as it was when rendered. */
+    function current(entry) {
+        return SavedSearches.list().find(e =>
+            e.query === entry.query && (e.category || '') === (entry.category || ''))
+            || entry;
+    }
+
     async function checkOne(entry, article) {
         const container = article.querySelector('.saved-changes');
         UI.showMessage(container, 'Checking…');
 
         try {
             const fresh = await rerun(entry);
-            const changes = SavedSearches.diff(entry.snapshot, fresh);
+            // Re-read rather than using the captured snapshot: a previous
+            // check already replaced it, and diffing against the original
+            // save would report the same change every time.
+            const changes = SavedSearches.diff(current(entry).snapshot, fresh);
             showChanges(entry, article, changes);
             // Adopt the new results, so checking twice does not report the
             // same change twice.
@@ -220,5 +222,5 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
 
     // Exposed for the tests, which drive the page rather than the module.
-    window.SavedPage = { render, checkOne, describeChanges };
+    window.SavedPage = { render, checkOne };
 });

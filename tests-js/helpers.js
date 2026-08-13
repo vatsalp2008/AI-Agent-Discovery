@@ -202,6 +202,13 @@ export const COMPARE_HTML = `
 `;
 
 /** The collections page's markup, mirroring templates/collections.html. */
+export const SAVED_HTML = `
+    <button type="button" id="checkAll">Check for changes</button>
+    <button type="button" id="clearSaved">Remove all</button>
+    <div id="savedResult" aria-live="polite"></div>
+    <main id="savedArea" aria-live="polite" aria-busy="false"></main>
+`;
+
 export const COLLECTIONS_HTML = `
     <form id="newCollectionForm">
       <label class="sr-only" for="newCollectionName">New collection name</label>
