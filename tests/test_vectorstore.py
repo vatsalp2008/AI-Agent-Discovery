@@ -27,9 +27,8 @@ def _store_with(categories, tmp_path):
     over-fetch would ask for — so every k collapses to the index size and a
     test written against it cannot tell the two behaviours apart.
     """
-    from langchain_core.documents import Document
-
     from conftest import FakeInnerStore
+    from langchain_core.documents import Document
 
     documents = [
         Document(page_content=f"agent number {i}",
