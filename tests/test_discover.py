@@ -278,3 +278,51 @@ class TestTheDiscoveryRun:
         self.stub_search(monkeypatch, {"ai-agents": []})
         found, _ = discover.discover(["ai-agents"], min_stars=0, pause=0)
         assert found == []
+
+
+class TestTechStackQuality:
+    """GitHub's `language` is whatever the repo has most bytes of, which is
+    often a packaging artifact rather than a technology."""
+
+    def test_a_packaging_language_is_renamed(self):
+        """autoware reports "Dockerfile"; nobody lists that as a stack."""
+        record = discover.to_record(repo(language="Dockerfile", topics=["ros2"]))
+        assert "Docker" in record["tech_stack"]
+        assert "Dockerfile" not in record["tech_stack"]
+
+    @pytest.mark.parametrize("language", ["HTML", "Makefile", "Shell", "Batchfile"])
+    def test_build_glue_is_dropped(self, language):
+        record = discover.to_record(repo(language=language, topics=["ros2"]))
+        assert language not in (record or {}).get("tech_stack", [])
+
+    def test_dropping_it_does_not_lose_the_repository(self):
+        """The topics still supply something usable, so a repo that happens
+        to be mostly Makefiles is not thrown away."""
+        record = discover.to_record(repo(language="Makefile", topics=["ros2"]))
+        assert record is not None
+        assert record["tech_stack"] == ["ROS 2"]
+
+    def test_a_repository_left_with_nothing_is_skipped(self):
+        assert discover.to_record(repo(language="HTML", topics=["ai-agents"])) is None
+
+
+class TestJsonOutput:
+    def test_json_never_queues(self, tmp_path, monkeypatch, capsys):
+        """Asking for a listing must not write to the queue as a side effect."""
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "a.json")
+        (tmp_path / "a.json").write_text("[]")
+        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "q.jsonl")
+        monkeypatch.setattr(discover, "search_repos",
+                            lambda query, **kw: [repo(html_url="https://github.com/a/b")])
+
+        assert discover.main(["--json", "--topic", "ai-agents", "--min-stars", "0"]) == 0
+        assert not (tmp_path / "q.jsonl").exists(), "a listing wrote to the queue"
+
+    def test_the_output_parses_even_when_empty(self, tmp_path, monkeypatch, capsys):
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "a.json")
+        (tmp_path / "a.json").write_text("[]")
+        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "q.jsonl")
+        monkeypatch.setattr(discover, "search_repos", lambda query, **kw: [])
+
+        discover.main(["--json", "--topic", "ai-agents"])
+        assert json.loads(capsys.readouterr().out) == []

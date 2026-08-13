@@ -106,10 +106,20 @@ CATEGORY_USE_CASES = {
     "Framework": "Building an agent",
 }
 
-# GitHub's language field is one word; these read better in the catalogue.
+# GitHub's language field is whatever the repo has most bytes of, which is
+# not always a technology anyone would list. autoware reports "Dockerfile".
 LANGUAGE_NAMES = {
-    "Jupyter Notebook": "Jupyter", "C++": "C++", "C#": "C#",
-    "Shell": "Shell", "TypeScript": "TypeScript", "JavaScript": "JavaScript",
+    "Jupyter Notebook": "Jupyter",
+    "Dockerfile": "Docker",
+    "CMake": "C++",
+}
+
+# Markup, build glue and packaging. Being mostly these says how a repository
+# is assembled, not what it is built with, so they are dropped rather than
+# renamed — the topics usually supply something better.
+NOT_A_TECH_STACK = {
+    "HTML", "CSS", "SCSS", "Makefile", "Batchfile", "Roff", "M4",
+    "Shell", "PowerShell", "Vim Script", "TeX", "MDX", "Nix",
 }
 
 # Topics that name a real technology, worth carrying into tech_stack.
@@ -234,7 +244,7 @@ def infer_tech_stack(repo):
     """Language plus any topic that names a real technology."""
     stack = []
     language = repo.get("language")
-    if language:
+    if language and language not in NOT_A_TECH_STACK:
         stack.append(LANGUAGE_NAMES.get(language, language))
 
     for topic in repo.get("topics") or []:
@@ -385,12 +395,20 @@ def main(argv=None):
                         help="only repositories pushed since this date, e.g. 2026-01-01")
     parser.add_argument("--dry-run", action="store_true",
                         help="report candidates without queueing them")
+    parser.add_argument("--json", action="store_true", dest="as_json",
+                        help="print candidates as JSON (implies --dry-run)")
     parser.add_argument("--token", default=os.getenv("GITHUB_TOKEN"),
                         help="GitHub token (or set GITHUB_TOKEN)")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
     configure("DEBUG" if args.verbose else "INFO")
+
+    # JSON output is for a caller that wants the candidates, not for one that
+    # wants them queued — writing to the queue as a side effect of asking for
+    # a listing would surprise anyone piping this.
+    if args.as_json:
+        args.dry_run = True
 
     if not args.dry_run and not config.ENABLE_SUBMISSIONS:
         logger.error("Submissions are disabled; set ENABLE_SUBMISSIONS=true or use --dry-run.")
@@ -411,11 +429,18 @@ def main(argv=None):
         logger.error("Discovery failed: %s", e)
         return 1
 
+    proposals = found[:args.max_proposals]
+
+    if args.as_json:
+        # Always valid JSON, including when there is nothing — a caller
+        # parsing this should not have to special-case the empty run.
+        print(json.dumps(proposals, indent=2))
+        return 0
+
     if not found:
         logger.info("Nothing new found.")
         return 0
 
-    proposals = found[:args.max_proposals]
     print(f"\n{len(proposals)} candidate(s):")
     for record in proposals:
         print(format_candidate(record))
