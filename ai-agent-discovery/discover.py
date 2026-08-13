@@ -121,9 +121,9 @@ TECH_TOPICS = {
     "postgresql": "PostgreSQL", "rust": "Rust",
 }
 
-# Below this a description is a tagline, not something worth embedding — the
-# same bar the catalogue guard enforces.
-MIN_DESCRIPTION = 60
+# Taken from the queue rather than restated, so the crawler cannot propose
+# something the queue would then refuse.
+MIN_DESCRIPTION = submissions.MIN_DESCRIPTION
 
 # Reading lists, tutorials and books dominate a stars-sorted topic search —
 # "awesome-llm-apps" outranks every actual tool by an order of magnitude.

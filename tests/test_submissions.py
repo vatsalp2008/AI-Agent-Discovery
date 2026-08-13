@@ -31,7 +31,11 @@ def paths(tmp_path, monkeypatch):
 
 def proposal(**overrides):
     record = {
-        "name": "Proposed", "description": "A proposed agent.", "category": "Automation",
+        "name": "Proposed",
+        # Long enough to clear MIN_DESCRIPTION: the queue refuses a tagline,
+        # because approving one would put an unusable record in the catalogue.
+        "description": "A proposed agent that automates a genuinely useful job worth describing.",
+        "category": "Automation",
         "tech_stack": ["Python"], "github_stars": 5, "url": "https://example.com",
         "use_case": "testing",
     }
@@ -304,6 +308,25 @@ class TestLimits:
             value = "https://example.com/" + value
         with pytest.raises(admin.AdminError, match="at most"):
             submissions.submit(proposal(**{field: value}))
+
+    def test_a_tagline_description_is_refused(self, paths):
+        """The form advertises minlength="60" but only the browser enforced
+        it, so a direct POST could queue something that would break the
+        catalogue's own guard once approved."""
+        with pytest.raises(admin.AdminError, match="at least"):
+            submissions.submit(proposal(description="An agent."))
+
+    def test_the_floor_matches_what_the_form_promises(self):
+        """A mismatch would either reject what the form accepts, or accept
+        what the form rejects. Both look like a bug to whoever hits them."""
+        import re
+
+        import config as cfg
+        template = (cfg.PACKAGE_DIR / "frontend" / "templates" / "submit.html").read_text()
+        advertised = re.search(r'id="submitDescription"[^>]*minlength="(\d+)"',
+                               template, re.S)
+        assert advertised, "the description field no longer advertises a minimum"
+        assert int(advertised.group(1)) == submissions.MIN_DESCRIPTION
 
     def test_a_field_at_the_limit_is_accepted(self, paths):
         entry = submissions.submit(proposal(name="x" * admin.FIELD_LIMITS["name"]))

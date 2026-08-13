@@ -28,6 +28,14 @@ logger = logging.getLogger(__name__)
 
 PENDING, APPROVED, REJECTED = "pending", "approved", "rejected"
 
+# The description is what gets embedded, so a tagline retrieves badly — the
+# catalogue has a guard asserting no entry is shorter than this. validate()
+# does not enforce it, because a maintainer editing by hand is trusted and
+# CI catches them. A submission is neither: approving one would put an
+# unusable record in the catalogue and break the build for someone else.
+# The submit form already advertises this as minlength="60".
+MIN_DESCRIPTION = 60
+
 # Rewriting the queue to change one status is a read-modify-write, so it needs
 # the same serialisation as the catalogue itself.
 _queue_lock = threading.Lock()
@@ -149,6 +157,10 @@ def submit(record):
         against = existing + [e["agent"] for e in pending if isinstance(e.get("agent"), dict)]
 
         cleaned = validate(record, against)
+        if len(cleaned["description"]) < MIN_DESCRIPTION:
+            raise AdminError(
+                f"'description' must be at least {MIN_DESCRIPTION} characters — "
+                "say what the tool does, not what it is called")
 
         entry = {
             "id": uuid.uuid4().hex[:12],
@@ -225,5 +237,5 @@ def pending_count():
     return len(read_all(status=PENDING))
 
 
-__all__ = ["PENDING", "APPROVED", "REJECTED", "EDITABLE_FIELDS",
+__all__ = ["PENDING", "APPROVED", "REJECTED", "EDITABLE_FIELDS", "MIN_DESCRIPTION",
            "read_all", "submit", "decide", "decide_reset", "pending_count"]

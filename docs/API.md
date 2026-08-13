@@ -251,13 +251,20 @@ Because the endpoint is public, every dimension the caller controls is bounded:
 | --- | --- | --- |
 | Request body | `MAX_REQUEST_BYTES` = 64 KiB | `413` with `max_bytes` |
 | `name` / `category` | 80 / 60 characters | `400` |
-| `description` / `url` | 500 characters | `400` |
+| `description` | 60–500 characters | `400` |
+| `url` | 500 characters | `400` |
 | `use_case` | 200 characters | `400` |
 | `tech_stack` | 12 entries, 40 characters each | `400` |
 | Pending queue | `MAX_PENDING_SUBMISSIONS` = 200 | `429` |
 
 The field limits apply to `/api/admin` edits too — both paths share
 `validate()`, so the catalogue cannot be given a record the queue would refuse.
+
+The 60-character description minimum is the one rule the queue applies and the
+editor does not. The description is what gets embedded, so a tagline retrieves
+badly; a maintainer typing one directly is trusted (and CI has a guard), but an
+approved submission would put an unusable record in the catalogue and break the
+build for somebody else.
 
 ## Reviewing submissions
 
