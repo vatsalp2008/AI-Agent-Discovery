@@ -22,8 +22,10 @@
     </label>
 </div>
 
-<p class="result-message error" id="collectionsError" hidden></p>
-<p class="result-message" id="collectionsStatus" hidden></p>
+<!-- One live region rather than two toggled paragraphs: content inside a
+     hidden element is never announced, so a failed create or import reached
+     sighted users only. -->
+<div id="collectionsResult" aria-live="polite"></div>
 
 <main id="collectionsArea" aria-live="polite"></main>
 {% endblock %}

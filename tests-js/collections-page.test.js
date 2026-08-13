@@ -43,8 +43,7 @@ describe('creating', () => {
     it('shows why a create failed', () => {
         createVia('Coding');
         createVia('Coding');
-        const error = document.getElementById('collectionsError');
-        expect(error.hidden).toBe(false);
+        const error = document.getElementById('collectionsResult');
         expect(error.textContent).toContain('already exists');
     });
 
@@ -142,7 +141,7 @@ describe('export and import controls', () => {
         try {
             document.getElementById('exportCollections').click();
             expect(downloads).toEqual(['agent-collections.json']);
-            expect(document.getElementById('collectionsStatus').textContent).toContain('Exported');
+            expect(document.getElementById('collectionsResult').textContent).toContain('Exported');
         } finally {
             HTMLAnchorElement.prototype.click = realClick;
         }
@@ -151,7 +150,7 @@ describe('export and import controls', () => {
     it('says so when there is nothing to export', () => {
         boot();
         document.getElementById('exportCollections').click();
-        expect(document.getElementById('collectionsError').textContent).toContain('nothing to export');
+        expect(document.getElementById('collectionsResult').textContent).toContain('nothing to export');
     });
 
     it('imports a file and re-renders', async () => {
@@ -170,7 +169,7 @@ describe('export and import controls', () => {
 
         await new Promise(r => setTimeout(r, 50));
         expect(document.querySelector('.collection-card h2').textContent).toBe('Coding (1)');
-        expect(document.getElementById('collectionsStatus').textContent).toContain('1 new');
+        expect(document.getElementById('collectionsResult').textContent).toContain('1 new');
     });
 
     it('reports a malformed import', async () => {
@@ -183,7 +182,7 @@ describe('export and import controls', () => {
         input.dispatchEvent(new window.Event('change'));
 
         await new Promise(r => setTimeout(r, 50));
-        expect(document.getElementById('collectionsError').textContent).toContain('valid JSON');
+        expect(document.getElementById('collectionsResult').textContent).toContain('valid JSON');
     });
 
     it('ignores a change event with no file', () => {

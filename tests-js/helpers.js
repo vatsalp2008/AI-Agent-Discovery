@@ -219,8 +219,7 @@ export const COLLECTIONS_HTML = `
     <label class="control-button" for="importCollections">Import
       <input type="file" id="importCollections" class="sr-only">
     </label>
-    <p class="result-message error" id="collectionsError" hidden></p>
-    <p class="result-message" id="collectionsStatus" hidden></p>
+    <div id="collectionsResult" aria-live="polite"></div>
     <main id="collectionsArea"></main>
 `;
 

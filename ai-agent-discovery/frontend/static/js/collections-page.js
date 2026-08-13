@@ -2,23 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const area = document.getElementById('collectionsArea');
     const form = document.getElementById('newCollectionForm');
     const nameInput = document.getElementById('newCollectionName');
-    const errorEl = document.getElementById('collectionsError');
-    const statusEl = document.getElementById('collectionsStatus');
+    const result = document.getElementById('collectionsResult');
     const exportBtn = document.getElementById('exportCollections');
     const importInput = document.getElementById('importCollections');
 
     function showError(message) {
-        if (!errorEl) return;
-        errorEl.textContent = message || '';
-        errorEl.hidden = !message;
-        if (message && statusEl) statusEl.hidden = true;
+        UI.showError(result, message);
     }
 
     function showStatus(message) {
-        if (!statusEl) return;
-        statusEl.textContent = message || '';
-        statusEl.hidden = !message;
-        if (message && errorEl) errorEl.hidden = true;
+        UI.showMessage(result, message);
     }
 
     function agentChip(collection, agent) {

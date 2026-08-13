@@ -539,3 +539,24 @@ def test_every_scheduled_workflow_can_also_be_run_by_hand():
             missing.append(workflow.name)
 
     assert not missing, f"scheduled but not manually runnable: {missing}"
+
+
+def test_no_page_reports_into_a_hidden_element():
+    """The bug three pages shipped with: a message written into a `hidden`
+    paragraph is styled correctly, reads correctly, and is never announced —
+    a screen-reader user got nothing from a save, a delete or a submission.
+
+    The fix is one always-present live region per page, which is why the
+    check is "no hidden result-message" rather than "has a live region".
+    """
+    import re
+
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+
+    offenders = []
+    for template in templates.glob("*.html"):
+        for tag in re.findall(r"<(?:p|div)[^>]*>", template.read_text()):
+            if "result-message" in tag and "hidden" in tag:
+                offenders.append(f"{template.name}: {tag}")
+
+    assert not offenders, offenders
