@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { bootPage, CATEGORY_HTML, flush, stubFetch } from './helpers.js';
+import { CATEGORY_HTML, bootPage, flush, scriptsFor, stubFetch } from './helpers.js';
 
 function agent(name, category = 'Evaluation') {
     return { name, metadata: { name, category, stack: 'Python', stars: 100, description: `${name} does things.`, url: 'https://example.com' } };
@@ -18,7 +18,7 @@ async function boot(path = '/category/Evaluation', r = routes()) {
     window.history.replaceState({}, '', path);
     const calls = stubFetch(r);
     bootPage({ html: CATEGORY_HTML, script: 'category.js',
-               extraScripts: [{ file: 'agents-api.js', global: 'AgentsApi' }] });
+               extraScripts: scriptsFor('category.html', 'category.js') });
     await flush();
     return calls;
 }

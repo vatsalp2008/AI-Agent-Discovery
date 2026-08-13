@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { bootPage, COMPARE_HTML, flush, stubFetch } from './helpers.js';
+import { COMPARE_HTML, bootPage, flush, scriptsFor, stubFetch } from './helpers.js';
 
 function agent(name, extra = {}) {
     return {
@@ -21,7 +21,7 @@ async function boot(path = '/compare?names=Aider,Cursor', r = routes()) {
     window.history.replaceState({}, '', path);
     const calls = stubFetch(r);
     bootPage({ html: COMPARE_HTML, script: 'compare.js',
-               extraScripts: [{ file: 'agents-api.js', global: 'AgentsApi' }] });
+               extraScripts: scriptsFor('compare.html', 'compare.js') });
     await flush();
     return calls;
 }

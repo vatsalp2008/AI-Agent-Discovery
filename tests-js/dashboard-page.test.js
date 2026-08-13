@@ -5,7 +5,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { bootPage, DASHBOARD_HTML, flush, stubFetch } from './helpers.js';
+import { DASHBOARD_HTML, bootPage, flush, scriptsFor, stubFetch } from './helpers.js';
 
 const STATS = {
     count: 37,
@@ -31,7 +31,7 @@ async function boot(routes) {
     bootPage({
         html: DASHBOARD_HTML,
         script: 'dashboard.js',
-        extraScripts: [{ file: 'dashboard-stats.js', global: 'DashboardStats' }],
+        extraScripts: scriptsFor('dashboard.html', 'dashboard.js'),
     });
     await flush();
     return calls;

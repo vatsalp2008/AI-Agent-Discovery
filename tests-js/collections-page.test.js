@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { bootPage, COLLECTIONS_HTML } from './helpers.js';
+import { COLLECTIONS_HTML, bootPage, scriptsFor } from './helpers.js';
 
 let C;
 
@@ -8,7 +8,7 @@ function boot() {
     bootPage({
         html: COLLECTIONS_HTML,
         script: 'collections-page.js',
-        extraScripts: [{ file: 'collections.js', global: 'Collections' }],
+        extraScripts: scriptsFor('collections.html', 'collections-page.js'),
     });
     C = globalThis.Collections;
 }
