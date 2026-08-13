@@ -192,3 +192,17 @@ describe('export and import controls', () => {
         expect(() => input.dispatchEvent(new window.Event('change'))).not.toThrow();
     });
 });
+
+describe('a successful action', () => {
+    it('leaves no stray empty message behind', async () => {
+        /** The create path clears by passing '' — which used to hide the
+         *  paragraph and, after the live-region change, inserted an empty
+         *  one into a region a screen reader is watching. */
+        await boot();
+        createVia('Coding');
+
+        const region = document.getElementById('collectionsResult');
+        expect(region.textContent.trim()).toBe('');
+        expect(region.children).toHaveLength(0);
+    });
+});

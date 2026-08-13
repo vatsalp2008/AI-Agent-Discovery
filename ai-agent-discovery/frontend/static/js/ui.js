@@ -27,6 +27,18 @@ const UI = (() => {
     function showMessage(container, text, { error = false, clearBusy = true } = {}) {
         if (!container) return null;
 
+        // An empty message means "nothing to report", so the region is
+        // emptied rather than given a blank paragraph. Callers written
+        // against the older two-paragraph pattern pass '' to clear, and
+        // would otherwise leave a stray empty <p> in a live region.
+        if (!text) {
+            container.replaceChildren();
+            if (clearBusy && container.hasAttribute('aria-busy')) {
+                container.setAttribute('aria-busy', 'false');
+            }
+            return null;
+        }
+
         const element = messageElement(text, { error });
         container.replaceChildren(element);
         if (clearBusy && container.hasAttribute('aria-busy')) {

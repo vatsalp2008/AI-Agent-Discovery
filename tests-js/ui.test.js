@@ -80,3 +80,34 @@ describe('setBusy', () => {
         expect(() => UI.setBusy(false, null, undefined, box())).not.toThrow();
     });
 });
+
+describe('an empty message', () => {
+    it('empties the region instead of adding a blank paragraph', () => {
+        const container = document.createElement('div');
+        UI.showMessage(container, 'something went wrong', { error: true });
+        expect(container.children).toHaveLength(1);
+
+        UI.showMessage(container, '');
+        expect(container.children).toHaveLength(0);
+        expect(container.textContent).toBe('');
+    });
+
+    it('returns null, since there is no element to hand back', () => {
+        expect(UI.showMessage(document.createElement('div'), '')).toBeNull();
+    });
+
+    it('still clears aria-busy', () => {
+        /** A region left busy makes a screen reader wait for an update that
+         *  never comes — true whether or not there is a message. */
+        const container = document.createElement('div');
+        container.setAttribute('aria-busy', 'true');
+        UI.showMessage(container, '');
+        expect(container.getAttribute('aria-busy')).toBe('false');
+    });
+
+    it('treats undefined the same way', () => {
+        const container = document.createElement('div');
+        UI.showError(container, undefined);
+        expect(container.children).toHaveLength(0);
+    });
+});
