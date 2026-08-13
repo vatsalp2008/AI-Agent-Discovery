@@ -558,3 +558,38 @@ def test_no_page_reports_into_a_hidden_element():
                 offenders.append(f"{template.name}: {tag}")
 
     assert not offenders, offenders
+
+
+def test_no_source_file_contains_a_control_character():
+    """A stray NUL makes git treat a text file as binary.
+
+    saved-searches.js shipped with one: `git diff` showed "Binary files
+    differ", so the file had no reviewable diff and no line-wise blame. It
+    was invisible in the editor, and it was doing real work — separating the
+    two halves of a cache key — so removing it needed a deliberate
+    replacement rather than a delete.
+    """
+    import subprocess
+
+    # Only files we actually track: a vendored venv contains third-party
+    # fixtures that are deliberately not UTF-8, and they are not ours to fix.
+    listed = subprocess.run(["git", "ls-files", "-z"], cwd=config.REPO_ROOT,
+                            capture_output=True, text=True, check=True)
+    suffixes = {".py", ".js", ".css", ".html", ".md", ".json", ".yml"}
+    allowed = {"\t", "\n", "\r"}
+
+    offenders = []
+    for name in listed.stdout.split("\0"):
+        path = config.REPO_ROOT / name
+        if not name or path.suffix not in suffixes or not path.exists():
+            continue
+        try:
+            text = path.read_text()
+        except (UnicodeDecodeError, OSError):
+            offenders.append(f"{name}: not readable as text")
+            continue
+        bad = {c for c in text if ord(c) < 32 and c not in allowed}
+        if bad:
+            offenders.append(f"{name}: {[hex(ord(c)) for c in sorted(bad)]}")
+
+    assert not offenders, offenders
