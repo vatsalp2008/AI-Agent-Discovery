@@ -26,6 +26,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Category Filtering**: Restrict results to Code Generation, Research, Automation, etc.
 - **AI Overviews**: A local chat model summarizes why the top results match, using only the retrieved agents
 - **Shareable Searches**: The query and filter live in the URL, so results can be bookmarked and shared
+- **Saved Searches**: Keep a question and see what changed about its answers — new matches, ones that dropped out, projects whose momentum moved
 - **Result Caching**: Repeat queries are served from memory instead of re-embedding
 
 ### Privacy-Focused Architecture
@@ -175,6 +176,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/agent/<name>` | One agent in detail, plus similar agents |
 | `/compare?names=A,B` | Agents side by side |
 | `/collections` | Saved shortlists, kept in your browser |
+| `/saved` | Searches worth re-running, with what changed since |
 | `/submit` | Propose an agent for review |
 | `/category/<name>` | Everything in one category, most starred first |
 | `/admin` | Catalogue editor (needs `ENABLE_ADMIN=true`) |
@@ -192,7 +194,8 @@ paths resolve against the repository root, so commands work from any directory.
 5. Click an agent's name for its detail page, with similar agents
 6. Use **Copy link** to share a search — the query and category live in the
    URL, so results are bookmarkable and survive the Back button
-7. **Export CSV / JSON** to take a result set elsewhere
+7. **Export CSV / JSON** to take a result set elsewhere, or **Save this
+   search** to watch it — see below
 8. Recent queries are remembered locally; they never leave your machine
 9. Toggle light/dark in the header — the choice is saved, and the OS
    preference is honoured until you set one
@@ -203,6 +206,19 @@ shortcut help, <kbd>Esc</kbd> closes it.
 Everything is keyboard operable: the category chips are real buttons, the
 results region announces updates, and a failed search offers a focused
 **Try again** rather than making you retype.
+
+### Saved searches
+
+A catalogue that grows is a catalogue whose answers change, and nothing tells
+you. **Save this search** stores the query with a snapshot of what it returned;
+`/saved` re-runs it and reports agents that **now match**, ones that **dropped
+out**, and projects whose **stars moved** by more than 5% — a fraction, so
+40 → 400 registers and 40,000 → 40,300 does not.
+
+Re-ranking alone is not a change, checking adopts the fresh results so nothing
+is reported twice, and searches run one at a time to stay inside the rate
+limit. Kept in `localStorage`, like collections: the questions you keep asking
+never leave your machine.
 
 ### Command Line
 
