@@ -292,6 +292,19 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("block prompt injection and pii in model output", {"LLM Guard", "Rebuff", "Presidio", "Guardrails"}),
     ("self hosted customer support helpdesk", {"Chaskiq", "Chatwoot"}),
     ("score text for toxicity", {"Detoxify", "LLM Guard"}),
+    # Added at 203, filling out Evaluation, MLOps and Autonomous Agent.
+    ("read text out of a scanned document", {"PaddleOCR", "Nougat"}),
+    ("clone a voice from a short sample", {"GPT-SoVITS", "IndexTTS", "Coqui TTS"}),
+    ("give an agent memory between conversations", {"cognee", "Mem0", "Letta"}),
+    ("connect an agent to saas tools", {"Composio", "Zapier AI Actions", "MCP Servers"}),
+    ("benchmark a model on standard tasks", {"LM Evaluation Harness", "Inspect AI", "DeepEval"}),
+    ("typed versioned machine learning pipelines", {"Flyte", "Dagster", "Metaflow", "ZenML"}),
+    ("self driving car software", {"openpilot"}),
+    ("knowledge graph retrieval over documents", {"LightRAG", "GraphRAG"}),
+    ("autonomous assistant that needs no api key", {"AgenticSeek", "LocalGPT", "PrivateGPT"}),
+    ("analyse financial market text", {"FinGPT"}),
+    ("typo tolerant search engine", {"Meilisearch"}),
+    ("compare thousands of training runs", {"Aim", "Weights & Biases", "ClearML", "MLflow"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
