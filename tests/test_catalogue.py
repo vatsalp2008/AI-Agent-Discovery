@@ -482,3 +482,38 @@ def test_every_page_that_reports_an_outcome_announces_it():
             missing.append(f"{name}: every live region is hidden")
 
     assert not missing, missing
+
+
+def test_workflows_only_run_scripts_that_exist():
+    """A workflow naming a renamed script fails on a schedule, where nobody
+    is watching — the weekly job just goes red weeks later."""
+    import re
+
+    workflows = config.REPO_ROOT / ".github" / "workflows"
+    referenced = set()
+    for workflow in workflows.glob("*.yml"):
+        referenced |= {(workflow.name, script) for script
+                       in re.findall(r"python (ai-agent-discovery/[\w./-]+\.py)",
+                                     workflow.read_text())}
+
+    assert referenced, "no scripts referenced; the regex is wrong"
+    missing = [f"{w}: {s}" for w, s in referenced
+               if not (config.REPO_ROOT / s).exists()]
+    assert not missing, f"workflows run missing scripts: {missing}"
+
+
+def test_every_scheduled_workflow_can_also_be_run_by_hand():
+    """A cron-only workflow cannot be tested without waiting a week, and
+    cannot be re-run after fixing whatever made it fail."""
+    import yaml
+
+    workflows = config.REPO_ROOT / ".github" / "workflows"
+    missing = []
+    for workflow in workflows.glob("*.yml"):
+        # `on` is parsed as the boolean True by YAML 1.1, which is what
+        # PyYAML implements.
+        triggers = yaml.safe_load(workflow.read_text()).get(True, {})
+        if "schedule" in triggers and "workflow_dispatch" not in triggers:
+            missing.append(workflow.name)
+
+    assert not missing, f"scheduled but not manually runnable: {missing}"

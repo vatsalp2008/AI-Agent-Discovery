@@ -1,0 +1,111 @@
+name: Discover agents
+
+# The catalogue is hand-curated, which is why it is any good and also why it
+# goes stale. This searches GitHub weekly for tools the catalogue does not
+# have yet and opens an issue listing them.
+#
+# It reports rather than queues. data/submissions.jsonl is runtime state and
+# is gitignored, so a queue written on an ephemeral runner would vanish with
+# it; an issue is durable, and a maintainer can act on it from anywhere.
+on:
+  schedule:
+    # Thursdays, 06:00 UTC — offset from the Monday star refresh so the two
+    # jobs never contend for the same API budget.
+    - cron: "0 6 * * 4"
+  workflow_dispatch:
+    inputs:
+      min_stars:
+        description: "Ignore repositories below this many stars"
+        default: "1000"
+      max_proposals:
+        description: "How many candidates to list"
+        default: "15"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r ai-agent-discovery/requirements.txt
+
+      # --json implies --dry-run, so this cannot write to the queue. Failures
+      # are fatal: the crawler exits non-zero when it could not search at
+      # all, and a silent "nothing new" would read as a current catalogue.
+      - name: Search for candidates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          python ai-agent-discovery/discover.py \
+            --json \
+            --min-stars "${{ inputs.min_stars || '1000' }}" \
+            --max-proposals "${{ inputs.max_proposals || '15' }}" \
+            --pushed-since "$(date -u -d '6 months ago' +%Y-%m-%d)" \
+            > candidates.json
+
+      - name: Summarise
+        run: |
+          set -eo pipefail
+          COUNT=$(jq length candidates.json)
+          echo "count=$COUNT" >> "$GITHUB_ENV"
+
+          {
+            echo "### Discovery run"
+            echo "Found **$COUNT** candidate(s) not already in the catalogue or the queue."
+            if [ "$COUNT" -gt 0 ]; then
+              echo
+              echo "| Agent | Stars | Category | Link |"
+              echo "| --- | --- | --- | --- |"
+              jq -r '.[] | "| \(.name) | \(.github_stars) | \(.category) | \(.url) |"' candidates.json
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Nothing new is the expected result most weeks, and an issue saying so
+      # every Thursday would train everyone to ignore the label.
+      - name: Open an issue for the candidates
+        if: env.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          {
+            echo "The weekly crawl found ${{ env.count }} tool(s) that are not in the"
+            echo "catalogue and not already awaiting review."
+            echo
+            echo "Each still needs a human: the description comes straight from the"
+            echo "repository and the category is inferred from its topics, so both"
+            echo "usually want editing before the entry is any good."
+            echo
+            echo "| Agent | Stars | Category | Stack | Link |"
+            echo "| --- | --- | --- | --- | --- |"
+            jq -r '.[] | "| \(.name) | \(.github_stars) | \(.category) | \(.tech_stack | join(", ")) | \(.url) |"' candidates.json
+            echo
+            echo "<details><summary>As catalogue records</summary>"
+            echo
+            echo '```json'
+            cat candidates.json
+            echo '```'
+            echo
+            echo "</details>"
+          } > issue.md
+
+          gh issue create \
+            --title "Discovery: ${{ env.count }} candidate(s) for review — $(date -u +%Y-%m-%d)" \
+            --body-file issue.md \
+            --label "discovery" \
+            || {
+              # A missing label should not lose the run's results; the body is
+              # already in the step summary, but say so explicitly.
+              echo "::warning::Could not create the issue (is the 'discovery' label missing?)"
+              exit 1
+            }
