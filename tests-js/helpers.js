@@ -121,12 +121,29 @@ export async function flush(times = 6) {
  * A fetch stub routed by URL substring. Records every call so tests can assert
  * what the page actually requested.
  */
+/**
+ * Stub `fetch`.
+ *
+ * A route key may be prefixed with a method — `'POST /api/search'` — and the
+ * stub then refuses a request that uses a different one, the way the server
+ * would with a 405. Without that, `/saved` shipped calling POST-only
+ * `/api/search` with a GET: every test passed and the feature was dead.
+ */
 export function stubFetch(routes) {
     const calls = [];
     globalThis.fetch = (url, options) => {
         calls.push({ url: String(url), options });
-        const match = Object.keys(routes).find(key => String(url).includes(key));
-        if (!match) return Promise.reject(new Error(`unrouted fetch: ${url}`));
+        const method = (options?.method || 'GET').toUpperCase();
+
+        const match = Object.keys(routes).find(key => {
+            const [maybeMethod, ...rest] = key.split(' ');
+            if (rest.length) return maybeMethod.toUpperCase() === method
+                && String(url).includes(rest.join(' '));
+            return String(url).includes(key);
+        });
+        if (!match) {
+            return Promise.reject(new Error(`unrouted fetch: ${method} ${url}`));
+        }
 
         const route = routes[match];
         const value = typeof route === 'function' ? route(String(url), options) : route;

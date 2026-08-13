@@ -13,7 +13,7 @@ function searchBody(...agents) {
 }
 
 function boot(routes = {}) {
-    const calls = stubFetch({ '/api/search': { body: searchBody(['Ollama', 100]) }, ...routes });
+    const calls = stubFetch({ 'POST /api/search': { body: searchBody(['Ollama', 100]) }, ...routes });
     bootPage({
         html: SAVED_HTML,
         script: 'saved-page.js',
@@ -86,7 +86,7 @@ describe('listing saved searches', () => {
 
 describe('checking for changes', () => {
     it('reports an agent that now matches', async () => {
-        boot({ '/api/search': { body: searchBody(['Ollama', 100], ['MLX', 50]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 100], ['MLX', 50]) } });
         save('run a model', [['Ollama', 100]]);
         window.SavedPage.render();
 
@@ -97,7 +97,7 @@ describe('checking for changes', () => {
     });
 
     it('reports an agent that dropped out', async () => {
-        boot({ '/api/search': { body: searchBody(['Ollama', 100]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 100]) } });
         save('run a model', [['Ollama', 100], ['MLX', 50]]);
         window.SavedPage.render();
 
@@ -108,7 +108,7 @@ describe('checking for changes', () => {
     });
 
     it('reports momentum with the direction spelled out, not just coloured', async () => {
-        boot({ '/api/search': { body: searchBody(['Ollama', 400]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 400]) } });
         save('run a model', [['Ollama', 100]]);
         window.SavedPage.render();
 
@@ -122,7 +122,7 @@ describe('checking for changes', () => {
     });
 
     it('says so when nothing moved', async () => {
-        boot({ '/api/search': { body: searchBody(['Ollama', 100]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 100]) } });
         save('run a model', [['Ollama', 100]]);
         window.SavedPage.render();
 
@@ -135,7 +135,7 @@ describe('checking for changes', () => {
     it('does not report the same change twice', async () => {
         /** The check adopts the fresh results, so a second check compares
          *  against what was last seen rather than the original save. */
-        boot({ '/api/search': { body: searchBody(['Ollama', 100], ['MLX', 50]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 100], ['MLX', 50]) } });
         save('run a model', [['Ollama', 100]]);
         window.SavedPage.render();
 
@@ -156,11 +156,14 @@ describe('checking for changes', () => {
         document.querySelector('.saved-card button').click();
         await flush();
 
-        expect(calls.some(c => c.url.includes('category=Robotics'))).toBe(true);
+        const sent = calls
+            .filter(c => c.url.includes('/api/search'))
+            .map(c => JSON.parse(c.options.body));
+        expect(sent).toContainEqual({ query: 'agents', category: 'Robotics' });
     });
 
     it('reports a rate limit in words a person can act on', async () => {
-        boot({ '/api/search': { ok: false, status: 429, body: { error: 'slow down' } } });
+        boot({ 'POST /api/search': { ok: false, status: 429, body: { error: 'slow down' } } });
         save('q', [['A', 1]]);
         window.SavedPage.render();
 
@@ -171,7 +174,7 @@ describe('checking for changes', () => {
     });
 
     it('a failure on one search does not blank the others', async () => {
-        boot({ '/api/search': { ok: false, status: 500, body: {} } });
+        boot({ 'POST /api/search': { ok: false, status: 500, body: {} } });
         save('one', [['A', 1]]);
         save('two', [['B', 2]]);
         window.SavedPage.render();
@@ -181,6 +184,21 @@ describe('checking for changes', () => {
 
         expect(document.querySelectorAll('.saved-card')).toHaveLength(2);
         expect(document.getElementById('savedResult').textContent).toContain('Could not check');
+    });
+
+    it('uses POST, which is the only method /api/search allows', async () => {
+        /** A GET is a 405. This shipped once, and every test passed because
+         *  the stub matched on URL alone. */
+        const calls = boot();
+        save('q', [['A', 1]]);
+        window.SavedPage.render();
+
+        document.querySelector('.saved-card button').click();
+        await flush();
+
+        const search = calls.find(c => c.url.includes('/api/search'));
+        expect(search.options.method).toBe('POST');
+        expect(JSON.parse(search.options.body).query).toBe('q');
     });
 
     it('checks every saved search in one go', async () => {
@@ -208,7 +226,7 @@ describe('checking for changes', () => {
     });
 
     it('a search saved before results were recorded becomes the baseline', async () => {
-        boot({ '/api/search': { body: searchBody(['Ollama', 100]) } });
+        boot({ 'POST /api/search': { body: searchBody(['Ollama', 100]) } });
         localStorage.setItem('agentdiscovery:saved-searches',
             JSON.stringify([{ query: 'old', category: '' }]));
         window.SavedPage.render();

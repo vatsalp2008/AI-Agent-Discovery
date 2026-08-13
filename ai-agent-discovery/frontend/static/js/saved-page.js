@@ -16,15 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.showMessage(result, message, { error: Boolean(isError) });
     }
 
-    function searchUrl(entry) {
-        const params = new URLSearchParams({ q: entry.query });
-        if (entry.category) params.set('category', entry.category);
-        return `/api/search?${params}`;
-    }
-
-    /** Re-run one saved search. Throws so the caller can report which failed. */
+    /**
+     * Re-run one saved search. Throws so the caller can report which failed.
+     *
+     * POST, not GET: /api/search takes its query in a JSON body. A GET is a
+     * 405, which is how this shipped once — the tests stubbed fetch by URL
+     * and never looked at the method.
+     *
+     * No `summarize`: a check wants the result set, and a generation per
+     * saved search would be slow and would burn the tighter summary budget.
+     */
     async function rerun(entry) {
-        const response = await fetch(searchUrl(entry));
+        const payload = { query: entry.query };
+        if (entry.category) payload.category = entry.category;
+
+        const response = await fetch('/api/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
         if (!response.ok) {
             throw new Error(response.status === 429
                 ? 'Too many searches at once; try again shortly.'
