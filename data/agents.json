@@ -2212,5 +2212,273 @@
     "github_stars": 3554,
     "url": "https://github.com/chaskiq/chaskiq",
     "use_case": "Self-hosted support desk"
+  },
+  {
+    "name": "Transformers",
+    "description": "Model definitions and pretrained weights for text, vision and audio, and the library most other tooling is written against.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 164078,
+    "url": "https://github.com/huggingface/transformers",
+    "use_case": "Loading and running models"
+  },
+  {
+    "name": "Meilisearch",
+    "description": "A search engine with typo tolerance and sub-50ms responses, increasingly paired with embeddings for hybrid retrieval.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Rust"
+    ],
+    "github_stars": 58959,
+    "url": "https://github.com/meilisearch/meilisearch",
+    "use_case": "Keyword and hybrid search"
+  },
+  {
+    "name": "cognee",
+    "description": "Builds a memory layer for agents from documents and conversations, storing it as a queryable graph rather than loose chunks.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 30001,
+    "url": "https://github.com/topoteretes/cognee",
+    "use_case": "Agent memory"
+  },
+  {
+    "name": "Gemini CLI",
+    "description": "An agent in the terminal that reads a codebase, edits files and runs commands, with a large context window for whole-repo work.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "github_stars": 106507,
+    "url": "https://github.com/google-gemini/gemini-cli",
+    "use_case": "Editing code from the terminal"
+  },
+  {
+    "name": "PaddleOCR",
+    "description": "Text detection and recognition across 80 languages, with table and layout parsing for turning documents into structured data.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PaddlePaddle"
+    ],
+    "github_stars": 87585,
+    "url": "https://github.com/PaddlePaddle/PaddleOCR",
+    "use_case": "Reading text from images"
+  },
+  {
+    "name": "GPT-SoVITS",
+    "description": "Voice cloning from a one-minute sample, with few-shot fine-tuning for speech that keeps the speaker's timbre across languages.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 60823,
+    "url": "https://github.com/RVC-Boss/GPT-SoVITS",
+    "use_case": "Cloning a voice"
+  },
+  {
+    "name": "CosyVoice",
+    "description": "Multilingual speech generation with control over emotion and accent, and streaming output for conversational latency.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 22743,
+    "url": "https://github.com/QwenAudio/CosyVoice",
+    "use_case": "Expressive speech synthesis"
+  },
+  {
+    "name": "FunASR",
+    "description": "Speech recognition with punctuation, timestamps and speaker turns, packaged for production rather than for a benchmark.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 19820,
+    "url": "https://github.com/modelscope/FunASR",
+    "use_case": "Production transcription"
+  },
+  {
+    "name": "IndexTTS",
+    "description": "Zero-shot text to speech that controls timbre and emotion separately, so a cloned voice can be directed rather than just copied.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 22825,
+    "url": "https://github.com/index-tts/index-tts",
+    "use_case": "Directable voice cloning"
+  },
+  {
+    "name": "openpilot",
+    "description": "Driver assistance running on a phone-class device in a real car, and the largest open self-driving stack with users on the road.",
+    "category": "Robotics",
+    "tech_stack": [
+      "Python",
+      "C++"
+    ],
+    "github_stars": 63402,
+    "url": "https://github.com/commaai/openpilot",
+    "use_case": "Autonomous driving"
+  },
+  {
+    "name": "LightRAG",
+    "description": "Retrieval that builds a knowledge graph over the corpus, so a question needing facts from several documents is answerable.",
+    "category": "Research",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 38838,
+    "url": "https://github.com/HKUDS/LightRAG",
+    "use_case": "Graph-based retrieval"
+  },
+  {
+    "name": "PageIndex",
+    "description": "Indexes a document by its structure rather than fixed-size chunks, keeping a section's meaning intact for retrieval.",
+    "category": "Research",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 35169,
+    "url": "https://github.com/VectifyAI/PageIndex",
+    "use_case": "Structure-aware indexing"
+  },
+  {
+    "name": "DeerFlow",
+    "description": "A deep-research pipeline that plans a question into sub-searches, gathers sources and writes a cited report.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 79944,
+    "url": "https://github.com/bytedance/deer-flow",
+    "use_case": "Multi-step research"
+  },
+  {
+    "name": "Composio",
+    "description": "Authenticated connectors to hundreds of SaaS tools, so an agent can act in Gmail or Jira without hand-rolling each integration.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Python"
+    ],
+    "github_stars": 29677,
+    "url": "https://github.com/ComposioHQ/composio",
+    "use_case": "Connecting agents to tools"
+  },
+  {
+    "name": "Prompt Optimizer",
+    "description": "Rewrites and scores prompts against a model, turning prompt tuning into something measured rather than guessed at.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Vue"
+    ],
+    "github_stars": 33121,
+    "url": "https://github.com/linshenkx/prompt-optimizer",
+    "use_case": "Improving a prompt"
+  },
+  {
+    "name": "AgenticSeek",
+    "description": "A fully local autonomous assistant that browses, writes code and plans tasks, with no API key and nothing leaving the machine.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 26793,
+    "url": "https://github.com/Fosowl/agenticSeek",
+    "use_case": "Running tasks locally"
+  },
+  {
+    "name": "PentAGI",
+    "description": "An autonomous agent for penetration testing that chains standard security tools and reports what it found and how.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Go",
+      "Docker"
+    ],
+    "github_stars": 21809,
+    "url": "https://github.com/vxcontrol/pentagi",
+    "use_case": "Automated security testing"
+  },
+  {
+    "name": "FinGPT",
+    "description": "Open financial language models with the data pipelines to keep them current, for sentiment and forecasting over market text.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 21082,
+    "url": "https://github.com/AI4Finance-Foundation/FinGPT",
+    "use_case": "Financial text analysis"
+  },
+  {
+    "name": "LM Evaluation Harness",
+    "description": "The reference harness behind most reported LLM benchmark numbers, covering hundreds of tasks with a consistent protocol.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 13619,
+    "url": "https://github.com/EleutherAI/lm-evaluation-harness",
+    "use_case": "Benchmarking a model"
+  },
+  {
+    "name": "Inspect AI",
+    "description": "The UK AI Safety Institute's evaluation framework, built for graded, auditable assessments rather than a single score.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 2537,
+    "url": "https://github.com/UKGovernmentBEIS/inspect_ai",
+    "use_case": "Auditable evaluations"
+  },
+  {
+    "name": "Flyte",
+    "description": "Strongly typed, versioned workflows for ML pipelines, where each step's inputs and outputs are checked before anything runs.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Go",
+      "Python"
+    ],
+    "github_stars": 7201,
+    "url": "https://github.com/flyteorg/flyte",
+    "use_case": "Typed ML pipelines"
+  },
+  {
+    "name": "ClearML",
+    "description": "Experiment tracking, orchestration and a model registry in one platform, aimed at teams rather than a single notebook.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 6818,
+    "url": "https://github.com/clearml/clearml",
+    "use_case": "End-to-end ML platform"
+  },
+  {
+    "name": "Aim",
+    "description": "An experiment tracker built for comparing thousands of runs at once, with a query language instead of a wall of charts.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "React"
+    ],
+    "github_stars": 6230,
+    "url": "https://github.com/aimhubio/aim",
+    "use_case": "Comparing many runs"
   }
 ]
