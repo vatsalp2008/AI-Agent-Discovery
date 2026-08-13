@@ -318,6 +318,14 @@ class TestLimits:
         with pytest.raises(admin.AdminError, match="at most"):
             submissions.submit(proposal(tech_stack=["x" * (admin.MAX_TECH_LENGTH + 1)]))
 
+    def test_the_limits_apply_to_the_stored_value_not_the_raw_one(self, paths):
+        """Entries are stripped before storing, so padding must not count
+        against the length or the entry count — the same rule name and
+        description already follow."""
+        padded = "  Python" + " " * admin.MAX_TECH_LENGTH
+        entry = submissions.submit(proposal(tech_stack=[padded] + ["  "] * 20))
+        assert entry["agent"]["tech_stack"] == ["Python"]
+
     def test_nothing_reaches_disk_when_the_queue_is_full(self, paths, monkeypatch):
         monkeypatch.setattr(config, "MAX_PENDING_SUBMISSIONS", 1)
         submissions.submit(proposal(name="One"))

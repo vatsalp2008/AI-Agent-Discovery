@@ -105,10 +105,18 @@ class TestAgentValidation:
         assert cleaned["tech_stack"] == [t.strip() for t in stack if t.strip()]
 
     @FAST
-    @given(st.text(min_size=admin.MAX_TECH_LENGTH + 1).filter(lambda s: "," not in s))
+    @given(st.text(min_size=admin.MAX_TECH_LENGTH + 1)
+             .filter(lambda s: "," not in s and len(s.strip()) > admin.MAX_TECH_LENGTH))
     def test_an_overlong_technology_is_always_rejected(self, tech):
+        """Measured on the stripped value: padding is normalised away before
+        the limit applies, so only genuinely long entries are refused."""
         with pytest.raises(admin.AdminError, match="at most"):
             admin.validate(self.record(tech_stack=[tech]), [])
+
+    @FAST
+    @given(st.text(alphabet=" \t\r\n", min_size=admin.MAX_TECH_LENGTH + 1, max_size=200))
+    def test_whitespace_is_dropped_however_long_it_is(self, blank):
+        assert admin.validate(self.record(tech_stack=[blank]), [])["tech_stack"] == []
 
     @FAST
     @given(st.text(min_size=1, max_size=200))

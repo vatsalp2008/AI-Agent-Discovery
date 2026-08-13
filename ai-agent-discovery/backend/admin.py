@@ -123,14 +123,20 @@ def validate(record, existing, original_name=None):
     stack = record.get("tech_stack", [])
     if not isinstance(stack, list) or not all(isinstance(t, str) for t in stack):
         raise AdminError("'tech_stack' must be a list of strings")
+    # Normalise before validating, so the limits apply to what is actually
+    # stored — as they do for name, description and use_case. Checking the
+    # raw string rejected "  Python  " padded past the limit, and counted
+    # blank entries that are dropped a line later.
+    stack = [t.strip() for t in stack]
     # Commas would split one entry into two, since stack is stored joined.
     if any("," in t for t in stack):
         raise AdminError("'tech_stack' entries must not contain commas")
+    stack = [t for t in stack if t]
     if len(stack) > MAX_TECH_STACK:
         raise AdminError(f"'tech_stack' may list at most {MAX_TECH_STACK} technologies")
     if any(len(t) > MAX_TECH_LENGTH for t in stack):
         raise AdminError(f"each technology must be at most {MAX_TECH_LENGTH} characters")
-    cleaned["tech_stack"] = [t.strip() for t in stack if t.strip()]
+    cleaned["tech_stack"] = stack
 
     stars = record.get("github_stars", 0)
     if isinstance(stars, bool) or not isinstance(stars, int) or stars < 0:
