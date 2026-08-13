@@ -57,6 +57,11 @@ def collections():
     """Saved shortlists. Entirely client-side; the server stores nothing."""
     return render_template('collections.html', page='collections')
 
+@app.route('/saved')
+def saved():
+    """Searches worth re-running. Client-side; the server stores nothing."""
+    return render_template('saved.html', page='saved')
+
 @app.route('/admin')
 def admin_page():
     """Catalogue editor. The page itself always renders; the API refuses

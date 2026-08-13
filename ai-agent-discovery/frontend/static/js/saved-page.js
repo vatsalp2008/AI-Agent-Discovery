@@ -1,0 +1,224 @@
+/**
+ * The saved searches page: list them, re-run them, show what moved.
+ *
+ * Checking runs the searches one at a time rather than in parallel. /api/search
+ * is rate limited, and twenty saved searches fired at once is exactly the
+ * burst the limiter exists to refuse — the page would then report failures
+ * that are entirely its own fault.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const area = document.getElementById('savedArea');
+    const result = document.getElementById('savedResult');
+    const checkAll = document.getElementById('checkAll');
+    const clearButton = document.getElementById('clearSaved');
+
+    function say(message, isError) {
+        UI.showMessage(result, message, { error: Boolean(isError) });
+    }
+
+    function searchUrl(entry) {
+        const params = new URLSearchParams({ q: entry.query });
+        if (entry.category) params.set('category', entry.category);
+        return `/api/search?${params}`;
+    }
+
+    /** Re-run one saved search. Throws so the caller can report which failed. */
+    async function rerun(entry) {
+        const response = await fetch(searchUrl(entry));
+        if (!response.ok) {
+            throw new Error(response.status === 429
+                ? 'Too many searches at once; try again shortly.'
+                : `Search failed (${response.status})`);
+        }
+        const body = await response.json();
+        return Array.isArray(body.results) ? body.results : [];
+    }
+
+    function describeChanges(changes) {
+        const parts = [];
+        if (changes.added.length) parts.push(`${changes.added.length} new`);
+        if (changes.removed.length) parts.push(`${changes.removed.length} gone`);
+        if (changes.moved.length) parts.push(`${changes.moved.length} moved`);
+        return parts.join(', ');
+    }
+
+    function changeList(changes) {
+        const list = document.createElement('ul');
+        list.className = 'change-list';
+
+        changes.added.forEach(name => {
+            const item = document.createElement('li');
+            item.className = 'change-added';
+            item.textContent = `New: ${name}`;
+            list.appendChild(item);
+        });
+        changes.removed.forEach(name => {
+            const item = document.createElement('li');
+            item.className = 'change-removed';
+            item.textContent = `No longer matches: ${name}`;
+            list.appendChild(item);
+        });
+        changes.moved.forEach(({ name, from, to }) => {
+            const item = document.createElement('li');
+            item.className = to > from ? 'change-up' : 'change-down';
+            const arrow = to > from ? '↑' : '↓';
+            item.textContent = `${name}: ${from.toLocaleString()} ${arrow} ${to.toLocaleString()} stars`;
+            list.appendChild(item);
+        });
+        return list;
+    }
+
+    function card(entry) {
+        const article = document.createElement('article');
+        article.className = 'saved-card';
+        article.dataset.query = entry.query;
+        article.dataset.category = entry.category || '';
+
+        const heading = document.createElement('h2');
+        const link = document.createElement('a');
+        const params = new URLSearchParams({ q: entry.query });
+        if (entry.category) params.set('category', entry.category);
+        link.href = `/?${params}`;
+        link.textContent = entry.query;
+        heading.appendChild(link);
+        article.appendChild(heading);
+
+        const meta = document.createElement('p');
+        meta.className = 'saved-meta';
+        const bits = [`${entry.snapshot.names.length} result(s) when saved`];
+        if (entry.category) bits.push(`filtered to ${entry.category}`);
+        if (entry.snapshot.at) {
+            bits.push(`saved ${new Date(entry.snapshot.at).toLocaleDateString()}`);
+        }
+        meta.textContent = bits.join(' · ');
+        article.appendChild(meta);
+
+        const changes = document.createElement('div');
+        changes.className = 'saved-changes';
+        article.appendChild(changes);
+
+        const actions = document.createElement('div');
+        actions.className = 'saved-actions';
+
+        const check = document.createElement('button');
+        check.type = 'button';
+        check.className = 'control-button';
+        check.textContent = 'Check';
+        check.setAttribute('aria-label', `Check ${entry.query} for changes`);
+        check.addEventListener('click', () => checkOne(entry, article));
+        actions.appendChild(check);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'control-button';
+        remove.textContent = 'Remove';
+        remove.setAttribute('aria-label', `Remove ${entry.query}`);
+        remove.addEventListener('click', () => {
+            SavedSearches.remove(entry.query, entry.category);
+            render();
+            say(`Removed “${entry.query}”.`);
+        });
+        actions.appendChild(remove);
+
+        article.appendChild(actions);
+        return article;
+    }
+
+    /** Show one search's changes, and adopt the new results as the baseline. */
+    function showChanges(entry, article, changes) {
+        const container = article.querySelector('.saved-changes');
+
+        if (!changes.comparable) {
+            UI.showMessage(container, 'Saved before results were recorded; '
+                + 'this check becomes the baseline.');
+            return;
+        }
+        if (SavedSearches.isEmpty(changes)) {
+            UI.showMessage(container, 'No change since you saved it.');
+            return;
+        }
+        container.replaceChildren(changeList(changes));
+    }
+
+    async function checkOne(entry, article) {
+        const container = article.querySelector('.saved-changes');
+        UI.showMessage(container, 'Checking…');
+
+        try {
+            const fresh = await rerun(entry);
+            const changes = SavedSearches.diff(entry.snapshot, fresh);
+            showChanges(entry, article, changes);
+            // Adopt the new results, so checking twice does not report the
+            // same change twice.
+            SavedSearches.refresh(entry.query, entry.category, fresh);
+            return changes;
+        } catch (error) {
+            UI.showError(container, error.message);
+            return null;
+        }
+    }
+
+    async function checkEveryone() {
+        const cards = [...area.querySelectorAll('.saved-card')];
+        if (!cards.length) return;
+
+        checkAll.disabled = true;
+        checkAll.textContent = 'Checking…';
+        UI.setBusy(true, area);
+
+        let changed = 0;
+        let failed = 0;
+        // Sequential on purpose; see the note at the top of this file.
+        for (const article of cards) {
+            const entry = SavedSearches.list().find(e =>
+                e.query === article.dataset.query
+                && (e.category || '') === article.dataset.category);
+            if (!entry) continue;
+
+            const changes = await checkOne(entry, article);
+            if (changes === null) failed += 1;
+            else if (changes.comparable && !SavedSearches.isEmpty(changes)) changed += 1;
+        }
+
+        UI.setBusy(false, area);
+        checkAll.disabled = false;
+        checkAll.textContent = 'Check for changes';
+
+        if (failed === cards.length) {
+            say('Could not check any of them.', true);
+        } else if (failed) {
+            say(`${changed} changed; ${failed} could not be checked.`, true);
+        } else {
+            say(changed ? `${changed} of ${cards.length} changed.` : 'Nothing has changed.');
+        }
+    }
+
+    function render() {
+        const entries = SavedSearches.list();
+
+        if (!entries.length) {
+            UI.showMessage(area, 'No saved searches yet. Run a search and choose '
+                + '“Save this search” to watch it for changes.');
+            checkAll.disabled = true;
+            clearButton.disabled = true;
+            return;
+        }
+
+        checkAll.disabled = false;
+        clearButton.disabled = false;
+        area.replaceChildren(...entries.map(card));
+    }
+
+    checkAll.addEventListener('click', checkEveryone);
+    clearButton.addEventListener('click', () => {
+        if (!SavedSearches.list().length) return;
+        SavedSearches.clear();
+        render();
+        say('Removed every saved search.');
+    });
+
+    render();
+
+    // Exposed for the tests, which drive the page rather than the module.
+    window.SavedPage = { render, checkOne, describeChanges };
+});

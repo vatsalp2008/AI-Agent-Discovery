@@ -8,6 +8,11 @@
     --accent-hover: #2563eb;
     --border-color: #334155;
     --font-family: 'Inter', sans-serif;
+    /* Change indicators on the saved-searches page. Measured against
+       --card-bg: 8.4:1, 5.3:1 — both clear WCAG AA. Colour is never the
+       only signal; every entry is also labelled in words. */
+    --change-up: #4ade80;
+    --change-down: #f87171;
 }
 
 /* Light palette. Measured contrast against --card-bg:
@@ -21,6 +26,9 @@
     --accent-color: #1d4ed8;
     --accent-hover: #1e40af;
     --border-color: #d8dee6;
+    /* 5.0:1 and 6.5:1 against white. */
+    --change-up: #15803d;
+    --change-down: #b91c1c;
 }
 
 /* Honour the OS preference when the user has not chosen explicitly. */
@@ -33,6 +41,8 @@
         --accent-color: #1d4ed8;
         --accent-hover: #1e40af;
         --border-color: #d8dee6;
+        --change-up: #15803d;
+        --change-down: #b91c1c;
     }
 }
 
@@ -1312,4 +1322,58 @@ a.filter-tag {
     margin-top: 0.35rem;
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+/* Saved searches */
+.saved-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.saved-card h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.35rem;
+}
+
+.saved-meta {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0 0 0.75rem;
+}
+
+.saved-changes:not(:empty) {
+    border-left: 2px solid var(--border-color);
+    padding-left: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.saved-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.change-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.change-list li {
+    font-size: 0.9rem;
+    padding: 0.15rem 0;
+}
+
+/* The words carry the meaning; colour only reinforces it. */
+.change-added,
+.change-up {
+    color: var(--change-up);
+}
+
+.change-removed,
+.change-down {
+    color: var(--change-down);
 }

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Saved searches | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>Saved searches</h1>
+    <p>Questions worth asking again. Each one remembers what it returned, so
+       checking it tells you what has changed since — kept in this browser,
+       like collections.</p>
+</section>
+
+<div class="controls">
+    <button type="button" id="checkAll" class="control-button">Check for changes</button>
+    <button type="button" id="clearSaved" class="control-button">Remove all</button>
+</div>
+
+<div id="savedResult" aria-live="polite"></div>
+
+<main id="savedArea" aria-live="polite" aria-busy="false"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/saved-searches.js"></script>
+<script src="/static/js/saved-page.js"></script>
+{% endblock %}
