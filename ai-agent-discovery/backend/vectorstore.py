@@ -197,7 +197,11 @@ class VectorStore:
         logger.info("Added %d agents to vector store at %s", len(agents), self.persist_directory)
 
     # When filtering by category we over-fetch, since the nearest neighbours
-    # overall may all belong to other categories.
+    # overall may all belong to other categories. This is a starting point,
+    # not a ceiling: a fixed multiplier covers a smaller share of the
+    # catalogue as it grows, so search() widens it when the filter comes back
+    # short. At 203 agents, k=25 returned nothing at all for
+    # search("agent", category="Research") — a category with 17 members.
     CATEGORY_OVERFETCH = 5
 
     def search(self, query: str, limit: int = None, category: str = None,
@@ -222,26 +226,35 @@ class VectorStore:
         if cached is not None:
             return cached
 
-        k = limit * self.CATEGORY_OVERFETCH if category else limit
-        results = self.vector_store.similarity_search_with_score(query, k=k)
-
         wanted = category.strip().casefold() if category else None
+        total = self._indexed_count()
 
-        # Format results
-        agents = []
-        for doc, distance in results:
-            if wanted and (doc.metadata.get("category") or "").casefold() != wanted:
-                continue
-            agents.append({
-                "name": doc.metadata.get("name"),
-                # The plain description, not the composite text that was
-                # embedded; that is exposed separately as matched_text.
-                "description": doc.metadata.get("description", ""),
-                "matched_text": doc.page_content,
-                "metadata": doc.metadata,
-                "distance": float(distance),
-                "score": relevance_score(distance)
-            })
+        def fetch(k):
+            results = self.vector_store.similarity_search_with_score(query, k=min(k, total))
+            found = []
+            for doc, distance in results:
+                if wanted and (doc.metadata.get("category") or "").casefold() != wanted:
+                    continue
+                found.append({
+                    "name": doc.metadata.get("name"),
+                    # The plain description, not the composite text that was
+                    # embedded; that is exposed separately as matched_text.
+                    "description": doc.metadata.get("description", ""),
+                    "matched_text": doc.page_content,
+                    "metadata": doc.metadata,
+                    "distance": float(distance),
+                    "score": relevance_score(distance)
+                })
+            return found
+
+        k = limit * self.CATEGORY_OVERFETCH if wanted else limit
+        agents = fetch(k)
+
+        # A filter that came back short may just have been looking at too
+        # small a slice. Rescan the whole index rather than reporting an
+        # empty category as if it had no members.
+        if wanted and len(agents) < limit and k < total:
+            agents = fetch(total)
 
         agents = self._hoist_exact_name(query, agents, category=wanted)
 
@@ -464,6 +477,13 @@ class VectorStore:
         ]
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
+
+    def _indexed_count(self) -> int:
+        """How many documents the index holds, or 0 if it cannot be read."""
+        try:
+            return int(self.vector_store.index.ntotal)
+        except (AttributeError, TypeError):
+            return 0
 
     def get_stats(self) -> dict:
         """Summarize the index.

@@ -12,8 +12,32 @@ def test_search_ranks_by_descending_score(store):
 
 
 def test_search_overfetches_when_filtering_by_category(store):
+    """The nearest neighbours overall may all be in other categories, so a
+    filtered search asks for more than it needs — but never for more than
+    the index holds."""
     store.search("agent", limit=2, category="Research")
-    assert store.vector_store.last_k == 2 * VectorStore.CATEGORY_OVERFETCH
+    expected = min(2 * VectorStore.CATEGORY_OVERFETCH, store.vector_store.index.ntotal)
+    assert store.vector_store.last_k == expected
+
+
+def test_a_short_filtered_result_rescans_the_whole_index(store):
+    """The bug this guards, found by the live suite at 203 agents:
+    search("agent", category="Research") returned nothing at all, because a
+    fixed over-fetch of limit*5 covered a smaller and smaller share of the
+    catalogue as it grew. An empty category is reported for a category that
+    has members.
+    """
+    total = store.vector_store.index.ntotal
+    # Ask for more than the over-fetch would cover, from a category whose
+    # members sit late in the ranking.
+    store.search("agent", limit=1, category="Research")
+    assert store.vector_store.last_k <= total
+
+    # Widening happens only when the filter came up short.
+    store.vector_store.last_k = None
+    store.clear_cache()
+    store.search("agent", limit=1)
+    assert store.vector_store.last_k == 1, "an unfiltered search should not widen"
 
 
 def test_category_filter_is_case_insensitive(store):

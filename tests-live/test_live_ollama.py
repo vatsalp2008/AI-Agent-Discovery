@@ -306,6 +306,26 @@ def test_known_queries_still_surface_the_right_agents(live_store, query, expecte
 
 
 @needs_embeddings
+def test_every_category_answers_a_generic_query(live_store):
+    """Regression: at 203 agents, search("agent", category="Research")
+    returned nothing, though Research had 17 members.
+
+    The over-fetch was a fixed limit*5, so it covered a shrinking share of
+    the catalogue as it grew — the 25 nearest neighbours to a generic word
+    happened to contain no Research entry, and the page said the category
+    was empty. Growth alone will reintroduce this, which is why the check is
+    over every category rather than the one that broke.
+    """
+    empty = []
+    for category in live_store.get_categories():
+        name = category["name"] if isinstance(category, dict) else category
+        if not live_store.search("agent", limit=5, category=name):
+            empty.append(name)
+
+    assert not empty, f"categories that answer nothing for a generic query: {empty}"
+
+
+@needs_embeddings
 def test_growth_has_not_flattened_the_score_gap(live_store):
     """A bigger catalogue must still separate relevant from irrelevant."""
     good = live_store.search("agent that edits code in my terminal", limit=1)[0]
