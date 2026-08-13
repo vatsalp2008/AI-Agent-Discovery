@@ -31,9 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         use_case: document.getElementById('fieldUseCase'),
     };
 
-    function say(message, isError) {
-        UI.showMessage(result, message, { error: Boolean(isError) });
-    }
+    const say = UI.reporter(result);
 
     function formValues() {
         return {

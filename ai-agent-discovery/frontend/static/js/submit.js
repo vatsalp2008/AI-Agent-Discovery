@@ -17,9 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         use_case: document.getElementById('submitUseCase'),
     };
 
-    function say(message, isError) {
-        UI.showMessage(result, message, { error: Boolean(isError) });
-    }
+    const say = UI.reporter(result);
 
     function values() {
         return {

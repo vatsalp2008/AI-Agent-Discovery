@@ -111,3 +111,34 @@ describe('an empty message', () => {
         expect(container.children).toHaveLength(0);
     });
 });
+
+describe('a bound reporter', () => {
+    it('writes into the container it was built with', () => {
+        const container = document.createElement('div');
+        const say = UI.reporter(container);
+
+        say('done');
+        expect(container.textContent).toBe('done');
+    });
+
+    it('marks an error when told to', () => {
+        const container = document.createElement('div');
+        UI.reporter(container)('broke', true);
+        expect(container.querySelector('.error')).not.toBeNull();
+    });
+
+    it('treats a falsy second argument as not-an-error', () => {
+        /** Callers pass undefined for the common case. */
+        const container = document.createElement('div');
+        UI.reporter(container)('fine');
+        expect(container.querySelector('.error')).toBeNull();
+    });
+
+    it('clears the container on an empty message', () => {
+        const container = document.createElement('div');
+        const say = UI.reporter(container);
+        say('something');
+        say('');
+        expect(container.children).toHaveLength(0);
+    });
+});

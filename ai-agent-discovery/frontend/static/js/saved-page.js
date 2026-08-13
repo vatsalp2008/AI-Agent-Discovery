@@ -12,9 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkAll = document.getElementById('checkAll');
     const clearButton = document.getElementById('clearSaved');
 
-    function say(message, isError) {
-        UI.showMessage(result, message, { error: Boolean(isError) });
-    }
+    const say = UI.reporter(result);
 
     /**
      * Re-run one saved search. Throws so the caller can report which failed.

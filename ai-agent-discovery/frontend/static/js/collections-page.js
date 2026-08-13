@@ -6,13 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('exportCollections');
     const importInput = document.getElementById('importCollections');
 
-    function showError(message) {
-        UI.showError(result, message);
-    }
-
-    function showStatus(message) {
-        UI.showMessage(result, message);
-    }
+    const say = UI.reporter(result);
+    const showError = (message) => say(message, true);
+    const showStatus = (message) => say(message);
 
     function agentChip(collection, agent) {
         const chip = document.createElement('span');

@@ -52,6 +52,18 @@ const UI = (() => {
         return showMessage(container, text, { ...options, error: true });
     }
 
+    /**
+     * A `say(message, isError)` bound to one container.
+     *
+     * Four page scripts had grown the same three-line wrapper around
+     * showMessage. Binding the container once is what each of them actually
+     * wanted, and it keeps the error flag spelled the same way everywhere.
+     */
+    function reporter(container) {
+        return (message, isError) =>
+            showMessage(container, message, { error: Boolean(isError) });
+    }
+
     /** Set `aria-busy` on each element that has the attribute. */
     function setBusy(busy, ...containers) {
         containers.forEach(container => {
@@ -61,7 +73,7 @@ const UI = (() => {
         });
     }
 
-    return { messageElement, showMessage, showError, setBusy };
+    return { messageElement, showMessage, showError, setBusy, reporter };
 })();
 
 if (typeof module !== 'undefined') module.exports = UI;
