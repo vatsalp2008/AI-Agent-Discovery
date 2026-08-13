@@ -247,7 +247,10 @@ def test_descriptions_carry_enough_signal(catalogue):
     about files, documents or search, so Quivr did not surface for its own
     use case.
     """
-    thin = [r["name"] for r in catalogue if len(r.get("description", "")) < 60]
+    import submissions
+
+    floor = submissions.MIN_DESCRIPTION
+    thin = [r["name"] for r in catalogue if len(r.get("description", "")) < floor]
     assert not thin, f"descriptions too short to embed usefully: {thin}"
 
 

@@ -101,7 +101,7 @@ def save_catalogue(records):
         raise AdminError(f"Could not write the catalogue: {e}", status=500) from e
 
 
-def validate(record, existing, original_name=None):
+def validate(record, existing, original_name=None, min_description=0):
     """Return a cleaned record, or raise AdminError explaining what is wrong."""
     if not isinstance(record, dict):
         raise AdminError("Expected a JSON object describing an agent")
@@ -118,6 +118,13 @@ def validate(record, existing, original_name=None):
         value = value.strip()
         if len(value) > FIELD_LIMITS[field]:
             raise AdminError(f"'{field}' must be at most {FIELD_LIMITS[field]} characters")
+        # A floor only some callers impose. A maintainer editing by hand is
+        # trusted and CI has a guard; a submission is neither, and approving
+        # a tagline would break the catalogue for somebody else.
+        if field == "description" and len(value) < min_description:
+            raise AdminError(
+                f"'description' must be at least {min_description} characters — "
+                "say what the tool does, not what it is called")
         cleaned[field] = value
 
     stack = record.get("tech_stack", [])
@@ -484,7 +491,11 @@ def approve_submission(submission_id):
     try:
         with _write_lock:
             records = load_catalogue()
-            cleaned = validate(payload, records)
+            # The same floor submit() applies. A proposal queued before this
+            # existed — or written by hand — must not reach the catalogue
+            # just because it is already in the queue.
+            cleaned = validate(payload, records,
+                               min_description=submissions.MIN_DESCRIPTION)
             records.append(cleaned)
             save_catalogue(records)
     except Exception:

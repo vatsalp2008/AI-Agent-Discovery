@@ -156,11 +156,7 @@ def submit(record):
         # pending proposals in the same shape.
         against = existing + [e["agent"] for e in pending if isinstance(e.get("agent"), dict)]
 
-        cleaned = validate(record, against)
-        if len(cleaned["description"]) < MIN_DESCRIPTION:
-            raise AdminError(
-                f"'description' must be at least {MIN_DESCRIPTION} characters — "
-                "say what the tool does, not what it is called")
+        cleaned = validate(record, against, min_description=MIN_DESCRIPTION)
 
         entry = {
             "id": uuid.uuid4().hex[:12],

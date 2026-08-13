@@ -316,6 +316,45 @@ class TestLimits:
         with pytest.raises(admin.AdminError, match="at least"):
             submissions.submit(proposal(description="An agent."))
 
+    def test_a_thin_proposal_already_queued_cannot_be_approved(self, client, paths):
+        """The floor lives at submit time, but entries predate it — written
+        by an older version, by the crawler, or by hand. Approving one would
+        put a tagline in the catalogue and break its own guard in CI."""
+        import json
+
+        queued = {"id": "abc", "at": "2026-01-01T00:00:00+00:00", "status": "pending",
+                  "agent": {"name": "Thin", "description": "An agent.",
+                            "category": "Automation", "tech_stack": ["Python"],
+                            "github_stars": 1, "url": "", "use_case": "x"}}
+        paths["queue"].write_text(json.dumps(queued) + "\n")
+
+        response = client.post("/api/admin/submissions/abc/approve")
+
+        assert response.status_code == 400
+        assert "at least" in response.get_json()["error"]
+        names = [r["name"] for r in json.loads(paths["catalogue"].read_text())]
+        assert "Thin" not in names
+
+    def test_a_failed_approval_leaves_it_pending(self, client, paths):
+        """So a maintainer can fix the description and try again."""
+        import json
+
+        queued = {"id": "abc", "at": "2026-01-01T00:00:00+00:00", "status": "pending",
+                  "agent": {"name": "Thin", "description": "An agent.",
+                            "category": "Automation", "tech_stack": ["Python"],
+                            "github_stars": 1, "url": "", "use_case": "x"}}
+        paths["queue"].write_text(json.dumps(queued) + "\n")
+        client.post("/api/admin/submissions/abc/approve")
+
+        assert submissions.read_all()[0]["status"] == submissions.PENDING
+
+    def test_the_editor_is_still_trusted_with_a_short_description(self, paths):
+        """The floor is a submission rule, not a catalogue rule: a maintainer
+        editing by hand is trusted, and CI guards the catalogue itself."""
+        record = {"name": "Terse", "description": "Short.", "category": "Automation",
+                  "tech_stack": ["Python"], "github_stars": 0, "url": "", "use_case": "x"}
+        assert admin.validate(record, [])["description"] == "Short."
+
     def test_the_floor_matches_what_the_form_promises(self):
         """A mismatch would either reject what the form accepts, or accept
         what the form rejects. Both look like a bug to whoever hits them."""
