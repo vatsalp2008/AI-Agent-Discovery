@@ -488,9 +488,11 @@ def test_every_page_that_reports_an_outcome_announces_it():
     the bug the submit page shipped with.
     """
     templates = config.PACKAGE_DIR / "frontend" / "templates"
-    reporting = ["index.html", "dashboard.html", "compare.html",
-                 "collections.html", "category.html", "submit.html",
-                 "admin.html", "agent.html"]
+    # Every page template rather than a list to keep in step: a new page was
+    # going unchecked until somebody remembered to add it here, which is
+    # exactly when the check is worth the most.
+    reporting = sorted(p.name for p in templates.glob("*.html")
+                       if p.name != "base.html")
 
     missing = []
     for name in reporting:

@@ -8,7 +8,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
-    DASHBOARD_HTML, flush, SEARCH_HTML, scriptsFor, stubFetch, SUBMIT_HTML,
+    DASHBOARD_HTML, flush, SAVED_HTML, SEARCH_HTML, scriptsFor, stubFetch,
+    SUBMIT_HTML,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -141,6 +142,21 @@ describe('rendered controls have accessible names', () => {
             '/api/agents/': { body: agent('Aider') },
         });
         bootPage({ html: AGENT_HTML, script: 'agent.js' });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
+
+    it('saved searches, with entries', async () => {
+        localStorage.setItem('agentdiscovery:saved-searches', JSON.stringify([
+            { query: 'run a model locally', category: '',
+              snapshot: { names: ['Ollama'], stars: { Ollama: 100 }, at: new Date().toISOString() } },
+        ]));
+        stubFetch({ '/api/search': { body: { results: [], metadata: {} } } });
+        bootPage({
+            html: SAVED_HTML,
+            script: 'saved-page.js',
+            extraScripts: scriptsFor('saved.html', 'saved-page.js'),
+        });
         await flush();
         expect(unnamedControls()).toEqual([]);
     });
