@@ -71,7 +71,11 @@ def test_the_request_size_limit_is_applied(real_app):
     assert real_app.config["MAX_CONTENT_LENGTH"] == config.MAX_REQUEST_BYTES
 
 
-def test_an_oversized_post_is_refused_with_json(real_app):
+def test_an_oversized_post_is_refused_with_json(real_app, monkeypatch):
+    # The route rejects a closed queue with 403 before the body is read, so
+    # without pinning this the test asserts 413 against whatever the
+    # environment happens to set.
+    monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", True)
     response = real_app.test_client().post(
         "/api/submissions",
         data=b"x" * (config.MAX_REQUEST_BYTES + 1),
