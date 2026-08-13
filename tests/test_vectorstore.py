@@ -20,24 +20,69 @@ def test_search_overfetches_when_filtering_by_category(store):
     assert store.vector_store.last_k == expected
 
 
-def test_a_short_filtered_result_rescans_the_whole_index(store):
+def _store_with(categories, tmp_path):
+    """A store whose documents rank in the given category order.
+
+    The shared `store` fixture holds three agents, which is fewer than the
+    over-fetch would ask for — so every k collapses to the index size and a
+    test written against it cannot tell the two behaviours apart.
+    """
+    from langchain_core.documents import Document
+
+    from conftest import FakeInnerStore
+
+    documents = [
+        Document(page_content=f"agent number {i}",
+                 metadata={"name": f"Agent{i}", "category": category, "description": ""})
+        for i, category in enumerate(categories)
+    ]
+    vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
+    vs.vector_store = FakeInnerStore(documents)
+    return vs
+
+
+def test_a_filtered_search_scans_the_whole_index(tmp_path):
     """The bug this guards, found by the live suite at 203 agents:
     search("agent", category="Research") returned nothing at all, because a
-    fixed over-fetch of limit*5 covered a smaller and smaller share of the
-    catalogue as it grew. An empty category is reported for a category that
-    has members.
-    """
-    total = store.vector_store.index.ntotal
-    # Ask for more than the over-fetch would cover, from a category whose
-    # members sit late in the ranking.
-    store.search("agent", limit=1, category="Research")
-    assert store.vector_store.last_k <= total
+    fixed over-fetch of limit*5 covered a shrinking share of the catalogue as
+    it grew. An empty category was reported for a category with members.
 
-    # Widening happens only when the filter came up short.
-    store.vector_store.last_k = None
+    Here the Research entries rank below the over-fetch window, so the old
+    behaviour returns nothing and the fix returns them.
+    """
+    store = _store_with(["Other"] * 30 + ["Research"] * 10, tmp_path)
+
+    results = store.search("agent", limit=3, category="Research")
+
+    assert len(results) == 3, "a category with ten members answered with fewer"
+    assert store.vector_store.last_k == 40
+
+
+def test_a_filtered_search_embeds_the_query_once(store):
+    """Filtering used to fetch a slice, find it short, then fetch again.
+    The embedding is ~91% of a search, so that doubled the cost of nearly
+    every filtered query."""
+    store.clear_cache()
+    before = store.vector_store.query_count
+    store.search("agent", limit=1, category="Research")
+    assert store.vector_store.query_count - before == 1
+
+
+def test_an_unfiltered_search_asks_only_for_what_it_needs(store):
     store.clear_cache()
     store.search("agent", limit=1)
-    assert store.vector_store.last_k == 1, "an unfiltered search should not widen"
+    assert store.vector_store.last_k == 1
+
+
+def test_an_unreadable_index_size_does_not_blank_every_search(store):
+    """_indexed_count() returns 0 when index.ntotal cannot be read. Clamping
+    k to that would ask FAISS for nothing, and the empty result would be
+    cached — turning a transient read failure into a dead search."""
+    store.clear_cache()
+    del store.vector_store.index.ntotal
+
+    results = store.search("agent", limit=3)
+    assert results, "a search returned nothing because the index size was unreadable"
 
 
 def test_category_filter_is_case_insensitive(store):

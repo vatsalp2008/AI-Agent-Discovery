@@ -230,7 +230,11 @@ class VectorStore:
         total = self._indexed_count()
 
         def fetch(k):
-            results = self.vector_store.similarity_search_with_score(query, k=min(k, total))
+            # `total` is 0 when the index size cannot be read. Clamping to it
+            # would ask FAISS for nothing and return — and cache — an empty
+            # result for every search.
+            capped = min(k, total) if total else k
+            results = self.vector_store.similarity_search_with_score(query, k=capped)
             found = []
             for doc, distance in results:
                 if wanted and (doc.metadata.get("category") or "").casefold() != wanted:
@@ -247,14 +251,17 @@ class VectorStore:
                 })
             return found
 
-        k = limit * self.CATEGORY_OVERFETCH if wanted else limit
-        agents = fetch(k)
-
-        # A filter that came back short may just have been looking at too
-        # small a slice. Rescan the whole index rather than reporting an
-        # empty category as if it had no members.
-        if wanted and len(agents) < limit and k < total:
-            agents = fetch(total)
+        if wanted:
+            # Scan the whole index in one pass rather than over-fetching and
+            # widening on a short result. A filtered search nearly always came
+            # up short — the largest category is a fraction of the catalogue —
+            # so the two-phase version paid for a second query almost every
+            # time, and each query embeds the query text again. One pass costs
+            # one embedding, which is ~91% of a search; returning more rows
+            # from an index this size is not measurable beside it.
+            agents = fetch(total or limit * self.CATEGORY_OVERFETCH)
+        else:
+            agents = fetch(limit)
 
         agents = self._hoist_exact_name(query, agents, category=wanted)
 
