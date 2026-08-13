@@ -53,28 +53,26 @@ DEFAULT_TOPICS = [
     "ai-safety", "llm-evaluation", "code-generation",
 ]
 
-# Topic to category. First match wins, so order matters: a repo tagged both
-# "rag" and "vector-database" is more useful filed under Research.
+# Topic to category. First match wins, so ordering is the decision.
+#
+# Ordered from what a tool *is* to what you can *do* with it. A repository
+# tagged both "text-to-speech" and "fine-tuning" is a speech model that
+# happens to be tunable, not a fine-tuning framework — with the technique
+# rules first, CosyVoice was filed under Fine-tuning. Same reason
+# "vector-database" loses to "rag", and a search engine is Infrastructure
+# rather than Research.
 TOPIC_CATEGORIES = [
+    # Modality first: the most specific thing a repository can say.
     ("ros2", "Robotics"), ("ros", "Robotics"), ("robotics", "Robotics"),
-    ("reinforcement-learning", "Robotics"),
-    ("fine-tuning", "Fine-tuning"), ("lora", "Fine-tuning"),
-    ("rlhf", "Fine-tuning"), ("peft", "Fine-tuning"),
     ("text-to-speech", "Multimodal"), ("speech-recognition", "Multimodal"),
-    ("tts", "Multimodal"), ("stable-diffusion", "Multimodal"),
-    ("computer-vision", "Multimodal"), ("multimodal", "Multimodal"),
-    ("ai-safety", "Safety"), ("guardrails", "Safety"),
-    ("red-teaming", "Safety"), ("prompt-injection", "Safety"),
-    ("llm-evaluation", "Evaluation"), ("observability", "Evaluation"),
-    ("llm-observability", "Evaluation"), ("benchmark", "Evaluation"),
+    ("tts", "Multimodal"), ("asr", "Multimodal"), ("voice-cloning", "Multimodal"),
+    ("stable-diffusion", "Multimodal"), ("computer-vision", "Multimodal"),
+    ("ocr", "Multimodal"), ("multimodal", "Multimodal"),
+    ("reinforcement-learning", "Robotics"),
+
+    # Then the job the tool does.
     ("code-generation", "Code Generation"), ("copilot", "Code Generation"),
     ("code-review", "Code Generation"), ("developer-tools", "Code Generation"),
-    ("rag", "Research"), ("retrieval-augmented-generation", "Research"),
-    ("knowledge-base", "Research"), ("semantic-search", "Research"),
-    ("vector-database", "Infrastructure"), ("vector-search", "Infrastructure"),
-    ("llm-inference", "Infrastructure"), ("model-serving", "Infrastructure"),
-    ("llmops", "MLOps"), ("mlops", "MLOps"), ("experiment-tracking", "MLOps"),
-    ("data-pipelines", "MLOps"),
     ("chatbot", "Customer Service"), ("customer-support", "Customer Service"),
     ("conversational-ai", "Customer Service"),
     ("data-analysis", "Data Analysis"), ("data-visualization", "Data Analysis"),
@@ -82,6 +80,24 @@ TOPIC_CATEGORIES = [
     ("web-scraping", "Automation"), ("browser-automation", "Automation"),
     ("workflow-automation", "Automation"), ("automation", "Automation"),
     ("autonomous-agents", "Autonomous Agent"), ("agi", "Autonomous Agent"),
+    ("rag", "Research"), ("retrieval-augmented-generation", "Research"),
+    ("knowledge-base", "Research"),
+
+    # Then where it sits in a stack.
+    ("search-engine", "Infrastructure"), ("vector-database", "Infrastructure"),
+    ("vector-search", "Infrastructure"), ("semantic-search", "Infrastructure"),
+    ("llm-inference", "Infrastructure"), ("model-serving", "Infrastructure"),
+    ("llmops", "MLOps"), ("mlops", "MLOps"), ("experiment-tracking", "MLOps"),
+    ("data-pipelines", "MLOps"),
+
+    # Techniques last: they describe what you can do with a tool, which is
+    # true of many tools that are better described by something above.
+    ("ai-safety", "Safety"), ("guardrails", "Safety"),
+    ("red-teaming", "Safety"), ("prompt-injection", "Safety"),
+    ("llm-evaluation", "Evaluation"), ("observability", "Evaluation"),
+    ("llm-observability", "Evaluation"), ("benchmark", "Evaluation"),
+    ("fine-tuning", "Fine-tuning"), ("lora", "Fine-tuning"),
+    ("rlhf", "Fine-tuning"), ("peft", "Fine-tuning"),
     ("ai-agents", "Framework"), ("llm-agent", "Framework"),
     ("agent-framework", "Framework"), ("llm-framework", "Framework"),
     ("prompt-engineering", "Framework"),

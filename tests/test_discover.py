@@ -42,6 +42,24 @@ class TestCategoryInference:
         Research; the ordering of TOPIC_CATEGORIES is the decision."""
         assert discover.infer_category(repo(topics=["vector-database", "rag"])) == "Research"
 
+    @pytest.mark.parametrize("topics,expected,why", [
+        (["fine-tuning", "text-to-speech"], "Multimodal",
+         "a speech model that happens to be tunable is not a fine-tuning framework"),
+        (["lora", "computer-vision"], "Multimodal",
+         "same, for vision"),
+        (["llm-evaluation", "robotics"], "Robotics",
+         "a robotics project with benchmarks is still robotics"),
+        (["search-engine", "semantic-search"], "Infrastructure",
+         "a search engine is a component, not a research assistant"),
+    ])
+    def test_what_a_tool_is_beats_what_you_can_do_with_it(self, topics, expected, why):
+        """CosyVoice arrived filed under Fine-tuning because the technique
+        rules came first. Modality is the more specific claim."""
+        assert discover.infer_category(repo(topics=topics)) == expected, why
+
+    def test_a_technique_still_wins_when_it_is_all_there_is(self):
+        assert discover.infer_category(repo(topics=["fine-tuning", "lora"])) == "Fine-tuning"
+
     def test_an_unmatched_topic_yields_nothing(self):
         """None means "not a fit", not "use a default" — a wrong category is
         worse than no proposal."""
