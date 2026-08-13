@@ -51,6 +51,13 @@ jobs:
         working-directory: ai-agent-discovery/backend
         run: python -c "import admin, api, config, embedding_cache, embeddings, generation, logging_setup, models, rate_limit, request_log, scoring, scraper, security, submissions, vectorstore"
 
+      # compileall below catches syntax errors but not import errors, and
+      # these scripts have no unit tests that import them — discover.py had
+      # none at all until it was added here.
+      - name: Check script imports resolve
+        working-directory: ai-agent-discovery
+        run: python -c "import benchmark, check_links, cli, discover, doctor, mcp_server, refresh_stars, seed"
+
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
 

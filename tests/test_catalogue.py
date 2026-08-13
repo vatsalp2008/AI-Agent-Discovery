@@ -461,6 +461,24 @@ def test_ci_imports_every_backend_module(catalogue):
     assert not (present - checked), f"CI does not import: {sorted(present - checked)}"
 
 
+def test_ci_imports_every_top_level_script(catalogue):
+    """The scripts have no unit tests that import them, and `compileall`
+    only proves they parse. A bad import in one shows up when a scheduled
+    job runs it, which is days later and unattended."""
+    import re
+
+    import config
+
+    workflow = (config.REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
+    checked = set()
+    for group in re.findall(r'python -c "import ([^"]+)"', workflow):
+        checked |= {name.strip() for name in group.split(",")}
+
+    present = {p.stem for p in config.PACKAGE_DIR.glob("*.py")} - {"__init__"}
+
+    assert not (present - checked), f"CI does not import: {sorted(present - checked)}"
+
+
 def test_every_agent_would_still_be_accepted_today(catalogue):
     """The limits on /api/submissions apply to the editor too. Tightening one
     below what the catalogue already holds would make existing agents
