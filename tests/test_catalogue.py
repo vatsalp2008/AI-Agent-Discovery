@@ -393,35 +393,55 @@ def test_the_readme_stays_navigable(catalogue):
     assert lines < 700, f"README is {lines} lines; consider moving a section into docs/"
 
 
+def _markdown_files():
+    """Every markdown file that is ours to keep correct."""
+    import config
+
+    return [config.REPO_ROOT / "README.md",
+            config.REPO_ROOT / "CONTRIBUTING.md",
+            *sorted((config.REPO_ROOT / "docs").glob("*.md"))]
+
+
 def test_docs_links_resolve(catalogue):
     """A broken relative link in the docs is invisible until someone clicks."""
     import re
 
     import config
 
-    for source in (config.REPO_ROOT / "README.md", config.REPO_ROOT / "docs" / "API.md",
-                   config.REPO_ROOT / "CONTRIBUTING.md"):
+    # Every markdown file, rather than a list to keep in step — a new doc
+    # was going unchecked until someone remembered to add it here.
+    for source in _markdown_files():
         text = source.read_text()
         for target in re.findall(r"\]\((?!https?://|#)([^)#]+)", text):
             resolved = (source.parent / target).resolve()
             assert resolved.exists(), f"{source.name} links to missing {target}"
 
 
-def test_api_doc_contents_anchors_resolve(catalogue):
+def test_doc_contents_anchors_resolve(catalogue):
     """A table of contents pointing at headings that do not exist is worse
     than none: it looks navigable and is not."""
     import re
 
-    import config
-
-    text = (config.REPO_ROOT / "docs" / "API.md").read_text()
-
     def slug(heading):
-        return re.sub(r"\s+", "-", re.sub(r"[^\w\s-]", "", heading.lower()).strip())
+        """GitHub's anchor for a heading.
 
-    headings = {slug(h) for h in re.findall(r"^## (.+)$", text, flags=re.M)}
-    anchors = set(re.findall(r"\]\(#([^)]+)\)", text))
-    assert anchors <= headings, f"dangling anchors: {sorted(anchors - headings)}"
+        The emoji is removed but the space after it is not, so "## 🚀 Features"
+        anchors as "#-features" with a leading hyphen. Stripping first would
+        make this test demand anchors that are broken on GitHub — which is
+        how it passed while docs/CATALOGUE.md was correct and it was not.
+        """
+        cleaned = re.sub(r"[^\w\s-]", "", heading.lower()).rstrip()
+        return re.sub(r"\s+", "-", cleaned)
+
+    dangling = {}
+    for source in _markdown_files():
+        text = source.read_text()
+        headings = {slug(h) for h in re.findall(r"^#{2,4} (.+)$", text, flags=re.M)}
+        anchors = set(re.findall(r"\]\(#([^)]+)\)", text))
+        if anchors - headings:
+            dangling[source.name] = sorted(anchors - headings)
+
+    assert not dangling, f"dangling anchors: {dangling}"
 
 
 def test_ci_imports_every_backend_module(catalogue):
