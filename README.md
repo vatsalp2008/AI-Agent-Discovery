@@ -364,6 +364,7 @@ AI-Agent-Discovery/
 │   ├── doctor.py               # Setup diagnostics
 │   ├── check_links.py          # Catalogue link checker
 │   ├── refresh_stars.py        # Star count refresh
+│   ├── discover.py             # Finds new agents on GitHub
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
 │   └── seed.py                 # Index building script
@@ -458,25 +459,19 @@ each of those and says what to do:
 It exits non-zero when something required is missing, so it can gate a script,
 and `--json` emits the same results as data.
 
-## 🔗 Keeping the catalogue honest
+## 🔗 Keeping the catalogue current
+
+Links rot, star counts drift, and new tools appear. Three commands cover it:
 
 ```bash
 make check-links      # verify every URL still resolves
 make refresh-stars    # update star counts from the GitHub API
+make discover         # find agents the catalogue is missing
 ```
 
-Projects get renamed, archived and deleted, and a dead link is invisible until
-somebody clicks it. The checker distinguishes the two cases that matter: a
-**broken** link needs fixing, while a **redirect** usually means the project
-moved and the entry could be updated.
-
-Both run weekly in a scheduled workflow, which commits refreshed star counts
-directly and **fails on a broken link** — a summary nobody reads is not a
-signal. Redirects are reported but tolerated, since the link still works, and
-the check runs twice before failing so one flaky host does not turn the job red.
-
-Renames are worth acting on: following them caught that Windsurf now ships as
-Devin Desktop, which had left that entry stale in name, description and URL.
+All three run on a schedule. See **[docs/CATALOGUE.md](docs/CATALOGUE.md)** for
+what each one does, what the crawler refuses to propose and why, and how the
+weekly workflows report their results.
 
 ## ⚡ Performance
 
