@@ -751,7 +751,8 @@ nav a:focus-visible,
     gap: 0.5rem;
 }
 
-.export-btn {
+.export-btn,
+.save-search-btn {
     font: inherit;
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -763,12 +764,14 @@ nav a:focus-visible,
     transition: border-color 0.2s, color 0.2s;
 }
 
-.export-btn:hover {
+.export-btn:hover,
+.save-search-btn:hover {
     border-color: var(--accent-color);
     color: var(--accent-color);
 }
 
-.export-btn:focus-visible {
+.export-btn:focus-visible,
+.save-search-btn:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }

@@ -5,7 +5,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { bootPage, flush, SEARCH_HTML, stubFetch } from './helpers.js';
+import { SEARCH_HTML, bootPage, flush, scriptsFor, stubFetch } from './helpers.js';
 
 const CATEGORIES = [
     { name: 'Code Generation', count: 6 },
@@ -36,15 +36,7 @@ async function boot(routes = defaultRoutes()) {
     bootPage({
         html: SEARCH_HTML,
         script: 'main.js',
-        // index.html loads search-state.js before main.js.
-        extraScripts: [
-            { file: 'agents-api.js', global: 'AgentsApi' },
-            { file: 'search-state.js', global: 'SearchState' },
-            { file: 'suggest.js', global: 'Suggest' },
-            { file: 'search-suggestions.js', global: 'SearchSuggestions' },
-            { file: 'recent-searches.js', global: 'RecentSearches' },
-            { file: 'export-results.js', global: 'ExportResults' },
-        ],
+        extraScripts: scriptsFor('index.html', 'main.js'),
     });
     await flush();
     return calls;
@@ -59,6 +51,10 @@ function submitSearch(query) {
 
 beforeEach(() => {
     window.history.replaceState({}, '', '/');
+    // The page keeps recent searches and saved searches in localStorage,
+    // which jsdom shares across the whole file. Without this a test sees
+    // whatever its predecessors left behind.
+    localStorage.clear();
 });
 
 afterEach(() => {
@@ -671,5 +667,70 @@ describe('when nothing matches well', () => {
         submitSearch('code editor');
         await flush();
         expect(document.querySelector('.result-notice')).toBeNull();
+    });
+});
+
+describe('saving a search', () => {
+    it('offers to save once results are shown', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+
+        expect(document.querySelector('.save-search-btn').textContent).toBe('Save this search');
+    });
+
+    it('saves the query with its results', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        document.querySelector('.save-search-btn').click();
+
+        const [entry] = globalThis.SavedSearches.list();
+        expect(entry.query).toBe('code editor');
+        expect(entry.snapshot.names.length).toBeGreaterThan(0);
+    });
+
+    it('says so once saved', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        const button = document.querySelector('.save-search-btn');
+        button.click();
+
+        expect(button.textContent).toBe('Saved ✓');
+    });
+
+    it('a second click undoes it', async () => {
+        /** The button is the only affordance for this query; one-way would
+         *  send someone to another page to undo a misclick. */
+        await boot();
+        submitSearch('code editor');
+        await flush();
+        const button = document.querySelector('.save-search-btn');
+
+        button.click();
+        button.click();
+
+        expect(globalThis.SavedSearches.list()).toEqual([]);
+        expect(button.textContent).toBe('Save this search');
+    });
+
+    it('shows an already-saved query as saved', async () => {
+        await boot();
+        globalThis.SavedSearches.save('code editor', null, [{ name: 'A', metadata: { name: 'A' } }]);
+
+        submitSearch('code editor');
+        await flush();
+
+        expect(document.querySelector('.save-search-btn').textContent).toBe('Saved ✓');
+    });
+
+    it('is not one of the export controls', async () => {
+        await boot();
+        submitSearch('code editor');
+        await flush();
+
+        expect([...document.querySelectorAll('.export-btn')].map(b => b.textContent))
+            .toEqual(['Export CSV', 'Export JSON']);
     });
 });
