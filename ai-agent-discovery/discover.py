@@ -23,6 +23,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -142,11 +143,17 @@ MIN_DESCRIPTION = submissions.MIN_DESCRIPTION
 NOT_A_TOOL = (
     "awesome", "curated list", "curated collection", "collection of",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
-    "course", "lectures", "learning path", "study guide", "interview",
-    "papers", "paper list", "reading list", "resources for", "book",
-    "examples", "cookbook", "demo project", "sample code", "boilerplate",
+    "course", "lecture", "learning path", "study guide", "interview",
+    "paper", "paper list", "reading list", "resources for", "book",
+    "example", "cookbook", "demo project", "sample code", "boilerplate",
     "from scratch in", "build your own",
 )
+
+# Matched on word boundaries, with an optional plural. As plain substrings
+# these rejected real tools: "book" is inside "notebook" and "facebook",
+# "course" inside "discourse", "paper" inside "wallpaper".
+NOT_A_TOOL_PATTERN = re.compile(
+    r"\b(?:" + "|".join(re.escape(phrase) for phrase in NOT_A_TOOL) + r")s?\b")
 
 # "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
 # tagged it — so the word alone cannot decide the category. A repo claiming
@@ -215,7 +222,7 @@ def looks_like_a_tool(repo):
     ("awesome-llm-apps") about as often as it describes itself.
     """
     haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
-    return not any(phrase in haystack for phrase in NOT_A_TOOL)
+    return NOT_A_TOOL_PATTERN.search(haystack) is None
 
 
 def infer_category(repo):
@@ -314,7 +321,14 @@ def is_new(record, repos, names):
     return record["name"].strip().lower() not in names
 
 
-def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=2.0):
+# GitHub allows 10 search requests a minute unauthenticated, 30 with a token.
+# Six seconds between topics keeps a full unauthenticated run inside the
+# budget; a token relaxes it.
+PAUSE_ANONYMOUS = 6.5
+PAUSE_WITH_TOKEN = 2.0
+
+
+def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=None):
     """Search each topic and return the candidate records, best first.
 
     Deduplicated across topics as well as against the catalogue: the same
@@ -325,6 +339,9 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=2
     pending = [e["agent"] for e in submissions.read_all(status=submissions.PENDING)
                if isinstance(e.get("agent"), dict)]
     repos, names = known_repos(catalogue + pending)
+
+    if pause is None:
+        pause = PAUSE_WITH_TOKEN if token else PAUSE_ANONYMOUS
 
     found, skipped = [], {"known": 0, "unusable": 0}
     searched, failed = 0, []
@@ -338,6 +355,13 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=2
 
         try:
             results = search_repos(query, token=token, limit=limit)
+        except RateLimited as e:
+            # Stop searching, but keep what has already been found: the run
+            # so far cost real API budget, and throwing it away means the
+            # next run spends that budget again to learn the same thing.
+            logger.warning("%s Stopping with %d candidate(s) already found.", e, len(found))
+            failed.extend(topics[index:])
+            break
         except SearchFailed as e:
             logger.warning("search %r failed: %s", query, e)
             failed.append(topic)

@@ -96,6 +96,26 @@ class TestRejectingNonTools:
         outranks every actual tool by an order of magnitude."""
         assert not discover.looks_like_a_tool(repo(name=name, description=description))
 
+    @pytest.mark.parametrize("name,description", [
+        ("agent-notebooks", "Jupyter notebooks and tooling for running agents end to end."),
+        ("discourse-ai", "Adds AI features to Discourse forums, including summaries."),
+        ("wallpapers-ai", "Generates desktop wallpapers from a prompt using diffusion."),
+        ("facebook-thing", "A tool from Facebook for training multimodal models at scale."),
+    ])
+    def test_a_word_inside_a_longer_word_is_not_a_match(self, name, description):
+        """Matched as plain substrings these were all rejected: "book" is
+        inside "notebook" and "facebook", "course" inside "discourse",
+        "paper" inside "wallpaper"."""
+        assert discover.looks_like_a_tool(repo(name=name, description=description))
+
+    @pytest.mark.parametrize("name,description", [
+        ("ml-books", "Free books on machine learning, updated weekly."),
+        ("llm-courses", "Courses covering large language models from the ground up."),
+        ("agent-examples", "Examples showing how to build an agent, step by step."),
+    ])
+    def test_the_plural_is_matched_too(self, name, description):
+        assert not discover.looks_like_a_tool(repo(name=name, description=description))
+
     def test_an_actual_tool_passes(self):
         assert discover.looks_like_a_tool(repo())
 
@@ -326,3 +346,32 @@ class TestJsonOutput:
 
         discover.main(["--json", "--topic", "ai-agents"])
         assert json.loads(capsys.readouterr().out) == []
+
+
+class TestRateLimits:
+    """GitHub's search budget is 10/minute unauthenticated, 30 with a token."""
+
+    def test_an_unauthenticated_run_paces_itself_within_the_budget(self):
+        requests_per_minute = 60 / discover.PAUSE_ANONYMOUS
+        assert requests_per_minute <= 10
+
+    def test_a_token_allows_a_shorter_pause(self):
+        assert discover.PAUSE_WITH_TOKEN < discover.PAUSE_ANONYMOUS
+        assert 60 / discover.PAUSE_WITH_TOKEN <= 30
+
+    def test_hitting_the_limit_keeps_what_was_already_found(self, monkeypatch, tmp_path):
+        """The run has already spent real API budget. Discarding the results
+        means the next run spends it again to learn the same thing."""
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "a.json")
+        (tmp_path / "a.json").write_text("[]")
+        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "q.jsonl")
+
+        def fake(query, **kwargs):
+            if "rag" in query:
+                raise discover.RateLimited("out of budget")
+            return [repo(name="Found", html_url="https://github.com/a/found")]
+
+        monkeypatch.setattr(discover, "search_repos", fake)
+        found, _ = discover.discover(["ai-agents", "rag", "llmops"], min_stars=0, pause=0)
+
+        assert [r["name"] for r in found] == ["Found"]
