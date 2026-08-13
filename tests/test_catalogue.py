@@ -406,8 +406,6 @@ def test_docs_links_resolve(catalogue):
     """A broken relative link in the docs is invisible until someone clicks."""
     import re
 
-    import config
-
     # Every markdown file, rather than a list to keep in step — a new doc
     # was going unchecked until someone remembered to add it here.
     for source in _markdown_files():
