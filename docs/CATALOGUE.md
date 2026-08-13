@@ -64,5 +64,20 @@ than queueing: `data/submissions.jsonl` is runtime state and gitignored, so a
 queue written on an ephemeral runner would vanish with it. Nothing new is the
 usual result, and no issue is opened in that case.
 
-Set `GITHUB_TOKEN` to raise the API limit from 60/hour; search is capped
-tighter still, so the crawler paces itself between topics.
+### Staying inside the API budget
+
+GitHub's search endpoint allows **10 requests a minute unauthenticated** and 30
+with a token — far tighter than the 60/hour that applies to the rest of the
+API. The crawler paces itself accordingly: 6.5 seconds between topics without a
+token, 2.0 with one. Set `GITHUB_TOKEN` and a full sixteen-topic run finishes in
+about thirty seconds instead of two minutes.
+
+If it is rate limited anyway, it **stops and keeps what it has** rather than
+failing the run. The searches already made cost real budget, and discarding
+their results means the next run spends that budget again to learn the same
+thing.
+
+The one thing it will not do is report success having checked nothing. If every
+topic fails — no network, expired token, GitHub down — it exits non-zero and
+says so. "Nothing new found" and "nothing was looked at" are opposite outcomes,
+and on a schedule the second one silently looks like a healthy catalogue.
