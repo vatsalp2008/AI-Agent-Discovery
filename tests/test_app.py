@@ -86,3 +86,20 @@ def test_the_favicon_redirects_rather_than_404s(real_app):
     response = real_app.test_client().get("/favicon.ico")
     assert response.status_code == 301
     assert response.headers["Location"].endswith("favicon.svg")
+
+
+@pytest.mark.parametrize("path", PAGES)
+def test_no_script_is_included_twice(real_app, path):
+    """base.html loads the shared scripts for every page, so a page that also
+    lists one gets two tags. Loading a file twice re-runs its top-level
+    `const`, which is a redeclaration error — and the asset guards in
+    test_catalogue.py collect script names into a set, so a duplicate is
+    invisible there. Only the rendered page shows it.
+    """
+    import re
+
+    body = real_app.test_client().get(path).get_data(as_text=True)
+    scripts = re.findall(r'<script src="/static/js/([^"]+)"', body)
+
+    duplicated = {s for s in scripts if scripts.count(s) > 1}
+    assert not duplicated, f"{path} loads {sorted(duplicated)} more than once"
