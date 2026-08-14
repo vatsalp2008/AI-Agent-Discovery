@@ -6,6 +6,11 @@
     --text-secondary: #94a3b8;
     --accent-color: #3b82f6;
     --accent-hover: #2563eb;
+    /* Accent used as *text*. The fill colour is 3.98:1 against --card-bg,
+       under WCAG AA for the 0.8rem labels it is used on; this is 5.75:1 on
+       card and 7.02:1 on the page. Borders and fills keep --accent-color,
+       where the contrast requirement is different. */
+    --accent-text: #60a5fa;
     --border-color: #334155;
     --font-family: 'Inter', sans-serif;
     /* Change indicators on the saved-searches page. Measured against
@@ -26,6 +31,9 @@
     --accent-color: #1d4ed8;
     --accent-hover: #1e40af;
     --border-color: #d8dee6;
+    /* Already 6.7:1 against white, so the light theme needs no separate
+       value; named anyway so the two themes stay symmetrical. */
+    --accent-text: #1d4ed8;
     /* 5.0:1 and 6.5:1 against white. */
     --change-up: #15803d;
     --change-down: #b91c1c;
@@ -41,6 +49,7 @@
         --accent-color: #1d4ed8;
         --accent-hover: #1e40af;
         --border-color: #d8dee6;
+        --accent-text: #1d4ed8;
         --change-up: #15803d;
         --change-down: #b91c1c;
     }
@@ -78,7 +87,7 @@ header {
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: none;
 }
 
@@ -184,7 +193,7 @@ nav a:hover, nav a.active {
 
 .filter-tag:hover, .filter-tag.active {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+    color: var(--accent-text);
 }
 
 /* Results Grid */
@@ -228,7 +237,7 @@ nav a:hover, nav a.active {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: rgba(59, 130, 246, 0.1);
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
@@ -273,7 +282,7 @@ nav a:hover, nav a.active {
 }
 
 .view-btn {
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -324,7 +333,7 @@ nav a:hover, nav a.active {
 .stat-number {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--accent-color);
+    color: var(--accent-text);
     margin-bottom: 0.5rem;
 }
 
@@ -353,7 +362,7 @@ nav a:hover, nav a.active {
     display: inline-block;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: rgba(59, 130, 246, 0.12);
     border-radius: 999px;
     padding: 0.1rem 0.6rem;
@@ -425,7 +434,7 @@ nav a:focus-visible,
 .load-more {
     font: inherit;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -464,7 +473,7 @@ nav a:focus-visible,
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--accent-color);
+    color: var(--accent-text);
     margin-bottom: 0.5rem;
 }
 
@@ -508,7 +517,7 @@ nav a:focus-visible,
 }
 
 .breadcrumb a {
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: none;
 }
 
@@ -558,7 +567,7 @@ nav a:focus-visible,
 }
 
 .agent-name-link:hover {
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: underline;
 }
 
@@ -583,7 +592,7 @@ nav a:focus-visible,
 
 .copy-link:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+    color: var(--accent-text);
 }
 
 .copy-link:focus-visible {
@@ -603,7 +612,7 @@ nav a:focus-visible,
 .retry-btn {
     font: inherit;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -641,7 +650,7 @@ nav a:focus-visible,
 }
 
 .theme-toggle:hover {
-    color: var(--accent-color);
+    color: var(--accent-text);
     border-color: var(--accent-color);
 }
 
@@ -725,7 +734,7 @@ nav a:focus-visible,
 }
 
 .recent-item:hover {
-    color: var(--accent-color);
+    color: var(--accent-text);
     border-color: var(--accent-color);
     border-style: solid;
 }
@@ -767,7 +776,7 @@ nav a:focus-visible,
 .export-btn:hover,
 .save-search-btn:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+    color: var(--accent-text);
 }
 
 .export-btn:focus-visible,
@@ -819,7 +828,7 @@ nav a:focus-visible,
 .help-close {
     font: inherit;
     font-size: 0.85rem;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: none;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -857,7 +866,7 @@ nav a:focus-visible,
 }
 
 .compare-table thead th a {
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: none;
 }
 
@@ -905,7 +914,7 @@ nav a:focus-visible,
 }
 
 .compare-link:hover {
-    color: var(--accent-color);
+    color: var(--accent-text);
     border-color: var(--accent-color);
 }
 
@@ -935,7 +944,8 @@ nav a:focus-visible,
     margin-right: auto;
 }
 
-.collection-delete {
+.collection-delete,
+.collection-export {
     font: inherit;
     font-size: 0.8rem;
     color: var(--text-secondary);
@@ -945,7 +955,11 @@ nav a:focus-visible,
     cursor: pointer;
 }
 
+/* Red is the delete affordance; exporting is not destructive and should not
+   borrow the warning it carries. */
 .collection-delete:hover { color: #ef4444; }
+
+.collection-export:hover { color: var(--accent-text); }
 
 .collection-agents {
     display: flex;
@@ -969,7 +983,7 @@ nav a:focus-visible,
     text-decoration: none;
 }
 
-.collection-agent a:hover { color: var(--accent-color); }
+.collection-agent a:hover { color: var(--accent-text); }
 
 .collection-remove {
     font: inherit;
@@ -1003,7 +1017,7 @@ nav a:focus-visible,
 
 .save-select:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+    color: var(--accent-text);
 }
 
 .save-select:focus-visible {
@@ -1188,7 +1202,7 @@ a.filter-tag {
 
 .suggestion mark {
     background: none;
-    color: var(--accent-color);
+    color: var(--accent-text);
     font-weight: 600;
 }
 
@@ -1283,7 +1297,7 @@ a.filter-tag {
 .setup-banner-command {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.85rem;
-    color: var(--accent-color);
+    color: var(--accent-text);
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: 5px;
@@ -1293,13 +1307,13 @@ a.filter-tag {
 
 /* An exact name match, distinguished from a similarity percentage */
 .match-score.match-name {
-    color: var(--accent-color);
+    color: var(--accent-text);
     border-color: var(--accent-color);
 }
 
 /* Category suggestions inside the no-match notice */
 .notice-suggestion a {
-    color: var(--accent-color);
+    color: var(--accent-text);
     text-decoration: none;
 }
 

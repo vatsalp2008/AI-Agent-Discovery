@@ -614,3 +614,43 @@ def test_no_source_file_contains_a_control_character():
             offenders.append(f"{name}: {[hex(ord(c)) for c in sorted(bad)]}")
 
     assert not offenders, offenders
+
+
+def test_accent_text_meets_contrast_in_both_themes():
+    """Accent used as text sits on the card background at 0.8rem, so it
+    needs the 4.5:1 WCAG AA ratio for body text. The fill colour is 3.98:1
+    in dark mode, which is why --accent-text exists separately.
+    """
+    import re
+
+    def luminance(hex_colour):
+        channels = []
+        for i in (0, 2, 4):
+            value = int(hex_colour.lstrip("#")[i:i + 2], 16) / 255
+            channels.append(value / 12.92 if value <= 0.03928
+                            else ((value + 0.055) / 1.055) ** 2.4)
+        return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+
+    def contrast(a, b):
+        high, low = sorted((luminance(a), luminance(b)), reverse=True)
+        return (high + 0.05) / (low + 0.05)
+
+    css = (config.PACKAGE_DIR / "frontend" / "static" / "css" / "style.css").read_text()
+
+    def value(name, after):
+        block = css[css.index(after):]
+        return re.search(rf"--{name}: (#[0-9a-fA-F]{{6}})", block).group(1)
+
+    pairs = [
+        ("dark", value("accent-text", ":root,"), value("card-bg", ":root,")),
+        ("light", value("accent-text", '[data-theme="light"]'),
+                  value("card-bg", '[data-theme="light"]')),
+    ]
+    for theme, text, background in pairs:
+        ratio = contrast(text, background)
+        assert ratio >= 4.5, f"{theme}: accent text on card is {ratio:.2f}:1, below AA"
+
+    # The split only helps if text actually uses the text token. The lookbehind
+    # excludes border-color and background-color, which keep --accent-color.
+    leaked = re.findall(r"(?<![-a-z])color: var\(--accent-color\)", css)
+    assert not leaked, f"{len(leaked)} text colour(s) still use the fill accent"
