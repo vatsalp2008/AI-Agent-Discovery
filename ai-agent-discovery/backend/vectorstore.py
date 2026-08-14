@@ -253,12 +253,17 @@ class VectorStore:
 
         if wanted:
             # Scan the whole index in one pass rather than over-fetching and
-            # widening on a short result. A filtered search nearly always came
-            # up short — the largest category is a fraction of the catalogue —
-            # so the two-phase version paid for a second query almost every
-            # time, and each query embeds the query text again. One pass costs
-            # one embedding, which is ~91% of a search; returning more rows
-            # from an index this size is not measurable beside it.
+            # widening on a short result. Correctness first: the largest
+            # category is a fraction of the catalogue, so a filtered search
+            # nearly always came up short, and getting that wrong reported an
+            # empty category for one with members.
+            #
+            # It is also cheaper, though only on a cold embedding cache.
+            # Measured at 203 agents: two-phase 23.9ms vs 11.7ms for one
+            # pass, because the second query re-embeds the text. With the
+            # cache warm — the usual case — that second embed is a hit and
+            # the two are indistinguishable (12.7ms vs 12.9ms). Returning
+            # more rows from an index this size costs nothing measurable.
             agents = fetch(total or limit * self.CATEGORY_OVERFETCH)
         else:
             agents = fetch(limit)

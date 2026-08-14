@@ -67,6 +67,16 @@ def measure(runs=15):
     results["search_cached"] = summarize(timed(
         lambda i: store.search("cached probe", limit=10), runs * 3))
 
+    # A filtered search scans the whole index in one pass, where it used to
+    # over-fetch a slice, find it short and fetch again. Expect this to sit
+    # level with search_uncached. It will not look faster than the old
+    # version here: the second query re-embedded the same text, which the
+    # embedding cache serves for free. Run with EMBEDDING_CACHE_SIZE=0 to
+    # see the difference the change actually makes.
+    results["search_filtered"] = summarize(timed(
+        lambda i: store.search(f"benchmark probe {i} agents", limit=10, category="Research"),
+        runs))
+
     results["get_all_agents"] = summarize(timed(lambda i: store.get_all_agents(), runs * 3))
     results["get_agent"] = summarize(timed(lambda i: store.get_agent("Skyvern"), runs * 3))
     results["get_stats"] = summarize(timed(lambda i: store.get_stats(), runs))
