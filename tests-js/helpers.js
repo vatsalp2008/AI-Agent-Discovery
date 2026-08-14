@@ -17,6 +17,7 @@ export function loadScript(filename, globalName) {
     return globalThis[globalName];
 }
 
+/** agent-card.js renders result tiles and is loaded by every page. */
 export function loadAgentCard() {
     return loadScript('agent-card.js', 'AgentCard');
 }
@@ -39,14 +40,6 @@ export function makeAgent(overrides = {}) {
     };
 }
 
-/**
- * Boot a page script the way the browser does: install the markup, evaluate
- * agent-card.js (which every page loads), then evaluate the page script and
- * fire DOMContentLoaded.
- *
- * Returns once the listener's synchronous part has run; awaiting `flush()`
- * lets any fetch chains it kicked off settle.
- */
 /**
  * The scripts a template loads, in order, excluding the page script itself.
  *
@@ -77,6 +70,14 @@ export function scriptsFor(templateName, pageScript) {
         .filter(entry => entry.global !== null);
 }
 
+/**
+ * Boot a page script the way the browser does: install the markup, evaluate
+ * agent-card.js (which every page loads), then evaluate the page script and
+ * fire DOMContentLoaded.
+ *
+ * Returns once the listener's synchronous part has run; awaiting `flush()`
+ * lets any fetch chains it kicked off settle.
+ */
 export function bootPage({ html, script, extraScripts = [] }) {
     document.body.innerHTML = html;
     // base.html loads ui.js before every page script.
@@ -118,11 +119,8 @@ export async function flush(times = 6) {
 }
 
 /**
- * A fetch stub routed by URL substring. Records every call so tests can assert
- * what the page actually requested.
- */
-/**
- * Stub `fetch`.
+ * Stub `fetch`. Records every call so tests can assert what the page
+ * actually requested.
  *
  * A route key may be prefixed with a method — `'POST /api/search'` — and the
  * stub then refuses a request that uses a different one, the way the server
@@ -218,7 +216,7 @@ export const COMPARE_HTML = `
     <main id="compareArea" aria-busy="false"></main>
 `;
 
-/** The collections page's markup, mirroring templates/collections.html. */
+/** The saved searches page's markup, mirroring templates/saved.html. */
 export const SAVED_HTML = `
     <button type="button" id="checkAll">Check for changes</button>
     <button type="button" id="clearSaved">Remove all</button>
@@ -226,6 +224,7 @@ export const SAVED_HTML = `
     <main id="savedArea" aria-live="polite" aria-busy="false"></main>
 `;
 
+/** The collections page's markup, mirroring templates/collections.html. */
 export const COLLECTIONS_HTML = `
     <form id="newCollectionForm">
       <label class="sr-only" for="newCollectionName">New collection name</label>
