@@ -160,3 +160,49 @@ def test_the_readme_lists_every_page(real_app):
 
     missing = real - documented
     assert not missing, f"pages the README does not list: {sorted(missing)}"
+
+
+# Page script -> (template, the fixture in tests-js/helpers.js standing in for it)
+PAGE_SCRIPTS = {
+    "main.js": ("index.html", "SEARCH_HTML"),
+    "saved-page.js": ("saved.html", "SAVED_HTML"),
+    "collections-page.js": ("collections.html", "COLLECTIONS_HTML"),
+    "compare.js": ("compare.html", "COMPARE_HTML"),
+    "dashboard.js": ("dashboard.html", "DASHBOARD_HTML"),
+    "submit.js": ("submit.html", "SUBMIT_HTML"),
+    "admin.js": ("admin.html", "ADMIN_HTML"),
+}
+
+
+@pytest.mark.parametrize("script,template,fixture", [
+    (s, t, f) for s, (t, f) in PAGE_SCRIPTS.items()
+])
+def test_page_scripts_only_reach_for_elements_that_exist(script, template, fixture):
+    """Every getElementById in a page script must resolve — in the real
+    template *and* in the hand-written fixture the JS tests boot against.
+
+    The fixture half is the one that keeps going wrong. It has drifted three
+    times: SUBMIT_HTML lost its labels, so the accessibility check passed on
+    a page with none; SEARCH_HTML went stale when a script was added; and a
+    fixture that is missing an element simply makes the page script skip that
+    feature, so the tests stay green while the page is broken.
+    """
+    import re
+
+    js = config.PACKAGE_DIR / "frontend" / "static" / "js"
+    templates = config.PACKAGE_DIR / "frontend" / "templates"
+    helpers = (config.REPO_ROOT / "tests-js" / "helpers.js").read_text()
+
+    used = set(re.findall(r"getElementById\('([^']+)'\)", (js / script).read_text()))
+    assert used, f"{script} looks up no elements; has it been rewritten?"
+
+    in_template = set(re.findall(r'id="([^"]+)"', (templates / template).read_text()))
+    assert not (used - in_template), \
+        f"{script} reaches for ids missing from {template}: {sorted(used - in_template)}"
+
+    block = re.search(rf"export const {fixture} = `(.*?)`;", helpers, re.S)
+    assert block, f"tests-js/helpers.js no longer exports {fixture}"
+
+    in_fixture = set(re.findall(r'id="([^"]+)"', block.group(1)))
+    assert not (used - in_fixture), \
+        f"{fixture} is missing ids {script} uses: {sorted(used - in_fixture)}"
