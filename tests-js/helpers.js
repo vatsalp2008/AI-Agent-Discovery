@@ -220,6 +220,10 @@ export const COMPARE_HTML = `
 export const SAVED_HTML = `
     <button type="button" id="checkAll">Check for changes</button>
     <button type="button" id="clearSaved">Remove all</button>
+    <button type="button" id="exportSaved">Export</button>
+    <label class="control-button" for="importSaved">Import
+      <input type="file" id="importSaved" class="sr-only">
+    </label>
     <div id="savedResult" aria-live="polite"></div>
     <main id="savedArea" aria-live="polite" aria-busy="false"></main>
 `;

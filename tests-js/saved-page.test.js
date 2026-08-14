@@ -267,3 +267,61 @@ describe('removing', () => {
         expect(document.getElementById('savedArea').textContent).toContain('No saved searches yet');
     });
 });
+
+describe('export and import', () => {
+    it('refuses to export nothing', async () => {
+        boot();
+        await flush();
+        document.getElementById('exportSaved').click();
+
+        expect(document.getElementById('savedResult').textContent).toContain('nothing to export');
+    });
+
+    it('exports what is saved', async () => {
+        boot();
+        save('q', [['A', 1]]);
+        window.SavedPage.render();
+
+        const urls = [];
+        globalThis.URL.createObjectURL = () => { urls.push(1); return 'blob:x'; };
+        globalThis.URL.revokeObjectURL = () => {};
+        document.getElementById('exportSaved').click();
+
+        expect(urls).toHaveLength(1);
+        expect(document.getElementById('savedResult').textContent).toContain('Exported');
+    });
+
+    it('imports a file and re-renders', async () => {
+        boot();
+        await flush();
+
+        const payload = JSON.stringify({
+            kind: 'agentdiscovery-saved-searches',
+            version: 1,
+            searches: [{ query: 'imported', category: '' }],
+        });
+        // FileReader in jsdom needs a real Blob; drive the handler directly.
+        const input = document.getElementById('importSaved');
+        Object.defineProperty(input, 'files', { value: [new window.Blob([payload])] });
+        input.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(globalThis.SavedSearches.list().map(e => e.query)).toEqual(['imported']);
+        expect(document.querySelectorAll('.saved-card')).toHaveLength(1);
+    });
+
+    it('reports a file that is not a saved-searches export', async () => {
+        boot();
+        await flush();
+
+        const input = document.getElementById('importSaved');
+        Object.defineProperty(input, 'files', {
+            value: [new window.Blob(['{"kind":"agentdiscovery-collections"}'])],
+        });
+        input.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(document.getElementById('savedResult').textContent)
+            .toContain('not a saved-searches export');
+    });
+});

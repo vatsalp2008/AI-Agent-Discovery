@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = document.getElementById('savedResult');
     const checkAll = document.getElementById('checkAll');
     const clearButton = document.getElementById('clearSaved');
+    const exportButton = document.getElementById('exportSaved');
+    const importInput = document.getElementById('importSaved');
 
     const say = UI.reporter(result);
 
@@ -217,6 +219,42 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAll.disabled = false;
         clearButton.disabled = false;
         area.replaceChildren(...entries.map(card));
+    }
+
+    if (exportButton) {
+        exportButton.addEventListener('click', () => {
+            if (!SavedSearches.list().length) {
+                say('There is nothing to export yet.', true);
+                return;
+            }
+            try {
+                UI.download(SavedSearches.exportAll(), 'saved-searches.json');
+                say('Exported.');
+            } catch (error) {
+                console.error(error);
+                say('Could not export.', true);
+            }
+        });
+    }
+
+    if (importInput) {
+        importInput.addEventListener('change', () => {
+            const file = importInput.files && importInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                const outcome = SavedSearches.importAll(String(reader.result));
+                if (!outcome.ok) say(outcome.reason, true);
+                else if (!outcome.added) say('Nothing new to import.');
+                else say(`Imported ${outcome.added}; skipped ${outcome.skipped} already saved.`);
+                render();
+                // Allow re-importing the same file.
+                importInput.value = '';
+            };
+            reader.onerror = () => say('Could not read that file.', true);
+            reader.readAsText(file);
+        });
     }
 
     checkAll.addEventListener('click', checkEveryone);

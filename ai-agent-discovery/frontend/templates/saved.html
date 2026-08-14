@@ -15,6 +15,13 @@
     <button type="button" id="clearSaved" class="control-button">Remove all</button>
 </div>
 
+<div class="controls">
+    <button type="button" id="exportSaved" class="control-button">Export</button>
+    <label class="control-button" for="importSaved">Import
+        <input type="file" id="importSaved" accept="application/json,.json" class="sr-only">
+    </label>
+</div>
+
 <div id="savedResult" aria-live="polite"></div>
 
 <main id="savedArea" aria-live="polite" aria-busy="false"></main>
