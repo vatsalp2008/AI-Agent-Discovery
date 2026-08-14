@@ -131,6 +131,25 @@ const Collections = (() => {
     }
 
     /**
+     * Serialise one collection, in the same shape as a full export.
+     *
+     * Same `kind` deliberately: importing it merges the one collection back
+     * rather than being refused as a different format, which is what makes
+     * sharing a single shortlist useful.
+     */
+    function exportOne(name) {
+        const collections = read();
+        if (!has(collections, name)) return null;
+
+        return JSON.stringify({
+            kind: 'agentdiscovery-collections',
+            version: 1,
+            exported_at: new Date().toISOString(),
+            collections: { [name]: collections[name] },
+        }, null, 2);
+    }
+
+    /**
      * Merge an exported payload into the existing collections.
      *
      * Merges rather than replaces: importing a backup should not silently
@@ -192,7 +211,7 @@ const Collections = (() => {
     return {
         STORAGE_KEY, MAX_COLLECTIONS, MAX_AGENTS,
         read, names, agentsIn, create, add, remove, destroy,
-        containing, compareUrl, exportAll, importAll, clear,
+        containing, compareUrl, exportAll, exportOne, importAll, clear,
     };
 })();
 

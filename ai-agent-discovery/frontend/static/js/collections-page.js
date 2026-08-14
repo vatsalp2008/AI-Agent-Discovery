@@ -32,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return chip;
     }
 
+    /** A filename-safe form of a collection name. */
+    function slugify(name) {
+        return name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '').slice(0, 40) || 'collection';
+    }
+
     function card(name) {
         const agents = Collections.agentsIn(name);
         const section = document.createElement('section');
@@ -52,6 +58,29 @@ document.addEventListener('DOMContentLoaded', () => {
             compare.textContent = 'Compare';
             header.appendChild(compare);
         }
+
+        const exportOne = document.createElement('button');
+        exportOne.type = 'button';
+        // Styled like the delete control beside it but deliberately not one:
+        // a selector meaning "the delete button" must not match this.
+        exportOne.className = 'collection-export';
+        exportOne.textContent = 'Export';
+        exportOne.setAttribute('aria-label', `Export the ${name} collection`);
+        exportOne.addEventListener('click', () => {
+            const payload = Collections.exportOne(name);
+            if (!payload) {
+                showError(`Could not export ${name}.`);
+                return;
+            }
+            try {
+                UI.download(payload, `collection-${slugify(name)}.json`);
+                showStatus(`Exported ${name}.`);
+            } catch (error) {
+                console.error(error);
+                showError('Could not export.');
+            }
+        });
+        header.appendChild(exportOne);
 
         const del = document.createElement('button');
         del.type = 'button';
