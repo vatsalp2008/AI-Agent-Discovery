@@ -325,3 +325,23 @@ describe('export and import', () => {
             .toContain('not a saved-searches export');
     });
 });
+
+describe('after a failed import', () => {
+    it('clears the file input so the same file can be tried again', async () => {
+        /** The browser only fires `change` when the selection differs, so a
+         *  file left selected after a failure is a file that can never be
+         *  re-picked. Only the success path cleared it. */
+        boot();
+        await flush();
+
+        const input = document.getElementById('importSaved');
+        Object.defineProperty(input, 'files', {
+            value: [new window.Blob(['not json at all'])], configurable: true,
+        });
+        input.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(document.getElementById('savedResult').textContent).toContain('valid JSON');
+        expect(input.value).toBe('');
+    });
+});
