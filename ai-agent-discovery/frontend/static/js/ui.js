@@ -83,6 +83,35 @@ const UI = (() => {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
+    /**
+     * Read the file chosen in `input` and hand its text to `onText`.
+     *
+     * The counterpart to download(), and the same story: two pages had
+     * near-identical copies. The subtlety worth keeping in one place is the
+     * reset — the browser only fires `change` when the selection differs, so
+     * an input left holding a failed file can never re-offer it, and only
+     * the success path used to clear it.
+     */
+    function readFile(input, onText, onError) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const reset = () => { input.value = ''; };
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                onText(String(reader.result));
+            } finally {
+                reset();
+            }
+        };
+        reader.onerror = () => {
+            if (onError) onError();
+            reset();
+        };
+        reader.readAsText(file);
+    }
+
     /** Set `aria-busy` on each element that has the attribute. */
     function setBusy(busy, ...containers) {
         containers.forEach(container => {
@@ -92,7 +121,8 @@ const UI = (() => {
         });
     }
 
-    return { messageElement, showMessage, showError, setBusy, reporter, download };
+    return { messageElement, showMessage, showError, setBusy, reporter,
+             download, readFile };
 })();
 
 if (typeof module !== 'undefined') module.exports = UI;

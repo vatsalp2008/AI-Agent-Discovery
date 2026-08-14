@@ -150,17 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (importInput) {
         importInput.addEventListener('change', () => {
-            const file = importInput.files && importInput.files[0];
-            if (!file) return;
-
-            // Cleared however the read ends: the browser only fires `change`
-            // when the selection differs, so leaving a failed file selected
-            // means re-picking it does nothing at all.
-            const done = () => { importInput.value = ''; };
-
-            const reader = new FileReader();
-            reader.onload = () => {
-                const result = Collections.importAll(String(reader.result));
+            UI.readFile(importInput, text => {
+                const result = Collections.importAll(text);
                 if (!result.ok) {
                     showError(result.reason);
                 } else if (result.added === 0 && result.merged === 0) {
@@ -169,10 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showStatus(`Imported: ${result.added} new, ${result.merged} merged.`);
                 }
                 render();
-                done();
-            };
-            reader.onerror = () => { showError('Could not read that file.'); done(); };
-            reader.readAsText(file);
+            }, () => showError('Could not read that file.'));
         });
     }
 

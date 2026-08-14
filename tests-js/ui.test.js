@@ -142,3 +142,47 @@ describe('a bound reporter', () => {
         expect(container.children).toHaveLength(0);
     });
 });
+
+describe('reading a chosen file', () => {
+    function inputWith(contents) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        Object.defineProperty(input, 'files', {
+            value: contents === null ? [] : [new window.Blob([contents])],
+            configurable: true,
+        });
+        return input;
+    }
+
+    it('hands the text to the callback', async () => {
+        const seen = [];
+        UI.readFile(inputWith('hello'), text => seen.push(text));
+        await new Promise(r => setTimeout(r, 10));
+
+        expect(seen).toEqual(['hello']);
+    });
+
+    it('does nothing when no file is chosen', () => {
+        const seen = [];
+        UI.readFile(inputWith(null), text => seen.push(text));
+        expect(seen).toEqual([]);
+    });
+
+    it('clears the input after a successful read', async () => {
+        const input = inputWith('hello');
+        UI.readFile(input, () => {});
+        await new Promise(r => setTimeout(r, 10));
+
+        expect(input.value).toBe('');
+    });
+
+    it('clears the input even when the callback throws', async () => {
+        /** Otherwise a file that trips a bug can never be re-picked, because
+         *  the browser only fires `change` when the selection differs. */
+        const input = inputWith('hello');
+        UI.readFile(input, () => { throw new Error('boom'); });
+        await new Promise(r => setTimeout(r, 10));
+
+        expect(input.value).toBe('');
+    });
+});

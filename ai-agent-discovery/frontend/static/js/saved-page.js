@@ -239,25 +239,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (importInput) {
         importInput.addEventListener('change', () => {
-            const file = importInput.files && importInput.files[0];
-            if (!file) return;
-
-            // Cleared however the read ends: the browser only fires `change`
-            // when the selection differs, so leaving a failed file selected
-            // means re-picking it does nothing at all.
-            const done = () => { importInput.value = ''; };
-
-            const reader = new FileReader();
-            reader.onload = () => {
-                const outcome = SavedSearches.importAll(String(reader.result));
+            UI.readFile(importInput, text => {
+                const outcome = SavedSearches.importAll(text);
                 if (!outcome.ok) say(outcome.reason, true);
                 else if (!outcome.added) say('Nothing new to import.');
                 else say(`Imported ${outcome.added}; skipped ${outcome.skipped} already saved.`);
                 render();
-                done();
-            };
-            reader.onerror = () => { say('Could not read that file.', true); done(); };
-            reader.readAsText(file);
+            }, () => say('Could not read that file.', true));
         });
     }
 
