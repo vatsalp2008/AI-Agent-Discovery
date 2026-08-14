@@ -339,7 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // A results page is a shareable thing; offer the link.
                 const bar = document.createElement('div');
                 bar.className = 'results-bar';
-                bar.appendChild(makeSaveButton(query, activeCategory, data.results));
+                // The filter that was actually sent, not whatever
+                // activeCategory holds now: a chip clicked while the request
+                // was in flight would otherwise label these results with a
+                // filter that did not produce them.
+                bar.appendChild(makeSaveButton(query, body.category || '', data.results));
                 bar.appendChild(makeExportButton('CSV', () => ExportResults.asCsv(data.results, query)));
                 bar.appendChild(makeExportButton('JSON', () => ExportResults.asJson(data.results, query)));
                 bar.appendChild(makeCopyLinkButton());

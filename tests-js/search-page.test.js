@@ -772,4 +772,21 @@ describe('saving records the filter that produced the results', () => {
 
         expect(globalThis.SavedSearches.list()[0].category).toBe('Research');
     });
+
+    it('uses the filter that was sent, not one chosen mid-request', async () => {
+        /** The results arrive asynchronously; activeCategory can change in
+         *  between. The saved entry must describe the request that produced
+         *  these results. */
+        await boot();
+        submitSearch('rag');
+
+        // Change the filter while the search is still in flight.
+        document.getElementById('searchInput').value = '';
+        [...document.querySelectorAll('#filters .filter-tag')]
+            .find(b => b.textContent.includes('Research')).click();
+        await flush();
+
+        document.querySelector('.save-search-btn').click();
+        expect(globalThis.SavedSearches.list()[0].category).toBe('');
+    });
 });
