@@ -33,6 +33,27 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.showMessage(area, text);
     }
 
+    /**
+     * Wrap the table so it can scroll sideways past a few agents.
+     *
+     * A region that scrolls must be reachable by keyboard, so it takes
+     * `tabindex="0"` and a name — otherwise someone who cannot drag a
+     * scrollbar cannot see the later columns at all. Only applied when there
+     * is something to scroll to, since a focus stop that does nothing is its
+     * own nuisance.
+     */
+    function scrollable(table, count) {
+        if (count <= 3) return table;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'compare-scroll';
+        wrapper.setAttribute('role', 'region');
+        wrapper.setAttribute('aria-label', `Comparison of ${count} agents, scrollable`);
+        wrapper.tabIndex = 0;
+        wrapper.appendChild(table);
+        return wrapper;
+    }
+
     /** One column per agent, one row per attribute. */
     function buildTable(agents) {
         const table = document.createElement('table');
@@ -106,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            area.replaceChildren(buildTable(data.agents));
+            area.replaceChildren(scrollable(buildTable(data.agents), data.agents.length));
 
             const missing = (data.metadata || {}).missing || [];
             if (missing.length) {

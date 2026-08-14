@@ -153,3 +153,54 @@ describe('changing the selection', () => {
             .toEqual(['Uncategorized (1)']);
     });
 });
+
+describe('comparing more than a few agents', () => {
+    function many(n) {
+        return Array.from({ length: n }, (_, i) => agent(`Agent${i}`));
+    }
+
+    function bootWith(n) {
+        const names = many(n).map(a => a.name).join(',');
+        return boot(`/compare?names=${names}`, routes({
+            '/api/compare': { body: { agents: many(n), metadata: { count: n, missing: [] } } },
+        }));
+    }
+
+    it('wraps the table so the later columns are reachable', async () => {
+        await bootWith(6);
+
+        const scroll = document.querySelector('.compare-scroll');
+        expect(scroll).not.toBeNull();
+        expect(scroll.querySelector('.compare-table')).not.toBeNull();
+    });
+
+    it('makes the scrollable region keyboard reachable and named', async () => {
+        /** A region that scrolls but cannot be focused leaves the later
+         *  columns unreadable to anyone not using a mouse. */
+        await bootWith(6);
+
+        const scroll = document.querySelector('.compare-scroll');
+        expect(scroll.getAttribute('tabindex')).toBe('0');
+        expect(scroll.getAttribute('role')).toBe('region');
+        expect(scroll.getAttribute('aria-label')).toContain('6');
+    });
+
+    it('does not add a focus stop when there is nothing to scroll', async () => {
+        await bootWith(2);
+
+        expect(document.querySelector('.compare-scroll')).toBeNull();
+        expect(document.querySelector('.compare-table')).not.toBeNull();
+    });
+
+    it('still renders one column per agent at eight', async () => {
+        await bootWith(8);
+
+        // One label column plus one per agent.
+        expect(document.querySelectorAll('.compare-table thead th')).toHaveLength(9);
+    });
+
+    it('every agent keeps its remove control', async () => {
+        await bootWith(8);
+        expect(document.querySelectorAll('.compare-remove')).toHaveLength(8);
+    });
+});
