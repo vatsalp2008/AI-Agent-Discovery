@@ -143,7 +143,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `AGENTS_MAX_PAGE_SIZE` | `200` | Upper bound on that page size |
 | `SEARCH_CACHE_SIZE` | `128` | Cached searches; `0` disables |
 | `SEARCH_MIN_SCORE` | `0.5` | Below this, results are flagged as weak matches |
-| `COMPARE_MAX_AGENTS` | `4` | Upper bound on `/api/compare` |
+| `COMPARE_MAX_AGENTS` | `8` | Upper bound on `/api/compare` |
 | `EMBEDDING_CACHE_SIZE` | `500` | Query embeddings kept on disk; `0` disables |
 | `EMBEDDING_CACHE_PATH` | `data/embedding_cache.json` | Where they are stored |
 | `ENABLE_ADMIN` | `false` | Catalogue editing — see the warning above |
@@ -174,7 +174,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/` | Search, with category chips, recent queries and export |
 | `/dashboard` | Every agent, filterable and sortable, with totals |
 | `/agent/<name>` | One agent in detail, plus similar agents |
-| `/compare?names=A,B` | Agents side by side |
+| `/compare?names=A,B` | Up to eight agents side by side |
 | `/collections` | Saved shortlists, kept in your browser |
 | `/saved` | Searches worth re-running, with what changed since |
 | `/submit` | Propose an agent for review |
@@ -207,18 +207,10 @@ Everything is keyboard operable: the category chips are real buttons, the
 results region announces updates, and a failed search offers a focused
 **Try again** rather than making you retype.
 
-### Saved searches
-
-A catalogue that grows is a catalogue whose answers change, and nothing tells
-you. **Save this search** stores the query with a snapshot of what it returned;
-`/saved` re-runs it and reports agents that **now match**, ones that **dropped
-out**, and projects whose **stars moved** by more than 5% — a fraction, so
-40 → 400 registers and 40,000 → 40,300 does not.
-
-Re-ranking alone is not a change, checking adopts the fresh results so nothing
-is reported twice, and searches run one at a time to stay inside the rate
-limit. Kept in `localStorage`, like collections: the questions you keep asking
-never leave your machine.
+The **saved searches**, **comparison** and **collections** pages each keep
+something between visits. See **[docs/PAGES.md](docs/PAGES.md)** for what they
+remember, how change detection decides what is worth reporting, and how export
+and import move them between browsers.
 
 ### Command Line
 
@@ -265,6 +257,11 @@ Every endpoint returns JSON, including errors.
 
 **[Full API reference →](docs/API.md)** — request and response shapes, what
 `score` and `match` mean, weak-match handling, rate limits and response headers.
+
+**Export** writes saved searches to a JSON file and **Import** merges one back,
+so a backup or a move to another browser does not start over. On a clash the
+local copy wins: its snapshot is the more recent baseline, and adopting an older
+one would re-report changes already seen.
 
 ## 🔌 MCP Server
 

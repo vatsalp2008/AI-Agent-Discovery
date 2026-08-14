@@ -183,7 +183,9 @@ GET /api/compare?names=Claude%20Code,Aider,Cline
 
 Unknown names come back in `metadata.missing` instead of failing the request,
 so one typo does not discard the agents that did resolve. Capped at
-`COMPARE_MAX_AGENTS`.
+`COMPARE_MAX_AGENTS` (default 8); more than that is a `400`, and the compare
+page stops its picker at the same number so the limit never arrives as a
+failed request.
 
 ## List technologies
 
