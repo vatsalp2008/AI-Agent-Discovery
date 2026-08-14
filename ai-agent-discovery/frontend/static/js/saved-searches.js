@@ -194,9 +194,71 @@ const SavedSearches = (() => {
         return write(entries);
     }
 
+    /** Serialise every saved search for backup or moving to another browser. */
+    function exportAll() {
+        return JSON.stringify({
+            kind: 'agentdiscovery-saved-searches',
+            version: 1,
+            exported_at: new Date().toISOString(),
+            searches: read(),
+        }, null, 2);
+    }
+
+    /**
+     * Merge an exported payload into what is already saved.
+     *
+     * Merges rather than replaces, like collections: importing a backup
+     * should not destroy searches made since. On a clash the *local* entry
+     * wins, because its snapshot is the more recent baseline — adopting an
+     * older one would make the next check re-report changes that have
+     * already been seen.
+     */
+    function importAll(text) {
+        let payload;
+        try {
+            payload = JSON.parse(text);
+        } catch (error) {
+            return { ok: false, reason: 'That is not valid JSON.' };
+        }
+
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+            return { ok: false, reason: 'Unrecognised file.' };
+        }
+        if (payload.kind !== 'agentdiscovery-saved-searches') {
+            return { ok: false, reason: 'That file is not a saved-searches export.' };
+        }
+        if (!Array.isArray(payload.searches)) {
+            return { ok: false, reason: 'The file has no saved searches in it.' };
+        }
+
+        const current = read();
+        const seen = new Set(current.map(e => keyFor(e.query, e.category)));
+
+        let added = 0;
+        let skipped = 0;
+        payload.searches.filter(isRecord).forEach(entry => {
+            const key = keyFor(entry.query, entry.category);
+            if (seen.has(key)) { skipped += 1; return; }
+            if (current.length >= MAX_SAVED) { skipped += 1; return; }
+
+            seen.add(key);
+            current.push({
+                query: entry.query.trim(),
+                category: typeof entry.category === 'string' ? entry.category.trim() : '',
+                snapshot: cleanSnapshot(entry.snapshot),
+            });
+            added += 1;
+        });
+
+        if (!write(current)) {
+            return { ok: false, reason: 'Could not save; storage is unavailable.' };
+        }
+        return { ok: true, added, skipped };
+    }
+
     return {
         save, remove, clear, list, has, diff, snapshot, refresh, isEmpty,
-        MAX_SAVED, STAR_CHANGE,
+        exportAll, importAll, MAX_SAVED, STAR_CHANGE,
     };
 })();
 
