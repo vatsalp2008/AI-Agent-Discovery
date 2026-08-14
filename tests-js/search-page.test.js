@@ -734,3 +734,42 @@ describe('saving a search', () => {
             .toEqual(['Export CSV', 'Export JSON']);
     });
 });
+
+describe('saving records the filter that produced the results', () => {
+    it('a filter set after the results does not relabel them', async () => {
+        /** The button captured the query and results but read the live
+         *  activeCategory at click time. With the input empty a chip only
+         *  sets the filter and rewrites the URL — the old results bar stays
+         *  on screen — so saving paired an unfiltered snapshot with a
+         *  category, and the first check on /saved reported nearly every
+         *  result as "No longer matches". */
+        await boot();
+        submitSearch('rag');
+        await flush();
+
+        // Empty input: the chip changes activeCategory without re-searching,
+        // and the bar from the unfiltered search is still displayed.
+        document.getElementById('searchInput').value = '';
+        [...document.querySelectorAll('#filters .filter-tag')]
+            .find(b => b.textContent.includes('Research')).click();
+        await flush();
+
+        document.querySelector('.save-search-btn').click();
+
+        const [entry] = globalThis.SavedSearches.list();
+        expect(entry.category).toBe('');
+    });
+
+    it('a filtered search saves under its filter', async () => {
+        await boot();
+        [...document.querySelectorAll('#filters .filter-tag')]
+            .find(b => b.textContent.includes('Research')).click();
+        await flush();
+
+        submitSearch('rag');
+        await flush();
+        document.querySelector('.save-search-btn').click();
+
+        expect(globalThis.SavedSearches.list()[0].category).toBe('Research');
+    });
+});

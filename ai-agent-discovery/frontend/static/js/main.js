@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Save this query, so the saved-searches page can tell the user later
      * what has changed about its answers.
      */
-    function makeSaveButton(query, results) {
+    function makeSaveButton(query, category, results) {
         const button = document.createElement('button');
         button.type = 'button';
         // Styled like the export buttons beside it, but deliberately not one
@@ -170,7 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // start matching this.
         button.className = 'save-search-btn';
 
-        const saved = () => SavedSearches.has(query, activeCategory);
+        // `category` is captured, not read from activeCategory at click
+        // time: the filter can change after results are on screen, and the
+        // button would then save this query under a filter that did not
+        // produce these results. The first check on /saved re-runs it
+        // filtered and reports nearly everything as "No longer matches".
+        const saved = () => SavedSearches.has(query, category);
         const label = () => (saved() ? 'Saved ✓' : 'Save this search');
         button.textContent = label();
 
@@ -178,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // A second click un-saves it: the button is the only affordance
             // for this query, and making it one-way would send someone to
             // another page to undo a misclick.
-            if (saved()) SavedSearches.remove(query, activeCategory);
-            else if (!SavedSearches.save(query, activeCategory, results)) {
+            if (saved()) SavedSearches.remove(query, category);
+            else if (!SavedSearches.save(query, category, results)) {
                 button.textContent = 'Could not save';
                 setTimeout(() => { button.textContent = label(); }, 2000);
                 return;
@@ -334,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // A results page is a shareable thing; offer the link.
                 const bar = document.createElement('div');
                 bar.className = 'results-bar';
-                bar.appendChild(makeSaveButton(query, data.results));
+                bar.appendChild(makeSaveButton(query, activeCategory, data.results));
                 bar.appendChild(makeExportButton('CSV', () => ExportResults.asCsv(data.results, query)));
                 bar.appendChild(makeExportButton('JSON', () => ExportResults.asJson(data.results, query)));
                 bar.appendChild(makeCopyLinkButton());
