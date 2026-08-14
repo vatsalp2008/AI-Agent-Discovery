@@ -2480,5 +2480,237 @@
     "github_stars": 6230,
     "url": "https://github.com/aimhubio/aim",
     "use_case": "Comparing many runs"
+  },
+  {
+    "name": "RagaAI Catalyst",
+    "description": "Tracing, evaluation and guardrails for agent pipelines, aimed at finding which step of a chain went wrong.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 16151,
+    "url": "https://github.com/raga-ai-hub/RagaAI-Catalyst",
+    "use_case": "Debugging agent pipelines"
+  },
+  {
+    "name": "TensorZero",
+    "description": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Rust",
+      "Python"
+    ],
+    "github_stars": 11724,
+    "url": "https://github.com/tensorzero/tensorzero",
+    "use_case": "Closing the feedback loop"
+  },
+  {
+    "name": "Kedro",
+    "description": "Applies software engineering conventions to data science: modular pipelines, versioned datasets and a project layout.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 10952,
+    "url": "https://github.com/kedro-org/kedro",
+    "use_case": "Structuring an ML project"
+  },
+  {
+    "name": "Label Studio",
+    "description": "Labelling for text, image, audio and video with model-assisted pre-labelling, which is where most training data comes from.",
+    "category": "MLOps",
+    "tech_stack": [
+      "TypeScript",
+      "Python"
+    ],
+    "github_stars": 28058,
+    "url": "https://github.com/HumanSignal/label-studio",
+    "use_case": "Annotating training data"
+  },
+  {
+    "name": "Airbyte",
+    "description": "Several hundred connectors for moving data into a warehouse or lake, and the ingestion half of most retrieval pipelines.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Java"
+    ],
+    "github_stars": 21891,
+    "url": "https://github.com/airbytehq/airbyte",
+    "use_case": "Moving data into a pipeline"
+  },
+  {
+    "name": "Automa",
+    "description": "Browser automation built from visual blocks, so a repetitive web task becomes a saved workflow rather than a script.",
+    "category": "Automation",
+    "tech_stack": [
+      "Vue",
+      "JavaScript"
+    ],
+    "github_stars": 21564,
+    "url": "https://github.com/AutomaApp/automa",
+    "use_case": "Recording a browser workflow"
+  },
+  {
+    "name": "Maxun",
+    "description": "Turns a website into an API by recording what to click and extract, then re-running it on a schedule.",
+    "category": "Automation",
+    "tech_stack": [
+      "TypeScript"
+    ],
+    "github_stars": 17134,
+    "url": "https://github.com/getmaxun/maxun",
+    "use_case": "Scraping without code"
+  },
+  {
+    "name": "Page Agent",
+    "description": "Alibaba's agent for driving a live web page from a natural-language instruction, running inside the browser itself.",
+    "category": "Automation",
+    "tech_stack": [
+      "TypeScript"
+    ],
+    "github_stars": 28625,
+    "url": "https://github.com/alibaba/page-agent",
+    "use_case": "Controlling a web page"
+  },
+  {
+    "name": "Easy Dataset",
+    "description": "Builds fine-tuning datasets from documents, handling the chunking and question generation that make a usable training set.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "JavaScript",
+      "Next.js"
+    ],
+    "github_stars": 14788,
+    "url": "https://github.com/ConardLi/easy-dataset",
+    "use_case": "Preparing training data"
+  },
+  {
+    "name": "Stable-Baselines3",
+    "description": "Reliable PyTorch implementations of the standard reinforcement learning algorithms, and the usual baseline to beat.",
+    "category": "Robotics",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 13689,
+    "url": "https://github.com/DLR-RM/stable-baselines3",
+    "use_case": "Reinforcement learning baselines"
+  },
+  {
+    "name": "Onyx",
+    "description": "Connects to a team's documents and chat history and answers questions from them with citations, self-hosted end to end.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 31594,
+    "url": "https://github.com/onyx-dot-app/onyx",
+    "use_case": "Answering from company docs"
+  },
+  {
+    "name": "Gradio",
+    "description": "Wraps a model in a shareable web interface from a few lines of Python, which is how most demos and evaluations get built.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "Svelte"
+    ],
+    "github_stars": 43364,
+    "url": "https://github.com/gradio-app/gradio",
+    "use_case": "Demoing a model"
+  },
+  {
+    "name": "Taipy",
+    "description": "Builds data and AI applications in pure Python, pairing a front end with a pipeline orchestrator in one framework.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 19428,
+    "url": "https://github.com/Avaiga/taipy",
+    "use_case": "Building a data application"
+  },
+  {
+    "name": "txtai",
+    "description": "An embeddings database that combines vector search, graph relationships and SQL filtering behind one query interface.",
+    "category": "Research",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 12888,
+    "url": "https://github.com/neuml/txtai",
+    "use_case": "Embeddings-backed search"
+  },
+  {
+    "name": "LEANN",
+    "description": "A vector index that stores a fraction of the usual footprint by recomputing embeddings on demand, for indexing at laptop scale.",
+    "category": "Research",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 12785,
+    "url": "https://github.com/StarTrail-org/LEANN",
+    "use_case": "Low-storage vector search"
+  },
+  {
+    "name": "LangChain4j",
+    "description": "Chains, tools and memory for the JVM, giving Java services the agent building blocks Python has had for longer.",
+    "category": "Framework",
+    "tech_stack": [
+      "Java"
+    ],
+    "github_stars": 12869,
+    "url": "https://github.com/langchain4j/langchain4j",
+    "use_case": "Building agents in Java"
+  },
+  {
+    "name": "Amplication",
+    "description": "Generates production backend services from a data model \u2014 resources, APIs, auth and tests \u2014 rather than snippets.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "github_stars": 16013,
+    "url": "https://github.com/amplication/amplication",
+    "use_case": "Scaffolding a backend"
+  },
+  {
+    "name": "Vosk",
+    "description": "Offline speech recognition in twenty languages with models small enough for a phone or a Raspberry Pi.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "Kaldi"
+    ],
+    "github_stars": 15056,
+    "url": "https://github.com/alphacep/vosk-api",
+    "use_case": "Offline transcription"
+  },
+  {
+    "name": "sherpa-onnx",
+    "description": "On-device speech recognition, synthesis and speaker identification through ONNX Runtime, with no network call.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "C++",
+      "Python"
+    ],
+    "github_stars": 14180,
+    "url": "https://github.com/k2-fsa/sherpa-onnx",
+    "use_case": "On-device speech"
+  },
+  {
+    "name": "VoxCPM",
+    "description": "Tokeniser-free speech synthesis that clones a voice from a short sample and keeps prosody natural across long passages.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 35660,
+    "url": "https://github.com/OpenBMB/VoxCPM",
+    "use_case": "Natural speech synthesis"
   }
 ]
