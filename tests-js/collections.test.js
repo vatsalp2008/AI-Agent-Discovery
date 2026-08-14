@@ -280,3 +280,37 @@ describe('names that collide with Object prototype members', () => {
         expect(C.agentsIn('toString')).toEqual(['Aider']);
     });
 });
+
+describe('exporting one collection', () => {
+    it('carries only that collection', () => {
+        Collections.create('Keep');
+        Collections.create('Other');
+        Collections.add('Keep', 'Aider');
+        Collections.add('Other', 'Cursor');
+
+        const payload = JSON.parse(Collections.exportOne('Keep'));
+        expect(Object.keys(payload.collections)).toEqual(['Keep']);
+        expect(payload.collections.Keep).toEqual(['Aider']);
+    });
+
+    it('uses the same kind, so it imports back', () => {
+        /** Sharing one shortlist should merge on the other side rather than
+         *  being refused as a different format. */
+        Collections.create('Shared');
+        Collections.add('Shared', 'Aider');
+        const payload = Collections.exportOne('Shared');
+
+        Collections.clear();
+        expect(Collections.importAll(payload)).toMatchObject({ ok: true, added: 1 });
+        expect(Collections.agentsIn('Shared')).toEqual(['Aider']);
+    });
+
+    it('returns null for a collection that is not there', () => {
+        expect(Collections.exportOne('Missing')).toBeNull();
+    });
+
+    it('exports an empty collection as an empty list', () => {
+        Collections.create('Empty');
+        expect(JSON.parse(Collections.exportOne('Empty')).collections.Empty).toEqual([]);
+    });
+});

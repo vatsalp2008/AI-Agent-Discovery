@@ -206,3 +206,42 @@ describe('a successful action', () => {
         expect(region.children).toHaveLength(0);
     });
 });
+
+describe('exporting one collection from its card', () => {
+    it('offers an export control per collection', async () => {
+        await boot();
+        createVia('Coding');
+
+        const card = document.querySelector('.collection-card');
+        expect(card.querySelector('.collection-export')).not.toBeNull();
+    });
+
+    it('is not matched by a selector meaning delete', async () => {
+        /** It sits beside Delete and is styled like it; a test clicking "the
+         *  delete button" must not get this. */
+        await boot();
+        createVia('Coding');
+
+        expect([...document.querySelectorAll('.collection-delete')]
+            .map(b => b.textContent)).toEqual(['Delete']);
+    });
+
+    it('names the collection in its accessible label', async () => {
+        await boot();
+        createVia('Coding');
+
+        expect(document.querySelector('.collection-export').getAttribute('aria-label'))
+            .toContain('Coding');
+    });
+
+    it('downloads and says so', async () => {
+        await boot();
+        createVia('Coding');
+
+        globalThis.URL.createObjectURL = () => 'blob:x';
+        globalThis.URL.revokeObjectURL = () => {};
+        document.querySelector('.collection-export').click();
+
+        expect(document.getElementById('collectionsResult').textContent).toContain('Exported Coding');
+    });
+});
