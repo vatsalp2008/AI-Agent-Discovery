@@ -252,18 +252,24 @@ class VectorStore:
             return found
 
         if wanted:
-            # Scan the whole index in one pass rather than over-fetching and
-            # widening on a short result. Correctness first: the largest
-            # category is a fraction of the catalogue, so a filtered search
-            # nearly always came up short, and getting that wrong reported an
-            # empty category for one with members.
+            members = self._category_size(wanted)
+            if members == 0:
+                # No indexed agent has this category, so no amount of
+                # searching will find one. Skip the embedding entirely.
+                self._cache_put(cache_key, [])
+                return []
+
+            # One pass over the whole index. Sizing the scan from the
+            # category's share was tried and measured worse: the ranking
+            # clusters rather than spreading evenly, so the estimate came up
+            # short and paid for a full rescan on top of it — 39.3ms against
+            # 20.3ms at 10,000 agents. Two FAISS queries cost more than one
+            # large one.
             #
-            # It is also cheaper, though only on a cold embedding cache.
-            # Measured at 203 agents: two-phase 23.9ms vs 11.7ms for one
-            # pass, because the second query re-embeds the text. With the
-            # cache warm — the usual case — that second embed is a hit and
-            # the two are indistinguishable (12.7ms vs 12.9ms). Returning
-            # more rows from an index this size costs nothing measurable.
+            # The cost is real but modest, and it is the price of not
+            # reporting an empty category for one with members: measured
+            # against an unfiltered search, +1.6ms at 2,000 agents and
+            # +7.4ms at 10,000. The catalogue is 203.
             agents = fetch(total or limit * self.CATEGORY_OVERFETCH)
         else:
             agents = fetch(limit)
@@ -489,6 +495,13 @@ class VectorStore:
         ]
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
+
+    def _category_size(self, wanted) -> int:
+        """How many indexed agents are in `wanted` (already casefolded)."""
+        for category in self.get_categories():
+            if (category["name"] or "").casefold() == wanted:
+                return category["count"]
+        return 0
 
     def _indexed_count(self) -> int:
         """How many documents the index holds, or 0 if it cannot be read."""

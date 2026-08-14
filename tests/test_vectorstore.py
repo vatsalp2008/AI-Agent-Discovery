@@ -93,6 +93,25 @@ def test_unknown_category_returns_nothing(store):
     assert store.search("agent", category="Nonexistent") == []
 
 
+def test_an_unknown_category_costs_no_embedding(store):
+    """No indexed agent has it, so no amount of searching will find one.
+    Embedding the query first would be ~91% of a search spent proving it."""
+    store.clear_cache()
+    before = store.vector_store.query_count
+
+    assert store.search("agent", category="Nonexistent") == []
+    assert store.vector_store.query_count == before, "it searched anyway"
+
+
+def test_a_known_category_still_searches(store):
+    """The early exit must not swallow a category that does have members."""
+    store.clear_cache()
+    before = store.vector_store.query_count
+
+    assert store.search("agent", category="Code Generation")
+    assert store.vector_store.query_count > before
+
+
 def test_search_never_exceeds_the_limit(store):
     assert len(store.search("agent", limit=1, category="Code Generation")) == 1
 
