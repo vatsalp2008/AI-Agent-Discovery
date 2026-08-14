@@ -107,3 +107,31 @@ def test_no_script_is_included_twice(real_app, path):
 
     duplicated = {s for s in scripts if scripts.count(s) > 1}
     assert not duplicated, f"{path} loads {sorted(duplicated)} more than once"
+
+
+def test_the_readme_lists_every_page(real_app):
+    """The Pages table is how someone finds a feature exists at all.
+
+    A page added without a row is invisible; a row left behind after a route
+    is removed sends people to a 404. Both are the kind of drift nobody
+    notices, because the table looks authoritative either way.
+    """
+    import re
+
+    readme = (config.REPO_ROOT / "README.md").read_text()
+    # A row may show an example query string — `/compare?names=A,B` — which
+    # still documents the route.
+    documented = {path.split("?")[0]
+                  for path in re.findall(r"^\| `(/[^`]*)`", readme, flags=re.M)}
+
+    # Routes a reader would navigate to: no API, no static, no redirects.
+    real = set()
+    for rule in real_app.url_map.iter_rules():
+        path = str(rule)
+        if path.startswith("/api") or path.startswith("/static") or path == "/favicon.ico":
+            continue
+        # Parameterised routes are documented with their placeholder name.
+        real.add(re.sub(r"<[^>]*?([\w]+)>", r"<\1>", path))
+
+    missing = real - documented
+    assert not missing, f"pages the README does not list: {sorted(missing)}"
