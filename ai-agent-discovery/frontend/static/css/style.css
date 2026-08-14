@@ -841,6 +841,10 @@ nav a:focus-visible,
     outline-offset: 2px;
 }
 
+.compare-notice {
+    margin: 0 0 1rem;
+}
+
 /* Comparison table */
 
 /* Past a few agents the columns cannot all fit, so the table scrolls and the
@@ -848,7 +852,17 @@ nav a:focus-visible,
    with nothing saying what they are. */
 .compare-scroll {
     overflow-x: auto;
+    /* The rounding and the clip live here, not on the table: `overflow:
+       hidden` on the table makes *it* the sticky cells' scroll container, so
+       the pinned labels never pin — which was the whole point. */
+    border: 1px solid var(--border-color);
     border-radius: 12px;
+}
+
+.compare-scroll .compare-table {
+    border: none;
+    border-radius: 0;
+    overflow: visible;
 }
 
 .compare-scroll:focus-visible {
@@ -869,8 +883,11 @@ nav a:focus-visible,
 }
 
 .compare-scroll .compare-table thead th:first-child {
-    /* thead cells have their own background; keep it on the pinned one. */
-    background: var(--bg-color);
+    /* Match the other header cells exactly: --bg-color reads as a darker
+       notch against the tinted header row. */
+    background: var(--card-bg);
+    background-image: linear-gradient(rgba(148, 163, 184, 0.08),
+                                      rgba(148, 163, 184, 0.08));
 }
 
 .compare-scroll .compare-table td,

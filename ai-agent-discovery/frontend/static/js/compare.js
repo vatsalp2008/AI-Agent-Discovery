@@ -39,6 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Say something *above* the comparison without destroying it.
+     *
+     * UI.showMessage replaces the container's contents, which is right when
+     * there is nothing to show and wrong here: telling someone to remove an
+     * agent while deleting the table and all its remove controls leaves them
+     * with the instruction and no way to follow it.
+     */
+    function notice(text) {
+        area.querySelectorAll('.compare-notice').forEach(existing => existing.remove());
+
+        const element = UI.messageElement(text, { error: true });
+        element.classList.add('compare-notice');
+        area.prepend(element);
+    }
+
+    /**
      * Wrap the table so it can scroll sideways past a few agents.
      *
      * A region that scrolls must be reachable by keyboard, so it takes
@@ -200,8 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const current = selected();
             if (current.some(n => n.toLowerCase() === name.toLowerCase())) return;
             if (current.length >= MAX_COMPARE) {
-                UI.showMessage(area, `You can compare up to ${MAX_COMPARE} agents at once. `
-                    + 'Remove one to add another.', { error: true });
+                notice(`You can compare up to ${MAX_COMPARE} agents at once. `
+                    + 'Remove one to add another.');
                 return;
             }
             setSelected([...current, name]);

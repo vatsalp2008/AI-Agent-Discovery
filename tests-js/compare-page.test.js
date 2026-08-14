@@ -218,15 +218,37 @@ describe('the picker stops at the limit', () => {
         }));
     }
 
-    it('refuses a ninth and says why', async () => {
-        await bootFull();
-
+    async function pickExtra() {
         const picker = document.getElementById('comparePick');
         picker.value = 'Extra';
         picker.dispatchEvent(new window.Event('change'));
         await flush();
+    }
+
+    it('refuses a ninth and says why', async () => {
+        await bootFull();
+        await pickExtra();
 
         expect(document.getElementById('compareArea').textContent).toContain('up to 8 agents');
+    });
+
+    it('keeps the comparison it is telling you to edit', async () => {
+        /** The message said "remove one to add another" while replacing the
+         *  table and every remove control with itself. The first version of
+         *  this test only checked the message text, so it passed. */
+        await bootFull();
+        await pickExtra();
+
+        expect(document.querySelectorAll('.compare-table')).toHaveLength(1);
+        expect(document.querySelectorAll('.compare-remove')).toHaveLength(8);
+    });
+
+    it('does not stack a notice per attempt', async () => {
+        await bootFull();
+        await pickExtra();
+        await pickExtra();
+
+        expect(document.querySelectorAll('.compare-notice')).toHaveLength(1);
     });
 
     it('does not put the ninth in the URL', async () => {
