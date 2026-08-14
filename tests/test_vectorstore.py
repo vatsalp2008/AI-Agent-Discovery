@@ -380,3 +380,16 @@ class TestRebuildingWithNoAgents:
         store.add_agents([])
         assert store.vector_store is before
         assert len(store.get_all_agents()) == 3
+
+
+def test_an_unreadable_catalogue_does_not_empty_every_filtered_search(store, monkeypatch):
+    """The fast path skips searching when no agent has the category. But
+    get_categories() returns [] when the docstore *and* agents.json are both
+    unreadable, and "I cannot tell" is not "the category is empty" — that
+    would blank and cache every filtered search against a healthy index.
+    """
+    store.clear_cache()
+    monkeypatch.setattr(store, "get_categories", lambda: [])
+
+    assert store.search("agent", limit=3, category="Code Generation"), \
+        "a filtered search went empty because the category list was unreadable"

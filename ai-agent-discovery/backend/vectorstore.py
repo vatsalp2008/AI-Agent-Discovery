@@ -252,10 +252,17 @@ class VectorStore:
             return found
 
         if wanted:
+            known = self.get_categories()
             members = self._category_size(wanted)
-            if members == 0:
+            if known and members == 0:
                 # No indexed agent has this category, so no amount of
                 # searching will find one. Skip the embedding entirely.
+                #
+                # Guarded on `known`: get_categories() walks the docstore and
+                # falls back to agents.json, returning [] when neither can be
+                # read. Treating that as "the category is empty" would blank
+                # — and cache — every filtered search against a healthy
+                # index, which is the same trap as clamping k to a zero count.
                 self._cache_put(cache_key, [])
                 return []
 
