@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const picker = document.getElementById('comparePick');
     const clearButton = document.getElementById('compareClear');
 
+    // Mirrors COMPARE_MAX_AGENTS. Without it the picker happily builds a
+    // selection the API then refuses, so the limit arrives as a failed
+    // request rather than as a control that stops.
+    const MAX_COMPARE = 8;
+
     const ROWS = [
         { label: 'Category', get: m => m.category || 'Uncategorized' },
         { label: 'GitHub stars', get: m => AgentCard.formatStars(m.stars) },
@@ -194,6 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const current = selected();
             if (current.some(n => n.toLowerCase() === name.toLowerCase())) return;
+            if (current.length >= MAX_COMPARE) {
+                UI.showMessage(area, `You can compare up to ${MAX_COMPARE} agents at once. `
+                    + 'Remove one to add another.', { error: true });
+                return;
+            }
             setSelected([...current, name]);
         });
     }

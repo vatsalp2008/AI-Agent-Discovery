@@ -696,8 +696,10 @@ def test_the_client_compare_cap_matches_the_server(client):
 
     import config
 
-    source = (config.PACKAGE_DIR / "frontend" / "static" / "js" / "collections.js").read_text()
-    declared = re.search(r"const MAX_COMPARE = (\d+);", source)
+    static_js = config.PACKAGE_DIR / "frontend" / "static" / "js"
+    for name in ("collections.js", "compare.js"):
+        source = (static_js / name).read_text()
+        declared = re.search(r"const MAX_COMPARE = (\d+);", source)
 
-    assert declared, "collections.js no longer declares MAX_COMPARE"
-    assert int(declared.group(1)) <= config.COMPARE_MAX_AGENTS
+        assert declared, f"{name} no longer declares MAX_COMPARE"
+        assert int(declared.group(1)) <= config.COMPARE_MAX_AGENTS, name

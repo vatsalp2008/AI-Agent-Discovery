@@ -204,3 +204,54 @@ describe('comparing more than a few agents', () => {
         expect(document.querySelectorAll('.compare-remove')).toHaveLength(8);
     });
 });
+
+describe('the picker stops at the limit', () => {
+    function agents(n) {
+        return Array.from({ length: n }, (_, i) => agent(`Agent${i}`));
+    }
+
+    async function bootFull() {
+        const names = agents(8).map(a => a.name).join(',');
+        return boot(`/compare?names=${names}`, routes({
+            '/api/agents?': { body: { agents: [...agents(8), agent('Extra')], metadata: {} } },
+            '/api/compare': { body: { agents: agents(8), metadata: { count: 8, missing: [] } } },
+        }));
+    }
+
+    it('refuses a ninth and says why', async () => {
+        await bootFull();
+
+        const picker = document.getElementById('comparePick');
+        picker.value = 'Extra';
+        picker.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(document.getElementById('compareArea').textContent).toContain('up to 8 agents');
+    });
+
+    it('does not put the ninth in the URL', async () => {
+        /** The API would refuse it, so the limit would arrive as a failed
+         *  request rather than as a control that stops. */
+        await bootFull();
+
+        const picker = document.getElementById('comparePick');
+        picker.value = 'Extra';
+        picker.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(decodeURIComponent(window.location.search)).not.toContain('Extra');
+    });
+
+    it('still accepts one below the limit', async () => {
+        await boot('/compare?names=Aider', routes({
+            '/api/agents?': { body: { agents: [agent('Aider'), agent('Cursor')], metadata: {} } },
+        }));
+
+        const picker = document.getElementById('comparePick');
+        picker.value = 'Cursor';
+        picker.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(decodeURIComponent(window.location.search)).toContain('Cursor');
+    });
+});
