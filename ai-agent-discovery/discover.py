@@ -361,6 +361,7 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
 
     found, skipped = [], {"known": 0, "unusable": 0}
     searched, failed = 0, []
+    limited = None
     for index, topic in enumerate(topics):
         if index and pause:
             # Search is limited far more tightly than the rest of the API.
@@ -377,6 +378,7 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
             # next run spends that budget again to learn the same thing.
             logger.warning("%s Stopping with %d candidate(s) already found.", e, len(found))
             failed.extend(topics[index:])
+            limited = e
             break
         except SearchFailed as e:
             logger.warning("search %r failed: %s", query, e)
@@ -400,12 +402,21 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
                 repos.add(claimed.lower())
             names.add(record["name"].strip().lower())
 
+    if limited and not searched:
+        # Nothing was looked at and the reason is actionable, so let it
+        # reach the caller intact — "none of the topics could be searched"
+        # would drop the one instruction that fixes it.
+        raise limited
     if failed and not searched:
         # Reporting "nothing new" here would be a lie that reads as success,
         # and on a schedule it would look like the catalogue is current when
         # in fact nothing has been checked for weeks.
         raise SearchFailed(
             f"none of the {len(failed)} topic(s) could be searched: {', '.join(failed)}")
+    if limited:
+        logger.warning(
+            "Searched %d of %d topic(s) before the limit. %s",
+            searched, len(topics), limited)
     if failed:
         logger.warning("%d of %d topic(s) could not be searched: %s",
                        len(failed), len(topics), ", ".join(failed))

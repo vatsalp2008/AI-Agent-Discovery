@@ -393,3 +393,27 @@ class TestRateLimits:
         found, _ = discover.discover(["ai-agents", "rag", "llmops"], min_stars=0, pause=0)
 
         assert [r["name"] for r in found] == ["Found"]
+
+    def test_being_limited_before_anything_was_searched_says_why(self, monkeypatch, tmp_path):
+        """The fix is "set GITHUB_TOKEN". Reporting it as a generic search
+        failure drops the one instruction that helps."""
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "a.json")
+        (tmp_path / "a.json").write_text("[]")
+        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "q.jsonl")
+        monkeypatch.setattr(discover, "search_repos",
+                            lambda query, **kw: (_ for _ in ()).throw(
+                                discover.RateLimited("GitHub rate limit reached; set GITHUB_TOKEN.")))
+
+        with pytest.raises(discover.RateLimited, match="GITHUB_TOKEN"):
+            discover.discover(["ai-agents", "rag"], min_stars=0, pause=0)
+
+    def test_the_cli_reports_a_rate_limit_distinctly(self, monkeypatch, tmp_path, caplog):
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "a.json")
+        (tmp_path / "a.json").write_text("[]")
+        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "q.jsonl")
+        monkeypatch.setattr(discover, "search_repos",
+                            lambda query, **kw: (_ for _ in ()).throw(
+                                discover.RateLimited("GitHub rate limit reached; set GITHUB_TOKEN.")))
+
+        assert discover.main(["--dry-run", "--topic", "rag"]) == 1
+        assert "GITHUB_TOKEN" in caplog.text
