@@ -51,6 +51,10 @@ DEFAULT_TOPICS = [
     "vector-database", "prompt-engineering", "llm-inference", "fine-tuning",
     "text-to-speech", "speech-recognition", "robotics", "ros2",
     "ai-safety", "llm-evaluation", "code-generation",
+    # Automation, Customer Service and Data Analysis were mapped but
+    # unreachable: no default topic led to any of them, so a scheduled run
+    # could never propose one — and those are the thinnest categories.
+    "browser-automation", "conversational-ai", "data-analysis",
 ]
 
 # Topic to category. First match wins, so ordering is the decision.

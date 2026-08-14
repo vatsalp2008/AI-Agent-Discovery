@@ -452,3 +452,17 @@ class TestRateLimits:
 
         assert discover.main(["--dry-run", "--topic", "rag"]) == 1
         assert "GITHUB_TOKEN" in caplog.text
+
+
+def test_every_mapped_category_is_reachable_by_a_default_topic():
+    """A category in TOPIC_CATEGORIES that no default topic leads to can
+    never be proposed by a scheduled run. Three were in that state —
+    Automation, Customer Service and Data Analysis — which are the thinnest
+    categories in the catalogue, so the gap was costing exactly where it hurt.
+    """
+    searched = set(discover.DEFAULT_TOPICS)
+    mapped = {category for _, category in discover.TOPIC_CATEGORIES}
+    reachable = {category for topic, category in discover.TOPIC_CATEGORIES
+                 if topic in searched}
+
+    assert mapped == reachable, f"unreachable by any default topic: {sorted(mapped - reachable)}"
