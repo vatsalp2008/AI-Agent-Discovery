@@ -15,6 +15,7 @@ import pytest
 
 import config
 
+
 def _page_paths(app):
     """Every page route the app declares, taken from the url_map.
 
