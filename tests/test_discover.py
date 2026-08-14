@@ -134,6 +134,41 @@ class TestRejectingNonTools:
     def test_the_plural_is_matched_too(self, name, description):
         assert not discover.looks_like_a_tool(repo(name=name, description=description))
 
+    def test_no_catalogue_entry_would_be_rejected(self):
+        """The catalogue is the definition of "this is a tool" — a
+        maintainer accepted every entry. Any phrase that rejects one is too
+        broad, and this is how three were caught: "collection of" rejected
+        MCP Servers, "paper" rejected PaperQA, "boilerplate" rejected Jina
+        Reader. All three read as obviously correct in a list.
+        """
+        catalogue = json.loads(Path(config.AGENTS_JSON).read_text())
+
+        rejected = [r["name"] for r in catalogue
+                    if not discover.looks_like_a_tool(
+                        {"name": r["name"], "description": r["description"]})]
+        assert not rejected, f"the crawler would refuse these real agents: {rejected}"
+
+    @pytest.mark.parametrize("name,description", [
+        ("system_prompts_leaks", "Extracted system prompts from Anthropic and OpenAI, updated regularly."),
+        ("claude-skills", "345 Claude Code skills and agent skills, with 70+ custom commands."),
+        ("agents", "Multi-harness agentic plugin marketplace for Claude Code, Cursor and Codex."),
+        ("research-skills", "Academic Research Skills for Claude Code: research, write, review."),
+        ("my-dotfiles", "My dotfiles and configs for every coding agent I use daily."),
+    ])
+    def test_configuration_for_other_agents_is_not_an_agent(self, name, description):
+        """These rank highly because they are genuinely popular, and they are
+        not tools — the catalogue would list someone's Claude Code settings
+        next to Ollama."""
+        assert not discover.looks_like_a_tool(repo(name=name, description=description))
+
+    @pytest.mark.parametrize("name,description", [
+        ("prompt-optimizer", "Rewrites and scores prompts against a model, making prompt tuning measurable."),
+        ("skill-library", "A reusable skill library for robot manipulation, trained from demonstrations."),
+        ("paper-qa", "Answers questions over scientific papers with citations, built for accuracy."),
+    ])
+    def test_a_tool_that_merely_mentions_those_words_survives(self, name, description):
+        assert discover.looks_like_a_tool(repo(name=name, description=description))
+
     def test_an_actual_tool_passes(self):
         assert discover.looks_like_a_tool(repo())
 

@@ -156,20 +156,45 @@ MIN_DESCRIPTION = submissions.MIN_DESCRIPTION
 # "awesome-llm-apps" outranks every actual tool by an order of magnitude.
 # They are not agents, so no reviewer would ever accept one; filtering here
 # is the difference between a useful queue and a page of noise to dismiss.
+# Every phrase here is checked against the catalogue by
+# test_no_catalogue_entry_would_be_rejected: an entry a maintainer accepted
+# is a tool by definition, so a phrase that rejects one is too broad.
+# "collection of" rejected MCP Servers ("the reference collection of Model
+# Context Protocol servers"), "paper" rejected PaperQA ("scientific papers"),
+# and "boilerplate" rejected Jina Reader ("stripping navigation and
+# boilerplate"). All three were dropped for narrower forms.
 NOT_A_TOOL = (
-    "awesome", "curated list", "curated collection", "collection of",
+    "awesome", "curated list", "curated collection", "collection of awesome",
+    "collection of resources", "collection of links",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
     "course", "lecture", "learning path", "study guide", "interview",
-    "paper", "paper list", "reading list", "resources for", "book",
-    "example", "cookbook", "demo project", "sample code", "boilerplate",
+    "paper list", "reading list", "resources for", "book",
+    "example", "cookbook", "demo project", "sample code",
     "from scratch in", "build your own",
+)
+
+# Configuration for *other* agents, rather than software in its own right:
+# prompt dumps, skill packs, plugin marketplaces. These rank highly because
+# they are genuinely popular, and they are not agents — the catalogue would
+# be listing someone's Claude Code settings next to Ollama.
+#
+# Phrased narrowly on purpose. "prompt" alone would reject Prompt Optimizer,
+# which rewrites and scores prompts and is a real tool; "skills" alone would
+# reject a robotics skill library.
+CONFIG_COLLECTION = (
+    "system prompt", "leaked prompt", "extracted prompt", "prompt collection",
+    "prompt library", "agent skill", "skills for", "skill pack",
+    "plugin marketplace", "marketplace for", "custom command", "slash command",
+    "cursor rule", "config for", "configs for", "dotfile", "starter kit",
+    "template repository", "rules for claude", "subagents for",
 )
 
 # Matched on word boundaries, with an optional plural. As plain substrings
 # these rejected real tools: "book" is inside "notebook" and "facebook",
 # "course" inside "discourse", "paper" inside "wallpaper".
 NOT_A_TOOL_PATTERN = re.compile(
-    r"\b(?:" + "|".join(re.escape(phrase) for phrase in NOT_A_TOOL) + r")s?\b")
+    r"\b(?:" + "|".join(re.escape(phrase)
+                        for phrase in NOT_A_TOOL + CONFIG_COLLECTION) + r")s?\b")
 
 # "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
 # tagged it — so the word alone cannot decide the category. A repo claiming
