@@ -654,3 +654,17 @@ def test_accent_text_meets_contrast_in_both_themes():
     # excludes border-color and background-color, which keep --accent-color.
     leaked = re.findall(r"(?<![-a-z])color: var\(--accent-color\)", css)
     assert not leaked, f"{len(leaked)} text colour(s) still use the fill accent"
+
+
+def test_every_doc_is_reachable_from_the_readme():
+    """A doc nobody links to is a doc nobody reads.
+
+    The README is the only entry point most people have, so moving a section
+    into docs/ only works if the pointer goes with it — and the pointer is
+    the easiest half to forget.
+    """
+    readme = (config.REPO_ROOT / "README.md").read_text()
+
+    unlinked = [path.name for path in sorted((config.REPO_ROOT / "docs").glob("*.md"))
+                if f"docs/{path.name}" not in readme]
+    assert not unlinked, f"docs the README never links to: {unlinked}"
