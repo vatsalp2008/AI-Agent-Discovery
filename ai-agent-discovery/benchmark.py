@@ -189,6 +189,12 @@ def measure_at_scale(target, runs=15):
             "load_index": {"runs": 1, "median_ms": round(load, 3)},
             "search_uncached": summarize(timed(
                 lambda i: store.search(f"scale probe {i}", limit=10), runs)),
+            # A category-filtered search scans the whole index, so this is
+            # the one hot path whose cost grows with the catalogue. Measured
+            # here rather than argued about.
+            "search_filtered": summarize(timed(
+                lambda i: store.search(f"scale probe {i}", limit=10,
+                                       category=agents[0].category), runs)),
             "get_all_agents": summarize(timed(lambda i: store.get_all_agents(), runs)),
             "get_agent": summarize(timed(lambda i: store.get_agent(agents[-1].name), runs)),
             "get_stats": summarize(timed(lambda i: store.get_stats(), runs)),
