@@ -113,9 +113,13 @@ describe('comparing', () => {
     });
 
     it('caps at what the compare API accepts', () => {
+        /** Read from the module rather than hardcoded: a link the API
+         *  refuses on arrival is worse than one that takes the first few. */
         C.create('Big');
-        ['a', 'b', 'c', 'd', 'e', 'f'].forEach(n => C.add('Big', n));
-        expect(decodeURIComponent(C.compareUrl('Big')).split(',')).toHaveLength(4);
+        for (let i = 0; i < C.MAX_COMPARE + 3; i += 1) C.add('Big', `agent${i}`);
+
+        expect(decodeURIComponent(C.compareUrl('Big')).split(','))
+            .toHaveLength(C.MAX_COMPARE);
     });
 });
 

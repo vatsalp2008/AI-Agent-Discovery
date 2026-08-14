@@ -686,3 +686,18 @@ class TestNameMatchAndConfidence:
     def test_a_nonsense_query_is_still_flagged(self, weak_store, client):
         body = client.post("/api/search", json={"query": "banana bread"}).get_json()
         assert body["metadata"]["confident"] is False
+
+
+def test_the_client_compare_cap_matches_the_server(client):
+    """collections.js builds /compare links from its own constant. If it
+    drifts above COMPARE_MAX_AGENTS the link is refused on arrival, which
+    reads as a broken collection rather than a limit."""
+    import re
+
+    import config
+
+    source = (config.PACKAGE_DIR / "frontend" / "static" / "js" / "collections.js").read_text()
+    declared = re.search(r"const MAX_COMPARE = (\d+);", source)
+
+    assert declared, "collections.js no longer declares MAX_COMPARE"
+    assert int(declared.group(1)) <= config.COMPARE_MAX_AGENTS
