@@ -305,6 +305,17 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("analyse financial market text", {"FinGPT"}),
     ("typo tolerant search engine", {"Meilisearch"}),
     ("compare thousands of training runs", {"Aim", "Weights & Biases", "ClearML", "MLflow"}),
+    # Added at 223, filling the thin categories again.
+    ("label training data for a model", {"Label Studio", "Argilla"}),
+    ("offline speech recognition on a small device", {"Vosk", "sherpa-onnx", "Faster Whisper"}),
+    ("reinforcement learning baselines", {"Stable-Baselines3", "Gymnasium"}),
+    ("build a web ui for a model", {"Gradio", "Taipy", "Open WebUI"}),
+    ("agent framework for java", {"LangChain4j"}),
+    ("answer questions from our company documents", {"Onyx", "AnythingLLM", "Quivr", "RAGFlow"}),
+    ("record a repetitive browser task", {"Automa", "Maxun", "Browser Use", "OpenAdapt"}),
+    ("structure a data science project", {"Kedro", "Metaflow", "ZenML"}),
+    ("build a fine tuning dataset from documents", {"Easy Dataset", "Argilla"}),
+    ("embeddings database with sql filtering", {"txtai", "LEANN", "Chroma"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
