@@ -54,6 +54,7 @@ noise:
 | Skipped | Why |
 | --- | --- |
 | Reading lists, guides, courses | `awesome-llm-apps` outranks every real tool by an order of magnitude, and no reviewer would ever accept one |
+| Prompt dumps, skill packs, plugin marketplaces | Configuration *for* other agents, not software in its own right — the catalogue would list somebody's Claude Code settings next to Ollama |
 | Taglines under 60 characters | The description is what gets embedded, so it has to say what the tool *does* |
 | Anything it cannot categorise | A wrong category teaches the catalogue's own structure something false, so no proposal is better |
 | RPA tools tagged `robotics` | EasySpider and Wechaty both are, and neither is robotics |
@@ -76,6 +77,24 @@ If it is rate limited anyway, it **stops and keeps what it has** rather than
 failing the run. The searches already made cost real budget, and discarding
 their results means the next run spends that budget again to learn the same
 thing.
+
+### Why the refusal phrases are narrow
+
+Every phrase is checked against the catalogue itself: a maintainer accepted
+each entry, so an entry is a tool by definition, and a phrase that rejects one
+is too broad. Three were caught that way and read as obviously correct in a
+list:
+
+| Phrase | Rejected | Because |
+| --- | --- | --- |
+| `collection of` | MCP Servers | "the reference **collection of** Model Context Protocol servers" |
+| `paper` | PaperQA | "questions over scientific **papers** with citations" |
+| `boilerplate` | Jina Reader | "stripping navigation and **boilerplate**" |
+
+All three were replaced with narrower forms. The same applies to the
+configuration filter: `prompt` alone would reject Prompt Optimizer, and
+`skills` alone would reject a robotics skill library, so it matches
+`system prompt`, `agent skill` and `plugin marketplace` instead.
 
 The one thing it will not do is report success having checked nothing. If every
 topic fails — no network, expired token, GitHub down — it exits non-zero and
