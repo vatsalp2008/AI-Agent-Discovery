@@ -15,7 +15,25 @@ import pytest
 
 import config
 
-PAGES = ["/", "/dashboard", "/compare", "/collections", "/admin", "/submit"]
+def _page_paths(app):
+    """Every page route the app declares, taken from the url_map.
+
+    A hardcoded list goes stale silently: /saved was added without being
+    added here, so the duplicate-script guard never rendered the one page it
+    was written for — and that page is the only one with its own
+    `{% block scripts %}`.
+    """
+    paths = []
+    for rule in app.url_map.iter_rules():
+        path = str(rule)
+        if path.startswith(("/api", "/static")) or "<" in path or path == "/favicon.ico":
+            continue
+        paths.append(path)
+    return sorted(paths)
+
+
+# Kept for the parametrised cases, which need the list at collection time.
+PAGES = ["/", "/dashboard", "/compare", "/collections", "/saved", "/admin", "/submit"]
 
 
 @pytest.fixture(scope="module")
@@ -90,6 +108,12 @@ def test_the_favicon_redirects_rather_than_404s(real_app):
     response = real_app.test_client().get("/favicon.ico")
     assert response.status_code == 301
     assert response.headers["Location"].endswith("favicon.svg")
+
+
+def test_the_page_list_matches_the_app(real_app):
+    """PAGES drives the parametrised guards below, so a page missing from it
+    is a page nothing checks."""
+    assert set(_page_paths(real_app)) == set(PAGES)
 
 
 @pytest.mark.parametrize("path", PAGES)
