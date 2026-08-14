@@ -64,6 +64,25 @@ const UI = (() => {
             showMessage(container, message, { error: Boolean(isError) });
     }
 
+    /**
+     * Offer `text` to the browser as a file download.
+     *
+     * Lived in export-results.js and collections-page.js in near-identical
+     * copies; the saved-searches page would have made three. The revoke is
+     * deferred because doing it immediately cancels the download in some
+     * browsers, which is the sort of detail worth having in one place.
+     */
+    function download(text, filename, mime = 'application/json') {
+        const url = URL.createObjectURL(new Blob([text], { type: mime }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
     /** Set `aria-busy` on each element that has the attribute. */
     function setBusy(busy, ...containers) {
         containers.forEach(container => {
@@ -73,7 +92,7 @@ const UI = (() => {
         });
     }
 
-    return { messageElement, showMessage, showError, setBusy, reporter };
+    return { messageElement, showMessage, showError, setBusy, reporter, download };
 })();
 
 if (typeof module !== 'undefined') module.exports = UI;

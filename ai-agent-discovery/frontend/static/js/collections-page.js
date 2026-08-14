@@ -110,15 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             try {
-                const blob = new Blob([Collections.exportAll()], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'agent-collections.json';
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                UI.download(Collections.exportAll(), 'agent-collections.json');
                 showStatus('Exported.');
             } catch (error) {
                 console.error(error);

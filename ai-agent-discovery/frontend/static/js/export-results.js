@@ -57,18 +57,7 @@ const ExportResults = (() => {
         return `${slug}.${extension}`;
     }
 
-    function download(text, name, mime) {
-        const blob = new Blob([text], { type: mime });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = name;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        // Revoking immediately can cancel the download in some browsers.
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
+    const download = (text, name, mime) => UI.download(text, name, mime);
 
     function asCsv(results, query) {
         download(toCsv(results), filename(query, 'csv'), 'text/csv;charset=utf-8');
