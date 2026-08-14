@@ -2016,8 +2016,8 @@
       "Python",
       "Taichi"
     ],
-    "github_stars": 29739,
-    "url": "https://github.com/Genesis-Embodied-AI/Genesis",
+    "github_stars": 29740,
+    "url": "https://github.com/Genesis-Embodied-AI/genesis-world",
     "use_case": "Fast physics simulation"
   },
   {
@@ -2139,8 +2139,8 @@
       "Java",
       "TypeScript"
     ],
-    "github_stars": 27945,
-    "url": "https://github.com/CodePhiliaX/Chat2DB",
+    "github_stars": 27954,
+    "url": "https://github.com/OtterMind/Chat2DB",
     "use_case": "Natural language SQL"
   },
   {
