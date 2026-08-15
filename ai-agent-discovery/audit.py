@@ -162,6 +162,50 @@ def audit(records, token=None, stale_months=DEFAULT_STALE_MONTHS, on_progress=No
     return findings, skipped
 
 
+# Only these translate into a status. "stack" and "moved" want a human to
+# decide what the entry should say instead, and "missing" might mean the
+# entry should go entirely — none of them is a flag to flip.
+STATUS_FROM = {"archived": "archived", "dormant": "dormant"}
+
+
+def statuses_for(findings):
+    """The status each flagged entry should carry, by name.
+
+    Archived beats dormant: an archived project is not merely quiet, and a
+    repository that is both should say the stronger thing.
+    """
+    wanted = {}
+    for finding in findings:
+        kinds = {issue["kind"] for issue in finding["issues"]}
+        for kind in ("archived", "dormant"):
+            if kind in kinds:
+                wanted[finding["name"]] = STATUS_FROM[kind]
+                break
+    return wanted
+
+
+def apply_statuses(records, wanted):
+    """Set `status` from `wanted`, clearing it on entries that recovered.
+
+    Returns the list of (name, before, after) that actually changed. A
+    project can come back — archived repositories get unarchived — so this
+    resets an entry the audit no longer flags rather than leaving a stale
+    warning on it forever.
+    """
+    changes = []
+    for record in records:
+        before = record.get("status", "active")
+        after = wanted.get(record.get("name"), "active")
+        if before == after:
+            continue
+        if after == "active":
+            record.pop("status", None)
+        else:
+            record["status"] = after
+        changes.append((record.get("name"), before, after))
+    return changes
+
+
 def format_finding(finding):
     lines = [f"  {finding['name']:<24} {finding['url']}"]
     lines += [f"      {issue['kind']}: {issue['detail']}" for issue in finding["issues"]]
@@ -176,6 +220,8 @@ def main(argv=None):
                         help="print findings as JSON")
     parser.add_argument("--fail-on-findings", action="store_true",
                         help="exit non-zero when anything needs attention")
+    parser.add_argument("--apply-status", action="store_true",
+                        help="write archived/dormant back into the catalogue")
     parser.add_argument("--token", default=os.getenv("GITHUB_TOKEN"),
                         help="GitHub token (or set GITHUB_TOKEN)")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -217,6 +263,26 @@ def main(argv=None):
     if skipped:
         logger.warning("Could not check %d of %d: %s", len(skipped), len(checkable),
                        ", ".join(name for name, _ in skipped[:5]))
+
+    if args.apply_status:
+        if skipped:
+            # An entry that could not be checked would look "not flagged" and
+            # get its status cleared, quietly removing a real warning.
+            logger.error("Refusing to write statuses: %d entr(y|ies) could not be "
+                         "checked, and clearing their status would lose a warning.",
+                         len(skipped))
+            return 1
+
+        changes = apply_statuses(records, statuses_for(findings))
+        if changes:
+            with open(config.AGENTS_JSON, "w") as f:
+                json.dump(records, f, indent=2)
+                f.write("\n")
+            print(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
+            for name, before, after in changes:
+                print(f"  {name:<24} {before} -> {after}")
+        else:
+            print("\nNo status changes.")
 
     return 1 if (findings and args.fail_on_findings) else 0
 

@@ -209,3 +209,61 @@ def _write(records):
     path.write_text(json.dumps(records))
     _TMP.append(path)
     return path
+
+
+class TestApplyingStatus:
+    def finding(self, name, *kinds):
+        return {"name": name, "url": "https://github.com/a/b",
+                "issues": [{"kind": k, "detail": ""} for k in kinds]}
+
+    def test_archived_beats_dormant(self):
+        """An archived project is not merely quiet; a repository that is both
+        should say the stronger thing."""
+        wanted = audit.statuses_for([self.finding("A", "dormant", "archived")])
+        assert wanted == {"A": "archived"}
+
+    def test_only_health_findings_become_a_status(self):
+        """A moved or mis-stacked entry wants a human to decide what it
+        should say instead — neither is a flag to flip."""
+        wanted = audit.statuses_for([self.finding("A", "moved", "stack")])
+        assert wanted == {}
+
+    def test_a_missing_repository_is_not_silently_downgraded(self):
+        """It might mean the entry should go entirely."""
+        assert audit.statuses_for([self.finding("A", "missing")]) == {}
+
+    def test_it_sets_the_status(self):
+        records = [entry(name="A")]
+        changes = audit.apply_statuses(records, {"A": "archived"})
+
+        assert records[0]["status"] == "archived"
+        assert changes == [("A", "active", "archived")]
+
+    def test_it_clears_a_status_that_no_longer_applies(self):
+        """Archived repositories get unarchived. Leaving the warning would
+        make the catalogue wrong in the other direction."""
+        records = [entry(name="A", status="archived")]
+        changes = audit.apply_statuses(records, {})
+
+        assert "status" not in records[0]
+        assert changes == [("A", "archived", "active")]
+
+    def test_an_unchanged_entry_is_left_alone(self):
+        records = [entry(name="A", status="archived")]
+        assert audit.apply_statuses(records, {"A": "archived"}) == []
+
+    def test_it_refuses_to_write_when_something_could_not_be_checked(self, monkeypatch):
+        """An unchecked entry looks "not flagged", so writing would clear a
+        real warning on a repository nobody actually looked at."""
+        def fake(repo, **kwargs):
+            if repo == "acme/down":
+                raise audit.Unavailable("HTTP 500")
+            return payload(full_name=repo, archived=True)
+
+        monkeypatch.setattr(audit, "fetch_repo", fake)
+        path = _write([entry(name="Down", url="https://github.com/acme/down"),
+                       entry(name="Bad", url="https://github.com/acme/bad")])
+        monkeypatch.setattr(config, "AGENTS_JSON", path)
+
+        assert audit.main(["--apply-status"]) == 1
+        assert "status" not in json.loads(path.read_text())[1]
