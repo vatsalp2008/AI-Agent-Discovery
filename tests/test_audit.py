@@ -127,8 +127,8 @@ class TestWhatIsNotWorthReporting:
         assert "dormant" not in kinds(entry(), payload(pushed_at=None))
 
     def test_an_entry_with_no_github_url_is_skipped_entirely(self):
-        findings, skipped = audit.audit([entry(url="https://example.com")])
-        assert findings == [] and skipped == []
+        findings, skipped, checked = audit.audit([entry(url="https://example.com")])
+        assert findings == [] and skipped == [] and checked == set()
 
 
 class TestTheRun:
@@ -149,8 +149,9 @@ class TestTheRun:
         records = [entry(name="Good", url="https://github.com/acme/good"),
                    entry(name="Bad", url="https://github.com/acme/bad")]
 
-        findings, _ = audit.audit(records)
+        findings, _, checked = audit.audit(records)
         assert [f["name"] for f in findings] == ["Bad"]
+        assert checked == {"Good", "Bad"}
 
     def test_one_unreachable_repository_does_not_stop_the_rest(self, monkeypatch):
         self.stub(monkeypatch, {
@@ -160,9 +161,10 @@ class TestTheRun:
         records = [entry(name="Down", url="https://github.com/acme/down"),
                    entry(name="Bad", url="https://github.com/acme/bad")]
 
-        findings, skipped = audit.audit(records)
+        findings, skipped, checked = audit.audit(records)
         assert [f["name"] for f in findings] == ["Bad"]
         assert [name for name, _ in skipped] == ["Down"]
+        assert checked == {"Bad"}, "an unreachable entry was counted as checked"
 
     def test_everything_unreachable_is_an_error_not_a_clean_report(self, monkeypatch, capsys):
         """"Nothing is stale" and "nothing could be checked" are opposite
@@ -228,9 +230,24 @@ class TestApplyingStatus:
         wanted = audit.statuses_for([self.finding("A", "moved", "stack")])
         assert wanted == {}
 
-    def test_a_missing_repository_is_not_silently_downgraded(self):
-        """It might mean the entry should go entirely."""
-        assert audit.statuses_for([self.finding("A", "missing")]) == {}
+    def test_a_missing_repository_keeps_the_status_it_had(self):
+        """Clearing it would quietly upgrade a deleted project to healthy —
+        the wrong direction for the finding that most needs a human."""
+        records = [entry(name="A", status="archived")]
+        wanted = audit.statuses_for([self.finding("A", "missing")], records)
+
+        assert wanted == {"A": "archived"}
+
+    def test_a_missing_repository_with_no_status_stays_active(self):
+        assert audit.statuses_for([self.finding("A", "missing")], [entry(name="A")]) == {
+            "A": "active"}
+
+    def test_an_entry_the_audit_never_checked_is_left_alone(self):
+        """Entries hosted outside GitHub are never examined; defaulting them
+        to active would clear a warning nobody re-verified."""
+        records = [entry(name="Elsewhere", status="archived")]
+        assert audit.apply_statuses(records, {}, checked=set()) == []
+        assert records[0]["status"] == "archived"
 
     def test_it_sets_the_status(self):
         records = [entry(name="A")]

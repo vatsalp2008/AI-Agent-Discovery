@@ -136,9 +136,14 @@ def find_issues(record, data, stale_months=DEFAULT_STALE_MONTHS):
 
 
 def audit(records, token=None, stale_months=DEFAULT_STALE_MONTHS, on_progress=None):
-    """Check every entry with a GitHub URL. Returns (findings, skipped)."""
+    """Check every entry with a GitHub URL.
+
+    Returns (findings, skipped, checked) — `checked` being the names actually
+    examined, so a caller writing statuses back knows what it may touch.
+    """
     findings = []
     skipped = []
+    checked = set()
 
     for record in records:
         repo = parse_repo(record.get("url"))
@@ -152,6 +157,7 @@ def audit(records, token=None, stale_months=DEFAULT_STALE_MONTHS, on_progress=No
             skipped.append((record.get("name"), str(e)))
             continue
 
+        checked.add(record.get("name"))
         issues = find_issues(record, data, stale_months=stale_months)
         if issues:
             findings.append({"name": record.get("name"), "url": record.get("url"),
@@ -159,7 +165,7 @@ def audit(records, token=None, stale_months=DEFAULT_STALE_MONTHS, on_progress=No
         if on_progress:
             on_progress(record)
 
-    return findings, skipped
+    return findings, skipped, checked
 
 
 # Only these translate into a status. "stack" and "moved" want a human to
@@ -168,15 +174,24 @@ def audit(records, token=None, stale_months=DEFAULT_STALE_MONTHS, on_progress=No
 STATUS_FROM = {"archived": "archived", "dormant": "dormant"}
 
 
-def statuses_for(findings):
+def statuses_for(findings, records=None):
     """The status each flagged entry should carry, by name.
 
     Archived beats dormant: an archived project is not merely quiet, and a
     repository that is both should say the stronger thing.
+
+    A `missing` repository keeps whatever status it already had. Clearing it
+    would quietly upgrade a deleted project to healthy, which is the wrong
+    direction for the one finding that most needs a human.
     """
+    existing = {r.get("name"): r.get("status", "active") for r in records or []}
+
     wanted = {}
     for finding in findings:
         kinds = {issue["kind"] for issue in finding["issues"]}
+        if "missing" in kinds:
+            wanted[finding["name"]] = existing.get(finding["name"], "active")
+            continue
         for kind in ("archived", "dormant"):
             if kind in kinds:
                 wanted[finding["name"]] = STATUS_FROM[kind]
@@ -184,18 +199,27 @@ def statuses_for(findings):
     return wanted
 
 
-def apply_statuses(records, wanted):
+def apply_statuses(records, wanted, checked=None):
     """Set `status` from `wanted`, clearing it on entries that recovered.
 
     Returns the list of (name, before, after) that actually changed. A
-    project can come back — archived repositories get unarchived — so this
-    resets an entry the audit no longer flags rather than leaving a stale
-    warning on it forever.
+    project can come back — archived repositories get unarchived — so an
+    entry the audit no longer flags is reset rather than carrying a stale
+    warning forever.
+
+    `checked` names the entries the audit actually looked at. Anything else
+    is left alone: an entry hosted outside GitHub is never examined, and one
+    whose repository has been deleted is reported as `missing` rather than
+    healthy — clearing either would remove a warning nobody re-verified.
     """
     changes = []
     for record in records:
+        name = record.get("name")
+        if checked is not None and name not in checked:
+            continue
+
         before = record.get("status", "active")
-        after = wanted.get(record.get("name"), "active")
+        after = wanted.get(name, "active")
         if before == after:
             continue
         if after == "active":
@@ -240,7 +264,8 @@ def main(argv=None):
     logger.info("Auditing %d GitHub repositories (of %d agents)...",
                 len(checkable), len(records))
 
-    findings, skipped = audit(records, token=args.token, stale_months=args.stale_months)
+    findings, skipped, checked = audit(records, token=args.token,
+                                       stale_months=args.stale_months)
 
     # "Nothing is stale" and "nothing could be checked" are opposite
     # outcomes; the second must not read as a clean bill of health.
@@ -273,7 +298,7 @@ def main(argv=None):
                          len(skipped))
             return 1
 
-        changes = apply_statuses(records, statuses_for(findings))
+        changes = apply_statuses(records, statuses_for(findings, records), checked=checked)
         if changes:
             with open(config.AGENTS_JSON, "w") as f:
                 json.dump(records, f, indent=2)
