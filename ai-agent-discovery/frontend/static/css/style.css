@@ -845,6 +845,25 @@ nav a:focus-visible,
     margin: 0 0 1rem;
 }
 
+/* Project health. Colour is never the only signal — each badge says in words
+   what it means, and the wording is the part a screen reader reads. */
+.agent-status {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+}
+
+.agent-status-archived {
+    color: var(--change-down);
+}
+
+.agent-status-dormant {
+    color: var(--text-secondary);
+}
+
 /* Comparison table */
 
 /* Past a few agents the columns cannot all fit, so the table scrolls and the

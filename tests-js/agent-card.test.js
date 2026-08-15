@@ -300,3 +300,42 @@ describe('match labelling', () => {
         expect(AgentCard.create(agent).querySelector('.match-score')).toBeNull();
     });
 });
+
+describe('project health', () => {
+    /** status lives in metadata, beside category and stars. */
+    function withStatus(status) {
+        const agent = makeAgent();
+        return AgentCard.create({ ...agent, metadata: { ...agent.metadata, status } });
+    }
+
+    it('says when a project is archived', () => {
+        const badge = withStatus('archived').querySelector('.agent-status');
+
+        expect(badge.textContent).toBe('Archived');
+        expect(badge.title).toContain('archived on GitHub');
+    });
+
+    it('says when a project has gone quiet', () => {
+        expect(withStatus('dormant').querySelector('.agent-status').textContent)
+            .toBe('Not updated recently');
+    });
+
+    it('says nothing for a healthy project', () => {
+        /** A badge on every card stops meaning anything, and 204 of 223
+         *  entries are active. */
+        expect(AgentCard.create(makeAgent()).querySelector('.agent-status')).toBeNull();
+        expect(withStatus('active').querySelector('.agent-status')).toBeNull();
+    });
+
+    it('ignores a status it does not recognise', () => {
+        expect(withStatus('retired').querySelector('.agent-status')).toBeNull();
+    });
+
+    it('carries the meaning in words, not only colour', () => {
+        /** The wording is the part a screen reader reads. */
+        for (const status of ['archived', 'dormant']) {
+            expect(withStatus(status).querySelector('.agent-status')
+                .textContent.trim().length).toBeGreaterThan(5);
+        }
+    });
+});

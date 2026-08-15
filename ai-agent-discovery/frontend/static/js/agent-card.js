@@ -71,6 +71,18 @@ const AgentCard = (() => {
         header.appendChild(categoryEl);
         card.appendChild(header);
 
+        // Only shown when it is not "active": a badge on every card would
+        // stop meaning anything, and absent is the overwhelming majority.
+        const status = meta.status;
+        if (status === 'archived' || status === 'dormant') {
+            const badge = el('span', `agent-status agent-status-${status}`,
+                             status === 'archived' ? 'Archived' : 'Not updated recently');
+            badge.title = status === 'archived'
+                ? 'The repository is archived on GitHub'
+                : 'No commits in over a year';
+            card.appendChild(badge);
+        }
+
         if (typeof agent.score === 'number') {
             // A name match is not a similarity score. Showing it as "100%
             // match" would imply the embedding ranked it top, when in fact
