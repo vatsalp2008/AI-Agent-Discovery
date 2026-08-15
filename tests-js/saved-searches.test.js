@@ -302,8 +302,38 @@ describe('importing', () => {
         }
         const result = SavedSearches.importAll(payload({ query: 'one too many', category: '' }));
 
-        expect(result).toMatchObject({ added: 0, skipped: 1 });
+        expect(result).toMatchObject({ added: 0, full: 1 });
         expect(SavedSearches.list()).toHaveLength(SavedSearches.MAX_SAVED);
+    });
+
+    it('counts "no room" apart from "already saved"', () => {
+        /** Both used to increment `skipped`, so a full backup imported into
+         *  a full list reported "nothing new" while discarding everything. */
+        SavedSearches.save('mine', '', results(['A', 1]));
+        for (let i = 1; i < SavedSearches.MAX_SAVED; i += 1) {
+            SavedSearches.save(`filler ${i}`, '', results(['A', 1]));
+        }
+        const result = SavedSearches.importAll(payload(
+            { query: 'mine', category: '' }, { query: 'no room for this', category: '' }));
+
+        expect(result).toMatchObject({ added: 0, skipped: 1, full: 1 });
+    });
+
+    it('survives a category that is not a string', () => {
+        /** Threw out of keyFor, out of importAll, and out of the FileReader
+         *  handler — so the page showed no message and imported nothing. */
+        const result = SavedSearches.importAll(payload(
+            { query: 'numeric', category: 123 },
+            { query: 'listy', category: ['a'] },
+            { query: 'objecty', category: { a: 1 } }));
+
+        expect(result.ok).toBe(true);
+        expect(SavedSearches.list().every(e => typeof e.category === 'string')).toBe(true);
+    });
+
+    it('treats a non-string category as no filter', () => {
+        SavedSearches.importAll(payload({ query: 'q', category: 42 }));
+        expect(SavedSearches.list()[0].category).toBe('');
     });
 
     it('rejects text that is not JSON', () => {

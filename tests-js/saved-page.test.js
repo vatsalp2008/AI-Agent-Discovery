@@ -345,3 +345,31 @@ describe('after a failed import', () => {
         expect(input.value).toBe('');
     });
 });
+
+describe('importing into a full list', () => {
+    it('says what was discarded rather than "nothing new"', async () => {
+        /** Both outcomes used to be `skipped`, so twenty discarded searches
+         *  read as "Nothing new to import." in success styling. */
+        boot();
+        for (let i = 0; i < globalThis.SavedSearches.MAX_SAVED; i += 1) {
+            save(`filler ${i}`, [['A', 1]]);
+        }
+        window.SavedPage.render();
+
+        const payload = JSON.stringify({
+            kind: 'agentdiscovery-saved-searches',
+            version: 1,
+            searches: [{ query: 'no room', category: '' }],
+        });
+        const input = document.getElementById('importSaved');
+        Object.defineProperty(input, 'files', {
+            value: [new window.Blob([payload])], configurable: true,
+        });
+        input.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        const text = document.getElementById('savedResult').textContent;
+        expect(text).toContain('could not fit');
+        expect(text).not.toContain('Nothing new');
+    });
+});

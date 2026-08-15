@@ -27,10 +27,16 @@ const SavedSearches = (() => {
      * that all report the same thing.
      */
     function keyFor(query, category) {
+        // Coerced rather than assumed to be strings: importAll() builds keys
+        // from a hand-edited file, and a numeric category used to throw out
+        // of here, out of the import, and out of the FileReader handler —
+        // leaving no message and nothing imported.
+        //
         // Separated by a newline, which cannot appear in either field: with
         // the two simply concatenated, ("ab", "") and ("a", "b") would be
         // the same saved search.
-        return `${(query || '').trim().toLowerCase()}\n${(category || '').trim().toLowerCase()}`;
+        const text = value => (typeof value === 'string' ? value : '').trim().toLowerCase();
+        return `${text(query)}\n${text(category)}`;
     }
 
     function isRecord(entry) {
@@ -235,11 +241,15 @@ const SavedSearches = (() => {
         const seen = new Set(current.map(e => keyFor(e.query, e.category)));
 
         let added = 0;
-        let skipped = 0;
+        let skipped = 0;   // already saved here
+        let full = 0;      // no room left
         payload.searches.filter(isRecord).forEach(entry => {
             const key = keyFor(entry.query, entry.category);
             if (seen.has(key)) { skipped += 1; return; }
-            if (current.length >= MAX_SAVED) { skipped += 1; return; }
+            // Counted apart from `skipped`: "you already have these" and
+            // "these were thrown away because you are at the limit" are
+            // opposite outcomes, and the second must not read as the first.
+            if (current.length >= MAX_SAVED) { full += 1; return; }
 
             seen.add(key);
             current.push({
@@ -253,7 +263,7 @@ const SavedSearches = (() => {
         if (!write(current)) {
             return { ok: false, reason: 'Could not save; storage is unavailable.' };
         }
-        return { ok: true, added, skipped };
+        return { ok: true, added, skipped, full };
     }
 
     return {

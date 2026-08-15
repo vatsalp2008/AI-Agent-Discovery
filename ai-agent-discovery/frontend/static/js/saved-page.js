@@ -241,9 +241,18 @@ document.addEventListener('DOMContentLoaded', () => {
         importInput.addEventListener('change', () => {
             UI.readFile(importInput, text => {
                 const outcome = SavedSearches.importAll(text);
-                if (!outcome.ok) say(outcome.reason, true);
-                else if (!outcome.added) say('Nothing new to import.');
-                else say(`Imported ${outcome.added}; skipped ${outcome.skipped} already saved.`);
+                if (!outcome.ok) {
+                    say(outcome.reason, true);
+                } else if (outcome.full) {
+                    // Discarding searches is not "nothing new"; say so, and
+                    // say it as a problem.
+                    say(`Imported ${outcome.added}. ${outcome.full} could not fit — `
+                        + `remove some to get below ${SavedSearches.MAX_SAVED}.`, true);
+                } else if (!outcome.added) {
+                    say('Nothing new to import; you already have them all.');
+                } else {
+                    say(`Imported ${outcome.added}; skipped ${outcome.skipped} already saved.`);
+                }
                 render();
             }, () => say('Could not read that file.', true));
         });
