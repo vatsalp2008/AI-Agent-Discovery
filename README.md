@@ -501,19 +501,19 @@ weekly workflows report their results.
 ## ⚡ Performance
 
 ```bash
-make benchmark                                     # measure the hot paths
-python ai-agent-discovery/benchmark.py --json > before.json
-python ai-agent-discovery/benchmark.py --compare before.json
-python ai-agent-discovery/benchmark.py --scale 600 # try a size we have not reached
+make benchmark                                      # measure the hot paths
+python ai-agent-discovery/benchmark.py --compare before.json   # after a change
+python ai-agent-discovery/benchmark.py --scale 600  # a size we have not reached
 ```
 
-Measured on an M-series laptop with 82 agents:
+Measured on an M-series laptop with 223 agents:
 
 | Operation | Time | Note |
 |-----------|------|------|
 | `import vectorstore` | ~1ms | was ~485ms before imports were deferred |
-| Build the store | ~345ms | pays the deferred FAISS import, on first request only |
-| Search (uncached) | ~13ms | 91% of it is the Ollama embedding call |
+| Build the store | ~460ms | pays the deferred FAISS import, on first request only |
+| Search (uncached) | ~16ms | ~11.5ms of it is the Ollama embedding call |
+| Search (filtered) | ~12ms | scans the whole index: +1.6ms at 2,000 agents, +7.4ms at 10,000 |
 | Search (cached) | <0.1ms | in-memory, and persisted across restarts |
 | `/api/agents`, `/api/stats` | <0.1ms | the agent list is memoized |
 
