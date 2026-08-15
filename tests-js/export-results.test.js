@@ -88,3 +88,45 @@ describe('filenames', () => {
         expect(Exp.filename('x'.repeat(200), 'csv').length).toBeLessThanOrEqual(45);
     });
 });
+
+describe('handing the file to the browser', () => {
+    /**
+     * asCsv and asJson delegate to UI.download. Nothing exercised that after
+     * the helper was extracted, so calling either without ui.js loaded threw
+     * `ReferenceError: UI is not defined` and no test noticed.
+     */
+    function captureDownloads() {
+        const calls = [];
+        globalThis.UI = { download: (text, name, mime) => calls.push({ text, name, mime }) };
+        return calls;
+    }
+
+    it('downloads CSV under a name derived from the query', () => {
+        const calls = captureDownloads();
+        Exp.asCsv([makeAgent()], 'code editor');
+
+        expect(calls).toHaveLength(1);
+        expect(calls[0].name).toBe('code-editor.csv');
+        expect(calls[0].mime).toContain('text/csv');
+        expect(calls[0].text).toContain('Cursor');
+        delete globalThis.UI;
+    });
+
+    it('downloads JSON the same way', () => {
+        const calls = captureDownloads();
+        Exp.asJson([makeAgent()], 'code editor');
+
+        expect(calls[0].name).toBe('code-editor.json');
+        expect(calls[0].mime).toContain('application/json');
+        expect(JSON.parse(calls[0].text).results[0].name).toBe('Cursor');
+        delete globalThis.UI;
+    });
+
+    it('exports what it was given, not a truncated set', () => {
+        const calls = captureDownloads();
+        Exp.asJson([makeAgent(), makeAgent(), makeAgent()], 'q');
+
+        expect(JSON.parse(calls[0].text).count).toBe(3);
+        delete globalThis.UI;
+    });
+});
