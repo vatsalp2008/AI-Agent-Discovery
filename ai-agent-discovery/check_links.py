@@ -28,6 +28,12 @@ from logging_setup import configure  # noqa: E402
 
 OK, REDIRECT, BROKEN, SKIPPED = "ok", "redirect", "broken", "skipped"
 
+# The host refused to answer rather than saying the page is gone. Reported,
+# but not as broken: devin.ai returns 429 to any automated request, and
+# failing the weekly job on somebody else's bot protection is a false alarm
+# every week for a page that is perfectly fine in a browser.
+THROTTLED = "throttled"
+
 # Some hosts refuse requests without a browser-ish agent.
 USER_AGENT = "ai-agent-discovery-link-check"
 
@@ -62,6 +68,8 @@ def check_url(url, timeout=10):
         return REDIRECT, f"-> {e.location}"
     except urllib.error.HTTPError as e:
         # HEAD is not universally supported; a 4xx may just mean that.
+        if e.code == 429:
+            return THROTTLED, "HTTP 429 (rate limited, not necessarily broken)"
         if e.code in (403, 405, 501):
             try:
                 request.method = "GET"
@@ -94,7 +102,8 @@ def check_catalogue(records, workers=8, timeout=10):
                 "detail": detail,
             })
 
-    results.sort(key=lambda r: (r["status"] != BROKEN, r["status"] != REDIRECT, r["name"] or ""))
+    results.sort(key=lambda r: (r["status"] != BROKEN, r["status"] != THROTTLED,
+                                r["status"] != REDIRECT, r["name"] or ""))
     return results
 
 
@@ -108,20 +117,26 @@ def render(results):
         return result.get("name") or "(unnamed)"
 
     broken = [r for r in results if r["status"] == BROKEN]
+    throttled = [r for r in results if r["status"] == THROTTLED]
     redirected = [r for r in results if r["status"] == REDIRECT]
     skipped = [r for r in results if r["status"] == SKIPPED]
 
     lines = []
     for r in broken:
         lines.append(f"  BROKEN   {label(r):<22} {r['url']}\n           {r['detail']}")
+    for r in throttled:
+        lines.append(f"  throttled {label(r):<21} {r['url']}\n           {r['detail']}")
     for r in redirected:
         lines.append(f"  moved    {label(r):<22} {r['detail']}")
     for r in skipped:
         lines.append(f"  skipped  {label(r):<22} {r['detail']}")
 
     lines.append("")
-    lines.append(f"{len(results)} checked: {len(broken)} broken, "
-                 f"{len(redirected)} redirected, {len(skipped)} without a url.")
+    counts = [f"{len(broken)} broken", f"{len(redirected)} redirected"]
+    if throttled:
+        counts.append(f"{len(throttled)} throttled")
+    counts.append(f"{len(skipped)} without a url")
+    lines.append(f"{len(results)} checked: " + ", ".join(counts) + ".")
     return "\n".join(lines)
 
 

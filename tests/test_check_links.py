@@ -158,3 +158,44 @@ class TestArgumentValidation:
     def test_zero_timeout_is_rejected(self, links):
         with pytest.raises(SystemExit):
             links.main(["--timeout", "0"])
+
+
+class TestThrottling:
+    """A 429 is the host refusing to answer, not the page being gone.
+    devin.ai returns one to every automated request, so treating it as broken
+    fails the weekly job every week for a page that works in a browser."""
+
+    def refusing(self, code):
+        """An opener whose every request is refused with `code`."""
+        def build(*args, **kwargs):
+            class FakeOpener:
+                def open(self, request, timeout=0):
+                    raise urllib.error.HTTPError("u", code, "Refused", {}, None)
+            return FakeOpener()
+        return build
+
+    def test_a_429_is_not_broken(self, links, monkeypatch):
+        monkeypatch.setattr(links.urllib.request, "build_opener", self.refusing(429))
+        status, detail = links.check_url("https://example.com")
+
+        assert status == links.THROTTLED
+        assert "429" in detail
+
+    def test_it_is_reported_but_not_counted_as_broken(self, links):
+        report = links.render([
+            {"name": "A", "url": "https://e.com", "status": links.THROTTLED,
+             "detail": "HTTP 429"}])
+
+        assert "0 broken" in report
+        assert "1 throttled" in report
+
+    def test_a_clean_report_does_not_mention_throttling(self, links):
+        """Noise in the usual case makes the unusual case harder to spot."""
+        report = links.render([
+            {"name": "A", "url": "https://e.com", "status": links.OK, "detail": "200"}])
+
+        assert "throttled" not in report
+
+    def test_a_real_failure_is_still_broken(self, links, monkeypatch):
+        monkeypatch.setattr(links.urllib.request, "build_opener", self.refusing(404))
+        assert links.check_url("https://example.com")[0] == links.BROKEN

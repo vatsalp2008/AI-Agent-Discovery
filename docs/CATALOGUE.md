@@ -18,6 +18,11 @@ make check-links      # verify every URL still resolves
 make refresh-stars    # update star counts from the GitHub API
 ```
 
+A `429` is reported as **throttled** rather than broken: it means the host
+refused to answer, not that the page is gone. devin.ai returns one to every
+automated request, so counting it as broken would fail the weekly job every
+week for a page that works perfectly in a browser.
+
 Projects get renamed, archived and deleted, and a dead link is invisible until
 somebody clicks it. The checker distinguishes the two cases that matter: a
 **broken** link needs fixing, while a **redirect** usually means the project
