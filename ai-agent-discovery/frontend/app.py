@@ -77,6 +77,11 @@ def category(name):
     """Browse one category. Agents are fetched client-side from the API."""
     return render_template('category.html', page='dashboard', name=name)
 
+@app.route('/changes')
+def changes():
+    """How the catalogue has changed. Served from data/changelog.json."""
+    return render_template('changes.html', page='changes')
+
 @app.route('/tech/<path:name>')
 def tech(name):
     """Everything built with one technology. Fetched client-side."""

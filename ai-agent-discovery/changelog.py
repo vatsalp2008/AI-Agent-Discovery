@@ -34,6 +34,19 @@ logger = logging.getLogger("changelog")
 # numbers and bury the additions.
 TRACKED_FIELDS = ("description", "category", "tech_stack", "url", "use_case", "status")
 
+# What an absent field means. Without this, the commit that introduced
+# `status` read as 204 agents edited, and the commit that stopped writing the
+# default read as 204 more — a formatting round-trip burying the real news
+# either side of it.
+FIELD_DEFAULTS = {"status": "active", "use_case": "", "url": "", "tech_stack": []}
+
+
+def _value(record, field):
+    """A field's value, with an absent one read as its default."""
+    if field in record and record[field] is not None:
+        return record[field]
+    return FIELD_DEFAULTS.get(field)
+
 
 def _git(args, cwd):
     """Run git, returning stdout, or None if it failed."""
@@ -100,9 +113,9 @@ def compare(before, after):
     edited = []
     for name in sorted(set(old) & set(new)):
         fields = [
-            {"field": field, "from": old[name].get(field), "to": new[name].get(field)}
+            {"field": field, "from": _value(old[name], field), "to": _value(new[name], field)}
             for field in TRACKED_FIELDS
-            if old[name].get(field) != new[name].get(field)
+            if _value(old[name], field) != _value(new[name], field)
         ]
         if fields:
             edited.append({"name": name, "fields": fields})

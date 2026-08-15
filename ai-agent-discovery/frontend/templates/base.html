@@ -32,6 +32,7 @@
                 <a href="/compare" {% if page == 'compare' %}class="active" aria-current="page"{% endif %}>Compare</a>
                 <a href="/collections" {% if page == 'collections' %}class="active" aria-current="page"{% endif %}>Collections</a>
                 <a href="/saved" {% if page == 'saved' %}class="active" aria-current="page"{% endif %}>Saved</a>
+                <a href="/changes" {% if page == 'changes' %}class="active" aria-current="page"{% endif %}>Changes</a>
                 {% if submissions_enabled %}<a href="/submit" {% if page == 'submit' %}class="active" aria-current="page"{% endif %}>Suggest</a>{% endif %}
                 {% if admin_enabled %}<a href="/admin" {% if page == 'admin' %}class="active" aria-current="page"{% endif %}>Edit</a>{% endif %}
                 <button type="button" id="themeToggle" class="theme-toggle"

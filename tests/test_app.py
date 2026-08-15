@@ -34,7 +34,8 @@ def _page_paths(app):
 
 
 # Kept for the parametrised cases, which need the list at collection time.
-PAGES = ["/", "/dashboard", "/compare", "/collections", "/saved", "/admin", "/submit"]
+PAGES = ["/", "/dashboard", "/compare", "/collections", "/saved", "/changes",
+         "/admin", "/submit"]
 
 
 @pytest.fixture(scope="module")
@@ -169,6 +170,7 @@ PAGE_SCRIPTS = {
     "collections-page.js": ("collections.html", "COLLECTIONS_HTML"),
     "compare.js": ("compare.html", "COMPARE_HTML"),
     "tech.js": ("tech.html", "TECH_HTML"),
+    "changes.js": ("changes.html", "CHANGES_HTML"),
     "dashboard.js": ("dashboard.html", "DASHBOARD_HTML"),
     "submit.js": ("submit.html", "SUBMIT_HTML"),
     "admin.js": ("admin.html", "ADMIN_HTML"),

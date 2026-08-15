@@ -179,6 +179,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/compare?names=A,B` | Up to eight agents side by side |
 | `/collections` | Saved shortlists, kept in your browser |
 | `/saved` | Searches worth re-running, with what changed since |
+| `/changes` | How the catalogue has grown and been corrected |
 | `/submit` | Propose an agent for review |
 | `/category/<name>` | Everything in one category, most starred first |
 | `/tech/<name>` | Everything built with one technology |
@@ -254,6 +255,7 @@ Every endpoint returns JSON, including errors.
 | `GET` | `/api/agents/<name>/similar` | Its nearest neighbours |
 | `GET` | `/api/compare?names=A,B` | Several agents at once |
 | `GET` | `/api/categories`, `/api/tech` | Facets with counts |
+| `GET` | `/api/changelog` | Catalogue history, newest first |
 | `GET` | `/api/stats`, `/api/health` | Index summary and readiness |
 | `GET` | `/api/openapi.json` | Machine-readable description |
 | `*` | `/api/admin/*` | Catalogue editing (needs `ENABLE_ADMIN`) |

@@ -419,6 +419,38 @@ def get_tech_stacks():
     return _etag_response(get_store().get_tech_stacks())
 
 
+@api_bp.route('/changelog', methods=['GET'])
+def get_changelog():
+    """How the catalogue has changed, newest first.
+
+    Generated from git by changelog.py rather than computed here: the web
+    process may not have a working tree (a container ships the JSON, not the
+    repository), and the history only changes when the catalogue does.
+    """
+    path = config.DATA_DIR / "changelog.json"
+    try:
+        with open(path) as f:
+            entries = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        # Absent is the normal state before the generator has ever run, and
+        # an empty history is a truthful answer to "what changed".
+        logger.info("No changelog at %s; run changelog.py to build one.", path)
+        entries = []
+
+    if not isinstance(entries, list):
+        entries = []
+
+    try:
+        limit = _parse_int_arg('limit', 50, 1, 500)
+    except BadRequest as e:
+        return jsonify({"error": str(e)}), 400
+
+    return _etag_response({
+        "entries": entries[:limit],
+        "metadata": {"count": min(len(entries), limit), "total": len(entries)},
+    })
+
+
 @api_bp.route('/stats', methods=['GET'])
 def get_stats():
     return _etag_response(get_store().get_stats())

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}What changed | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<section class="hero hero-compact">
+    <h1>What changed</h1>
+    <p>How the catalogue has grown and been corrected, newest first.</p>
+</section>
+
+<main id="changesArea" aria-live="polite" aria-busy="true"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/changes.js"></script>
+{% endblock %}

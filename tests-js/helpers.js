@@ -216,6 +216,11 @@ export const COMPARE_HTML = `
     <main id="compareArea" aria-busy="false"></main>
 `;
 
+/** The change history page's markup, mirroring templates/changes.html. */
+export const CHANGES_HTML = `
+    <main id="changesArea" aria-live="polite" aria-busy="true"></main>
+`;
+
 /** The technology page's markup, mirroring templates/tech.html. */
 export const TECH_HTML = `
     <h1 id="techHeading">Python</h1>

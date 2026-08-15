@@ -856,6 +856,30 @@ a.tech-item:hover {
     color: var(--accent-text);
 }
 
+/* Change history */
+.change-entry {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.change-entry h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.35rem;
+}
+
+.change-meta {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0 0 0.75rem;
+}
+
+.change-edited {
+    color: var(--text-secondary);
+}
+
 /* Project health. Colour is never the only signal — each badge says in words
    what it means, and the wording is the part a screen reader reads. */
 .agent-status {

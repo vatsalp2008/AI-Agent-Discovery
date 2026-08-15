@@ -187,6 +187,25 @@ so one typo does not discard the agents that did resolve. Capped at
 page stops its picker at the same number so the limit never arrives as a
 failed request.
 
+## Catalogue history
+
+```bash
+GET /api/changelog?limit=50
+# {"entries": [{"commit": "37c55a8a", "at": "...", "subject": "Add 20 agents...",
+#               "total": 223, "added": ["Kedro", ...], "removed": [], "edited": []}],
+#  "metadata": {"count": 50, "total": 32}}
+```
+
+Built from git by `changelog.py` and served from `data/changelog.json`, rather
+than computed per request: the web process may not have a working tree, and
+the history only changes when the catalogue does. An absent file is an empty
+history, which is the truthful answer before the generator has ever run.
+
+Edits are reported per field, so a re-categorisation and a rewritten
+description are distinguishable. Star counts are deliberately excluded — a bot
+refreshes them weekly, and including them would bury every addition under a
+wall of numbers.
+
 ## List technologies
 
 ```bash
