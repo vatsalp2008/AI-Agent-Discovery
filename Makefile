@@ -34,6 +34,9 @@ discover:  ## Find agents on GitHub the catalogue is missing (proposes nothing)
 audit:  ## Report catalogue entries that have gone stale
 	$(PYTHON) $(APP_DIR)/audit.py
 
+changelog:  ## Rebuild data/changelog.json from git history
+	$(PYTHON) $(APP_DIR)/changelog.py
+
 stats:  ## Print index statistics
 	$(PYTHON) $(APP_DIR)/cli.py --stats
 

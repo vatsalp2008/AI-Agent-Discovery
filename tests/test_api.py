@@ -703,3 +703,69 @@ def test_the_client_compare_cap_matches_the_server(client):
 
         assert declared, f"{name} no longer declares DEFAULT_MAX_COMPARE"
         assert int(declared.group(1)) <= config.COMPARE_MAX_AGENTS, name
+
+
+class TestChangelog:
+    """Served from a generated file, so the interesting cases are what
+    happens when it is absent or damaged."""
+
+    @pytest.fixture
+    def history(self, tmp_path, monkeypatch):
+        """Points DATA_DIR at a throwaway directory; call it to write a file."""
+        import config
+
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        def write(contents):
+            import json as _json
+
+            path = tmp_path / "changelog.json"
+            path.write_text(contents if isinstance(contents, str) else _json.dumps(contents))
+            return path
+
+        return write
+
+    def test_it_returns_the_history(self, client, history):
+        history([{"commit": "abc", "at": "2026-08-14T00:00:00+00:00",
+                  "subject": "Add agents", "total": 223,
+                  "added": ["Kedro"], "removed": [], "edited": []}])
+
+        body = client.get("/api/changelog").get_json()
+        assert body["entries"][0]["added"] == ["Kedro"]
+        assert body["metadata"]["total"] == 1
+
+    def test_an_absent_file_is_an_empty_history(self, client, history):
+        """The normal state before the generator has ever run, and a truthful
+        answer to "what changed" — not a 500."""
+        response = client.get("/api/changelog")
+        assert response.status_code == 200
+        assert response.get_json()["entries"] == []
+
+    def test_a_damaged_file_is_not_a_crash(self, client, history):
+        history("{ not json")
+
+        assert client.get("/api/changelog").get_json()["entries"] == []
+
+    def test_a_file_that_is_not_a_list_is_not_served(self, client, history):
+        history('{"entries": []}')
+
+        assert client.get("/api/changelog").get_json()["entries"] == []
+
+    def test_the_limit_is_honoured(self, client, history):
+        history([{"commit": str(i), "at": "", "subject": "", "total": 1,
+                  "added": [], "removed": [], "edited": []} for i in range(10)])
+
+        body = client.get("/api/changelog?limit=3").get_json()
+        assert len(body["entries"]) == 3
+        assert body["metadata"]["total"] == 10, "total should be the whole history"
+
+    def test_a_bad_limit_is_refused(self, client):
+        assert client.get("/api/changelog?limit=nonsense").status_code == 400
+
+    def test_it_carries_an_etag(self, client, history):
+        response = client.get("/api/changelog")
+        etag = response.headers.get("ETag")
+
+        assert etag
+        assert client.get("/api/changelog",
+                          headers={"If-None-Match": etag}).status_code == 304
