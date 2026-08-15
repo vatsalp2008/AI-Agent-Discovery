@@ -24,6 +24,8 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Semantic Understanding**: Goes beyond keyword matching to understand intent
 - **Relevance Ranking**: Results ranked by similarity using vector embeddings
 - **Category Filtering**: Restrict results to Code Generation, Research, Automation, etc.
+- **Browse by Technology**: `/tech/<name>` lists everything built on PyTorch, ROS 2, TypeScript — the question "what will this fit into", beside "what does it do"
+- **Project Health**: Archived and dormant projects say so on the card, so an abandoned tool is not presented as a live one
 - **AI Overviews**: A local chat model summarizes why the top results match, using only the retrieved agents
 - **Shareable Searches**: The query and filter live in the URL, so results can be bookmarked and shared
 - **Saved Searches**: Keep a question and see what changed about its answers — new matches, ones that dropped out, projects whose momentum moved

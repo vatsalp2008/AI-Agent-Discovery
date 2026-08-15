@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
     DASHBOARD_HTML, flush, SAVED_HTML, SEARCH_HTML, scriptsFor, stubFetch,
-    SUBMIT_HTML,
+    SUBMIT_HTML, TECH_HTML,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -157,6 +157,18 @@ describe('rendered controls have accessible names', () => {
             script: 'saved-page.js',
             extraScripts: scriptsFor('saved.html', 'saved-page.js'),
         });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
+
+    it('technology page, with results', async () => {
+        window.history.replaceState({}, '', '/tech/Python');
+        stubFetch({
+            '/api/tech': { body: [{ name: 'Python', count: 9 }, { name: 'Rust', count: 2 }] },
+            '/api/agents?': { body: { agents: [agent('Ollama')], metadata: { total: 1 } } },
+        });
+        bootPage({ html: TECH_HTML, script: 'tech.js',
+                   extraScripts: scriptsFor('tech.html', 'tech.js') });
         await flush();
         expect(unnamedControls()).toEqual([]);
     });
