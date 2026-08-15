@@ -177,3 +177,48 @@ def test_a_missing_catalogue_still_bootstraps_from_samples(tmp_path, monkeypatch
 
     monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "absent.json")
     assert len(scraper.load_agents()) == len(scraper.SAMPLE_AGENTS)
+
+
+def test_writing_omits_a_default_status(tmp_path, monkeypatch):
+    """"active" on every entry is 200-odd lines saying nothing, and it made a
+    re-seed look in the change history like every agent had been edited."""
+    import json
+
+    import config
+    from models import Agent
+
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "agents.json")
+
+    scraper.write_agents_json([
+        Agent(name="Plain", description="d", category="c", tech_stack=["Python"]),
+        Agent(name="Gone", description="d", category="c", tech_stack=["Python"],
+              status="archived"),
+    ])
+
+    records = json.loads((tmp_path / "agents.json").read_text())
+    assert "status" not in records[0], "wrote a default status"
+    assert records[1]["status"] == "archived", "dropped a real status"
+
+
+def test_a_reseed_leaves_the_catalogue_byte_identical(tmp_path, monkeypatch):
+    """Seeding rewrites agents.json. If that round-trip is not the identity,
+    every re-seed shows up as a catalogue change in git and in the feed."""
+    import json
+
+    import config
+    from models import Agent
+
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "agents.json")
+
+    agents = [Agent(name="A", description="d", category="c", tech_stack=["Python"]),
+              Agent(name="B", description="d", category="c", tech_stack=["Go"],
+                    status="dormant")]
+    scraper.write_agents_json(agents)
+    once = (tmp_path / "agents.json").read_text()
+
+    reloaded = [Agent.from_dict(r) for r in json.loads(once)]
+    scraper.write_agents_json(reloaded)
+
+    assert (tmp_path / "agents.json").read_text() == once

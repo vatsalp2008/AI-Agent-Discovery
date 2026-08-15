@@ -1,0 +1,3096 @@
+[
+  {
+    "commit": "e5589aee",
+    "at": "2026-08-15T11:21:15-07:00",
+    "subject": "Badge archived and dormant projects",
+    "total": 223,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "A2A",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Activepieces",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "AgenticSeek",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Agno",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Aider",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Aim",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Airbyte",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Amplication",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "AnythingLLM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Argilla",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "AutoGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "AutoGen",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "AutoGluon",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Automa",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Axolotl",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "BabyAGI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "BentoML",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Botpress",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Browser Use",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "CAMEL",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "CLIP",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Chaskiq",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Chat2DB",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ChatDev",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Chatwoot",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Chroma",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Claude Code",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ClearML",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Cline",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Cloudflare Agents",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "CodeRabbit",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ComfyUI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Composio",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Continue",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "CosyVoice",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "CrewAI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Cursor",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "DB-GPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "DSPy",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "DVC",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Dagster",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Data Formulator",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "DeepEval",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "DeerFlow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Detoxify",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Devika",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Devin Desktop",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Dify",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Docling",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Drake",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "E2B",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Easy Dataset",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Evidently",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "FAISS",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "FastGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Faster Whisper",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "FinGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Firecrawl",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Flyte",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "FunASR",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "GPT Researcher",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "GPT-SoVITS",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Garak",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Gemini CLI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Genesis",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Giskard",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "GitHub Copilot",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Goose",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Gradio",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "GraphRAG",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Great Expectations",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Guardrails",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Gymnasium",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Habitat Lab",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Haystack",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "IndexTTS",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Inspect AI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Isaac GR00T",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Isaac Lab",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Jina Reader",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Jupyter AI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "K8sGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Kedro",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Khoj",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Kubeflow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LEANN",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LLaMA-Factory",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LM Evaluation Harness",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Label Studio",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LangChain",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LangChain4j",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LangGraph",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Langflow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Langfuse",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LeRobot",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Letta",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LibreChat",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LightRAG",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LitGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LiteLLM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LiveKit Agents",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LlamaIndex",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LobeChat",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "LocalGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MCP Servers",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MLC LLM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MLX",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MLflow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MarkItDown",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Marvin",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Maxun",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Megatron-LM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Meilisearch",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Mem0",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MetaGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Metaflow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Milvus",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ModelScan",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MoveIt 2",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "MuJoCo",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Nav2",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "NeMo Guardrails",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Ollama",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Onyx",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Open WebUI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenAI Agents SDK",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenAdapt",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenCode",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenHands",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenInterpreter",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenLLM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenLLMetry",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "OpenRLHF",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Opik",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PEFT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PaddleOCR",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Page Agent",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PageIndex",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PandasAI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PaperQA",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PentAGI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Phoenix",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Pipecat",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Plandex",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Portkey Gateway",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Presidio",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PrivateGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Prompt Optimizer",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Promptfoo",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PurpleLlama",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "PyGWalker",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Pydantic AI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Qdrant",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Quivr",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Qwen-Agent",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Qwen-VL",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "RAGFlow",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "RagaAI Catalyst",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Ragas",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Rasa",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Ray",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "SDV",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "SWE-agent",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ScrapeGraphAI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "SeamlessM4T",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Semantic Kernel",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "SiYuan",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Skyvern",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Stable Diffusion WebUI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Stable-Baselines3",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Stagehand",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Superagent",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Swarm",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Sweep",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "TRL",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Tabby",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Taipy",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "TransformerLens",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Transformers",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Typebot",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "UFO",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Unsloth",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Unstructured",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Vosk",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "VoxCPM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Weaviate",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Weights & Biases",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Whisper",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "WhisperX",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "XAgent",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Zapier AI Actions",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "Zed",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ZenML",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "cognee",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "llama.cpp",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "ms-swift",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "n8n",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "openpilot",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "pgvector",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "robosuite",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "sherpa-onnx",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "torchtune",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "txtai",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      },
+      {
+        "name": "vLLM",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "active"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "5dd207f4",
+    "at": "2026-08-15T11:18:53-07:00",
+    "subject": "Mark nine archived and ten dormant projects",
+    "total": 223,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "AgentGPT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Bark",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "Coqui TTS",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "Flowise",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "LIDA",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "LLM Guard",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "LLaVA",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "Nougat",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "Parler TTS",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "PyRIT",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Rebuff",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Sketch",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "SuperAGI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "TensorZero",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Vanna AI",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Verba",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "Vocode",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      },
+      {
+        "name": "gpt-engineer",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "archived"
+          }
+        ]
+      },
+      {
+        "name": "whylogs",
+        "fields": [
+          {
+            "field": "status",
+            "from": null,
+            "to": "dormant"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "837e1091",
+    "at": "2026-08-14T12:12:29-07:00",
+    "subject": "Follow two repository renames",
+    "total": 223,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Chat2DB",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/CodePhiliaX/Chat2DB",
+            "to": "https://github.com/OtterMind/Chat2DB"
+          }
+        ]
+      },
+      {
+        "name": "Genesis",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/Genesis-Embodied-AI/Genesis",
+            "to": "https://github.com/Genesis-Embodied-AI/genesis-world"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "37c55a8a",
+    "at": "2026-08-14T10:44:43-07:00",
+    "subject": "Add 20 agents to the thinnest categories",
+    "total": 223,
+    "added": [
+      "Airbyte",
+      "Amplication",
+      "Automa",
+      "Easy Dataset",
+      "Gradio",
+      "Kedro",
+      "LEANN",
+      "Label Studio",
+      "LangChain4j",
+      "Maxun",
+      "Onyx",
+      "Page Agent",
+      "RagaAI Catalyst",
+      "Stable-Baselines3",
+      "Taipy",
+      "TensorZero",
+      "Vosk",
+      "VoxCPM",
+      "sherpa-onnx",
+      "txtai"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "ca5a5ce5",
+    "at": "2026-08-13T15:15:16-07:00",
+    "subject": "Add 23 agents found by the crawler",
+    "total": 203,
+    "added": [
+      "AgenticSeek",
+      "Aim",
+      "ClearML",
+      "Composio",
+      "CosyVoice",
+      "DeerFlow",
+      "FinGPT",
+      "Flyte",
+      "FunASR",
+      "GPT-SoVITS",
+      "Gemini CLI",
+      "IndexTTS",
+      "Inspect AI",
+      "LM Evaluation Harness",
+      "LightRAG",
+      "Meilisearch",
+      "PaddleOCR",
+      "PageIndex",
+      "PentAGI",
+      "Prompt Optimizer",
+      "Transformers",
+      "cognee",
+      "openpilot"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "62353a92",
+    "at": "2026-08-12T14:19:44-07:00",
+    "subject": "Add 18 agents to the thinnest categories",
+    "total": 180,
+    "added": [
+      "AutoGluon",
+      "Chaskiq",
+      "Chat2DB",
+      "Data Formulator",
+      "Detoxify",
+      "Drake",
+      "FastGPT",
+      "Genesis",
+      "LLM Guard",
+      "LitGPT",
+      "Megatron-LM",
+      "ModelScan",
+      "MoveIt 2",
+      "OpenRLHF",
+      "PyGWalker",
+      "Typebot",
+      "ms-swift",
+      "robosuite"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "56595e32",
+    "at": "2026-08-12T13:28:51-07:00",
+    "subject": "Refresh stars and a renamed url",
+    "total": 162,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Qwen-VL",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/QwenLM/Qwen2.5-VL",
+            "to": "https://github.com/QwenLM/Qwen3-VL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "97cbe442",
+    "at": "2026-08-12T13:25:51-07:00",
+    "subject": "Add eight safety and pipeline tools",
+    "total": 162,
+    "added": [
+      "Dagster",
+      "Kubeflow",
+      "OpenLLM",
+      "PurpleLlama",
+      "PyRIT",
+      "ZenML"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "96954e4b",
+    "at": "2026-08-12T13:18:52-07:00",
+    "subject": "Add six speech and vision models",
+    "total": 156,
+    "added": [
+      "Bark",
+      "LLaVA",
+      "Parler TTS",
+      "Qwen-VL",
+      "SeamlessM4T",
+      "WhisperX"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "36fb76bf",
+    "at": "2026-08-11T14:58:58-07:00",
+    "subject": "Rename Windsurf to Devin Desktop",
+    "total": 150,
+    "added": [
+      "Devin Desktop"
+    ],
+    "removed": [
+      "Windsurf"
+    ],
+    "edited": []
+  },
+  {
+    "commit": "af69ba38",
+    "at": "2026-08-11T14:54:30-07:00",
+    "subject": "Refresh stars and renamed URLs",
+    "total": 150,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "DVC",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/iterative/dvc",
+            "to": "https://github.com/treeverse/dvc"
+          }
+        ]
+      },
+      {
+        "name": "Great Expectations",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/great-expectations/great_expectations",
+            "to": "https://github.com/fivetran/great_expectations"
+          }
+        ]
+      },
+      {
+        "name": "LobeChat",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/lobehub/lobe-chat",
+            "to": "https://github.com/lobehub/lobehub"
+          }
+        ]
+      },
+      {
+        "name": "OpenCode",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/sst/opencode",
+            "to": "https://github.com/anomalyco/opencode"
+          }
+        ]
+      },
+      {
+        "name": "torchtune",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/pytorch/torchtune",
+            "to": "https://github.com/meta-pytorch/torchtune"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "7ab3dc5d",
+    "at": "2026-08-11T14:09:45-07:00",
+    "subject": "Add three desktop automation and edge tools",
+    "total": 150,
+    "added": [
+      "Cloudflare Agents",
+      "OpenAdapt",
+      "UFO"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "d779916b",
+    "at": "2026-08-11T14:07:57-07:00",
+    "subject": "Add eight chat interfaces and sandboxes",
+    "total": 147,
+    "added": [
+      "AgentGPT",
+      "E2B",
+      "Firecrawl",
+      "LibreChat",
+      "LobeChat",
+      "Open WebUI",
+      "OpenCode",
+      "SiYuan"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "3a3143cf",
+    "at": "2026-08-11T14:00:30-07:00",
+    "subject": "Add six agent frameworks and tooling",
+    "total": 139,
+    "added": [
+      "CAMEL",
+      "Qwen-Agent",
+      "TransformerLens",
+      "XAgent",
+      "torchtune"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "ab2ad3da",
+    "at": "2026-08-11T13:55:32-07:00",
+    "subject": "Add eight MLOps and data quality tools",
+    "total": 134,
+    "added": [
+      "DVC",
+      "Evidently",
+      "Great Expectations",
+      "MLflow",
+      "Weights & Biases",
+      "whylogs"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "0c26599e",
+    "at": "2026-08-10T11:29:26-07:00",
+    "subject": "Fill out the robotics category",
+    "total": 128,
+    "added": [
+      "Gymnasium",
+      "Habitat Lab",
+      "Isaac GR00T",
+      "Isaac Lab",
+      "MuJoCo",
+      "Nav2"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "12125c68",
+    "at": "2026-08-10T11:26:38-07:00",
+    "subject": "Give thin entries a real description",
+    "total": 122,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "LangChain",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Building applications with LLMs through composability.",
+            "to": "A framework for composing LLM applications from chains, agents and tools, with integrations for most models and vector stores."
+          }
+        ]
+      },
+      {
+        "name": "Quivr",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Your Second Brain, empowered by Generative AI.",
+            "to": "A personal knowledge assistant that ingests your files and answers questions over them, backed by a vector store."
+          }
+        ]
+      },
+      {
+        "name": "Windsurf",
+        "fields": [
+          {
+            "field": "description",
+            "from": "An agentic IDE from Codeium whose Cascade mode keeps context across a whole multi-file change.",
+            "to": "An agentic IDE whose Cascade mode keeps context across a whole multi-file change rather than one buffer at a time."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "37dddbdd",
+    "at": "2026-08-10T11:16:12-07:00",
+    "subject": "Update renamed project URLs",
+    "total": 122,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "A2A",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/google/A2A",
+            "to": "https://github.com/a2aproject/A2A"
+          }
+        ]
+      },
+      {
+        "name": "Aider",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/paul-gauthier/aider",
+            "to": "https://github.com/Aider-AI/aider"
+          }
+        ]
+      },
+      {
+        "name": "AutoGPT",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/Significant-Gravitas/Auto-GPT",
+            "to": "https://github.com/Significant-Gravitas/AutoGPT"
+          }
+        ]
+      },
+      {
+        "name": "CodeRabbit",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://coderabbit.ai",
+            "to": "https://www.coderabbit.ai"
+          }
+        ]
+      },
+      {
+        "name": "ComfyUI",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/comfyanonymous/ComfyUI",
+            "to": "https://github.com/Comfy-Org/ComfyUI"
+          }
+        ]
+      },
+      {
+        "name": "CrewAI",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/joaomdmoura/crewAI",
+            "to": "https://github.com/crewAIInc/crewAI"
+          }
+        ]
+      },
+      {
+        "name": "Cursor",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://cursor.sh",
+            "to": "https://cursor.com"
+          }
+        ]
+      },
+      {
+        "name": "Garak",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/leondz/garak",
+            "to": "https://github.com/NVIDIA/garak"
+          }
+        ]
+      },
+      {
+        "name": "Giskard",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/Giskard-AI/giskard",
+            "to": "https://github.com/Giskard-AI/giskard-oss"
+          }
+        ]
+      },
+      {
+        "name": "Goose",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/block/goose",
+            "to": "https://github.com/aaif-goose/goose"
+          }
+        ]
+      },
+      {
+        "name": "LLaMA-Factory",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/hiyouga/LLaMA-Factory",
+            "to": "https://github.com/hiyouga/LlamaFactory"
+          }
+        ]
+      },
+      {
+        "name": "MetaGPT",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/geekan/MetaGPT",
+            "to": "https://github.com/FoundationAgents/MetaGPT"
+          }
+        ]
+      },
+      {
+        "name": "NeMo Guardrails",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/NVIDIA/NeMo-Guardrails",
+            "to": "https://github.com/NVIDIA-NeMo/Guardrails"
+          }
+        ]
+      },
+      {
+        "name": "OpenHands",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/All-Hands-AI/OpenHands",
+            "to": "https://github.com/OpenHands/OpenHands"
+          }
+        ]
+      },
+      {
+        "name": "OpenInterpreter",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/OpenInterpreter/open-interpreter",
+            "to": "https://github.com/openinterpreter/openinterpreter"
+          }
+        ]
+      },
+      {
+        "name": "PandasAI",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/gventuri/pandas-ai",
+            "to": "https://github.com/sinaptik-ai/pandas-ai"
+          }
+        ]
+      },
+      {
+        "name": "Presidio",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/microsoft/presidio",
+            "to": "https://github.com/data-privacy-stack/presidio"
+          }
+        ]
+      },
+      {
+        "name": "PrivateGPT",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/imartinez/privateGPT",
+            "to": "https://github.com/zylon-ai/private-gpt"
+          }
+        ]
+      },
+      {
+        "name": "Quivr",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/StanGirard/quivr",
+            "to": "https://github.com/QuivrHQ/quivr"
+          }
+        ]
+      },
+      {
+        "name": "Ragas",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/explodinggradients/ragas",
+            "to": "https://github.com/vibrantlabsai/ragas"
+          }
+        ]
+      },
+      {
+        "name": "Windsurf",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://codeium.com/windsurf",
+            "to": "https://windsurf.com/editor"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "3f139d79",
+    "at": "2026-08-10T11:07:51-07:00",
+    "subject": "Add eight edge inference and science tools",
+    "total": 122,
+    "added": [
+      "A2A",
+      "LeRobot",
+      "MLC LLM",
+      "MLX",
+      "Nougat",
+      "PaperQA",
+      "Swarm",
+      "llama.cpp"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "8ec335a8",
+    "at": "2026-08-10T11:06:01-07:00",
+    "subject": "Add eight framework and document tools",
+    "total": 114,
+    "added": [
+      "DSPy",
+      "Docling",
+      "GraphRAG",
+      "Jina Reader",
+      "Langflow",
+      "MarkItDown",
+      "Marvin",
+      "ScrapeGraphAI"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "5c8d88a3",
+    "at": "2026-08-09T22:36:59-07:00",
+    "subject": "Add eight agent framework and serving tools",
+    "total": 106,
+    "added": [
+      "Agno",
+      "BentoML",
+      "MCP Servers",
+      "OpenAI Agents SDK",
+      "Portkey Gateway",
+      "Pydantic AI",
+      "Ray",
+      "Superagent"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "149ba290",
+    "at": "2026-08-09T22:35:15-07:00",
+    "subject": "Add eight multimodal and voice tools",
+    "total": 98,
+    "added": [
+      "CLIP",
+      "ComfyUI",
+      "Coqui TTS",
+      "Faster Whisper",
+      "LiveKit Agents",
+      "Pipecat",
+      "Stable Diffusion WebUI",
+      "Whisper"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "2df55f20",
+    "at": "2026-08-09T22:33:12-07:00",
+    "subject": "Add eight fine-tuning and data tools",
+    "total": 90,
+    "added": [
+      "Argilla",
+      "Axolotl",
+      "LLaMA-Factory",
+      "Metaflow",
+      "PEFT",
+      "SDV",
+      "TRL",
+      "Unsloth"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "229e5fc6",
+    "at": "2026-08-08T23:18:16-07:00",
+    "subject": "Add eight vector database and runtime tools",
+    "total": 82,
+    "added": [
+      "Chroma",
+      "FAISS",
+      "Milvus",
+      "Ollama",
+      "Qdrant",
+      "Weaviate",
+      "pgvector",
+      "vLLM"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "6ec3e109",
+    "at": "2026-08-08T23:16:07-07:00",
+    "subject": "Add six safety and gateway tools",
+    "total": 74,
+    "added": [
+      "Garak",
+      "Guardrails",
+      "LiteLLM",
+      "NeMo Guardrails",
+      "Presidio",
+      "Rebuff"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "1f769e20",
+    "at": "2026-08-08T23:14:05-07:00",
+    "subject": "Add eight evaluation and observability tools",
+    "total": 68,
+    "added": [
+      "DeepEval",
+      "Giskard",
+      "Langfuse",
+      "OpenLLMetry",
+      "Opik",
+      "Phoenix",
+      "Promptfoo",
+      "Ragas"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "702d5a67",
+    "at": "2026-08-07T11:44:05-07:00",
+    "subject": "Add six automation and support agents",
+    "total": 60,
+    "added": [
+      "Activepieces",
+      "Chatwoot",
+      "K8sGPT",
+      "Skyvern",
+      "Stagehand",
+      "Vocode"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "58450a5c",
+    "at": "2026-08-07T11:40:49-07:00",
+    "subject": "Add six RAG and memory tools",
+    "total": 54,
+    "added": [
+      "Khoj",
+      "Letta",
+      "Mem0",
+      "RAGFlow",
+      "Unstructured",
+      "Verba"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "aeca5ad0",
+    "at": "2026-08-07T11:37:39-07:00",
+    "subject": "Add six coding agents",
+    "total": 48,
+    "added": [
+      "CodeRabbit",
+      "Devika",
+      "Plandex",
+      "Tabby",
+      "Windsurf",
+      "Zed"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "b5216b2a",
+    "at": "2026-08-07T11:34:59-07:00",
+    "subject": "Add five data analysis agents",
+    "total": 42,
+    "added": [
+      "DB-GPT",
+      "Jupyter AI",
+      "LIDA",
+      "Sketch",
+      "Vanna AI"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "6bca6378",
+    "at": "2026-08-07T11:30:37-07:00",
+    "subject": "Merge duplicate automation category",
+    "total": 37,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "BabyAGI",
+        "fields": [
+          {
+            "field": "category",
+            "from": "Task Automation",
+            "to": "Autonomous Agent"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "commit": "f291bb9f",
+    "at": "2026-08-05T23:39:40-07:00",
+    "subject": "Add modern coding agents and frameworks to catalogue",
+    "total": 37,
+    "added": [
+      "AnythingLLM",
+      "AutoGen",
+      "Browser Use",
+      "Claude Code",
+      "Cline",
+      "Continue",
+      "Dify",
+      "Flowise",
+      "Goose",
+      "Haystack",
+      "LangGraph",
+      "LlamaIndex",
+      "OpenHands",
+      "SWE-agent",
+      "Semantic Kernel",
+      "gpt-engineer"
+    ],
+    "removed": [],
+    "edited": []
+  },
+  {
+    "commit": "6aba20a2",
+    "at": "2026-01-23T00:30:05-08:00",
+    "subject": "Complete project",
+    "total": 21,
+    "added": [],
+    "removed": [],
+    "edited": []
+  }
+]

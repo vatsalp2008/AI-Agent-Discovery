@@ -1383,11 +1383,24 @@ def _warn_about_duplicates(agents: list[Agent]) -> None:
         )
 
 
+def _for_file(agent: Agent) -> dict:
+    """One record as it should appear on disk.
+
+    `status` is omitted when it is the default. Writing "active" on every
+    entry is 200-odd lines of noise that says nothing, and it made a re-seed
+    show up in the change history as though every agent had been edited.
+    """
+    record = agent.to_dict()
+    if record.get("status", "active") == "active":
+        record.pop("status", None)
+    return record
+
+
 def write_agents_json(agents: list[Agent]) -> None:
     """Persist the catalogue back to data/agents.json."""
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     with open(config.AGENTS_JSON, 'w') as f:
-        json.dump([agent.to_dict() for agent in agents], f, indent=2)
+        json.dump([_for_file(agent) for agent in agents], f, indent=2)
         # Trailing newline so re-seeding does not fight the end-of-file-fixer
         # pre-commit hook, which would otherwise flip the file back and forth.
         f.write("\n")

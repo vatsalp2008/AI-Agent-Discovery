@@ -10,8 +10,7 @@
     ],
     "github_stars": 35000,
     "url": "https://cursor.com",
-    "use_case": "Code editing, refactoring, generation",
-    "status": "active"
+    "use_case": "Code editing, refactoring, generation"
   },
   {
     "name": "Aider",
@@ -24,8 +23,7 @@
     ],
     "github_stars": 48151,
     "url": "https://github.com/Aider-AI/aider",
-    "use_case": "Terminal-based pair programming",
-    "status": "active"
+    "use_case": "Terminal-based pair programming"
   },
   {
     "name": "GitHub Copilot",
@@ -37,8 +35,7 @@
     ],
     "github_stars": 0,
     "url": "https://github.com/features/copilot",
-    "use_case": "Code completion, suggestions",
-    "status": "active"
+    "use_case": "Code completion, suggestions"
   },
   {
     "name": "OpenInterpreter",
@@ -51,8 +48,7 @@
     ],
     "github_stars": 67941,
     "url": "https://github.com/openinterpreter/openinterpreter",
-    "use_case": "Local system control, script execution",
-    "status": "active"
+    "use_case": "Local system control, script execution"
   },
   {
     "name": "AutoGPT",
@@ -65,8 +61,7 @@
     ],
     "github_stars": 186559,
     "url": "https://github.com/Significant-Gravitas/AutoGPT",
-    "use_case": "Goal-oriented autonomous tasks",
-    "status": "active"
+    "use_case": "Goal-oriented autonomous tasks"
   },
   {
     "name": "GPT Researcher",
@@ -79,8 +74,7 @@
     ],
     "github_stars": 28945,
     "url": "https://github.com/assafelovic/gpt-researcher",
-    "use_case": "Deep web research, report generation",
-    "status": "active"
+    "use_case": "Deep web research, report generation"
   },
   {
     "name": "BabyAGI",
@@ -93,8 +87,7 @@
     ],
     "github_stars": 22343,
     "url": "https://github.com/yoheinakajima/babyagi",
-    "use_case": "Task management, loop execution",
-    "status": "active"
+    "use_case": "Task management, loop execution"
   },
   {
     "name": "PandasAI",
@@ -107,8 +100,7 @@
     ],
     "github_stars": 23738,
     "url": "https://github.com/sinaptik-ai/pandas-ai",
-    "use_case": "Chat with data, analysis",
-    "status": "active"
+    "use_case": "Chat with data, analysis"
   },
   {
     "name": "MetaGPT",
@@ -120,8 +112,7 @@
     ],
     "github_stars": 69793,
     "url": "https://github.com/FoundationAgents/MetaGPT",
-    "use_case": "Software development lifecycle automation",
-    "status": "active"
+    "use_case": "Software development lifecycle automation"
   },
   {
     "name": "LangChain",
@@ -133,8 +124,7 @@
     ],
     "github_stars": 144091,
     "url": "https://github.com/langchain-ai/langchain",
-    "use_case": "LLM orchestration",
-    "status": "active"
+    "use_case": "LLM orchestration"
   },
   {
     "name": "CrewAI",
@@ -146,8 +136,7 @@
     ],
     "github_stars": 56994,
     "url": "https://github.com/crewAIInc/crewAI",
-    "use_case": "Multi-agent orchestration",
-    "status": "active"
+    "use_case": "Multi-agent orchestration"
   },
   {
     "name": "Rasa",
@@ -159,8 +148,7 @@
     ],
     "github_stars": 21289,
     "url": "https://github.com/RasaHQ/rasa",
-    "use_case": "Enterprise chatbots",
-    "status": "active"
+    "use_case": "Enterprise chatbots"
   },
   {
     "name": "Botpress",
@@ -172,8 +160,7 @@
     ],
     "github_stars": 12000,
     "url": "https://botpress.com",
-    "use_case": "Visual chatbot builder",
-    "status": "active"
+    "use_case": "Visual chatbot builder"
   },
   {
     "name": "Zapier AI Actions",
@@ -185,8 +172,7 @@
     ],
     "github_stars": 500,
     "url": "https://zapier.com/ai",
-    "use_case": "Connecting AI to thousands of apps",
-    "status": "active"
+    "use_case": "Connecting AI to thousands of apps"
   },
   {
     "name": "n8n",
@@ -198,8 +184,7 @@
     ],
     "github_stars": 40000,
     "url": "https://n8n.io",
-    "use_case": "Workflow automation",
-    "status": "active"
+    "use_case": "Workflow automation"
   },
   {
     "name": "SuperAGI",
@@ -225,8 +210,7 @@
     ],
     "github_stars": 33985,
     "url": "https://github.com/OpenBMB/ChatDev",
-    "use_case": "Full software project generation",
-    "status": "active"
+    "use_case": "Full software project generation"
   },
   {
     "name": "PrivateGPT",
@@ -239,8 +223,7 @@
     ],
     "github_stars": 57424,
     "url": "https://github.com/zylon-ai/private-gpt",
-    "use_case": "Document QA, RAG",
-    "status": "active"
+    "use_case": "Document QA, RAG"
   },
   {
     "name": "Quivr",
@@ -253,8 +236,7 @@
     ],
     "github_stars": 39394,
     "url": "https://github.com/QuivrHQ/quivr",
-    "use_case": "Personal knowledge base",
-    "status": "active"
+    "use_case": "Personal knowledge base"
   },
   {
     "name": "LocalGPT",
@@ -267,8 +249,7 @@
     ],
     "github_stars": 22206,
     "url": "https://github.com/PromtEngineer/localGPT",
-    "use_case": "Local RAG",
-    "status": "active"
+    "use_case": "Local RAG"
   },
   {
     "name": "Sweep",
@@ -280,8 +261,7 @@
     ],
     "github_stars": 7702,
     "url": "https://github.com/sweepai/sweep",
-    "use_case": "Bug fixing, feature implementation",
-    "status": "active"
+    "use_case": "Bug fixing, feature implementation"
   },
   {
     "name": "Claude Code",
@@ -293,8 +273,7 @@
     ],
     "github_stars": 141218,
     "url": "https://github.com/anthropics/claude-code",
-    "use_case": "Terminal-based agentic coding",
-    "status": "active"
+    "use_case": "Terminal-based agentic coding"
   },
   {
     "name": "OpenHands",
@@ -307,8 +286,7 @@
     ],
     "github_stars": 83820,
     "url": "https://github.com/OpenHands/OpenHands",
-    "use_case": "Autonomous software engineering",
-    "status": "active"
+    "use_case": "Autonomous software engineering"
   },
   {
     "name": "Cline",
@@ -320,8 +298,7 @@
     ],
     "github_stars": 66066,
     "url": "https://github.com/cline/cline",
-    "use_case": "In-editor agentic coding",
-    "status": "active"
+    "use_case": "In-editor agentic coding"
   },
   {
     "name": "Continue",
@@ -334,8 +311,7 @@
     ],
     "github_stars": 35460,
     "url": "https://github.com/continuedev/continue",
-    "use_case": "Customisable IDE assistant",
-    "status": "active"
+    "use_case": "Customisable IDE assistant"
   },
   {
     "name": "SWE-agent",
@@ -347,8 +323,7 @@
     ],
     "github_stars": 20050,
     "url": "https://github.com/SWE-agent/SWE-agent",
-    "use_case": "Automated issue resolution",
-    "status": "active"
+    "use_case": "Automated issue resolution"
   },
   {
     "name": "gpt-engineer",
@@ -372,8 +347,7 @@
     ],
     "github_stars": 60298,
     "url": "https://github.com/microsoft/autogen",
-    "use_case": "Multi-agent conversation",
-    "status": "active"
+    "use_case": "Multi-agent conversation"
   },
   {
     "name": "LangGraph",
@@ -385,8 +359,7 @@
     ],
     "github_stars": 39547,
     "url": "https://github.com/langchain-ai/langgraph",
-    "use_case": "Stateful agent graphs",
-    "status": "active"
+    "use_case": "Stateful agent graphs"
   },
   {
     "name": "LlamaIndex",
@@ -398,8 +371,7 @@
     ],
     "github_stars": 51411,
     "url": "https://github.com/run-llama/llama_index",
-    "use_case": "Data ingestion and RAG",
-    "status": "active"
+    "use_case": "Data ingestion and RAG"
   },
   {
     "name": "Semantic Kernel",
@@ -412,8 +384,7 @@
     ],
     "github_stars": 28423,
     "url": "https://github.com/microsoft/semantic-kernel",
-    "use_case": "Enterprise LLM orchestration",
-    "status": "active"
+    "use_case": "Enterprise LLM orchestration"
   },
   {
     "name": "Haystack",
@@ -425,8 +396,7 @@
     ],
     "github_stars": 26189,
     "url": "https://github.com/deepset-ai/haystack",
-    "use_case": "Production RAG pipelines",
-    "status": "active"
+    "use_case": "Production RAG pipelines"
   },
   {
     "name": "Dify",
@@ -439,8 +409,7 @@
     ],
     "github_stars": 152237,
     "url": "https://github.com/langgenius/dify",
-    "use_case": "Visual LLM app development",
-    "status": "active"
+    "use_case": "Visual LLM app development"
   },
   {
     "name": "Flowise",
@@ -465,8 +434,7 @@
     ],
     "github_stars": 64663,
     "url": "https://github.com/Mintplex-Labs/anything-llm",
-    "use_case": "Private document chat",
-    "status": "active"
+    "use_case": "Private document chat"
   },
   {
     "name": "Browser Use",
@@ -478,8 +446,7 @@
     ],
     "github_stars": 108957,
     "url": "https://github.com/browser-use/browser-use",
-    "use_case": "Web browsing automation",
-    "status": "active"
+    "use_case": "Web browsing automation"
   },
   {
     "name": "Goose",
@@ -491,8 +458,7 @@
     ],
     "github_stars": 52728,
     "url": "https://github.com/aaif-goose/goose",
-    "use_case": "Local developer automation",
-    "status": "active"
+    "use_case": "Local developer automation"
   },
   {
     "name": "Vanna AI",
@@ -518,8 +484,7 @@
     ],
     "github_stars": 4365,
     "url": "https://github.com/jupyterlab/jupyter-ai",
-    "use_case": "AI assistance inside notebooks",
-    "status": "active"
+    "use_case": "AI assistance inside notebooks"
   },
   {
     "name": "LIDA",
@@ -559,8 +524,7 @@
     ],
     "github_stars": 19705,
     "url": "https://github.com/eosphoros-ai/DB-GPT",
-    "use_case": "Private database question answering",
-    "status": "active"
+    "use_case": "Private database question answering"
   },
   {
     "name": "Devin Desktop",
@@ -572,8 +536,7 @@
     ],
     "github_stars": 0,
     "url": "https://devin.ai/desktop",
-    "use_case": "Agentic multi-file editing in an IDE",
-    "status": "active"
+    "use_case": "Agentic multi-file editing in an IDE"
   },
   {
     "name": "Zed",
@@ -585,8 +548,7 @@
     ],
     "github_stars": 58000,
     "url": "https://github.com/zed-industries/zed",
-    "use_case": "Fast native editing with AI assistance",
-    "status": "active"
+    "use_case": "Fast native editing with AI assistance"
   },
   {
     "name": "Tabby",
@@ -598,8 +560,7 @@
     ],
     "github_stars": 33821,
     "url": "https://github.com/TabbyML/tabby",
-    "use_case": "Self-hosted code completion",
-    "status": "active"
+    "use_case": "Self-hosted code completion"
   },
   {
     "name": "Devika",
@@ -611,8 +572,7 @@
     ],
     "github_stars": 19000,
     "url": "https://github.com/stitionai/devika",
-    "use_case": "Instruction-to-implementation coding",
-    "status": "active"
+    "use_case": "Instruction-to-implementation coding"
   },
   {
     "name": "Plandex",
@@ -624,8 +584,7 @@
     ],
     "github_stars": 11000,
     "url": "https://github.com/plandex-ai/plandex",
-    "use_case": "Reviewable multi-step terminal coding",
-    "status": "active"
+    "use_case": "Reviewable multi-step terminal coding"
   },
   {
     "name": "CodeRabbit",
@@ -637,8 +596,7 @@
     ],
     "github_stars": 0,
     "url": "https://www.coderabbit.ai",
-    "use_case": "Automated pull request review",
-    "status": "active"
+    "use_case": "Automated pull request review"
   },
   {
     "name": "RAGFlow",
@@ -651,8 +609,7 @@
     ],
     "github_stars": 87491,
     "url": "https://github.com/infiniflow/ragflow",
-    "use_case": "Document-grounded question answering",
-    "status": "active"
+    "use_case": "Document-grounded question answering"
   },
   {
     "name": "Verba",
@@ -679,8 +636,7 @@
     ],
     "github_stars": 36464,
     "url": "https://github.com/khoj-ai/khoj",
-    "use_case": "Personal knowledge search",
-    "status": "active"
+    "use_case": "Personal knowledge search"
   },
   {
     "name": "Mem0",
@@ -692,8 +648,7 @@
     ],
     "github_stars": 62775,
     "url": "https://github.com/mem0ai/mem0",
-    "use_case": "Long-term memory for agents",
-    "status": "active"
+    "use_case": "Long-term memory for agents"
   },
   {
     "name": "Letta",
@@ -705,8 +660,7 @@
     ],
     "github_stars": 24215,
     "url": "https://github.com/letta-ai/letta",
-    "use_case": "Stateful agents with self-managed memory",
-    "status": "active"
+    "use_case": "Stateful agents with self-managed memory"
   },
   {
     "name": "Unstructured",
@@ -718,8 +672,7 @@
     ],
     "github_stars": 15305,
     "url": "https://github.com/Unstructured-IO/unstructured",
-    "use_case": "Document ingestion for RAG",
-    "status": "active"
+    "use_case": "Document ingestion for RAG"
   },
   {
     "name": "Skyvern",
@@ -732,8 +685,7 @@
     ],
     "github_stars": 22739,
     "url": "https://github.com/Skyvern-AI/skyvern",
-    "use_case": "Resilient browser automation",
-    "status": "active"
+    "use_case": "Resilient browser automation"
   },
   {
     "name": "Stagehand",
@@ -745,8 +697,7 @@
     ],
     "github_stars": 23920,
     "url": "https://github.com/browserbase/stagehand",
-    "use_case": "Hybrid scripted and AI browsing",
-    "status": "active"
+    "use_case": "Hybrid scripted and AI browsing"
   },
   {
     "name": "Activepieces",
@@ -758,8 +709,7 @@
     ],
     "github_stars": 23743,
     "url": "https://github.com/activepieces/activepieces",
-    "use_case": "Open source workflow automation",
-    "status": "active"
+    "use_case": "Open source workflow automation"
   },
   {
     "name": "Vocode",
@@ -785,8 +735,7 @@
     ],
     "github_stars": 35761,
     "url": "https://github.com/chatwoot/chatwoot",
-    "use_case": "Omnichannel customer support",
-    "status": "active"
+    "use_case": "Omnichannel customer support"
   },
   {
     "name": "K8sGPT",
@@ -798,8 +747,7 @@
     ],
     "github_stars": 8071,
     "url": "https://github.com/k8sgpt-ai/k8sgpt",
-    "use_case": "Cluster diagnostics and triage",
-    "status": "active"
+    "use_case": "Cluster diagnostics and triage"
   },
   {
     "name": "Langfuse",
@@ -812,8 +760,7 @@
     ],
     "github_stars": 32980,
     "url": "https://github.com/langfuse/langfuse",
-    "use_case": "Tracing and evaluating LLM applications",
-    "status": "active"
+    "use_case": "Tracing and evaluating LLM applications"
   },
   {
     "name": "Phoenix",
@@ -825,8 +772,7 @@
     ],
     "github_stars": 11018,
     "url": "https://github.com/Arize-ai/phoenix",
-    "use_case": "Debugging retrieval and agent traces",
-    "status": "active"
+    "use_case": "Debugging retrieval and agent traces"
   },
   {
     "name": "DeepEval",
@@ -838,8 +784,7 @@
     ],
     "github_stars": 17557,
     "url": "https://github.com/confident-ai/deepeval",
-    "use_case": "Regression testing LLM behaviour",
-    "status": "active"
+    "use_case": "Regression testing LLM behaviour"
   },
   {
     "name": "Promptfoo",
@@ -851,8 +796,7 @@
     ],
     "github_stars": 24073,
     "url": "https://github.com/promptfoo/promptfoo",
-    "use_case": "Prompt testing and red teaming",
-    "status": "active"
+    "use_case": "Prompt testing and red teaming"
   },
   {
     "name": "OpenLLMetry",
@@ -864,8 +808,7 @@
     ],
     "github_stars": 7364,
     "url": "https://github.com/traceloop/openllmetry",
-    "use_case": "Standard telemetry for LLM apps",
-    "status": "active"
+    "use_case": "Standard telemetry for LLM apps"
   },
   {
     "name": "Opik",
@@ -877,8 +820,7 @@
     ],
     "github_stars": 21335,
     "url": "https://github.com/comet-ml/opik",
-    "use_case": "Production monitoring of LLM apps",
-    "status": "active"
+    "use_case": "Production monitoring of LLM apps"
   },
   {
     "name": "Ragas",
@@ -890,8 +832,7 @@
     ],
     "github_stars": 15260,
     "url": "https://github.com/vibrantlabsai/ragas",
-    "use_case": "Measuring RAG quality",
-    "status": "active"
+    "use_case": "Measuring RAG quality"
   },
   {
     "name": "Giskard",
@@ -903,8 +844,7 @@
     ],
     "github_stars": 5749,
     "url": "https://github.com/Giskard-AI/giskard-oss",
-    "use_case": "Automated vulnerability scanning for models",
-    "status": "active"
+    "use_case": "Automated vulnerability scanning for models"
   },
   {
     "name": "Guardrails",
@@ -916,8 +856,7 @@
     ],
     "github_stars": 7279,
     "url": "https://github.com/guardrails-ai/guardrails",
-    "use_case": "Validating and correcting model output",
-    "status": "active"
+    "use_case": "Validating and correcting model output"
   },
   {
     "name": "NeMo Guardrails",
@@ -929,8 +868,7 @@
     ],
     "github_stars": 6930,
     "url": "https://github.com/NVIDIA-NeMo/Guardrails",
-    "use_case": "Constraining what a chatbot will discuss",
-    "status": "active"
+    "use_case": "Constraining what a chatbot will discuss"
   },
   {
     "name": "Rebuff",
@@ -954,8 +892,7 @@
     ],
     "github_stars": 8783,
     "url": "https://github.com/NVIDIA/garak",
-    "use_case": "Red teaming a model before deployment",
-    "status": "active"
+    "use_case": "Red teaming a model before deployment"
   },
   {
     "name": "Presidio",
@@ -967,8 +904,7 @@
     ],
     "github_stars": 10458,
     "url": "https://github.com/data-privacy-stack/presidio",
-    "use_case": "Stripping PII before it reaches a model",
-    "status": "active"
+    "use_case": "Stripping PII before it reaches a model"
   },
   {
     "name": "LiteLLM",
@@ -981,8 +917,7 @@
     ],
     "github_stars": 56195,
     "url": "https://github.com/BerriAI/litellm",
-    "use_case": "Provider-agnostic model access",
-    "status": "active"
+    "use_case": "Provider-agnostic model access"
   },
   {
     "name": "Chroma",
@@ -995,8 +930,7 @@
     ],
     "github_stars": 29039,
     "url": "https://github.com/chroma-core/chroma",
-    "use_case": "Local vector storage for RAG",
-    "status": "active"
+    "use_case": "Local vector storage for RAG"
   },
   {
     "name": "Qdrant",
@@ -1008,8 +942,7 @@
     ],
     "github_stars": 33870,
     "url": "https://github.com/qdrant/qdrant",
-    "use_case": "Filtered vector search at scale",
-    "status": "active"
+    "use_case": "Filtered vector search at scale"
   },
   {
     "name": "Weaviate",
@@ -1021,8 +954,7 @@
     ],
     "github_stars": 16708,
     "url": "https://github.com/weaviate/weaviate",
-    "use_case": "Hybrid keyword and vector search",
-    "status": "active"
+    "use_case": "Hybrid keyword and vector search"
   },
   {
     "name": "Milvus",
@@ -1035,8 +967,7 @@
     ],
     "github_stars": 45568,
     "url": "https://github.com/milvus-io/milvus",
-    "use_case": "Very large scale vector search",
-    "status": "active"
+    "use_case": "Very large scale vector search"
   },
   {
     "name": "pgvector",
@@ -1048,8 +979,7 @@
     ],
     "github_stars": 22543,
     "url": "https://github.com/pgvector/pgvector",
-    "use_case": "Vector search without a separate database",
-    "status": "active"
+    "use_case": "Vector search without a separate database"
   },
   {
     "name": "FAISS",
@@ -1061,8 +991,7 @@
     ],
     "github_stars": 40724,
     "url": "https://github.com/facebookresearch/faiss",
-    "use_case": "In-process vector indexing",
-    "status": "active"
+    "use_case": "In-process vector indexing"
   },
   {
     "name": "Ollama",
@@ -1074,8 +1003,7 @@
     ],
     "github_stars": 178091,
     "url": "https://github.com/ollama/ollama",
-    "use_case": "Running models on your own machine",
-    "status": "active"
+    "use_case": "Running models on your own machine"
   },
   {
     "name": "vLLM",
@@ -1087,8 +1015,7 @@
     ],
     "github_stars": 88563,
     "url": "https://github.com/vllm-project/vllm",
-    "use_case": "Serving models at high throughput",
-    "status": "active"
+    "use_case": "Serving models at high throughput"
   },
   {
     "name": "Unsloth",
@@ -1101,8 +1028,7 @@
     ],
     "github_stars": 69775,
     "url": "https://github.com/unslothai/unsloth",
-    "use_case": "Fast low-memory fine-tuning",
-    "status": "active"
+    "use_case": "Fast low-memory fine-tuning"
   },
   {
     "name": "LLaMA-Factory",
@@ -1115,8 +1041,7 @@
     ],
     "github_stars": 74029,
     "url": "https://github.com/hiyouga/LlamaFactory",
-    "use_case": "Fine-tuning many model families from one tool",
-    "status": "active"
+    "use_case": "Fine-tuning many model families from one tool"
   },
   {
     "name": "Axolotl",
@@ -1129,8 +1054,7 @@
     ],
     "github_stars": 12344,
     "url": "https://github.com/axolotl-ai-cloud/axolotl",
-    "use_case": "Reproducible fine-tuning runs",
-    "status": "active"
+    "use_case": "Reproducible fine-tuning runs"
   },
   {
     "name": "PEFT",
@@ -1143,8 +1067,7 @@
     ],
     "github_stars": 21537,
     "url": "https://github.com/huggingface/peft",
-    "use_case": "Adapter-based fine-tuning",
-    "status": "active"
+    "use_case": "Adapter-based fine-tuning"
   },
   {
     "name": "TRL",
@@ -1157,8 +1080,7 @@
     ],
     "github_stars": 19060,
     "url": "https://github.com/huggingface/trl",
-    "use_case": "Preference and reward-based training",
-    "status": "active"
+    "use_case": "Preference and reward-based training"
   },
   {
     "name": "Argilla",
@@ -1170,8 +1092,7 @@
     ],
     "github_stars": 5079,
     "url": "https://github.com/argilla-io/argilla",
-    "use_case": "Human feedback and dataset curation",
-    "status": "active"
+    "use_case": "Human feedback and dataset curation"
   },
   {
     "name": "SDV",
@@ -1184,8 +1105,7 @@
     ],
     "github_stars": 3541,
     "url": "https://github.com/sdv-dev/SDV",
-    "use_case": "Synthetic datasets for testing",
-    "status": "active"
+    "use_case": "Synthetic datasets for testing"
   },
   {
     "name": "Metaflow",
@@ -1198,8 +1118,7 @@
     ],
     "github_stars": 10209,
     "url": "https://github.com/Netflix/metaflow",
-    "use_case": "Productionising ML pipelines",
-    "status": "active"
+    "use_case": "Productionising ML pipelines"
   },
   {
     "name": "Whisper",
@@ -1211,8 +1130,7 @@
     ],
     "github_stars": 106984,
     "url": "https://github.com/openai/whisper",
-    "use_case": "Transcribing audio",
-    "status": "active"
+    "use_case": "Transcribing audio"
   },
   {
     "name": "Faster Whisper",
@@ -1224,8 +1142,7 @@
     ],
     "github_stars": 24876,
     "url": "https://github.com/SYSTRAN/faster-whisper",
-    "use_case": "Fast local transcription",
-    "status": "active"
+    "use_case": "Fast local transcription"
   },
   {
     "name": "Coqui TTS",
@@ -1250,8 +1167,7 @@
     ],
     "github_stars": 127065,
     "url": "https://github.com/Comfy-Org/ComfyUI",
-    "use_case": "Composable image generation pipelines",
-    "status": "active"
+    "use_case": "Composable image generation pipelines"
   },
   {
     "name": "Stable Diffusion WebUI",
@@ -1264,8 +1180,7 @@
     ],
     "github_stars": 164498,
     "url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
-    "use_case": "Local image generation",
-    "status": "active"
+    "use_case": "Local image generation"
   },
   {
     "name": "CLIP",
@@ -1277,8 +1192,7 @@
     ],
     "github_stars": 34150,
     "url": "https://github.com/openai/CLIP",
-    "use_case": "Image and text similarity search",
-    "status": "active"
+    "use_case": "Image and text similarity search"
   },
   {
     "name": "Pipecat",
@@ -1290,8 +1204,7 @@
     ],
     "github_stars": 14031,
     "url": "https://github.com/pipecat-ai/pipecat",
-    "use_case": "Realtime conversational agents",
-    "status": "active"
+    "use_case": "Realtime conversational agents"
   },
   {
     "name": "LiveKit Agents",
@@ -1304,8 +1217,7 @@
     ],
     "github_stars": 12952,
     "url": "https://github.com/livekit/agents",
-    "use_case": "Voice agents over phone and web",
-    "status": "active"
+    "use_case": "Voice agents over phone and web"
   },
   {
     "name": "Pydantic AI",
@@ -1317,8 +1229,7 @@
     ],
     "github_stars": 19181,
     "url": "https://github.com/pydantic/pydantic-ai",
-    "use_case": "Type-safe agent development",
-    "status": "active"
+    "use_case": "Type-safe agent development"
   },
   {
     "name": "OpenAI Agents SDK",
@@ -1330,8 +1241,7 @@
     ],
     "github_stars": 28516,
     "url": "https://github.com/openai/openai-agents-python",
-    "use_case": "Multi-agent handoffs and tracing",
-    "status": "active"
+    "use_case": "Multi-agent handoffs and tracing"
   },
   {
     "name": "Agno",
@@ -1343,8 +1253,7 @@
     ],
     "github_stars": 41681,
     "url": "https://github.com/agno-agi/agno",
-    "use_case": "Full-stack agent platforms",
-    "status": "active"
+    "use_case": "Full-stack agent platforms"
   },
   {
     "name": "MCP Servers",
@@ -1357,8 +1266,7 @@
     ],
     "github_stars": 89384,
     "url": "https://github.com/modelcontextprotocol/servers",
-    "use_case": "Connecting agents to tools and data",
-    "status": "active"
+    "use_case": "Connecting agents to tools and data"
   },
   {
     "name": "Superagent",
@@ -1370,8 +1278,7 @@
     ],
     "github_stars": 6708,
     "url": "https://github.com/superagent-ai/superagent",
-    "use_case": "Runtime protection for agents",
-    "status": "active"
+    "use_case": "Runtime protection for agents"
   },
   {
     "name": "Portkey Gateway",
@@ -1383,8 +1290,7 @@
     ],
     "github_stars": 12702,
     "url": "https://github.com/Portkey-AI/gateway",
-    "use_case": "Reliable multi-provider model access",
-    "status": "active"
+    "use_case": "Reliable multi-provider model access"
   },
   {
     "name": "BentoML",
@@ -1397,8 +1303,7 @@
     ],
     "github_stars": 8782,
     "url": "https://github.com/bentoml/BentoML",
-    "use_case": "Serving models as production APIs",
-    "status": "active"
+    "use_case": "Serving models as production APIs"
   },
   {
     "name": "Ray",
@@ -1411,8 +1316,7 @@
     ],
     "github_stars": 43481,
     "url": "https://github.com/ray-project/ray",
-    "use_case": "Distributed training and inference",
-    "status": "active"
+    "use_case": "Distributed training and inference"
   },
   {
     "name": "Langflow",
@@ -1424,8 +1328,7 @@
     ],
     "github_stars": 153105,
     "url": "https://github.com/langflow-ai/langflow",
-    "use_case": "Building agent flows without writing code",
-    "status": "active"
+    "use_case": "Building agent flows without writing code"
   },
   {
     "name": "Marvin",
@@ -1437,8 +1340,7 @@
     ],
     "github_stars": 6187,
     "url": "https://github.com/PrefectHQ/marvin",
-    "use_case": "AI as ordinary typed functions",
-    "status": "active"
+    "use_case": "AI as ordinary typed functions"
   },
   {
     "name": "GraphRAG",
@@ -1451,8 +1353,7 @@
     ],
     "github_stars": 35388,
     "url": "https://github.com/microsoft/graphrag",
-    "use_case": "Question answering across whole corpora",
-    "status": "active"
+    "use_case": "Question answering across whole corpora"
   },
   {
     "name": "DSPy",
@@ -1464,8 +1365,7 @@
     ],
     "github_stars": 37030,
     "url": "https://github.com/stanfordnlp/dspy",
-    "use_case": "Optimising prompts programmatically",
-    "status": "active"
+    "use_case": "Optimising prompts programmatically"
   },
   {
     "name": "ScrapeGraphAI",
@@ -1478,8 +1378,7 @@
     ],
     "github_stars": 29435,
     "url": "https://github.com/ScrapeGraphAI/Scrapegraph-ai",
-    "use_case": "Structured extraction from web pages",
-    "status": "active"
+    "use_case": "Structured extraction from web pages"
   },
   {
     "name": "Jina Reader",
@@ -1491,8 +1390,7 @@
     ],
     "github_stars": 11855,
     "url": "https://github.com/jina-ai/reader",
-    "use_case": "Feeding web pages to a model",
-    "status": "active"
+    "use_case": "Feeding web pages to a model"
   },
   {
     "name": "MarkItDown",
@@ -1504,8 +1402,7 @@
     ],
     "github_stars": 172891,
     "url": "https://github.com/microsoft/markitdown",
-    "use_case": "Normalising documents before indexing",
-    "status": "active"
+    "use_case": "Normalising documents before indexing"
   },
   {
     "name": "Docling",
@@ -1518,8 +1415,7 @@
     ],
     "github_stars": 64670,
     "url": "https://github.com/docling-project/docling",
-    "use_case": "Layout-aware document parsing",
-    "status": "active"
+    "use_case": "Layout-aware document parsing"
   },
   {
     "name": "llama.cpp",
@@ -1531,8 +1427,7 @@
     ],
     "github_stars": 123680,
     "url": "https://github.com/ggml-org/llama.cpp",
-    "use_case": "Inference on modest hardware",
-    "status": "active"
+    "use_case": "Inference on modest hardware"
   },
   {
     "name": "MLC LLM",
@@ -1545,8 +1440,7 @@
     ],
     "github_stars": 23049,
     "url": "https://github.com/mlc-ai/mlc-llm",
-    "use_case": "Deploying models to edge devices",
-    "status": "active"
+    "use_case": "Deploying models to edge devices"
   },
   {
     "name": "MLX",
@@ -1559,8 +1453,7 @@
     ],
     "github_stars": 27898,
     "url": "https://github.com/ml-explore/mlx",
-    "use_case": "Training and inference on Apple silicon",
-    "status": "active"
+    "use_case": "Training and inference on Apple silicon"
   },
   {
     "name": "LeRobot",
@@ -1572,8 +1465,7 @@
     ],
     "github_stars": 26608,
     "url": "https://github.com/huggingface/lerobot",
-    "use_case": "Training robot policies",
-    "status": "active"
+    "use_case": "Training robot policies"
   },
   {
     "name": "PaperQA",
@@ -1585,8 +1477,7 @@
     ],
     "github_stars": 9019,
     "url": "https://github.com/Future-House/paper-qa",
-    "use_case": "Literature review with citations",
-    "status": "active"
+    "use_case": "Literature review with citations"
   },
   {
     "name": "Nougat",
@@ -1612,8 +1503,7 @@
     ],
     "github_stars": 21890,
     "url": "https://github.com/openai/swarm",
-    "use_case": "Learning multi-agent patterns",
-    "status": "active"
+    "use_case": "Learning multi-agent patterns"
   },
   {
     "name": "A2A",
@@ -1625,8 +1515,7 @@
     ],
     "github_stars": 25318,
     "url": "https://github.com/a2aproject/A2A",
-    "use_case": "Cross-vendor agent communication",
-    "status": "active"
+    "use_case": "Cross-vendor agent communication"
   },
   {
     "name": "Isaac Lab",
@@ -1639,8 +1528,7 @@
     ],
     "github_stars": 7886,
     "url": "https://github.com/isaac-sim/IsaacLab",
-    "use_case": "Training robot policies in simulation",
-    "status": "active"
+    "use_case": "Training robot policies in simulation"
   },
   {
     "name": "MuJoCo",
@@ -1652,8 +1540,7 @@
     ],
     "github_stars": 14530,
     "url": "https://github.com/google-deepmind/mujoco",
-    "use_case": "Physics simulation for control research",
-    "status": "active"
+    "use_case": "Physics simulation for control research"
   },
   {
     "name": "Gymnasium",
@@ -1665,8 +1552,7 @@
     ],
     "github_stars": 12312,
     "url": "https://github.com/Farama-Foundation/Gymnasium",
-    "use_case": "Standard interface for RL environments",
-    "status": "active"
+    "use_case": "Standard interface for RL environments"
   },
   {
     "name": "Isaac GR00T",
@@ -1679,8 +1565,7 @@
     ],
     "github_stars": 7807,
     "url": "https://github.com/NVIDIA/Isaac-GR00T",
-    "use_case": "Foundation model for humanoid control",
-    "status": "active"
+    "use_case": "Foundation model for humanoid control"
   },
   {
     "name": "Habitat Lab",
@@ -1692,8 +1577,7 @@
     ],
     "github_stars": 3096,
     "url": "https://github.com/facebookresearch/habitat-lab",
-    "use_case": "Embodied navigation research",
-    "status": "active"
+    "use_case": "Embodied navigation research"
   },
   {
     "name": "Nav2",
@@ -1705,8 +1589,7 @@
     ],
     "github_stars": 4572,
     "url": "https://github.com/ros-navigation/navigation2",
-    "use_case": "Autonomous navigation for mobile robots",
-    "status": "active"
+    "use_case": "Autonomous navigation for mobile robots"
   },
   {
     "name": "MLflow",
@@ -1718,8 +1601,7 @@
     ],
     "github_stars": 27471,
     "url": "https://github.com/mlflow/mlflow",
-    "use_case": "Experiment tracking and model registry",
-    "status": "active"
+    "use_case": "Experiment tracking and model registry"
   },
   {
     "name": "Weights & Biases",
@@ -1731,8 +1613,7 @@
     ],
     "github_stars": 11228,
     "url": "https://github.com/wandb/wandb",
-    "use_case": "Experiment tracking and comparison",
-    "status": "active"
+    "use_case": "Experiment tracking and comparison"
   },
   {
     "name": "DVC",
@@ -1744,8 +1625,7 @@
     ],
     "github_stars": 15808,
     "url": "https://github.com/treeverse/dvc",
-    "use_case": "Versioning data alongside code",
-    "status": "active"
+    "use_case": "Versioning data alongside code"
   },
   {
     "name": "Great Expectations",
@@ -1757,8 +1637,7 @@
     ],
     "github_stars": 11708,
     "url": "https://github.com/fivetran/great_expectations",
-    "use_case": "Data quality checks in a pipeline",
-    "status": "active"
+    "use_case": "Data quality checks in a pipeline"
   },
   {
     "name": "Evidently",
@@ -1770,8 +1649,7 @@
     ],
     "github_stars": 7800,
     "url": "https://github.com/evidentlyai/evidently",
-    "use_case": "Detecting drift after deployment",
-    "status": "active"
+    "use_case": "Detecting drift after deployment"
   },
   {
     "name": "whylogs",
@@ -1796,8 +1674,7 @@
     ],
     "github_stars": 16957,
     "url": "https://github.com/QwenLM/Qwen-Agent",
-    "use_case": "Building agents on Qwen models",
-    "status": "active"
+    "use_case": "Building agents on Qwen models"
   },
   {
     "name": "CAMEL",
@@ -1809,8 +1686,7 @@
     ],
     "github_stars": 17578,
     "url": "https://github.com/camel-ai/camel",
-    "use_case": "Researching agent collaboration",
-    "status": "active"
+    "use_case": "Researching agent collaboration"
   },
   {
     "name": "XAgent",
@@ -1822,8 +1698,7 @@
     ],
     "github_stars": 8531,
     "url": "https://github.com/OpenBMB/XAgent",
-    "use_case": "Autonomous execution of complex tasks",
-    "status": "active"
+    "use_case": "Autonomous execution of complex tasks"
   },
   {
     "name": "TransformerLens",
@@ -1835,8 +1710,7 @@
     ],
     "github_stars": 3782,
     "url": "https://github.com/TransformerLensOrg/TransformerLens",
-    "use_case": "Understanding what a model has learned",
-    "status": "active"
+    "use_case": "Understanding what a model has learned"
   },
   {
     "name": "torchtune",
@@ -1848,8 +1722,7 @@
     ],
     "github_stars": 5797,
     "url": "https://github.com/meta-pytorch/torchtune",
-    "use_case": "Fine-tuning with PyTorch-native recipes",
-    "status": "active"
+    "use_case": "Fine-tuning with PyTorch-native recipes"
   },
   {
     "name": "LibreChat",
@@ -1862,8 +1735,7 @@
     ],
     "github_stars": 41966,
     "url": "https://github.com/danny-avila/LibreChat",
-    "use_case": "Self-hosted chat across providers",
-    "status": "active"
+    "use_case": "Self-hosted chat across providers"
   },
   {
     "name": "Open WebUI",
@@ -1876,8 +1748,7 @@
     ],
     "github_stars": 148501,
     "url": "https://github.com/open-webui/open-webui",
-    "use_case": "A front end for locally-run models",
-    "status": "active"
+    "use_case": "A front end for locally-run models"
   },
   {
     "name": "LobeChat",
@@ -1889,8 +1760,7 @@
     ],
     "github_stars": 81599,
     "url": "https://github.com/lobehub/lobehub",
-    "use_case": "Extensible chat with plugins",
-    "status": "active"
+    "use_case": "Extensible chat with plugins"
   },
   {
     "name": "OpenCode",
@@ -1902,8 +1772,7 @@
     ],
     "github_stars": 196547,
     "url": "https://github.com/anomalyco/opencode",
-    "use_case": "Provider-agnostic terminal coding",
-    "status": "active"
+    "use_case": "Provider-agnostic terminal coding"
   },
   {
     "name": "AgentGPT",
@@ -1930,8 +1799,7 @@
     ],
     "github_stars": 13366,
     "url": "https://github.com/e2b-dev/E2B",
-    "use_case": "Sandboxed execution of generated code",
-    "status": "active"
+    "use_case": "Sandboxed execution of generated code"
   },
   {
     "name": "Firecrawl",
@@ -1943,8 +1811,7 @@
     ],
     "github_stars": 166390,
     "url": "https://github.com/firecrawl/firecrawl",
-    "use_case": "Web data extraction for agents",
-    "status": "active"
+    "use_case": "Web data extraction for agents"
   },
   {
     "name": "SiYuan",
@@ -1956,8 +1823,7 @@
     ],
     "github_stars": 45741,
     "url": "https://github.com/siyuan-note/siyuan",
-    "use_case": "Local-first personal knowledge base",
-    "status": "active"
+    "use_case": "Local-first personal knowledge base"
   },
   {
     "name": "OpenAdapt",
@@ -1969,8 +1835,7 @@
     ],
     "github_stars": 1675,
     "url": "https://github.com/OpenAdaptAI/OpenAdapt",
-    "use_case": "Automating desktop workflows by demonstration",
-    "status": "active"
+    "use_case": "Automating desktop workflows by demonstration"
   },
   {
     "name": "UFO",
@@ -1983,8 +1848,7 @@
     ],
     "github_stars": 9453,
     "url": "https://github.com/microsoft/UFO",
-    "use_case": "Operating desktop applications",
-    "status": "active"
+    "use_case": "Operating desktop applications"
   },
   {
     "name": "Cloudflare Agents",
@@ -1996,8 +1860,7 @@
     ],
     "github_stars": 5423,
     "url": "https://github.com/cloudflare/agents",
-    "use_case": "Deploying agents to the edge",
-    "status": "active"
+    "use_case": "Deploying agents to the edge"
   },
   {
     "name": "Parler TTS",
@@ -2022,8 +1885,7 @@
     ],
     "github_stars": 23546,
     "url": "https://github.com/m-bain/whisperX",
-    "use_case": "Transcription with speaker labels",
-    "status": "active"
+    "use_case": "Transcription with speaker labels"
   },
   {
     "name": "Bark",
@@ -2048,8 +1910,7 @@
     ],
     "github_stars": 11839,
     "url": "https://github.com/facebookresearch/seamless_communication",
-    "use_case": "Multilingual speech translation",
-    "status": "active"
+    "use_case": "Multilingual speech translation"
   },
   {
     "name": "LLaVA",
@@ -2076,8 +1937,7 @@
     ],
     "github_stars": 19778,
     "url": "https://github.com/QwenLM/Qwen3-VL",
-    "use_case": "Document and video understanding",
-    "status": "active"
+    "use_case": "Document and video understanding"
   },
   {
     "name": "PurpleLlama",
@@ -2089,8 +1949,7 @@
     ],
     "github_stars": 4344,
     "url": "https://github.com/meta-llama/PurpleLlama",
-    "use_case": "Safety benchmarking and guardrails",
-    "status": "active"
+    "use_case": "Safety benchmarking and guardrails"
   },
   {
     "name": "PyRIT",
@@ -2115,8 +1974,7 @@
     ],
     "github_stars": 15811,
     "url": "https://github.com/kubeflow/kubeflow",
-    "use_case": "ML workflows on Kubernetes",
-    "status": "active"
+    "use_case": "ML workflows on Kubernetes"
   },
   {
     "name": "ZenML",
@@ -2128,8 +1986,7 @@
     ],
     "github_stars": 5553,
     "url": "https://github.com/zenml-io/zenml",
-    "use_case": "Portable ML pipelines",
-    "status": "active"
+    "use_case": "Portable ML pipelines"
   },
   {
     "name": "Dagster",
@@ -2141,8 +1998,7 @@
     ],
     "github_stars": 15978,
     "url": "https://github.com/dagster-io/dagster",
-    "use_case": "Asset-aware data orchestration",
-    "status": "active"
+    "use_case": "Asset-aware data orchestration"
   },
   {
     "name": "OpenLLM",
@@ -2154,8 +2010,7 @@
     ],
     "github_stars": 12482,
     "url": "https://github.com/bentoml/OpenLLM",
-    "use_case": "Self-hosted model serving",
-    "status": "active"
+    "use_case": "Self-hosted model serving"
   },
   {
     "name": "MoveIt 2",
@@ -2168,8 +2023,7 @@
     ],
     "github_stars": 1956,
     "url": "https://github.com/moveit/moveit2",
-    "use_case": "Arm motion planning",
-    "status": "active"
+    "use_case": "Arm motion planning"
   },
   {
     "name": "Genesis",
@@ -2181,8 +2035,7 @@
     ],
     "github_stars": 29740,
     "url": "https://github.com/Genesis-Embodied-AI/genesis-world",
-    "use_case": "Fast physics simulation",
-    "status": "active"
+    "use_case": "Fast physics simulation"
   },
   {
     "name": "robosuite",
@@ -2194,8 +2047,7 @@
     ],
     "github_stars": 2556,
     "url": "https://github.com/ARISE-Initiative/robosuite",
-    "use_case": "Benchmarking manipulation",
-    "status": "active"
+    "use_case": "Benchmarking manipulation"
   },
   {
     "name": "Drake",
@@ -2207,8 +2059,7 @@
     ],
     "github_stars": 4147,
     "url": "https://github.com/RobotLocomotion/drake",
-    "use_case": "Control and verification",
-    "status": "active"
+    "use_case": "Control and verification"
   },
   {
     "name": "ms-swift",
@@ -2220,8 +2071,7 @@
     ],
     "github_stars": 15135,
     "url": "https://github.com/modelscope/ms-swift",
-    "use_case": "Multimodal fine-tuning",
-    "status": "active"
+    "use_case": "Multimodal fine-tuning"
   },
   {
     "name": "LitGPT",
@@ -2234,8 +2084,7 @@
     ],
     "github_stars": 13611,
     "url": "https://github.com/Lightning-AI/litgpt",
-    "use_case": "Hackable training recipes",
-    "status": "active"
+    "use_case": "Hackable training recipes"
   },
   {
     "name": "OpenRLHF",
@@ -2248,8 +2097,7 @@
     ],
     "github_stars": 9906,
     "url": "https://github.com/OpenRLHF/OpenRLHF",
-    "use_case": "Alignment training",
-    "status": "active"
+    "use_case": "Alignment training"
   },
   {
     "name": "Megatron-LM",
@@ -2262,8 +2110,7 @@
     ],
     "github_stars": 17403,
     "url": "https://github.com/NVIDIA/Megatron-LM",
-    "use_case": "Large-scale pretraining",
-    "status": "active"
+    "use_case": "Large-scale pretraining"
   },
   {
     "name": "Data Formulator",
@@ -2275,8 +2122,7 @@
     ],
     "github_stars": 16020,
     "url": "https://github.com/microsoft/data-formulator",
-    "use_case": "Conversational charting",
-    "status": "active"
+    "use_case": "Conversational charting"
   },
   {
     "name": "PyGWalker",
@@ -2288,8 +2134,7 @@
     ],
     "github_stars": 15937,
     "url": "https://github.com/Kanaries/pygwalker",
-    "use_case": "Visual dataframe exploration",
-    "status": "active"
+    "use_case": "Visual dataframe exploration"
   },
   {
     "name": "AutoGluon",
@@ -2301,8 +2146,7 @@
     ],
     "github_stars": 10594,
     "url": "https://github.com/autogluon/autogluon",
-    "use_case": "Automated modelling",
-    "status": "active"
+    "use_case": "Automated modelling"
   },
   {
     "name": "Chat2DB",
@@ -2314,8 +2158,7 @@
     ],
     "github_stars": 27954,
     "url": "https://github.com/OtterMind/Chat2DB",
-    "use_case": "Natural language SQL",
-    "status": "active"
+    "use_case": "Natural language SQL"
   },
   {
     "name": "LLM Guard",
@@ -2339,8 +2182,7 @@
     ],
     "github_stars": 1289,
     "url": "https://github.com/unitaryai/detoxify",
-    "use_case": "Toxicity scoring",
-    "status": "active"
+    "use_case": "Toxicity scoring"
   },
   {
     "name": "ModelScan",
@@ -2351,8 +2193,7 @@
     ],
     "github_stars": 762,
     "url": "https://github.com/protectai/modelscan",
-    "use_case": "Model supply chain scanning",
-    "status": "active"
+    "use_case": "Model supply chain scanning"
   },
   {
     "name": "Typebot",
@@ -2364,8 +2205,7 @@
     ],
     "github_stars": 10254,
     "url": "https://github.com/baptisteArno/typebot.io",
-    "use_case": "Conversational forms",
-    "status": "active"
+    "use_case": "Conversational forms"
   },
   {
     "name": "FastGPT",
@@ -2377,8 +2217,7 @@
     ],
     "github_stars": 29344,
     "url": "https://github.com/labring/FastGPT",
-    "use_case": "Knowledge-base assistants",
-    "status": "active"
+    "use_case": "Knowledge-base assistants"
   },
   {
     "name": "Chaskiq",
@@ -2390,8 +2229,7 @@
     ],
     "github_stars": 3554,
     "url": "https://github.com/chaskiq/chaskiq",
-    "use_case": "Self-hosted support desk",
-    "status": "active"
+    "use_case": "Self-hosted support desk"
   },
   {
     "name": "Transformers",
@@ -2403,8 +2241,7 @@
     ],
     "github_stars": 164078,
     "url": "https://github.com/huggingface/transformers",
-    "use_case": "Loading and running models",
-    "status": "active"
+    "use_case": "Loading and running models"
   },
   {
     "name": "Meilisearch",
@@ -2415,8 +2252,7 @@
     ],
     "github_stars": 58959,
     "url": "https://github.com/meilisearch/meilisearch",
-    "use_case": "Keyword and hybrid search",
-    "status": "active"
+    "use_case": "Keyword and hybrid search"
   },
   {
     "name": "cognee",
@@ -2427,8 +2263,7 @@
     ],
     "github_stars": 30001,
     "url": "https://github.com/topoteretes/cognee",
-    "use_case": "Agent memory",
-    "status": "active"
+    "use_case": "Agent memory"
   },
   {
     "name": "Gemini CLI",
@@ -2440,8 +2275,7 @@
     ],
     "github_stars": 106507,
     "url": "https://github.com/google-gemini/gemini-cli",
-    "use_case": "Editing code from the terminal",
-    "status": "active"
+    "use_case": "Editing code from the terminal"
   },
   {
     "name": "PaddleOCR",
@@ -2453,8 +2287,7 @@
     ],
     "github_stars": 87585,
     "url": "https://github.com/PaddlePaddle/PaddleOCR",
-    "use_case": "Reading text from images",
-    "status": "active"
+    "use_case": "Reading text from images"
   },
   {
     "name": "GPT-SoVITS",
@@ -2466,8 +2299,7 @@
     ],
     "github_stars": 60823,
     "url": "https://github.com/RVC-Boss/GPT-SoVITS",
-    "use_case": "Cloning a voice",
-    "status": "active"
+    "use_case": "Cloning a voice"
   },
   {
     "name": "CosyVoice",
@@ -2479,8 +2311,7 @@
     ],
     "github_stars": 22743,
     "url": "https://github.com/QwenAudio/CosyVoice",
-    "use_case": "Expressive speech synthesis",
-    "status": "active"
+    "use_case": "Expressive speech synthesis"
   },
   {
     "name": "FunASR",
@@ -2492,8 +2323,7 @@
     ],
     "github_stars": 19820,
     "url": "https://github.com/modelscope/FunASR",
-    "use_case": "Production transcription",
-    "status": "active"
+    "use_case": "Production transcription"
   },
   {
     "name": "IndexTTS",
@@ -2505,8 +2335,7 @@
     ],
     "github_stars": 22825,
     "url": "https://github.com/index-tts/index-tts",
-    "use_case": "Directable voice cloning",
-    "status": "active"
+    "use_case": "Directable voice cloning"
   },
   {
     "name": "openpilot",
@@ -2518,8 +2347,7 @@
     ],
     "github_stars": 63402,
     "url": "https://github.com/commaai/openpilot",
-    "use_case": "Autonomous driving",
-    "status": "active"
+    "use_case": "Autonomous driving"
   },
   {
     "name": "LightRAG",
@@ -2530,8 +2358,7 @@
     ],
     "github_stars": 38838,
     "url": "https://github.com/HKUDS/LightRAG",
-    "use_case": "Graph-based retrieval",
-    "status": "active"
+    "use_case": "Graph-based retrieval"
   },
   {
     "name": "PageIndex",
@@ -2542,8 +2369,7 @@
     ],
     "github_stars": 35169,
     "url": "https://github.com/VectifyAI/PageIndex",
-    "use_case": "Structure-aware indexing",
-    "status": "active"
+    "use_case": "Structure-aware indexing"
   },
   {
     "name": "DeerFlow",
@@ -2555,8 +2381,7 @@
     ],
     "github_stars": 79944,
     "url": "https://github.com/bytedance/deer-flow",
-    "use_case": "Multi-step research",
-    "status": "active"
+    "use_case": "Multi-step research"
   },
   {
     "name": "Composio",
@@ -2568,8 +2393,7 @@
     ],
     "github_stars": 29677,
     "url": "https://github.com/ComposioHQ/composio",
-    "use_case": "Connecting agents to tools",
-    "status": "active"
+    "use_case": "Connecting agents to tools"
   },
   {
     "name": "Prompt Optimizer",
@@ -2581,8 +2405,7 @@
     ],
     "github_stars": 33121,
     "url": "https://github.com/linshenkx/prompt-optimizer",
-    "use_case": "Improving a prompt",
-    "status": "active"
+    "use_case": "Improving a prompt"
   },
   {
     "name": "AgenticSeek",
@@ -2593,8 +2416,7 @@
     ],
     "github_stars": 26793,
     "url": "https://github.com/Fosowl/agenticSeek",
-    "use_case": "Running tasks locally",
-    "status": "active"
+    "use_case": "Running tasks locally"
   },
   {
     "name": "PentAGI",
@@ -2606,8 +2428,7 @@
     ],
     "github_stars": 21809,
     "url": "https://github.com/vxcontrol/pentagi",
-    "use_case": "Automated security testing",
-    "status": "active"
+    "use_case": "Automated security testing"
   },
   {
     "name": "FinGPT",
@@ -2619,8 +2440,7 @@
     ],
     "github_stars": 21082,
     "url": "https://github.com/AI4Finance-Foundation/FinGPT",
-    "use_case": "Financial text analysis",
-    "status": "active"
+    "use_case": "Financial text analysis"
   },
   {
     "name": "LM Evaluation Harness",
@@ -2631,8 +2451,7 @@
     ],
     "github_stars": 13619,
     "url": "https://github.com/EleutherAI/lm-evaluation-harness",
-    "use_case": "Benchmarking a model",
-    "status": "active"
+    "use_case": "Benchmarking a model"
   },
   {
     "name": "Inspect AI",
@@ -2643,8 +2462,7 @@
     ],
     "github_stars": 2537,
     "url": "https://github.com/UKGovernmentBEIS/inspect_ai",
-    "use_case": "Auditable evaluations",
-    "status": "active"
+    "use_case": "Auditable evaluations"
   },
   {
     "name": "Flyte",
@@ -2656,8 +2474,7 @@
     ],
     "github_stars": 7201,
     "url": "https://github.com/flyteorg/flyte",
-    "use_case": "Typed ML pipelines",
-    "status": "active"
+    "use_case": "Typed ML pipelines"
   },
   {
     "name": "ClearML",
@@ -2668,8 +2485,7 @@
     ],
     "github_stars": 6818,
     "url": "https://github.com/clearml/clearml",
-    "use_case": "End-to-end ML platform",
-    "status": "active"
+    "use_case": "End-to-end ML platform"
   },
   {
     "name": "Aim",
@@ -2681,8 +2497,7 @@
     ],
     "github_stars": 6230,
     "url": "https://github.com/aimhubio/aim",
-    "use_case": "Comparing many runs",
-    "status": "active"
+    "use_case": "Comparing many runs"
   },
   {
     "name": "RagaAI Catalyst",
@@ -2693,8 +2508,7 @@
     ],
     "github_stars": 16151,
     "url": "https://github.com/raga-ai-hub/RagaAI-Catalyst",
-    "use_case": "Debugging agent pipelines",
-    "status": "active"
+    "use_case": "Debugging agent pipelines"
   },
   {
     "name": "TensorZero",
@@ -2718,8 +2532,7 @@
     ],
     "github_stars": 10952,
     "url": "https://github.com/kedro-org/kedro",
-    "use_case": "Structuring an ML project",
-    "status": "active"
+    "use_case": "Structuring an ML project"
   },
   {
     "name": "Label Studio",
@@ -2731,8 +2544,7 @@
     ],
     "github_stars": 28058,
     "url": "https://github.com/HumanSignal/label-studio",
-    "use_case": "Annotating training data",
-    "status": "active"
+    "use_case": "Annotating training data"
   },
   {
     "name": "Airbyte",
@@ -2744,8 +2556,7 @@
     ],
     "github_stars": 21891,
     "url": "https://github.com/airbytehq/airbyte",
-    "use_case": "Moving data into a pipeline",
-    "status": "active"
+    "use_case": "Moving data into a pipeline"
   },
   {
     "name": "Automa",
@@ -2757,8 +2568,7 @@
     ],
     "github_stars": 21564,
     "url": "https://github.com/AutomaApp/automa",
-    "use_case": "Recording a browser workflow",
-    "status": "active"
+    "use_case": "Recording a browser workflow"
   },
   {
     "name": "Maxun",
@@ -2769,8 +2579,7 @@
     ],
     "github_stars": 17134,
     "url": "https://github.com/getmaxun/maxun",
-    "use_case": "Scraping without code",
-    "status": "active"
+    "use_case": "Scraping without code"
   },
   {
     "name": "Page Agent",
@@ -2781,8 +2590,7 @@
     ],
     "github_stars": 28625,
     "url": "https://github.com/alibaba/page-agent",
-    "use_case": "Controlling a web page",
-    "status": "active"
+    "use_case": "Controlling a web page"
   },
   {
     "name": "Easy Dataset",
@@ -2794,8 +2602,7 @@
     ],
     "github_stars": 14788,
     "url": "https://github.com/ConardLi/easy-dataset",
-    "use_case": "Preparing training data",
-    "status": "active"
+    "use_case": "Preparing training data"
   },
   {
     "name": "Stable-Baselines3",
@@ -2807,8 +2614,7 @@
     ],
     "github_stars": 13689,
     "url": "https://github.com/DLR-RM/stable-baselines3",
-    "use_case": "Reinforcement learning baselines",
-    "status": "active"
+    "use_case": "Reinforcement learning baselines"
   },
   {
     "name": "Onyx",
@@ -2820,8 +2626,7 @@
     ],
     "github_stars": 31594,
     "url": "https://github.com/onyx-dot-app/onyx",
-    "use_case": "Answering from company docs",
-    "status": "active"
+    "use_case": "Answering from company docs"
   },
   {
     "name": "Gradio",
@@ -2833,8 +2638,7 @@
     ],
     "github_stars": 43364,
     "url": "https://github.com/gradio-app/gradio",
-    "use_case": "Demoing a model",
-    "status": "active"
+    "use_case": "Demoing a model"
   },
   {
     "name": "Taipy",
@@ -2845,8 +2649,7 @@
     ],
     "github_stars": 19428,
     "url": "https://github.com/Avaiga/taipy",
-    "use_case": "Building a data application",
-    "status": "active"
+    "use_case": "Building a data application"
   },
   {
     "name": "txtai",
@@ -2857,8 +2660,7 @@
     ],
     "github_stars": 12888,
     "url": "https://github.com/neuml/txtai",
-    "use_case": "Embeddings-backed search",
-    "status": "active"
+    "use_case": "Embeddings-backed search"
   },
   {
     "name": "LEANN",
@@ -2869,8 +2671,7 @@
     ],
     "github_stars": 12785,
     "url": "https://github.com/StarTrail-org/LEANN",
-    "use_case": "Low-storage vector search",
-    "status": "active"
+    "use_case": "Low-storage vector search"
   },
   {
     "name": "LangChain4j",
@@ -2881,8 +2682,7 @@
     ],
     "github_stars": 12869,
     "url": "https://github.com/langchain4j/langchain4j",
-    "use_case": "Building agents in Java",
-    "status": "active"
+    "use_case": "Building agents in Java"
   },
   {
     "name": "Amplication",
@@ -2894,8 +2694,7 @@
     ],
     "github_stars": 16013,
     "url": "https://github.com/amplication/amplication",
-    "use_case": "Scaffolding a backend",
-    "status": "active"
+    "use_case": "Scaffolding a backend"
   },
   {
     "name": "Vosk",
@@ -2907,8 +2706,7 @@
     ],
     "github_stars": 15056,
     "url": "https://github.com/alphacep/vosk-api",
-    "use_case": "Offline transcription",
-    "status": "active"
+    "use_case": "Offline transcription"
   },
   {
     "name": "sherpa-onnx",
@@ -2920,8 +2718,7 @@
     ],
     "github_stars": 14180,
     "url": "https://github.com/k2-fsa/sherpa-onnx",
-    "use_case": "On-device speech",
-    "status": "active"
+    "use_case": "On-device speech"
   },
   {
     "name": "VoxCPM",
@@ -2933,7 +2730,6 @@
     ],
     "github_stars": 35660,
     "url": "https://github.com/OpenBMB/VoxCPM",
-    "use_case": "Natural speech synthesis",
-    "status": "active"
+    "use_case": "Natural speech synthesis"
   }
 ]
