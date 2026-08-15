@@ -72,6 +72,15 @@ describe('what an entry says', () => {
         expect(document.querySelector('.change-removed').textContent).toContain('Gone');
     });
 
+    it('does not link a removed agent to a page that no longer exists', async () => {
+        /** /agent/<name> 404s for something that is not in the catalogue;
+         *  offering that as navigation is worse than plain text. */
+        await boot([entry({ removed: ['Gone'] })]);
+
+        expect(document.querySelectorAll('.change-removed a')).toHaveLength(0);
+        expect(document.querySelector('.change-removed').textContent).toContain('Gone');
+    });
+
     it('summarises edits by field rather than dumping the text', async () => {
         await boot([entry({
             edited: [{ name: 'Cursor', fields: [{ field: 'description', from: 'a', to: 'b' }] }],

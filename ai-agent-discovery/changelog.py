@@ -133,7 +133,7 @@ def build(repo_root=None, path="data/agents.json", since=None):
 
     entries = []
     previous = None
-    for index, revision in enumerate(history):
+    for revision in history:
         snapshot = catalogue_at(revision["commit"], path, repo_root)
         if snapshot is None:
             # A commit whose version cannot be read would otherwise look like
@@ -144,12 +144,15 @@ def build(repo_root=None, path="data/agents.json", since=None):
 
         # The first readable revision has nothing to compare against; report
         # it as the starting point rather than as N agents "added" today.
-        changes = compare(previous, snapshot) if previous is not None else {
-            "added": [], "removed": [], "edited": [],
-        }
+        is_baseline = previous is None
+        changes = {"added": [], "removed": [], "edited": []} if is_baseline \
+            else compare(previous, snapshot)
         previous = snapshot
 
-        if index and not any(changes.values()):
+        # `previous is None` rather than a loop index: if an earlier revision
+        # was unreadable, the first one that *parses* is the baseline, and
+        # dropping it would lose the starting point entirely.
+        if is_baseline is False and not any(changes.values()):
             continue   # touched the file without changing any tracked field
 
         entries.append({

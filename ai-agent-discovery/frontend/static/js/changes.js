@@ -7,14 +7,23 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const area = document.getElementById('changesArea');
 
-    /** A list of agent names, each linking to its page. */
-    function nameList(names, className, label) {
+    /**
+     * A list of agent names.
+     *
+     * Linked only when the agent still exists: a removed one has no detail
+     * page, so a link there is a 404 offered as navigation.
+     */
+    function nameList(names, className, label, { linked = true } = {}) {
         const item = document.createElement('li');
         item.className = className;
 
         item.append(`${label}: `);
         names.forEach((name, index) => {
             if (index) item.append(', ');
+            if (!linked) {
+                item.append(name);
+                return;
+            }
             const link = document.createElement('a');
             link.href = `/agent/${encodeURIComponent(name)}`;
             link.textContent = name;
@@ -53,7 +62,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         list.className = 'change-list';
         if (entry.added.length) list.appendChild(nameList(entry.added, 'change-added', 'Added'));
         if (entry.removed.length) {
-            list.appendChild(nameList(entry.removed, 'change-removed', 'Removed'));
+            list.appendChild(nameList(entry.removed, 'change-removed', 'Removed',
+                                      { linked: false }));
         }
         if (entry.edited.length) list.appendChild(editSummary(entry.edited));
         article.appendChild(list);

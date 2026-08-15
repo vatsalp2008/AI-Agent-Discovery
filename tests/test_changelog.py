@@ -185,3 +185,20 @@ class TestTheCommand:
         assert changelog.main(["--dry-run"]) == 0
         assert not (out / "changelog.json").exists()
         assert "Recategorise A" in capsys.readouterr().out
+
+
+def test_the_baseline_is_the_first_readable_revision(repo, monkeypatch):
+    """If an earlier revision cannot be parsed, the first one that *can* is
+    the starting point. Keying on the loop index dropped it instead, losing
+    the catalogue's origin from the history entirely."""
+    real = changelog.catalogue_at
+    first = changelog.revisions("data/agents.json", repo)[0]["commit"]
+
+    def unreadable(commit, path, root):
+        return None if commit == first else real(commit, path, root)
+
+    monkeypatch.setattr(changelog, "catalogue_at", unreadable)
+    entries = changelog.build(repo_root=repo)
+
+    assert [e["subject"] for e in entries][-1] == "Add B", "the baseline was dropped"
+    assert entries[-1]["added"] == [], "the baseline reported its contents as new"
