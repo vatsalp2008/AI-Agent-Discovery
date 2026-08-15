@@ -845,6 +845,17 @@ nav a:focus-visible,
     margin: 0 0 1rem;
 }
 
+/* Stack chips link to /tech/<name>; they should not look like body links. */
+a.tech-item {
+    text-decoration: none;
+    color: inherit;
+}
+
+a.tech-item:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-text);
+}
+
 /* Project health. Colour is never the only signal — each badge says in words
    what it means, and the wording is the part a screen reader reads. */
 .agent-status {

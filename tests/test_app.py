@@ -168,6 +168,7 @@ PAGE_SCRIPTS = {
     "saved-page.js": ("saved.html", "SAVED_HTML"),
     "collections-page.js": ("collections.html", "COLLECTIONS_HTML"),
     "compare.js": ("compare.html", "COMPARE_HTML"),
+    "tech.js": ("tech.html", "TECH_HTML"),
     "dashboard.js": ("dashboard.html", "DASHBOARD_HTML"),
     "submit.js": ("submit.html", "SUBMIT_HTML"),
     "admin.js": ("admin.html", "ADMIN_HTML"),

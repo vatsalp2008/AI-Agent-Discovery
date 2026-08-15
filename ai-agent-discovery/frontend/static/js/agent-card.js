@@ -103,7 +103,13 @@ const AgentCard = (() => {
         parseStack(meta.stack)
             .map(tech => String(tech).trim())
             .filter(Boolean)
-            .forEach(tech => stack.appendChild(el('span', 'tech-item', tech)));
+            .forEach(tech => {
+                // Links now that /tech/<name> exists: "what else is built on
+                // this" is the question a stack chip invites.
+                const chip = el('a', 'tech-item', tech);
+                chip.href = `/tech/${encodeURIComponent(tech)}`;
+                stack.appendChild(chip);
+            });
         card.appendChild(stack);
 
         const footer = el('div', 'card-footer');

@@ -216,6 +216,14 @@ export const COMPARE_HTML = `
     <main id="compareArea" aria-busy="false"></main>
 `;
 
+/** The technology page's markup, mirroring templates/tech.html. */
+export const TECH_HTML = `
+    <h1 id="techHeading">Python</h1>
+    <p id="techCount">Loading…</p>
+    <div id="techOther" class="filters"></div>
+    <main id="techGrid" class="results-grid" aria-live="polite" aria-busy="true"></main>
+`;
+
 /** The saved searches page's markup, mirroring templates/saved.html. */
 export const SAVED_HTML = `
     <button type="button" id="checkAll">Check for changes</button>

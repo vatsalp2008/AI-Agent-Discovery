@@ -77,6 +77,11 @@ def category(name):
     """Browse one category. Agents are fetched client-side from the API."""
     return render_template('category.html', page='dashboard', name=name)
 
+@app.route('/tech/<path:name>')
+def tech(name):
+    """Everything built with one technology. Fetched client-side."""
+    return render_template('tech.html', page='dashboard', name=name)
+
 @app.route('/submit')
 def submit_page():
     """Propose an agent. Public; the API queues it for review.

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Agents built with {{ name }} | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/dashboard">Dashboard</a> <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ name }}</span>
+</nav>
+
+<section class="hero hero-compact">
+    <h1 id="techHeading">{{ name }}</h1>
+    <p id="techCount">Loading…</p>
+</section>
+
+<div id="techOther" class="filters" role="group" aria-label="Other technologies"></div>
+
+<main id="techGrid" class="results-grid" aria-live="polite" aria-busy="true"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/collections.js"></script>
+<script src="/static/js/agents-api.js"></script>
+<script src="/static/js/tech.js"></script>
+{% endblock %}

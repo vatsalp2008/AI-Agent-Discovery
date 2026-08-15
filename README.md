@@ -179,6 +179,7 @@ paths resolve against the repository root, so commands work from any directory.
 | `/saved` | Searches worth re-running, with what changed since |
 | `/submit` | Propose an agent for review |
 | `/category/<name>` | Everything in one category, most starred first |
+| `/tech/<name>` | Everything built with one technology |
 | `/admin` | Catalogue editor (needs `ENABLE_ADMIN=true`) |
 
 ### Web Interface
