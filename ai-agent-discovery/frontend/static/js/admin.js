@@ -33,8 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const say = UI.reporter(result);
 
+    // Carried through the form rather than edited: status is maintained by
+    // audit.py from what GitHub reports, and a control here would be
+    // overwritten by the next weekly run. Sending it back unchanged is what
+    // stops a PUT — which replaces the whole record — from resetting an
+    // archived entry to active.
+    let loadedStatus = 'active';
+
     function formValues() {
         return {
+            status: loadedStatus,
             name: fields.name.value.trim(),
             category: fields.category.value.trim(),
             description: fields.description.value.trim(),
@@ -47,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetForm() {
         form.reset();
+        // A new agent is active until an audit says otherwise.
+        loadedStatus = 'active';
         editingName.value = '';
         heading.textContent = 'Add an agent';
         saveBtn.textContent = 'Add agent';
@@ -54,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startEdit(agent) {
+        loadedStatus = agent.status || 'active';
         editingName.value = agent.name;
         fields.name.value = agent.name;
         fields.category.value = agent.category || '';

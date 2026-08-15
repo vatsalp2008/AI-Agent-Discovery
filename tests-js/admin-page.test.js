@@ -526,3 +526,33 @@ describe('reviewing submissions', () => {
         expect(globalThis.pwned).toBeUndefined();
     });
 });
+
+describe('project status survives an edit', () => {
+    /** A PUT replaces the whole record, so a field the form does not send is
+     *  blanked. Editing an archived entry used to silently mark it active. */
+    async function editWith(status) {
+        const agent = {
+            name: 'Rebuff', description: 'Detects prompt injection.', category: 'Safety',
+            tech_stack: ['Python'], github_stars: 1, url: 'https://e.com',
+            use_case: 'x', ...(status ? { status } : {}),
+        };
+        const calls = await boot(routes({
+            '/api/admin/agents': { body: { agents: [agent], total: 1 } },
+        }));
+        document.querySelector('.admin-row button').click();
+        document.getElementById('fieldDescription').value = 'A new description entirely.';
+        submit();
+        await flush();
+
+        return JSON.parse(calls.find(c => c.options && c.options.method === 'PUT')
+            .options.body);
+    }
+
+    it('sends the status it loaded', async () => {
+        expect((await editWith('archived')).status).toBe('archived');
+    });
+
+    it('defaults to active for an entry that has none', async () => {
+        expect((await editWith(null)).status).toBe('active');
+    });
+});

@@ -22,6 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The change history is built by walking every commit that touched
+          # data/agents.json. A shallow clone has one, so the weekly job
+          # would replace the whole history with a single entry.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
