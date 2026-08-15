@@ -393,3 +393,18 @@ def test_an_unreadable_catalogue_does_not_empty_every_filtered_search(store, mon
 
     assert store.search("agent", limit=3, category="Code Generation"), \
         "a filtered search went empty because the category list was unreadable"
+
+
+def test_a_filtered_search_reads_the_category_list_once(store, monkeypatch):
+    """get_categories() copies, counts and sorts the whole agent list. The
+    fast path called it twice — once as a truthiness check whose result was
+    thrown away — in a code path whose comments budget tenths of a
+    millisecond."""
+    calls = []
+    real = store.get_categories
+    monkeypatch.setattr(store, "get_categories", lambda: (calls.append(1), real())[1])
+
+    store.clear_cache()
+    store.search("agent", limit=3, category="Code Generation")
+
+    assert len(calls) == 1, f"read the category list {len(calls)} times"

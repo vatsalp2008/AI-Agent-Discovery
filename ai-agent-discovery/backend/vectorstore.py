@@ -252,8 +252,11 @@ class VectorStore:
             return found
 
         if wanted:
+            # Read once: get_categories() copies, counts and sorts the whole
+            # agent list, and this path budgets in tenths of a millisecond.
             known = self.get_categories()
-            members = self._category_size(wanted)
+            members = next((c["count"] for c in known
+                            if (c["name"] or "").casefold() == wanted), 0)
             if known and members == 0:
                 # No indexed agent has this category, so no amount of
                 # searching will find one. Skip the embedding entirely.
@@ -502,13 +505,6 @@ class VectorStore:
         ]
         agents.sort(key=lambda agent: (agent["name"] or "").lower())
         return agents
-
-    def _category_size(self, wanted) -> int:
-        """How many indexed agents are in `wanted` (already casefolded)."""
-        for category in self.get_categories():
-            if (category["name"] or "").casefold() == wanted:
-                return category["count"]
-        return 0
 
     def _indexed_count(self) -> int:
         """How many documents the index holds, or 0 if it cannot be read."""
