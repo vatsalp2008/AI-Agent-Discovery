@@ -668,3 +668,20 @@ def test_every_doc_is_reachable_from_the_readme():
     unlinked = [path.name for path in sorted((config.REPO_ROOT / "docs").glob("*.md"))
                 if f"docs/{path.name}" not in readme]
     assert not unlinked, f"docs the README never links to: {unlinked}"
+
+
+def test_every_script_is_runnable_from_the_makefile():
+    """A script with no `make` target is one nobody discovers.
+
+    Matched on the filename rather than the target name: the targets are
+    hyphenated (`make check-links` runs `check_links.py`), and three scripts
+    were added this week — each one is a chance to forget.
+    """
+    makefile = (config.REPO_ROOT / "Makefile").read_text()
+
+    scripts = sorted(p.name for p in config.PACKAGE_DIR.glob("*.py")
+                     if p.stem != "__init__")
+    missing = [name for name in scripts if name not in makefile]
+
+    assert scripts, "no scripts found; the glob is wrong"
+    assert not missing, f"no make target runs: {missing}"
