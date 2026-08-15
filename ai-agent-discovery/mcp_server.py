@@ -117,6 +117,13 @@ def _slim(result):
         "github_stars": meta.get("stars"),
         "url": meta.get("url"),
     }
+    # Only when it is not the default, for the same reason the badge is only
+    # shown then — but it must be *present* when it matters: a model
+    # recommending an archived project without knowing it is archived is the
+    # failure this field exists to prevent.
+    status = meta.get("status")
+    if status and status != "active":
+        slim["status"] = status
     if "score" in result:
         slim["score"] = round(result["score"], 4)
         # Say which kind of match this is. A name match scores 1.0 because the

@@ -197,3 +197,26 @@ def test_search_says_which_kind_of_match_it_is(mcp):
 def test_get_agent_carries_no_match_label(mcp):
     """It was fetched by name, not ranked, so there is no score to qualify."""
     assert "match" not in mcp.call_tool("get_agent", {"name": "Cursor"})
+
+
+class TestProjectHealth:
+    """A model recommending an archived project without knowing it is
+    archived is the failure the status field exists to prevent."""
+
+    def result(self, **metadata):
+        base = {"name": "Thing", "category": "Safety", "stack": "Python",
+                "stars": 1, "description": "Does a thing.", "url": "https://e.com"}
+        base.update(metadata)
+        return {"name": "Thing", "metadata": base}
+
+    def test_an_archived_project_says_so(self, mcp):
+        assert mcp._slim(self.result(status="archived"))["status"] == "archived"
+
+    def test_a_dormant_one_too(self, mcp):
+        assert mcp._slim(self.result(status="dormant"))["status"] == "dormant"
+
+    def test_a_healthy_project_spends_no_tokens_saying_so(self, mcp):
+        """204 of 223 entries are active; a field repeating that on every
+        result is context the caller pays for and cannot use."""
+        assert "status" not in mcp._slim(self.result())
+        assert "status" not in mcp._slim(self.result(status="active"))
