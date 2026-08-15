@@ -8,8 +8,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
-    DASHBOARD_HTML, flush, SAVED_HTML, SEARCH_HTML, scriptsFor, stubFetch,
-    SUBMIT_HTML, TECH_HTML,
+    CHANGES_HTML, DASHBOARD_HTML, flush, SAVED_HTML, SEARCH_HTML, scriptsFor,
+    stubFetch, SUBMIT_HTML, TECH_HTML,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -169,6 +169,20 @@ describe('rendered controls have accessible names', () => {
         });
         bootPage({ html: TECH_HTML, script: 'tech.js',
                    extraScripts: scriptsFor('tech.html', 'tech.js') });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
+
+    it('change history, with entries', async () => {
+        stubFetch({
+            '/api/changelog': { body: { entries: [{
+                commit: 'abc', at: '2026-08-14T00:00:00+00:00', subject: 'Add agents',
+                total: 223, added: ['Kedro'], removed: ['Gone'],
+                edited: [{ name: 'Cursor', fields: [{ field: 'category' }] }],
+            }], metadata: {} } },
+        });
+        bootPage({ html: CHANGES_HTML, script: 'changes.js',
+                   extraScripts: scriptsFor('changes.html', 'changes.js') });
         await flush();
         expect(unnamedControls()).toEqual([]);
     });
