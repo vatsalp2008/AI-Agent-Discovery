@@ -297,6 +297,11 @@ The tools are read-only by design: an agent querying this should be able to
 read the catalogue, not rewrite it. Results are trimmed to the fields a caller
 needs, rather than the full record, to keep them cheap in a context window.
 
+Trimmed, but not misleadingly: a result carries `status` when the project is
+**archived** or **dormant** — a model recommending an abandoned tool without
+knowing it was abandoned is the failure that field prevents. Healthy projects
+say nothing, which is 204 of 223.
+
 ## 📥 Suggesting an Agent
 
 Anyone can propose an agent at `/submit`, or by posting to `/api/submissions`.
