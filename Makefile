@@ -31,6 +31,9 @@ refresh-stars:  ## Update GitHub star counts in data/agents.json
 discover:  ## Find agents on GitHub the catalogue is missing (proposes nothing)
 	$(PYTHON) $(APP_DIR)/discover.py --dry-run
 
+audit:  ## Report catalogue entries that have gone stale
+	$(PYTHON) $(APP_DIR)/audit.py
+
 stats:  ## Print index statistics
 	$(PYTHON) $(APP_DIR)/cli.py --stats
 

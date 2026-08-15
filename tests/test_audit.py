@@ -1,0 +1,211 @@
+"""Auditing catalogue entries that have gone stale.
+
+Runs against fixture payloads rather than the network. The judgement being
+tested is what counts as *worth a maintainer's attention* — a report that
+flags a third of the catalogue for things nobody would act on is a report
+nobody reads.
+"""
+
+import json
+import sys
+from datetime import datetime, timedelta, timezone
+
+import pytest
+
+import config
+
+sys.path.insert(0, str(config.PACKAGE_DIR))
+
+import audit  # noqa: E402
+
+
+def entry(**overrides):
+    """A catalogue record."""
+    base = {
+        "name": "SomeAgent",
+        "description": "An agent that does a useful and well described thing.",
+        "category": "Framework",
+        "tech_stack": ["Python", "PyTorch"],
+        "github_stars": 4200,
+        "url": "https://github.com/acme/someagent",
+        "use_case": "Building an agent",
+    }
+    base.update(overrides)
+    return base
+
+
+def payload(**overrides):
+    """A GitHub repository, healthy unless told otherwise."""
+    base = {
+        "full_name": "acme/someagent",
+        "archived": False,
+        "language": "Python",
+        "pushed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    }
+    base.update(overrides)
+    return base
+
+
+def months_ago(n):
+    when = datetime.now(timezone.utc) - timedelta(days=31 * n)
+    return when.isoformat().replace("+00:00", "Z")
+
+
+def kinds(record, data, **kwargs):
+    return [issue["kind"] for issue in audit.find_issues(record, data, **kwargs)]
+
+
+class TestAHealthyEntry:
+    def test_says_nothing(self):
+        assert audit.find_issues(entry(), payload()) == []
+
+    def test_a_stack_that_lists_the_language_is_fine(self):
+        assert kinds(entry(tech_stack=["Python"]), payload(language="Python")) == []
+
+    def test_the_match_ignores_case(self):
+        assert kinds(entry(tech_stack=["python"]), payload(language="Python")) == []
+
+    def test_a_richer_stack_than_the_language_is_fine(self):
+        """Stacks are curated and deliberately say more than one word."""
+        assert kinds(entry(tech_stack=["Python", "PyTorch", "CUDA"]),
+                     payload(language="Python")) == []
+
+
+class TestWhatIsWorthReporting:
+    def test_an_archived_repository(self):
+        assert "archived" in kinds(entry(), payload(archived=True))
+
+    def test_a_repository_that_moved(self):
+        """The API answers on the old path after a rename, so this is where
+        the new name shows up without following a redirect."""
+        issues = audit.find_issues(entry(), payload(full_name="newowner/someagent"))
+        moved = [i for i in issues if i["kind"] == "moved"]
+        assert moved and "newowner/someagent" in moved[0]["detail"]
+
+    def test_a_repository_that_disappeared(self):
+        assert kinds(entry(), None) == ["missing"]
+
+    def test_a_dormant_repository(self):
+        assert "dormant" in kinds(entry(), payload(pushed_at=months_ago(24)))
+
+    def test_a_recently_pushed_one_is_not_dormant(self):
+        assert "dormant" not in kinds(entry(), payload(pushed_at=months_ago(2)))
+
+    def test_the_dormancy_threshold_is_configurable(self):
+        data = payload(pushed_at=months_ago(12))
+        assert "dormant" not in kinds(entry(), data, stale_months=18)
+        assert "dormant" in kinds(entry(), data, stale_months=6)
+
+    def test_a_language_the_entry_does_not_list(self):
+        assert "stack" in kinds(entry(tech_stack=["Python"]), payload(language="Rust"))
+
+    def test_several_problems_are_all_reported(self):
+        """A project that is both archived and dormant should say both;
+        reporting one hides the other until it is fixed."""
+        issues = kinds(entry(), payload(archived=True, pushed_at=months_ago(30)))
+        assert set(issues) >= {"archived", "dormant"}
+
+
+class TestWhatIsNotWorthReporting:
+    @pytest.mark.parametrize("language", [
+        "Jupyter Notebook", "Dockerfile", "Makefile", "HTML", "Shell", "TeX", "CMake",
+    ])
+    def test_a_format_language_is_not_a_stack_finding(self, language):
+        """GitHub reports whichever language has the most bytes, so an ML
+        project ships as "Jupyter Notebook". Ten of the first eighteen stack
+        findings were that, against entries correctly saying Python and
+        PyTorch — noise that would have buried nine real archived projects.
+        """
+        assert "stack" not in kinds(entry(tech_stack=["Python"]), payload(language=language))
+
+    def test_a_repository_with_no_language_is_not_flagged(self):
+        assert "stack" not in kinds(entry(), payload(language=None))
+
+    def test_an_unparsable_push_date_is_not_dormancy(self):
+        """Unknown is not old."""
+        assert "dormant" not in kinds(entry(), payload(pushed_at="not a date"))
+        assert "dormant" not in kinds(entry(), payload(pushed_at=None))
+
+    def test_an_entry_with_no_github_url_is_skipped_entirely(self):
+        findings, skipped = audit.audit([entry(url="https://example.com")])
+        assert findings == [] and skipped == []
+
+
+class TestTheRun:
+    def stub(self, monkeypatch, by_repo):
+        def fake(repo, **kwargs):
+            outcome = by_repo.get(repo)
+            if isinstance(outcome, Exception):
+                raise outcome
+            return outcome
+
+        monkeypatch.setattr(audit, "fetch_repo", fake)
+
+    def test_reports_only_what_has_a_problem(self, monkeypatch):
+        self.stub(monkeypatch, {
+            "acme/good": payload(full_name="acme/good"),
+            "acme/bad": payload(full_name="acme/bad", archived=True),
+        })
+        records = [entry(name="Good", url="https://github.com/acme/good"),
+                   entry(name="Bad", url="https://github.com/acme/bad")]
+
+        findings, _ = audit.audit(records)
+        assert [f["name"] for f in findings] == ["Bad"]
+
+    def test_one_unreachable_repository_does_not_stop_the_rest(self, monkeypatch):
+        self.stub(monkeypatch, {
+            "acme/down": audit.Unavailable("HTTP 500"),
+            "acme/bad": payload(full_name="acme/bad", archived=True),
+        })
+        records = [entry(name="Down", url="https://github.com/acme/down"),
+                   entry(name="Bad", url="https://github.com/acme/bad")]
+
+        findings, skipped = audit.audit(records)
+        assert [f["name"] for f in findings] == ["Bad"]
+        assert [name for name, _ in skipped] == ["Down"]
+
+    def test_everything_unreachable_is_an_error_not_a_clean_report(self, monkeypatch, capsys):
+        """"Nothing is stale" and "nothing could be checked" are opposite
+        outcomes, and on a schedule the second must not read as the first."""
+        self.stub(monkeypatch, {"acme/a": audit.Unavailable("rate limited")})
+        records = [entry(name="A", url="https://github.com/acme/a")]
+
+        monkeypatch.setattr(config, "AGENTS_JSON", _write(records))
+        assert audit.main([]) == 1
+
+    def test_a_clean_catalogue_exits_zero_even_with_fail_on_findings(self, monkeypatch):
+        self.stub(monkeypatch, {"acme/a": payload(full_name="acme/a")})
+        monkeypatch.setattr(config, "AGENTS_JSON",
+                            _write([entry(name="A", url="https://github.com/acme/a")]))
+
+        assert audit.main(["--fail-on-findings"]) == 0
+
+    def test_findings_can_fail_the_run(self, monkeypatch):
+        self.stub(monkeypatch, {"acme/a": payload(full_name="acme/a", archived=True)})
+        monkeypatch.setattr(config, "AGENTS_JSON",
+                            _write([entry(name="A", url="https://github.com/acme/a")]))
+
+        assert audit.main(["--fail-on-findings"]) == 1
+        assert audit.main([]) == 0, "findings alone should not fail the run"
+
+    def test_json_output_parses_even_with_nothing_to_report(self, monkeypatch, capsys):
+        self.stub(monkeypatch, {"acme/a": payload(full_name="acme/a")})
+        monkeypatch.setattr(config, "AGENTS_JSON",
+                            _write([entry(name="A", url="https://github.com/acme/a")]))
+
+        audit.main(["--json"])
+        assert json.loads(capsys.readouterr().out) == []
+
+
+_TMP = []
+
+
+def _write(records):
+    """A throwaway agents.json holding `records`."""
+    import tempfile
+    from pathlib import Path
+
+    path = Path(tempfile.mkdtemp()) / "agents.json"
+    path.write_text(json.dumps(records))
+    _TMP.append(path)
+    return path

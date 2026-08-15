@@ -378,6 +378,7 @@ AI-Agent-Discovery/
 │   ├── check_links.py          # Catalogue link checker
 │   ├── refresh_stars.py        # Star count refresh
 │   ├── discover.py             # Finds new agents on GitHub
+│   ├── audit.py                # Flags entries that have gone stale
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
 │   └── seed.py                 # Index building script
@@ -480,6 +481,7 @@ Links rot, star counts drift, and new tools appear. Three commands cover it:
 make check-links      # verify every URL still resolves
 make refresh-stars    # update star counts from the GitHub API
 make discover         # find agents the catalogue is missing
+make audit            # flag entries that have gone stale
 ```
 
 All three run on a schedule. See **[docs/CATALOGUE.md](docs/CATALOGUE.md)** for
