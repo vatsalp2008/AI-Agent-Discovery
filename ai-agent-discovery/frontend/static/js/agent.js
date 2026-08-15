@@ -50,8 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const chips = document.createElement('span');
             chips.className = 'tech-stack';
             stack.forEach(tech => {
-                const chip = document.createElement('span');
+                // Links like the ones on a result card: "what else is built
+                // on this" is the question a stack chip invites.
+                const chip = document.createElement('a');
                 chip.className = 'tech-item';
+                chip.href = `/tech/${encodeURIComponent(tech)}`;
                 chip.textContent = tech;
                 chips.appendChild(chip);
             });

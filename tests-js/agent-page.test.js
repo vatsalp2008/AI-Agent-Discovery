@@ -163,3 +163,22 @@ describe('failure states', () => {
         expect(document.getElementById('agentDetail').textContent).toContain('No agent specified');
     });
 });
+
+describe('the tech stack links onward', () => {
+    it('makes each technology a link to its page', async () => {
+        await boot();
+        const chips = [...document.querySelectorAll('.tech-stack .tech-item')];
+
+        expect(chips.length).toBeGreaterThan(0);
+        expect(chips.every(c => c.tagName === 'A')).toBe(true);
+    });
+
+    it('escapes a technology whose name needs it', async () => {
+        await boot();
+        const hrefs = [...document.querySelectorAll('.tech-stack .tech-item')]
+            .map(c => c.getAttribute('href'));
+
+        expect(hrefs.every(h => h.startsWith('/tech/'))).toBe(true);
+        expect(hrefs.every(h => !h.includes(' '))).toBe(true);
+    });
+});
