@@ -31,6 +31,41 @@ the check runs twice before failing so one flaky host does not turn the job red.
 Renames are worth acting on: following them caught that Windsurf now ships as
 Devin Desktop, which had left that entry stale in name, description and URL.
 
+## Auditing what is already here
+
+```bash
+make audit                                          # report
+python ai-agent-discovery/audit.py --apply-status   # write it back
+python ai-agent-discovery/audit.py --stale-months 24
+```
+
+Finding new agents is half the job. The other half is entries that are already
+here and no longer describe reality — and a curated catalogue rots quietly,
+because nothing shows up until somebody clicks through.
+
+| Reported | Meaning |
+| --- | --- |
+| `archived` | The repository is archived on GitHub |
+| `dormant` | No commits for `--stale-months` (default 18) |
+| `moved` | The org or repo was renamed; the API answers on the old path, so this is where the new name appears without following a redirect |
+| `missing` | Deleted or made private |
+| `stack` | The primary language is absent from the entry's `tech_stack` |
+
+Only `archived` and `dormant` become a `status` on the entry, shown as a badge.
+The rest want a human: a rename might mean a new URL or a new name, and a
+missing repository might mean the entry should go entirely.
+
+Two rules keep the report worth reading. **Format languages are not stack
+findings** — GitHub reports whichever language has the most bytes, so an ML
+project ships as "Jupyter Notebook"; ten of the first eighteen stack findings
+were that, against entries correctly saying Python and PyTorch. And
+`--apply-status` **refuses to write if anything could not be checked**, because
+an unchecked entry looks unflagged and would have a real warning silently
+cleared.
+
+Statuses are cleared as well as set: archived repositories get unarchived, and
+a stale warning is wrong in the other direction.
+
 ## 🔭 Finding new agents
 
 ```bash
