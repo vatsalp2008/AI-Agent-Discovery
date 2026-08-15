@@ -156,7 +156,8 @@ def submit(record):
         # pending proposals in the same shape.
         against = existing + [e["agent"] for e in pending if isinstance(e.get("agent"), dict)]
 
-        cleaned = validate(record, against, min_description=MIN_DESCRIPTION)
+        cleaned = validate(record, against, min_description=MIN_DESCRIPTION,
+                           allow_status=False)
 
         entry = {
             "id": uuid.uuid4().hex[:12],

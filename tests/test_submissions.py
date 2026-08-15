@@ -414,3 +414,25 @@ def test_an_oversized_body_is_rejected_before_it_is_read(paths, monkeypatch):
     assert response.status_code == 413
     body = response.get_json()
     assert body["max_bytes"] == config.MAX_REQUEST_BYTES
+
+
+class TestStatusIsNotPublic:
+    """`status` is maintained by audit.py from what GitHub reports, and the
+    review UI does not show it — so a proposer setting their own health badge
+    would sail past a reviewer."""
+
+    def test_a_submitted_status_is_ignored(self, paths):
+        entry = submissions.submit(proposal(status="archived"))
+        assert entry["agent"]["status"] == "active"
+
+    def test_a_submitted_status_is_not_an_error(self, paths):
+        """Refusing outright would break a client that helpfully echoes the
+        whole record back; quietly normalising is enough."""
+        assert submissions.submit(proposal(status="archived"))["status"] == "pending"
+
+    def test_the_editor_can_still_set_one(self):
+        """A maintainer correcting a wrong badge is exactly who should."""
+        record = {"name": "X", "description": "A description long enough to pass the floor.",
+                  "category": "Automation", "tech_stack": ["Python"], "github_stars": 0,
+                  "url": "", "use_case": "x", "status": "archived"}
+        assert admin.validate(record, [])["status"] == "archived"

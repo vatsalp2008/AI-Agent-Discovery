@@ -105,7 +105,7 @@ def save_catalogue(records):
         raise AdminError(f"Could not write the catalogue: {e}", status=500) from e
 
 
-def validate(record, existing, original_name=None, min_description=0):
+def validate(record, existing, original_name=None, min_description=0, allow_status=True):
     """Return a cleaned record, or raise AdminError explaining what is wrong."""
     if not isinstance(record, dict):
         raise AdminError("Expected a JSON object describing an agent")
@@ -174,7 +174,11 @@ def validate(record, existing, original_name=None, min_description=0):
 
     # Absent means active, so existing records and hand-written ones need no
     # change; only a wrong value is refused.
-    status = record.get("status") or "active"
+    #
+    # `allow_status=False` for public submissions: the field is maintained by
+    # audit.py from what GitHub reports, the review UI does not show it, and
+    # a proposer setting their own health badge would sail past a reviewer.
+    status = (record.get("status") if allow_status else None) or "active"
     if not isinstance(status, str) or status.strip().casefold() not in AGENT_STATUSES:
         raise AdminError(f"'status' must be one of {', '.join(AGENT_STATUSES)}")
     cleaned["status"] = status.strip().casefold()
