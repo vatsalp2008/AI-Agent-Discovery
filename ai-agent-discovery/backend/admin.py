@@ -31,7 +31,11 @@ logger = logging.getLogger(__name__)
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
 EDITABLE_FIELDS = ("name", "description", "category", "tech_stack",
-                   "github_stars", "url", "use_case")
+                   "github_stars", "url", "use_case", "status")
+
+# What an entry can say about the health of the project behind it. Set from
+# what audit.py finds on GitHub; "active" is the default and is not shown.
+AGENT_STATUSES = ("active", "archived", "dormant")
 
 # Upper bounds on each field. Generous for real entries — the longest
 # description in the catalogue is around 130 characters — but /api/submissions
@@ -168,6 +172,13 @@ def validate(record, existing, original_name=None, min_description=0):
         raise AdminError(f"'use_case' must be at most {FIELD_LIMITS['use_case']} characters")
     cleaned["use_case"] = use_case
 
+    # Absent means active, so existing records and hand-written ones need no
+    # change; only a wrong value is refused.
+    status = record.get("status") or "active"
+    if not isinstance(status, str) or status.strip().casefold() not in AGENT_STATUSES:
+        raise AdminError(f"'status' must be one of {', '.join(AGENT_STATUSES)}")
+    cleaned["status"] = status.strip().casefold()
+
     # Names identify agents everywhere else, so they have to stay unique.
     # Existing records are read from a hand-editable file, so they may be
     # malformed; use .get and skip anything unusable rather than raising a
@@ -263,7 +274,7 @@ def list_agents():
     edit would resubmit stale values and revert the first.
     """
     _require_enabled()
-    records = load_catalogue()
+    records = [{"status": "active", **record} for record in load_catalogue()]
     return jsonify({"agents": records, "total": len(records)}), 200
 
 

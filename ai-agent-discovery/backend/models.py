@@ -10,6 +10,10 @@ class Agent:
     github_stars: int | None = 0
     url: str | None = ""
     use_case: str | None = ""
+    # "active" (or absent), "archived" or "dormant". A directory that does not
+    # say a project has been archived is misleading in the one way that
+    # matters when choosing a tool.
+    status: str | None = "active"
 
     def to_dict(self):
         return asdict(self)
@@ -33,7 +37,10 @@ class Agent:
             "stars": self.github_stars,
             "stack": ",".join(self.tech_stack),
             "description": self.description,
-            "url": self.url
+            "url": self.url,
+            # Only when it is not the default: metadata is stored per document
+            # in the index, and "active" on 223 records earns nothing.
+            **({"status": self.status} if self.status and self.status != "active" else {}),
         }
 
     @property

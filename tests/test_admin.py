@@ -555,3 +555,41 @@ class TestDuplicateCheck:
         with app.test_client() as client:
             assert client.post("/api/admin/similar-check", json={"name": "X"}).status_code == 403
         api.set_store(None)
+
+
+class TestAgentStatus:
+    """A directory that does not say a project is archived is misleading in
+    the one way that matters when choosing a tool."""
+
+    def record(self, **overrides):
+        base = {"name": "Thing", "description": "Does a thing worth describing.",
+                "category": "Automation", "tech_stack": ["Python"],
+                "github_stars": 1, "url": "", "use_case": "x"}
+        base.update(overrides)
+        return base
+
+    def test_absent_means_active(self):
+        """223 records predate the field; none of them should need editing."""
+        assert admin.validate(self.record(), [])["status"] == "active"
+
+    def test_an_explicit_status_is_kept(self):
+        assert admin.validate(self.record(status="archived"), [])["status"] == "archived"
+
+    def test_it_is_normalised(self):
+        assert admin.validate(self.record(status="  ARCHIVED "), [])["status"] == "archived"
+
+    @pytest.mark.parametrize("bad", ["retired", "", 7, None, ["archived"]])
+    def test_an_unknown_status_is_refused(self, bad):
+        """Free text here would fragment the badge the way an invented
+        category fragments the facets."""
+        if bad in ("", None):
+            assert admin.validate(self.record(status=bad), [])["status"] == "active"
+            return
+        with pytest.raises(admin.AdminError, match="status"):
+            admin.validate(self.record(status=bad), [])
+
+    def test_the_editor_sees_a_status_on_every_row(self, admin_client):
+        """The editor PUTs back the whole record, so a field missing from the
+        row it loaded would be blanked on save."""
+        agents = admin_client.get("/api/admin/agents").get_json()["agents"]
+        assert all(a.get("status") for a in agents)

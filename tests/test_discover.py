@@ -226,7 +226,11 @@ class TestBuildingARecord:
         import admin
 
         record = discover.to_record(repo())
-        assert admin.validate(record, []) == record
+        # validate() fills in the fields a crawled record omits — status
+        # defaults to active — so compare on what the crawler actually sets.
+        cleaned = admin.validate(record, [])
+        assert {k: cleaned[k] for k in record} == record
+        assert cleaned["status"] == "active"
 
 
 class TestDeduplication:
