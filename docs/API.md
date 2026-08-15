@@ -276,10 +276,18 @@ Because the endpoint is public, every dimension the caller controls is bounded:
 | `url` | 500 characters | `400` |
 | `use_case` | 200 characters | `400` |
 | `tech_stack` | 12 entries, 40 characters each | `400` |
+| `status` | Ignored on `/api/submissions` | — |
 | Pending queue | `MAX_PENDING_SUBMISSIONS` = 200 | `429` |
 
 The field limits apply to `/api/admin` edits too — both paths share
 `validate()`, so the catalogue cannot be given a record the queue would refuse.
+
+`status` (`active`, `archived`, `dormant`) is the reverse: the editor may set
+it, a submission may not. It is maintained by `audit.py` from what GitHub
+reports and the review UI does not show it, so a proposer setting their own
+health badge would sail past a reviewer. A submitted value is normalised to
+`active` rather than refused, since a client echoing the whole record back is
+not doing anything wrong.
 
 The 60-character description minimum is the one rule the queue applies and the
 editor does not. The description is what gets embedded, so a tagline retrieves

@@ -42,3 +42,15 @@ Named shortlists of agents. Each one offers a **Compare** link that takes its
 first eight, and its own **Export** for sharing a single shortlist — the same
 format as a full export, so it merges back on the other side rather than being
 refused as a different file.
+
+## Project health
+
+Entries carry an optional `status`. Absent means `active` and shows nothing;
+`archived` and `dormant` show a badge on the card, because a directory that
+does not say a project has been archived is misleading in the one way that
+matters when choosing a tool.
+
+It is set by `audit.py` from what GitHub reports — see
+[CATALOGUE.md](CATALOGUE.md) — and cleared again when a project comes back, so
+a stale warning does not outlive the thing it warned about. The editor can
+correct one; a public submission cannot set one.
