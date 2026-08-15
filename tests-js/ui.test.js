@@ -186,3 +186,25 @@ describe('reading a chosen file', () => {
         expect(input.value).toBe('');
     });
 });
+
+describe('reading a server-published setting', () => {
+    it('reads the value from the body', () => {
+        document.body.dataset.compareMax = '12';
+        expect(UI.setting('compareMax', 8)).toBe(12);
+        delete document.body.dataset.compareMax;
+    });
+
+    it('falls back when the attribute is absent', () => {
+        delete document.body.dataset.compareMax;
+        expect(UI.setting('compareMax', 8)).toBe(8);
+    });
+
+    it('falls back on a value that is not a positive integer', () => {
+        /** A fixture or a page rendered by something other than the app. */
+        for (const bad of ['', 'lots', '0', '-3', 'NaN']) {
+            document.body.dataset.compareMax = bad;
+            expect(UI.setting('compareMax', 8)).toBe(8);
+        }
+        delete document.body.dataset.compareMax;
+    });
+});

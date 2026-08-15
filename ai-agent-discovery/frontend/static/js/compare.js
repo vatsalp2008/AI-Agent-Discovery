@@ -9,10 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const picker = document.getElementById('comparePick');
     const clearButton = document.getElementById('compareClear');
 
-    // Mirrors COMPARE_MAX_AGENTS. Without it the picker happily builds a
-    // selection the API then refuses, so the limit arrives as a failed
-    // request rather than as a control that stops.
-    const MAX_COMPARE = 8;
+    // Published by the server as COMPARE_MAX_AGENTS. Without it the picker
+    // happily builds a selection the API then refuses, so the limit arrives
+    // as a failed request rather than as a control that stops.
+    const DEFAULT_MAX_COMPARE = 8;
+
+    function maxCompare() {
+        return typeof UI === 'undefined' ? DEFAULT_MAX_COMPARE
+            : UI.setting('compareMax', DEFAULT_MAX_COMPARE);
+    }
 
     const ROWS = [
         { label: 'Category', get: m => m.category || 'Uncategorized' },
@@ -215,8 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const current = selected();
             if (current.some(n => n.toLowerCase() === name.toLowerCase())) return;
-            if (current.length >= MAX_COMPARE) {
-                notice(`You can compare up to ${MAX_COMPARE} agents at once. `
+            if (current.length >= maxCompare()) {
+                notice(`You can compare up to ${maxCompare()} agents at once. `
                     + 'Remove one to add another.');
                 return;
             }

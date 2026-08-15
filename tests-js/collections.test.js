@@ -116,10 +116,10 @@ describe('comparing', () => {
         /** Read from the module rather than hardcoded: a link the API
          *  refuses on arrival is worse than one that takes the first few. */
         C.create('Big');
-        for (let i = 0; i < C.MAX_COMPARE + 3; i += 1) C.add('Big', `agent${i}`);
+        for (let i = 0; i < C.maxCompare() + 3; i += 1) C.add('Big', `agent${i}`);
 
         expect(decodeURIComponent(C.compareUrl('Big')).split(','))
-            .toHaveLength(C.MAX_COMPARE);
+            .toHaveLength(C.maxCompare());
     });
 });
 

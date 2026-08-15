@@ -37,6 +37,7 @@ def app(store, agents_json, monkeypatch):
         return {
             "admin_enabled": config.ENABLE_ADMIN,
             "submissions_enabled": config.ENABLE_SUBMISSIONS,
+            "compare_max": config.COMPARE_MAX_AGENTS,
         }
 
     for path, template, page in [

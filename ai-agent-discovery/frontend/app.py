@@ -37,6 +37,10 @@ def inject_flags():
     return {
         "admin_enabled": config.ENABLE_ADMIN,
         "submissions_enabled": config.ENABLE_SUBMISSIONS,
+        # The client builds /compare links and stops its picker at this
+        # number. Hardcoded on both sides it drifts, and a link the API then
+        # refuses with a 400 is exactly what the limit exists to prevent.
+        "compare_max": config.COMPARE_MAX_AGENTS,
     }
 
 @app.route('/')

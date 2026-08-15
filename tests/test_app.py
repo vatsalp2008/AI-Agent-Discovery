@@ -206,3 +206,28 @@ def test_page_scripts_only_reach_for_elements_that_exist(script, template, fixtu
     in_fixture = set(re.findall(r'id="([^"]+)"', block.group(1)))
     assert not (used - in_fixture), \
         f"{fixture} is missing ids {script} uses: {sorted(used - in_fixture)}"
+
+
+def test_the_compare_limit_reaches_the_page(real_app):
+    """The client stops its picker and builds /compare links from this. Both
+    sides hardcoding 8 meant setting COMPARE_MAX_AGENTS=4 produced links the
+    API refuses with a 400 — the exact failure the limit exists to prevent.
+    """
+    import re
+
+    body = real_app.test_client().get("/compare").get_data(as_text=True)
+    published = re.search(r'data-compare-max="(\d+)"', body)
+
+    assert published, "the page no longer publishes the compare limit"
+    assert int(published.group(1)) == config.COMPARE_MAX_AGENTS
+
+
+def test_every_page_publishes_it(real_app):
+    """It lives on <body> in base.html, so any page that builds a compare
+    link — collections, for one — can read it."""
+    import re
+
+    client = real_app.test_client()
+    for path in PAGES:
+        body = client.get(path).get_data(as_text=True)
+        assert re.search(r'data-compare-max="\d+"', body), f"{path} does not publish it"

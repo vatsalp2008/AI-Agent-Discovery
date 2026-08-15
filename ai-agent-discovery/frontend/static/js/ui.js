@@ -112,6 +112,19 @@ const UI = (() => {
         reader.readAsText(file);
     }
 
+    /**
+     * A positive integer setting published by the server on <body>.
+     *
+     * Falls back to `fallback` when the attribute is absent or unusable —
+     * a test fixture, or a page rendered by something other than the app.
+     */
+    function setting(name, fallback) {
+        const raw = document.body && document.body.dataset
+            ? document.body.dataset[name] : null;
+        const value = Number.parseInt(raw, 10);
+        return Number.isInteger(value) && value > 0 ? value : fallback;
+    }
+
     /** Set `aria-busy` on each element that has the attribute. */
     function setBusy(busy, ...containers) {
         containers.forEach(container => {
@@ -122,7 +135,7 @@ const UI = (() => {
     }
 
     return { messageElement, showMessage, showError, setBusy, reporter,
-             download, readFile };
+             download, readFile, setting };
 })();
 
 if (typeof module !== 'undefined') module.exports = UI;

@@ -9,9 +9,15 @@ const Collections = (() => {
     const STORAGE_KEY = 'agentdiscovery:collections';
     const MAX_COLLECTIONS = 20;
     const MAX_AGENTS = 50;
-    // Mirrors COMPARE_MAX_AGENTS. The API rejects more, and a link that is
-    // refused on arrival is worse than one that quietly takes the first few.
-    const MAX_COMPARE = 8;
+    // Published by the server as COMPARE_MAX_AGENTS. The API rejects more,
+    // and a link refused on arrival is worse than one that quietly takes the
+    // first few.
+    const DEFAULT_MAX_COMPARE = 8;
+
+    function maxCompare() {
+        return typeof UI === 'undefined' ? DEFAULT_MAX_COMPARE
+            : UI.setting('compareMax', DEFAULT_MAX_COMPARE);
+    }
 
     /**
      * Own-property check. Plain `name in object` walks the prototype chain, so
@@ -117,7 +123,7 @@ const Collections = (() => {
     }
 
     /** A /compare URL for a collection, capped at what the API accepts. */
-    function compareUrl(name, max = MAX_COMPARE) {
+    function compareUrl(name, max = maxCompare()) {
         const agents = agentsIn(name).slice(0, max);
         if (agents.length < 2) return null;
         return `/compare?names=${encodeURIComponent(agents.join(','))}`;
@@ -215,7 +221,7 @@ const Collections = (() => {
         STORAGE_KEY, MAX_COLLECTIONS, MAX_AGENTS,
         read, names, agentsIn, create, add, remove, destroy,
         containing, compareUrl, exportAll, exportOne, importAll, clear,
-        MAX_COMPARE,
+        maxCompare,
     };
 })();
 
