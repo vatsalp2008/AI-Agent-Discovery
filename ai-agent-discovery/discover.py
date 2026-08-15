@@ -182,15 +182,21 @@ NOT_A_TOOL = (
 # they are genuinely popular, and they are not agents — the catalogue would
 # be listing someone's Claude Code settings next to Ollama.
 #
-# Phrased narrowly on purpose. "prompt" alone would reject Prompt Optimizer,
-# which rewrites and scores prompts and is a real tool; "skills" alone would
-# reject a robotics skill library.
+# Phrased narrowly on purpose, and narrowed again after the first attempt
+# rejected real tools. "prompt" alone rejects Prompt Optimizer; "slash
+# command" and "custom command" reject every terminal agent and Discord bot —
+# which is what the conversational-ai topic returns, so the filter was
+# cancelling the topic added to reach Customer Service. "marketplace for" and
+# "skills for" reject an agent marketplace and a tool that *adds* skills.
 CONFIG_COLLECTION = (
     "system prompt", "leaked prompt", "extracted prompt", "prompt collection",
-    "prompt library", "agent skill", "skills for", "skill pack",
-    "plugin marketplace", "marketplace for", "custom command", "slash command",
-    "cursor rule", "config for", "configs for", "dotfile", "starter kit",
-    "template repository", "rules for claude", "subagents for",
+    "prompt library", "agent skill", "skill pack", "plugin marketplace",
+    "cursor rule", "dotfile", "rules for claude",
+    # "<thing> for <a named agent product>" is the shape these take. Naming
+    # the products keeps it from matching a tool that merely integrates with
+    # one — an MCP server "for Claude Code" is real software.
+    "skills for claude", "skills for cursor", "skills for codex",
+    "commands for claude",
 )
 
 # Matched on word boundaries, with an optional plural. As plain substrings

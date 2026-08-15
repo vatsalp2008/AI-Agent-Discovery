@@ -165,8 +165,20 @@ class TestRejectingNonTools:
         ("prompt-optimizer", "Rewrites and scores prompts against a model, making prompt tuning measurable."),
         ("skill-library", "A reusable skill library for robot manipulation, trained from demonstrations."),
         ("paper-qa", "Answers questions over scientific papers with citations, built for accuracy."),
+        # Every one of these was rejected by the first version of the
+        # configuration filter.
+        ("opencode-cli", "Terminal agent with slash commands, tool use and MCP support for coding."),
+        ("discord-ai-bot", "A Discord bot that answers questions, with slash commands and threads."),
+        ("agent-market", "An open marketplace for AI agents you can run locally on your machine."),
+        ("llm-skills", "Adds skills for browsing, coding and search to any LLM agent you run."),
+        ("devin-like", "An AI software engineer with custom commands and a planning loop."),
+        ("mcp-database", "An MCP server exposing your database to Claude Code and other clients."),
     ])
     def test_a_tool_that_merely_mentions_those_words_survives(self, name, description):
+        """A filter that rejects real tools costs more than it saves. "slash
+        command" rejected every terminal agent and Discord bot — which is
+        exactly what the conversational-ai topic returns, so the filter was
+        cancelling out the topic added to reach Customer Service."""
         assert discover.looks_like_a_tool(repo(name=name, description=description))
 
     def test_an_actual_tool_passes(self):
