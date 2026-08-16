@@ -453,3 +453,28 @@ class TestMaintainedFilter:
 
         assert len(store.search("agent")) == 2
         assert len(store.search("agent", maintained=True)) == 1
+
+
+def test_a_name_match_cannot_smuggle_past_the_maintained_filter(store, monkeypatch):
+    """The same bug the category filter had on 08-12: the name lookup
+    injects at rank 0 with score 1.0, so min_score cannot suppress it and the
+    bad result is cached. `search("LLM Guard", maintained=True)` returned the
+    archived LLM Guard while the metadata claimed the filter held.
+    """
+    from conftest import FakeInnerStore
+    from langchain_core.documents import Document
+
+    documents = [
+        Document(page_content="a live one", metadata={"name": "Live", "category": "X",
+                                                      "description": ""}),
+        Document(page_content="an old one", metadata={"name": "Retired", "category": "X",
+                                                      "description": "", "status": "archived"}),
+    ]
+    vs = VectorStore(persist_directory="/tmp/x", embedding_function=object())
+    vs.vector_store = FakeInnerStore(documents)
+
+    names = [r["metadata"]["name"] for r in vs.search("Retired", maintained=True)]
+    assert "Retired" not in names, "an archived agent was hoisted past the filter"
+
+    vs.clear_cache()
+    assert "Retired" in [r["metadata"]["name"] for r in vs.search("Retired")]
