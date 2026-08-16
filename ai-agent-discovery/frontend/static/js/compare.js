@@ -19,8 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
             : UI.setting('compareMax', DEFAULT_MAX_COMPARE);
     }
 
+    /** "Archived" reads better than "archived" in a table of values. */
+    const HEALTH = { archived: 'Archived', dormant: 'Not updated recently' };
+
     const ROWS = [
         { label: 'Category', get: m => m.category || 'Uncategorized' },
+        // Near the top on purpose: comparing two tools without seeing that
+        // one of them is abandoned is the comparison going wrong.
+        { label: 'Project health', get: m => HEALTH[m.status] || 'Active' },
         { label: 'GitHub stars', get: m => AgentCard.formatStars(m.stars) },
         { label: 'Tech stack', get: m => AgentCard.parseStack(m.stack).join(', ') || '—' },
         { label: 'Description', get: m => m.description || '—' },

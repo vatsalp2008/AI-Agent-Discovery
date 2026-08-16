@@ -182,3 +182,29 @@ describe('the tech stack links onward', () => {
         expect(hrefs.every(h => !h.includes(' '))).toBe(true);
     });
 });
+
+describe('project health on the detail page', () => {
+    it('shows a health row for an archived project', async () => {
+        const archived = { ...CURSOR, metadata: { ...CURSOR.metadata, status: 'archived' } };
+        await boot('/agent/Cursor', routes({ '/api/agents/': { body: archived } }));
+
+        const labels = [...document.querySelectorAll('.detail-label')].map(l => l.textContent);
+        expect(labels).toContain('Project health');
+        expect(document.querySelector('.detail-row').parentElement.textContent)
+            .toContain('Archived');
+    });
+
+    it('spells out dormancy', async () => {
+        const dormant = { ...CURSOR, metadata: { ...CURSOR.metadata, status: 'dormant' } };
+        await boot('/agent/Cursor', routes({ '/api/agents/': { body: dormant } }));
+
+        expect(document.body.textContent).toContain('Not updated recently');
+    });
+
+    it('says nothing for a healthy one', async () => {
+        /** A row reading "Active" on 217 of 236 pages is a row nobody reads. */
+        await boot();
+        const labels = [...document.querySelectorAll('.detail-label')].map(l => l.textContent);
+        expect(labels).not.toContain('Project health');
+    });
+});

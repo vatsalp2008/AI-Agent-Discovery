@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         wrapper.appendChild(description);
 
         wrapper.appendChild(field('Category', meta.category || 'Uncategorized'));
+        // Only when there is something to say: a row reading "Active" on 217
+        // of 236 pages is a row nobody reads.
+        const health = { archived: 'Archived', dormant: 'Not updated recently' }[meta.status];
+        if (health) wrapper.appendChild(field('Project health', health));
         wrapper.appendChild(field('GitHub stars', AgentCard.formatStars(meta.stars)));
 
         const stack = AgentCard.parseStack(meta.stack).map(t => String(t).trim()).filter(Boolean);

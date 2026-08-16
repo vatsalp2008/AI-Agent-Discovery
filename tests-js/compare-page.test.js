@@ -43,7 +43,7 @@ describe('rendering the comparison', () => {
         expect(headers[2]).toContain('Cursor');
 
         const rows = [...document.querySelectorAll('.compare-table tbody th')].map(t => t.textContent);
-        expect(rows).toEqual(['Category', 'GitHub stars', 'Tech stack', 'Description']);
+        expect(rows).toEqual(['Category', 'Project health', 'GitHub stars', 'Tech stack', 'Description']);
     });
 
     it('links each column to the agent detail page', async () => {
@@ -275,5 +275,39 @@ describe('the picker stops at the limit', () => {
         await flush();
 
         expect(decodeURIComponent(window.location.search)).toContain('Cursor');
+    });
+});
+
+describe('project health in the comparison', () => {
+    function withStatus(...statuses) {
+        const agents = statuses.map((status, i) => agent(`Agent${i}`,
+            status ? { status } : {}));
+        const names = agents.map(a => a.name).join(',');
+        return boot(`/compare?names=${names}`, routes({
+            '/api/compare': { body: { agents, metadata: { count: agents.length, missing: [] } } },
+        }));
+    }
+
+    function healthRow() {
+        const row = [...document.querySelectorAll('.compare-table tbody tr')]
+            .find(tr => tr.querySelector('th').textContent === 'Project health');
+        return [...row.querySelectorAll('td')].map(td => td.textContent);
+    }
+
+    it('says which of the agents is archived', async () => {
+        /** Comparing two tools without seeing that one is abandoned is the
+         *  comparison going wrong. */
+        await withStatus(null, 'archived');
+        expect(healthRow()).toEqual(['Active', 'Archived']);
+    });
+
+    it('spells out dormancy rather than showing the raw value', async () => {
+        await withStatus('dormant');
+        expect(healthRow()).toEqual(['Not updated recently']);
+    });
+
+    it('treats an absent status as active', async () => {
+        await withStatus(null, null);
+        expect(healthRow()).toEqual(['Active', 'Active']);
     });
 });
