@@ -54,7 +54,11 @@ DEFAULT_TOPICS = [
     # Automation, Customer Service and Data Analysis were mapped but
     # unreachable: no default topic led to any of them, so a scheduled run
     # could never propose one — and those are the thinnest categories.
-    "browser-automation", "conversational-ai", "data-analysis",
+    "browser-automation", "conversational-ai",
+    # "data-analysis" was tried and returned pandas, superset, metabase and
+    # goaccess — good software, none of it AI. These reach the same category
+    # and return WrenAI, pycaret and FLAML instead.
+    "text-to-sql", "automl",
 ]
 
 # Topic to category. First match wins, so ordering is the decision.

@@ -482,3 +482,19 @@ def test_every_mapped_category_is_reachable_by_a_default_topic():
                  if topic in searched}
 
     assert mapped == reachable, f"unreachable by any default topic: {sorted(mapped - reachable)}"
+
+
+def test_the_default_topics_stay_specific_to_ai():
+    """"data-analysis" was a default topic for one day and returned pandas,
+    superset, metabase, CyberChef and goaccess — good software, none of it
+    AI. A topic that mostly returns out-of-scope projects costs a reviewer
+    more than it finds.
+    """
+    assert "data-analysis" not in discover.DEFAULT_TOPICS
+    assert {"text-to-sql", "automl"} <= set(discover.DEFAULT_TOPICS)
+
+
+def test_the_run_stays_inside_the_search_budget():
+    """Each added topic is another request; GitHub allows 10 a minute
+    unauthenticated."""
+    assert 60 / discover.PAUSE_ANONYMOUS <= 10
