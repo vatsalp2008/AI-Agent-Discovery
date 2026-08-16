@@ -238,3 +238,37 @@ class TestNamesThatNoLongerExist:
 
         removal = next(e for e in changelog.build(repo_root=repo) if e["removed"])
         assert removal["gone"] == ["B"]
+
+
+class TestSinceIsReadOnly:
+    """--since builds a window, not a history. Writing it replaced the whole
+    file with a slice, and the window's oldest commit became a zero-change
+    baseline — so its additions were lost as well as everything before it."""
+
+    def test_it_refuses_to_write(self, repo, tmp_path, monkeypatch):
+        out = tmp_path / "out"
+        out.mkdir()
+        monkeypatch.setattr(config, "REPO_ROOT", repo)
+        monkeypatch.setattr(config, "DATA_DIR", out)
+
+        assert changelog.main(["--since", "2000-01-01"]) == 1
+        assert not (out / "changelog.json").exists()
+
+    def test_it_does_not_overwrite_an_existing_history(self, repo, tmp_path, monkeypatch):
+        out = tmp_path / "out"
+        out.mkdir()
+        monkeypatch.setattr(config, "REPO_ROOT", repo)
+        monkeypatch.setattr(config, "DATA_DIR", out)
+
+        changelog.main([])
+        full = (out / "changelog.json").read_text()
+
+        changelog.main(["--since", "2000-01-01"])
+        assert (out / "changelog.json").read_text() == full
+
+    def test_a_dry_run_is_still_allowed(self, repo, tmp_path, monkeypatch, capsys):
+        monkeypatch.setattr(config, "REPO_ROOT", repo)
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert changelog.main(["--since", "2000-01-01", "--dry-run"]) == 0
+        assert capsys.readouterr().out.strip()

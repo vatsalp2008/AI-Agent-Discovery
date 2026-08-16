@@ -195,6 +195,13 @@ def main(argv=None):
 
     configure("DEBUG" if args.verbose else "INFO")
 
+    if args.since and not args.dry_run:
+        # The window's oldest commit becomes the baseline and reports no
+        # changes, so writing this would drop its additions *and* everything
+        # before it. Useful to look at, never to persist.
+        logger.error("--since produces a partial history; add --dry-run to inspect it.")
+        return 1
+
     entries = build(since=args.since)
     if not entries:
         # No history is not the same as an empty history: outside a git
