@@ -1,5 +1,26 @@
 [
   {
+    "commit": "3bf2da8f",
+    "at": "2026-08-16T11:45:42-07:00",
+    "subject": "Say what deepspeed does without the ambiguity",
+    "total": 242,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "DeepSpeed",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Training beyond one GPU",
+            "to": "Distributed training at scale"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "a296799d",
     "at": "2026-08-16T11:40:23-07:00",
     "subject": "Add six agents to the thinnest categories",

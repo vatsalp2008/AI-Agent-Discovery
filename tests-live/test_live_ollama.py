@@ -512,3 +512,4 @@ def test_every_name_match_scores_the_same(live_store):
 def test_min_score_keeps_an_agent_asked_for_by_name(live_store):
     results = live_store.search("Evidently", limit=3, min_score=0.9)
     assert [r["name"] for r in results] == ["Evidently"]
+

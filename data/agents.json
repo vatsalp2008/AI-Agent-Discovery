@@ -2104,7 +2104,7 @@
   },
   {
     "name": "Megatron-LM",
-    "description": "NVIDIA's tensor, pipeline and sequence parallelism for training models past the point where one GPU's memory is the limit.",
+    "description": "NVIDIA's tensor, pipeline and sequence parallelism for training models too large for a single accelerator to hold.",
     "category": "Fine-tuning",
     "tech_stack": [
       "Python",
