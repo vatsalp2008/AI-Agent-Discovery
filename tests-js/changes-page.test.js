@@ -11,6 +11,7 @@ function entry(overrides = {}) {
         added: [],
         removed: [],
         edited: [],
+        gone: [],
         ...overrides,
     };
 }
@@ -75,10 +76,29 @@ describe('what an entry says', () => {
     it('does not link a removed agent to a page that no longer exists', async () => {
         /** /agent/<name> 404s for something that is not in the catalogue;
          *  offering that as navigation is worse than plain text. */
-        await boot([entry({ removed: ['Gone'] })]);
+        await boot([entry({ removed: ['Gone'], gone: ['Gone'] })]);
 
         expect(document.querySelectorAll('.change-removed a')).toHaveLength(0);
         expect(document.querySelector('.change-removed').textContent).toContain('Gone');
+    });
+
+    it('does not link an added agent that was later removed', async () => {
+        /** Windsurf was added, then renamed away three commits later; the
+         *  entry that added it still pointed at a dead page. */
+        await boot([entry({ added: ['Windsurf', 'Aider'], gone: ['Windsurf'] })]);
+
+        const linked = [...document.querySelectorAll('.change-added a')].map(a => a.textContent);
+        expect(linked).toEqual(['Aider']);
+        expect(document.querySelector('.change-added').textContent).toContain('Windsurf');
+    });
+
+    it('falls back to the removed list when gone is absent', async () => {
+        /** Tolerates a changelog.json written before the field existed. */
+        const older = { ...entry({ removed: ['Gone'] }) };
+        delete older.gone;
+        await boot([older]);
+
+        expect(document.querySelectorAll('.change-removed a')).toHaveLength(0);
     });
 
     it('summarises edits by field rather than dumping the text', async () => {

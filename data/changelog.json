@@ -1,5 +1,156 @@
 [
   {
+    "commit": "3c78e18c",
+    "at": "2026-08-15T12:04:53-07:00",
+    "subject": "Correct eight drifted tech stacks",
+    "total": 223,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Chaskiq",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Ruby",
+              "React"
+            ],
+            "to": [
+              "Ruby",
+              "TypeScript",
+              "React"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Claude Code",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "TypeScript",
+              "Claude"
+            ],
+            "to": [
+              "TypeScript",
+              "Python",
+              "Claude"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "MuJoCo",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "C",
+              "Python"
+            ],
+            "to": [
+              "C",
+              "C++",
+              "Python"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "OpenHands",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Python",
+              "Docker",
+              "React"
+            ],
+            "to": [
+              "Python",
+              "TypeScript",
+              "Docker",
+              "React"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "OpenInterpreter",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Python",
+              "Llama 2",
+              "GPT-4"
+            ],
+            "to": [
+              "Rust",
+              "Python"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Quivr",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "TypeScript",
+              "Supabase",
+              "React"
+            ],
+            "to": [
+              "Python",
+              "Supabase",
+              "React"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "RAGFlow",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Python",
+              "Elasticsearch",
+              "Docker"
+            ],
+            "to": [
+              "Python",
+              "Go",
+              "Elasticsearch",
+              "Docker"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Rebuff",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Python",
+              "Vector DB"
+            ],
+            "to": [
+              "Python",
+              "TypeScript"
+            ]
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "5dd207f4",
     "at": "2026-08-15T11:18:53-07:00",
     "subject": "Mark nine archived and ten dormant projects",
@@ -197,7 +348,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "837e1091",
@@ -227,7 +379,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "37c55a8a",
@@ -257,7 +410,8 @@
       "txtai"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "ca5a5ce5",
@@ -290,7 +444,8 @@
       "openpilot"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "62353a92",
@@ -318,7 +473,8 @@
       "robosuite"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "56595e32",
@@ -338,7 +494,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "97cbe442",
@@ -354,7 +511,8 @@
       "ZenML"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "96954e4b",
@@ -370,7 +528,8 @@
       "WhisperX"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "36fb76bf",
@@ -383,7 +542,10 @@
     "removed": [
       "Windsurf"
     ],
-    "edited": []
+    "edited": [],
+    "gone": [
+      "Windsurf"
+    ]
   },
   {
     "commit": "af69ba38",
@@ -443,7 +605,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "7ab3dc5d",
@@ -456,7 +619,8 @@
       "UFO"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "d779916b",
@@ -474,7 +638,8 @@
       "SiYuan"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "3a3143cf",
@@ -489,7 +654,8 @@
       "torchtune"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "ab2ad3da",
@@ -505,7 +671,8 @@
       "whylogs"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "0c26599e",
@@ -521,7 +688,8 @@
       "Nav2"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "12125c68",
@@ -561,7 +729,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "37dddbdd",
@@ -781,7 +950,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "3f139d79",
@@ -799,7 +969,8 @@
       "llama.cpp"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "8ec335a8",
@@ -817,7 +988,8 @@
       "ScrapeGraphAI"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "5c8d88a3",
@@ -835,7 +1007,8 @@
       "Superagent"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "149ba290",
@@ -853,7 +1026,8 @@
       "Whisper"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "2df55f20",
@@ -871,7 +1045,8 @@
       "Unsloth"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "229e5fc6",
@@ -889,7 +1064,8 @@
       "vLLM"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "6ec3e109",
@@ -905,7 +1081,8 @@
       "Rebuff"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "1f769e20",
@@ -923,7 +1100,8 @@
       "Ragas"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "702d5a67",
@@ -939,7 +1117,8 @@
       "Vocode"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "58450a5c",
@@ -955,7 +1134,8 @@
       "Verba"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "aeca5ad0",
@@ -971,7 +1151,10 @@
       "Zed"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": [
+      "Windsurf"
+    ]
   },
   {
     "commit": "b5216b2a",
@@ -986,7 +1169,8 @@
       "Vanna AI"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "6bca6378",
@@ -1006,7 +1190,8 @@
           }
         ]
       }
-    ]
+    ],
+    "gone": []
   },
   {
     "commit": "f291bb9f",
@@ -1032,7 +1217,8 @@
       "gpt-engineer"
     ],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   },
   {
     "commit": "6aba20a2",
@@ -1041,6 +1227,7 @@
     "total": 21,
     "added": [],
     "removed": [],
-    "edited": []
+    "edited": [],
+    "gone": []
   }
 ]

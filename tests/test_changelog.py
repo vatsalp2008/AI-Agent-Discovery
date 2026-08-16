@@ -202,3 +202,39 @@ def test_the_baseline_is_the_first_readable_revision(repo, monkeypatch):
 
     assert [e["subject"] for e in entries][-1] == "Add B", "the baseline was dropped"
     assert entries[-1]["added"] == [], "the baseline reported its contents as new"
+
+
+class TestNamesThatNoLongerExist:
+    """A link to /agent/<name> 404s for anything the catalogue has dropped —
+    including an agent this entry *added*, if a later commit removed it.
+    Windsurf did exactly that after being renamed to Devin Desktop."""
+
+    def test_an_agent_added_then_later_removed_is_marked(self, repo):
+        path = repo / "data" / "agents.json"
+        path.write_text(json.dumps([agent("A")]))          # B removed later
+        subprocess.run(["git", "commit", "-qam", "Drop B"], cwd=repo, check=True,
+                       capture_output=True)
+
+        entries = changelog.build(repo_root=repo)
+        added_b = next(e for e in entries if "B" in e["added"])
+
+        assert "B" in added_b["gone"], "the entry that added B still links to it"
+
+    def test_an_agent_that_survived_is_not_marked(self, repo):
+        entries = changelog.build(repo_root=repo)
+        added_b = next(e for e in entries if "B" in e["added"])
+
+        assert added_b["gone"] == []
+
+    def test_every_entry_carries_the_field(self, repo):
+        """So the page can rely on it rather than falling back."""
+        assert all("gone" in e for e in changelog.build(repo_root=repo))
+
+    def test_a_removed_agent_is_marked_in_its_own_entry(self, repo):
+        path = repo / "data" / "agents.json"
+        path.write_text(json.dumps([agent("A")]))
+        subprocess.run(["git", "commit", "-qam", "Drop B"], cwd=repo, check=True,
+                       capture_output=True)
+
+        removal = next(e for e in changelog.build(repo_root=repo) if e["removed"])
+        assert removal["gone"] == ["B"]

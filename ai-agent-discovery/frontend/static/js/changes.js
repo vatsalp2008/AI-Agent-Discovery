@@ -10,17 +10,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     /**
      * A list of agent names.
      *
-     * Linked only when the agent still exists: a removed one has no detail
-     * page, so a link there is a 404 offered as navigation.
+     * Linked only when the agent still exists. `gone` names the ones the
+     * catalogue no longer has — which is not the same as "removed in this
+     * entry": an agent added here and removed three commits later has no
+     * detail page either, and Windsurf did exactly that.
      */
-    function nameList(names, className, label, { linked = true } = {}) {
+    function nameList(names, className, label, gone = []) {
         const item = document.createElement('li');
         item.className = className;
 
         item.append(`${label}: `);
         names.forEach((name, index) => {
             if (index) item.append(', ');
-            if (!linked) {
+            if (gone.includes(name)) {
                 item.append(name);
                 return;
             }
@@ -60,10 +62,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const list = document.createElement('ul');
         list.className = 'change-list';
-        if (entry.added.length) list.appendChild(nameList(entry.added, 'change-added', 'Added'));
+        const gone = Array.isArray(entry.gone) ? entry.gone : entry.removed;
+        if (entry.added.length) {
+            list.appendChild(nameList(entry.added, 'change-added', 'Added', gone));
+        }
         if (entry.removed.length) {
             list.appendChild(nameList(entry.removed, 'change-removed', 'Removed',
-                                      { linked: false }));
+                                      entry.removed));
         }
         if (entry.edited.length) list.appendChild(editSummary(entry.edited));
         article.appendChild(list);

@@ -163,6 +163,14 @@ def build(repo_root=None, path="data/agents.json", since=None):
             **changes,
         })
 
+    # Which names the catalogue still has. An entry that added an agent
+    # removed three commits later would otherwise link to a page that 404s —
+    # "Windsurf" did exactly that after it was renamed to Devin Desktop.
+    current = set(_by_name(previous or []))
+    for entry in entries:
+        entry["gone"] = sorted(
+            {name for name in entry["added"] + entry["removed"] if name not in current})
+
     entries.reverse()
     return entries
 
