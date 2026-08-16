@@ -2899,7 +2899,7 @@
     ],
     "github_stars": 42944,
     "url": "https://github.com/deepspeedai/DeepSpeed",
-    "use_case": "Training beyond one GPU"
+    "use_case": "Distributed training at scale"
   },
   {
     "name": "Liger Kernel",

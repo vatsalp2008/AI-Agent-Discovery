@@ -1,5 +1,22 @@
 [
   {
+    "commit": "a296799d",
+    "at": "2026-08-16T11:40:23-07:00",
+    "subject": "Add six agents to the thinnest categories",
+    "total": 242,
+    "added": [
+      "Adversarial Robustness Toolbox",
+      "Cleanlab",
+      "DeepSpeed",
+      "Fickling",
+      "Liger Kernel",
+      "smolagents"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "6245d3ac",
     "at": "2026-08-16T11:14:26-07:00",
     "subject": "Add 13 data and automation agents",
