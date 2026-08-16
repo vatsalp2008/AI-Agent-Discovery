@@ -197,6 +197,10 @@ export const DASHBOARD_HTML = `
       <label class="sr-only" for="sortBy">Sort by</label>
       <select id="sortBy"><option value="name">Name</option><option value="stars">Stars</option></select>
       <button type="button" id="sortOrder" aria-label="Sort ascending">↑</button>
+      <label class="option-toggle" for="filterMaintained">
+        <input type="checkbox" id="filterMaintained">
+        Maintained only
+      </label>
     </div>
     <div class="results-grid" id="allAgentsGrid" aria-busy="true"></div>
     <div class="grid-footer" id="gridFooter"></div>

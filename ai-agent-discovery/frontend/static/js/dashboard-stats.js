@@ -44,7 +44,7 @@ const DashboardStats = (() => {
      */
     function pageQuery(offset, pageSize, filters = {}) {
         const params = new URLSearchParams({ limit: pageSize, offset });
-        ['q', 'category', 'tech', 'sort', 'order'].forEach(key => {
+        ['q', 'category', 'tech', 'maintained', 'sort', 'order'].forEach(key => {
             const value = filters[key];
             if (value) params.set(key, value);
         });

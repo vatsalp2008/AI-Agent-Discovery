@@ -301,3 +301,46 @@ describe('category tiles', () => {
         expect(document.querySelectorAll('.agent-card').length).toBeGreaterThan(0);
     });
 });
+
+describe('filtering out abandoned projects', () => {
+    const ROUTES = { '/api/stats': { body: STATS }, '/api/agents': page(['Aider']) };
+
+    async function tick(id) {
+        const control = document.getElementById(id);
+        control.checked = true;
+        control.dispatchEvent(new window.Event('change'));
+        await flush();
+    }
+
+    it('does not ask for the filter by default', async () => {
+        const calls = await boot(ROUTES);
+        expect(calls.some(c => c.url.includes('maintained'))).toBe(false);
+    });
+
+    it('asks for it when ticked', async () => {
+        const calls = await boot(ROUTES);
+        await tick('filterMaintained');
+
+        expect(calls.some(c => c.url.includes('maintained=1'))).toBe(true);
+    });
+
+    it('keeps it when another filter changes', async () => {
+        /** The two filters have to compose; otherwise picking a category
+         *  quietly brings the archived projects back. */
+        const calls = await boot(ROUTES);
+        await tick('filterMaintained');
+
+        // The facet is normally filled from /api/categories, which these
+        // routes do not serve; a select rejects a value it has no option for.
+        const category = document.getElementById('filterCategory');
+        category.appendChild(Object.assign(document.createElement('option'),
+                                           { value: 'Code Generation' }));
+        category.value = 'Code Generation';
+        category.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        const last = calls.filter(c => c.url.includes('/api/agents')).at(-1);
+        expect(last.url).toContain('maintained=1');
+        expect(last.url).toContain('category=Code');
+    });
+});

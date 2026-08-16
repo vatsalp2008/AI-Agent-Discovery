@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tech: document.getElementById('filterTech'),
         sort: document.getElementById('sortBy'),
         order: document.getElementById('sortOrder'),
+        maintained: document.getElementById('filterMaintained'),
     };
     let order = 'asc';
 
@@ -25,6 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tech: controls.tech ? controls.tech.value : '',
             sort: controls.sort ? controls.sort.value : 'name',
             order,
+            // Same filter the search page offers, so the two pages agree
+            // about what "maintained" means.
+            maintained: controls.maintained && controls.maintained.checked ? '1' : '',
         };
     }
 
@@ -202,9 +206,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 typingTimer = setTimeout(applyFilters, 250);
             });
         }
-        [controls.category, controls.tech, controls.sort].forEach(select => {
-            if (select) select.addEventListener('change', applyFilters);
-        });
+        // The checkbox belongs here too: every control on this bar reruns
+        // the query on change, and one that did not would read as broken.
+        [controls.category, controls.tech, controls.sort, controls.maintained]
+            .forEach(control => {
+                if (control) control.addEventListener('change', applyFilters);
+            });
         if (controls.order) {
             controls.order.addEventListener('click', () => {
                 order = order === 'asc' ? 'desc' : 'asc';
