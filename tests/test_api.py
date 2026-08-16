@@ -705,25 +705,29 @@ def test_the_client_compare_cap_matches_the_server(client):
         assert int(declared.group(1)) <= config.COMPARE_MAX_AGENTS, name
 
 
+@pytest.fixture
+def history(tmp_path, monkeypatch):
+    """Points DATA_DIR at a throwaway directory; call it to write a file.
+
+    Shared by the JSON endpoint and the Atom feed, which read the same file.
+    """
+    import config
+
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+    def write(contents):
+        import json as _json
+
+        path = tmp_path / "changelog.json"
+        path.write_text(contents if isinstance(contents, str) else _json.dumps(contents))
+        return path
+
+    return write
+
+
 class TestChangelog:
     """Served from a generated file, so the interesting cases are what
     happens when it is absent or damaged."""
-
-    @pytest.fixture
-    def history(self, tmp_path, monkeypatch):
-        """Points DATA_DIR at a throwaway directory; call it to write a file."""
-        import config
-
-        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
-
-        def write(contents):
-            import json as _json
-
-            path = tmp_path / "changelog.json"
-            path.write_text(contents if isinstance(contents, str) else _json.dumps(contents))
-            return path
-
-        return write
 
     def test_it_returns_the_history(self, client, history):
         history([{"commit": "abc", "at": "2026-08-14T00:00:00+00:00",
@@ -808,3 +812,76 @@ class TestMaintainedFilter:
     def test_anything_else_leaves_the_listing_unfiltered(self, client, value):
         body = client.get(f"/api/agents?maintained={value}").get_json()
         assert body["metadata"]["maintained"] is False
+
+
+class TestChangelogFeed:
+    """Atom rather than RSS: it requires a stable id and a real timestamp per
+    entry, and a git commit already has both."""
+
+    NS = "{http://www.w3.org/2005/Atom}"
+
+    def parse(self, client):
+        import xml.etree.ElementTree as ET
+
+        response = client.get("/api/changelog.atom")
+        assert response.status_code == 200
+        assert "atom+xml" in response.headers["Content-Type"]
+        return ET.fromstring(response.get_data())
+
+    def test_it_is_well_formed_atom(self, client, history):
+        history([{"commit": "abc12345", "at": "2026-08-14T00:00:00+00:00",
+                  "subject": "Add agents", "total": 223,
+                  "added": ["Kedro"], "removed": [], "edited": []}])
+        feed = self.parse(client)
+
+        assert feed.find(f"{self.NS}title") is not None
+        assert feed.find(f"{self.NS}id") is not None
+        assert len(feed.findall(f"{self.NS}entry")) == 1
+
+    def test_an_empty_history_is_still_a_valid_feed(self, client, history):
+        """Readers treat a missing `updated` as malformed rather than as
+        "nothing yet"."""
+        feed = self.parse(client)
+
+        assert feed.findall(f"{self.NS}entry") == []
+        assert feed.find(f"{self.NS}updated").text
+
+    def test_each_entry_is_identified_by_its_commit(self, client, history):
+        """An id that shifts as history grows makes every reader re-announce
+        every entry."""
+        history([{"commit": "abc12345", "at": "2026-08-14T00:00:00+00:00",
+                  "subject": "One", "total": 1, "added": [], "removed": [], "edited": []}])
+        entry = self.parse(client).find(f"{self.NS}entry")
+
+        assert "abc12345" in entry.find(f"{self.NS}id").text
+
+    def test_the_summary_says_what_changed(self, client, history):
+        history([{"commit": "abc", "at": "2026-08-14T00:00:00+00:00", "subject": "s",
+                  "total": 223, "added": ["Kedro", "Gradio"], "removed": ["Gone"],
+                  "edited": [{"name": "Cursor", "fields": []}]}])
+        summary = self.parse(client).find(f"{self.NS}entry/{self.NS}summary").text
+
+        assert "Added Kedro, Gradio" in summary
+        assert "Removed Gone" in summary
+        assert "Edited Cursor" in summary
+        assert "223 agents" in summary
+
+    def test_a_long_edit_list_is_abbreviated(self, client, history):
+        """A feed reader shows a line, not a page."""
+        history([{"commit": "abc", "at": "2026-08-14T00:00:00+00:00", "subject": "s",
+                  "total": 1, "added": [], "removed": [],
+                  "edited": [{"name": f"A{i}", "fields": []} for i in range(9)]}])
+        summary = self.parse(client).find(f"{self.NS}entry/{self.NS}summary").text
+
+        assert "and 4 more" in summary
+
+    def test_it_is_capped(self, client, history):
+        history([{"commit": str(i), "at": "2026-08-14T00:00:00+00:00", "subject": "s",
+                  "total": 1, "added": [], "removed": [], "edited": []}
+                 for i in range(80)])
+
+        assert len(self.parse(client).findall(f"{self.NS}entry")) == 50
+
+    def test_a_damaged_history_does_not_break_the_feed(self, client, history):
+        history("{ not json")
+        assert self.parse(client).findall(f"{self.NS}entry") == []

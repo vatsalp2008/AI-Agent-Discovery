@@ -3,6 +3,8 @@ import json
 import logging
 import re
 import time
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, make_response, request
 from werkzeug.exceptions import HTTPException
@@ -437,6 +439,23 @@ def get_tech_stacks():
     return _etag_response(get_store().get_tech_stacks())
 
 
+def _read_changelog():
+    """The generated history, or [] when there is none to read.
+
+    Absent is the normal state before changelog.py has ever run, and an empty
+    history is a truthful answer to "what changed" — not a 500.
+    """
+    path = config.DATA_DIR / "changelog.json"
+    try:
+        with open(path) as f:
+            entries = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        logger.info("No changelog at %s; run changelog.py to build one.", path)
+        return []
+
+    return entries if isinstance(entries, list) else []
+
+
 @api_bp.route('/changelog', methods=['GET'])
 def get_changelog():
     """How the catalogue has changed, newest first.
@@ -445,18 +464,7 @@ def get_changelog():
     process may not have a working tree (a container ships the JSON, not the
     repository), and the history only changes when the catalogue does.
     """
-    path = config.DATA_DIR / "changelog.json"
-    try:
-        with open(path) as f:
-            entries = json.load(f)
-    except (OSError, json.JSONDecodeError):
-        # Absent is the normal state before the generator has ever run, and
-        # an empty history is a truthful answer to "what changed".
-        logger.info("No changelog at %s; run changelog.py to build one.", path)
-        entries = []
-
-    if not isinstance(entries, list):
-        entries = []
+    entries = _read_changelog()
 
     try:
         limit = _parse_int_arg('limit', 50, 1, 500)
@@ -467,6 +475,58 @@ def get_changelog():
         "entries": entries[:limit],
         "metadata": {"count": min(len(entries), limit), "total": len(entries)},
     })
+
+
+def _feed_summary(entry):
+    """One entry as a sentence, for a reader that shows no markup."""
+    parts = []
+    if entry.get("added"):
+        parts.append(f"Added {', '.join(entry['added'])}")
+    if entry.get("removed"):
+        parts.append(f"Removed {', '.join(entry['removed'])}")
+    if entry.get("edited"):
+        names = [e.get("name", "?") for e in entry["edited"]]
+        shown = ", ".join(names[:5]) + (f" and {len(names) - 5} more" if len(names) > 5 else "")
+        parts.append(f"Edited {shown}")
+    parts.append(f"{entry.get('total', 0)} agents in the catalogue")
+    return ". ".join(parts) + "."
+
+
+@api_bp.route('/changelog.atom', methods=['GET'])
+def get_changelog_feed():
+    """The same history as an Atom feed, for anyone following along.
+
+    Atom rather than RSS: it requires a stable id and a real timestamp per
+    entry, both of which a git commit already has, and readers treat those
+    as the identity of an item rather than guessing from the title.
+    """
+    entries = _read_changelog()[:50]
+    origin = request.url_root.rstrip("/")
+
+    feed = ET.Element("feed", {"xmlns": "http://www.w3.org/2005/Atom"})
+    ET.SubElement(feed, "title").text = "AI Agent Discovery — catalogue changes"
+    ET.SubElement(feed, "id").text = f"{origin}/api/changelog.atom"
+    ET.SubElement(feed, "link", {"href": f"{origin}/changes"})
+    ET.SubElement(feed, "link", {"rel": "self", "href": f"{origin}/api/changelog.atom"})
+    # An empty feed still needs one: readers treat a missing updated as
+    # malformed rather than as "nothing yet".
+    ET.SubElement(feed, "updated").text = (
+        entries[0].get("at") if entries else datetime.now(timezone.utc).isoformat())
+
+    for entry in entries:
+        item = ET.SubElement(feed, "entry")
+        ET.SubElement(item, "title").text = entry.get("subject") or "Catalogue change"
+        # The commit, not the position: an id that shifts as history grows
+        # makes every reader re-announce every entry.
+        ET.SubElement(item, "id").text = f"{origin}/changes#{entry.get('commit', '')}"
+        ET.SubElement(item, "link", {"href": f"{origin}/changes"})
+        ET.SubElement(item, "updated").text = entry.get("at") or ""
+        ET.SubElement(item, "summary").text = _feed_summary(entry)
+
+    xml = ET.tostring(feed, encoding="utf-8", xml_declaration=True)
+    response = make_response(xml)
+    response.headers["Content-Type"] = "application/atom+xml; charset=utf-8"
+    return response
 
 
 @api_bp.route('/stats', methods=['GET'])

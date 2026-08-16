@@ -220,6 +220,12 @@ than computed per request: the web process may not have a working tree, and
 the history only changes when the catalogue does. An absent file is an empty
 history, which is the truthful answer before the generator has ever run.
 
+`GET /api/changelog.atom` serves the same history as an Atom feed, capped at
+50 entries and linked from every page's `<head>`. Atom rather than RSS: it
+requires a stable id and a real timestamp per entry, and a git commit already
+has both — the id is the commit hash, so a reader does not re-announce every
+entry as the history grows.
+
 Edits are reported per field, so a re-categorisation and a rewritten
 description are distinguishable. Star counts are deliberately excluded — a bot
 refreshes them weekly, and including them would bury every addition under a
