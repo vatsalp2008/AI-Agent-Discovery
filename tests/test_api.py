@@ -917,3 +917,39 @@ class TestFeedRobustness:
 
         body = client.get("/api/changelog").get_json()
         assert [e["subject"] for e in body["entries"]] == ["ok"]
+
+
+def test_the_feed_satisfies_the_required_atom_elements(client, history):
+    """RFC 4287 §4.1.1: a feed needs id, title and updated, and each entry
+    needs the same three. Well-formed XML is not the same as valid Atom, and
+    a reader that rejects the feed says nothing about why.
+    """
+    import xml.etree.ElementTree as ET
+
+    ns = "{http://www.w3.org/2005/Atom}"
+    history([{"commit": "abc12345", "at": "2026-08-16T00:00:00+00:00",
+              "subject": "Add agents", "total": 236,
+              "added": ["Kedro"], "removed": [], "edited": []}])
+    feed = ET.fromstring(client.get("/api/changelog.atom").get_data())
+
+    for element in ("id", "title", "updated", "author"):
+        assert feed.find(f"{ns}{element}") is not None, f"the feed has no <{element}>"
+
+    for entry in feed.findall(f"{ns}entry"):
+        for element in ("id", "title", "updated"):
+            found = entry.find(f"{ns}{element}")
+            assert found is not None and found.text, f"an entry has no <{element}>"
+
+
+def test_every_feed_entry_has_a_distinct_id(client, history):
+    """Readers key on the id; a duplicate makes entries overwrite each other."""
+    import xml.etree.ElementTree as ET
+
+    ns = "{http://www.w3.org/2005/Atom}"
+    history([{"commit": f"commit{i}", "at": "2026-08-16T00:00:00+00:00",
+              "subject": f"Change {i}", "total": 1,
+              "added": [], "removed": [], "edited": []} for i in range(5)])
+    feed = ET.fromstring(client.get("/api/changelog.atom").get_data())
+
+    ids = [e.find(f"{ns}id").text for e in feed.findall(f"{ns}entry")]
+    assert len(set(ids)) == len(ids)

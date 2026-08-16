@@ -161,6 +161,17 @@ describe('rendered controls have accessible names', () => {
         expect(unnamedControls()).toEqual([]);
     });
 
+    it('search page with the health toggle', async () => {
+        stubFetch({
+            '/api/categories': { body: [{ name: 'Automation', count: 3 }] },
+            '/api/agents': { body: { agents: [agent('Ollama')], metadata: {} } },
+        });
+        bootPage({ html: SEARCH_HTML, script: 'main.js',
+                   extraScripts: scriptsFor('index.html', 'main.js') });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
+
     it('technology page, with results', async () => {
         window.history.replaceState({}, '', '/tech/Python');
         stubFetch({
