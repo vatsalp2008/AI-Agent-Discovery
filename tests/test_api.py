@@ -885,3 +885,35 @@ class TestChangelogFeed:
     def test_a_damaged_history_does_not_break_the_feed(self, client, history):
         history("{ not json")
         assert self.parse(client).findall(f"{self.NS}entry") == []
+
+
+class TestFeedRobustness:
+    NS = "{http://www.w3.org/2005/Atom}"
+
+    def test_it_names_an_author(self, client, history):
+        """RFC 4287 §4.1.2 requires one; validators flag every entry without
+        it. On the feed, so entries inherit rather than repeat it."""
+        import xml.etree.ElementTree as ET
+
+        history([{"commit": "a", "at": "2026-08-14T00:00:00+00:00", "subject": "s",
+                  "total": 1, "added": [], "removed": [], "edited": []}])
+        feed = ET.fromstring(client.get("/api/changelog.atom").get_data())
+
+        assert feed.find(f"{self.NS}author/{self.NS}name").text
+
+    def test_junk_inside_the_history_does_not_500(self, client, history):
+        """A list that parses can still hold anything. The JSON endpoint
+        survives because it only slices; the feed reads fields."""
+        history(["not an object", 7, None,
+                 {"commit": "a", "at": "", "subject": "ok", "total": 1,
+                  "added": [], "removed": [], "edited": []}])
+
+        assert client.get("/api/changelog.atom").status_code == 200
+        assert client.get("/api/changelog").status_code == 200
+
+    def test_junk_is_left_out_of_both(self, client, history):
+        history(["not an object", {"commit": "a", "at": "", "subject": "ok", "total": 1,
+                                   "added": [], "removed": [], "edited": []}])
+
+        body = client.get("/api/changelog").get_json()
+        assert [e["subject"] for e in body["entries"]] == ["ok"]

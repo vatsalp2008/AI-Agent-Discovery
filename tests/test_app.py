@@ -234,3 +234,12 @@ def test_every_page_publishes_it(real_app):
     for path in PAGES:
         body = client.get(path).get_data(as_text=True)
         assert re.search(r'data-compare-max="\d+"', body), f"{path} does not publish it"
+
+
+def test_the_feed_is_discoverable_from_the_head(real_app):
+    """Readers and browser extensions scan <head> and nothing else, so a
+    link in the body is a link nobody follows."""
+    body = real_app.test_client().get("/").get_data(as_text=True)
+    head = body[:body.index("</head>")]
+
+    assert "changelog.atom" in head, "the autodiscovery link is outside <head>"

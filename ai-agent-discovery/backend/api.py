@@ -453,7 +453,13 @@ def _read_changelog():
         logger.info("No changelog at %s; run changelog.py to build one.", path)
         return []
 
-    return entries if isinstance(entries, list) else []
+    if not isinstance(entries, list):
+        return []
+    # A list can still hold anything. The JSON endpoint survives that because
+    # it only slices; the feed reads fields, so it would 500 on the first
+    # non-object — and "a damaged history is an empty history" is the
+    # contract both of them owe.
+    return [entry for entry in entries if isinstance(entry, dict)]
 
 
 @api_bp.route('/changelog', methods=['GET'])
@@ -508,6 +514,9 @@ def get_changelog_feed():
     ET.SubElement(feed, "id").text = f"{origin}/api/changelog.atom"
     ET.SubElement(feed, "link", {"href": f"{origin}/changes"})
     ET.SubElement(feed, "link", {"rel": "self", "href": f"{origin}/api/changelog.atom"})
+    # Required by RFC 4287 §4.1.2 — on the feed, so entries inherit it rather
+    # than repeating it 50 times.
+    ET.SubElement(ET.SubElement(feed, "author"), "name").text = "AI Agent Discovery"
     # An empty feed still needs one: readers treat a missing updated as
     # malformed rather than as "nothing yet".
     ET.SubElement(feed, "updated").text = (
