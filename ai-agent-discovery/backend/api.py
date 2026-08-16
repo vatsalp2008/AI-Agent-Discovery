@@ -156,6 +156,14 @@ def _parse_summarize(payload):
     raise BadRequest("'summarize' must be a boolean")
 
 
+def _parse_maintained(payload):
+    """Validate the optional "hide abandoned projects" flag."""
+    value = payload.get('maintained', False)
+    if isinstance(value, bool):
+        return value
+    raise BadRequest("'maintained' must be a boolean")
+
+
 def _parse_min_score(payload):
     """Validate the optional hard score filter."""
     raw = payload.get('min_score')
@@ -241,6 +249,9 @@ def get_agents():
     category = (request.args.get('category') or '').strip() or None
     tech = (request.args.get('tech') or '').strip() or None
     keyword = (request.args.get('q') or '').strip() or None
+    # Any of the usual truthy spellings; a query string has no booleans.
+    maintained = (request.args.get('maintained') or '').strip().lower() in {
+        "1", "true", "yes", "on"}
 
     agents = get_store().get_all_agents()
     if keyword:
@@ -256,6 +267,9 @@ def get_agents():
     if category:
         wanted = category.casefold()
         agents = [a for a in agents if (a["metadata"].get("category") or "").casefold() == wanted]
+    if maintained:
+        agents = [a for a in agents
+                  if (a["metadata"].get("status") or "active") == "active"]
     if tech:
         wanted = tech.casefold()
         agents = [
@@ -280,6 +294,7 @@ def get_agents():
             "offset": offset,
             "category": category,
             "tech": tech,
+            "maintained": maintained,
             "q": keyword,
             "min_stars": min_stars,
             "max_stars": max_stars,
@@ -359,6 +374,7 @@ def search_agents():
         category = _parse_category(payload)
         summarize = _parse_summarize(payload)
         min_score = _parse_min_score(payload)
+        maintained = _parse_maintained(payload)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
 
@@ -378,7 +394,8 @@ def search_agents():
         return response, 429
 
     start_time = time.time()
-    results = get_store().search(query, limit=limit, category=category, min_score=min_score)
+    results = get_store().search(query, limit=limit, category=category,
+                                 min_score=min_score, maintained=maintained)
 
     # Vector search always returns *something*, so a nonsense query still gets
     # a full page of cards. Report whether the best match actually cleared the
@@ -400,6 +417,7 @@ def search_agents():
             "count": len(results),
             "limit": limit,
             "category": category,
+            "maintained": maintained,
             "confident": confident,
             "min_score": min_score,
             "summarized": summary is not None,

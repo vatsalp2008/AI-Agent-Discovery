@@ -87,7 +87,7 @@ def test_agents_endpoint_paginates(client):
     assert [a["name"] for a in first["agents"]] == ["Aider", "Cursor"]
     assert first["metadata"] == {
         "total": 3, "count": 2, "limit": 2, "offset": 0,
-        "category": None, "tech": None, "q": None,
+        "category": None, "tech": None, "maintained": False, "q": None,
         "min_stars": None, "max_stars": None,
         "sort": "name", "order": "asc", "has_more": True,
     }
@@ -769,3 +769,42 @@ class TestChangelog:
         assert etag
         assert client.get("/api/changelog",
                           headers={"If-None-Match": etag}).status_code == 304
+
+
+class TestMaintainedFilter:
+    """19 of 223 entries are archived or dormant. A directory that ranks an
+    abandoned tool beside a live one is answering the wrong question."""
+
+    def test_search_keeps_everything_by_default(self, client):
+        body = client.post("/api/search", json={"query": "agent"}).get_json()
+        assert body["metadata"]["maintained"] is False
+
+    def test_search_can_hide_abandoned_projects(self, client, store):
+        body = client.post("/api/search",
+                           json={"query": "agent", "maintained": True}).get_json()
+
+        assert body["metadata"]["maintained"] is True
+        statuses = {r["metadata"].get("status", "active") for r in body["results"]}
+        assert statuses <= {"active"}
+
+    def test_a_non_boolean_is_refused(self, client):
+        response = client.post("/api/search", json={"query": "x", "maintained": "yes"})
+        assert response.status_code == 400
+        assert "maintained" in response.get_json()["error"]
+
+    def test_the_listing_filters_too(self, client):
+        body = client.get("/api/agents?maintained=1").get_json()
+        assert body["metadata"]["maintained"] is True
+        assert all((a["metadata"].get("status") or "active") == "active"
+                   for a in body["agents"])
+
+    @pytest.mark.parametrize("value", ["1", "true", "yes", "on", "TRUE"])
+    def test_the_listing_accepts_the_usual_spellings(self, client, value):
+        """A query string has no booleans, so the usual ones all work."""
+        body = client.get(f"/api/agents?maintained={value}").get_json()
+        assert body["metadata"]["maintained"] is True
+
+    @pytest.mark.parametrize("value", ["0", "false", "no", "", "maybe"])
+    def test_anything_else_leaves_the_listing_unfiltered(self, client, value):
+        body = client.get(f"/api/agents?maintained={value}").get_json()
+        assert body["metadata"]["maintained"] is False

@@ -408,3 +408,48 @@ def test_a_filtered_search_reads_the_category_list_once(store, monkeypatch):
     store.search("agent", limit=3, category="Code Generation")
 
     assert len(calls) == 1, f"read the category list {len(calls)} times"
+
+
+class TestMaintainedFilter:
+    def store_with(self, statuses, tmp_path):
+        from conftest import FakeInnerStore
+        from langchain_core.documents import Document
+
+        documents = [
+            Document(page_content=f"agent number {i}",
+                     metadata={"name": f"Agent{i}", "category": "Framework",
+                               "description": "", **({"status": s} if s else {})})
+            for i, s in enumerate(statuses)
+        ]
+        vs = VectorStore(persist_directory=tmp_path / "index", embedding_function=object())
+        vs.vector_store = FakeInnerStore(documents)
+        return vs
+
+    def test_it_leaves_out_archived_and_dormant(self, tmp_path):
+        store = self.store_with([None, "archived", "dormant", None], tmp_path)
+        names = [r["metadata"]["name"] for r in store.search("agent", maintained=True)]
+
+        assert names == ["Agent0", "Agent3"]
+
+    def test_an_absent_status_counts_as_maintained(self, tmp_path):
+        """204 of 223 records carry no status at all."""
+        store = self.store_with([None, None], tmp_path)
+        assert len(store.search("agent", maintained=True)) == 2
+
+    def test_off_by_default(self, tmp_path):
+        store = self.store_with([None, "archived"], tmp_path)
+        assert len(store.search("agent")) == 2
+
+    def test_it_backfills_rather_than_shrinking_the_page(self, tmp_path):
+        """Dropping results after the fact would hand back a short page; the
+        filter runs during the scan so the limit is still met."""
+        store = self.store_with(["archived", "archived", None, None, None], tmp_path)
+        assert len(store.search("agent", limit=3, maintained=True)) == 3
+
+    def test_it_is_cached_separately(self, tmp_path):
+        """Sharing a cache key with the unfiltered search would serve
+        archived projects to somebody who asked not to see them."""
+        store = self.store_with([None, "archived"], tmp_path)
+
+        assert len(store.search("agent")) == 2
+        assert len(store.search("agent", maintained=True)) == 1

@@ -205,23 +205,27 @@ class VectorStore:
     CATEGORY_OVERFETCH = 5
 
     def search(self, query: str, limit: int = None, category: str = None,
-               min_score: float = None) -> list[dict]:
+               min_score: float = None, maintained: bool = False) -> list[dict]:
         """Semantic search for agents, best match first.
 
         When `category` is given, only agents in that category are returned
-        (case-insensitive). When `min_score` is given, weaker matches are
-        dropped entirely; by default nothing is filtered and callers decide
-        what to do with low scores.
+        (case-insensitive). When `maintained` is set, archived and dormant
+        projects are left out — a directory that ranks an abandoned tool
+        beside a live one is answering the wrong question. When `min_score`
+        is given, weaker matches are dropped entirely; by default nothing is
+        filtered and callers decide what to do with low scores.
 
-        Results are cached per (query, limit, category): embedding the query
-        means a round trip to Ollama, which dominates the cost of a repeat
-        search. The cache is dropped whenever the index changes.
+        Results are cached per (query, limit, category, min_score,
+        maintained): embedding the query means a round trip to Ollama, which
+        dominates the cost of a repeat search. The cache is dropped whenever
+        the index changes.
         """
         if not self.vector_store:
             return []
 
         limit = limit or config.SEARCH_DEFAULT_LIMIT
-        cache_key = (query.casefold(), limit, (category or "").casefold(), min_score)
+        cache_key = (query.casefold(), limit, (category or "").casefold(), min_score,
+                     bool(maintained))
         cached = self._cache_get(cache_key)
         if cached is not None:
             return cached
@@ -238,6 +242,8 @@ class VectorStore:
             found = []
             for doc, distance in results:
                 if wanted and (doc.metadata.get("category") or "").casefold() != wanted:
+                    continue
+                if maintained and (doc.metadata.get("status") or "active") != "active":
                     continue
                 found.append({
                     "name": doc.metadata.get("name"),
@@ -280,6 +286,11 @@ class VectorStore:
             # reporting an empty category for one with members: measured
             # against an unfiltered search, +1.6ms at 2,000 agents and
             # +7.4ms at 10,000. The catalogue is 203.
+            agents = fetch(total or limit * self.CATEGORY_OVERFETCH)
+        elif maintained:
+            # Same reasoning as the category filter: a slice would drop
+            # results the caller asked for, and the cost is one embedding
+            # either way.
             agents = fetch(total or limit * self.CATEGORY_OVERFETCH)
         else:
             agents = fetch(limit)
