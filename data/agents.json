@@ -786,6 +786,18 @@
     "use_case": "Explaining Kubernetes errors in plain English"
   },
   {
+    "name": "Agent QA",
+    "description": "Source-available QA harness that runs natural-language web and mobile regression tests, retains run memory and adapts to UI changes.",
+    "category": "Automation",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "github_stars": 901,
+    "url": "https://github.com/vostride/agent-qa",
+    "use_case": "Natural-language web and mobile regression testing"
+  },
+  {
     "name": "Langfuse",
     "description": "Open source LLM engineering platform: tracing, evaluation, prompt management and cost tracking.",
     "category": "Evaluation",
