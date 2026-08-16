@@ -506,14 +506,14 @@ python ai-agent-discovery/benchmark.py --compare before.json   # after a change
 python ai-agent-discovery/benchmark.py --scale 600  # a size we have not reached
 ```
 
-Measured on an M-series laptop with 223 agents:
+Measured on an M-series laptop with 236 agents:
 
 | Operation | Time | Note |
 |-----------|------|------|
 | `import vectorstore` | ~1ms | was ~485ms before imports were deferred |
-| Build the store | ~460ms | pays the deferred FAISS import, on first request only |
-| Search (uncached) | ~16ms | ~11.5ms of it is the Ollama embedding call |
-| Search (filtered) | ~12ms | scans the whole index: +1.6ms at 2,000 agents, +7.4ms at 10,000 |
+| Build the store | ~355ms | pays the deferred FAISS import, on first request only |
+| Search (uncached) | ~16ms | almost all of it is the Ollama embedding call |
+| Search (filtered) | ~15ms | scans the whole index: +1.6ms at 2,000 agents, +7.4ms at 10,000 |
 | Search (cached) | <0.1ms | in-memory, and persisted across restarts |
 | `/api/agents`, `/api/stats` | <0.1ms | the agent list is memoized |
 
