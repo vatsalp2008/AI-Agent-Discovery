@@ -685,3 +685,26 @@ def test_every_script_is_runnable_from_the_makefile():
 
     assert scripts, "no scripts found; the glob is wrong"
     assert not missing, f"no make target runs: {missing}"
+
+
+def test_project_health_is_surfaced_wherever_an_agent_is_rendered():
+    """The status field only earns its keep if it is visible.
+
+    It was added to four surfaces one at a time — the card, the detail page,
+    the comparison table and the MCP result — and each addition was a
+    separate chance to forget one. A place that renders an agent without it
+    presents an abandoned tool as a live one.
+    """
+    js = config.PACKAGE_DIR / "frontend" / "static" / "js"
+    renderers = {
+        "agent-card.js": "the search result card",
+        "agent.js": "the agent detail page",
+        "compare.js": "the comparison table",
+    }
+
+    missing = [f"{name} ({what})" for name, what in renderers.items()
+               if "status" not in (js / name).read_text()]
+    assert not missing, f"these render an agent without its health: {missing}"
+
+    mcp = (config.PACKAGE_DIR / "mcp_server.py").read_text()
+    assert "status" in mcp, "MCP results omit project health"
