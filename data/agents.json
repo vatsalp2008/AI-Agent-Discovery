@@ -2735,5 +2735,157 @@
     "github_stars": 35660,
     "url": "https://github.com/OpenBMB/VoxCPM",
     "use_case": "Natural speech synthesis"
+  },
+  {
+    "name": "WrenAI",
+    "description": "Turns a question into SQL against a semantic model of the warehouse, so the answer matches how the business defines its terms.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 17277,
+    "url": "https://github.com/Canner/WrenAI",
+    "use_case": "Natural language business intelligence"
+  },
+  {
+    "name": "PyCaret",
+    "description": "A low-code wrapper over the usual ML libraries that trains and compares dozens of models from a handful of lines.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "scikit-learn"
+    ],
+    "github_stars": 9833,
+    "url": "https://github.com/pycaret/pycaret",
+    "use_case": "Rapid model comparison"
+  },
+  {
+    "name": "H2O-3",
+    "description": "Distributed machine learning with AutoML, aimed at datasets larger than one machine and at explaining the model it picks.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Java",
+      "Python"
+    ],
+    "github_stars": 7495,
+    "url": "https://github.com/h2oai/h2o-3",
+    "use_case": "Distributed AutoML"
+  },
+  {
+    "name": "FLAML",
+    "description": "Microsoft's cost-aware AutoML: it searches for accuracy under a time or compute budget rather than exhausting the grid.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 4386,
+    "url": "https://github.com/microsoft/FLAML",
+    "use_case": "Budget-aware tuning"
+  },
+  {
+    "name": "Featuretools",
+    "description": "Generates features from relational data automatically, taking on the step that usually decides how good a model gets.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 7663,
+    "url": "https://github.com/alteryx/featuretools",
+    "use_case": "Automated feature engineering"
+  },
+  {
+    "name": "StatsForecast",
+    "description": "Fast statistical forecasting models, the baselines a neural forecaster has to beat and often does not.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "Python",
+      "Numba"
+    ],
+    "github_stars": 4868,
+    "url": "https://github.com/Nixtla/statsforecast",
+    "use_case": "Time series baselines"
+  },
+  {
+    "name": "SQLBot",
+    "description": "A chat interface over a database that keeps schema context between questions, so a follow-up does not restate the whole query.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "JavaScript",
+      "Python"
+    ],
+    "github_stars": 6611,
+    "url": "https://github.com/dataease/SQLBot",
+    "use_case": "Conversational querying"
+  },
+  {
+    "name": "AutoRAG",
+    "description": "Evaluates RAG pipeline combinations against your own data and reports which retriever and reranker actually won.",
+    "category": "Research",
+    "tech_stack": [
+      "TypeScript",
+      "Python"
+    ],
+    "github_stars": 5041,
+    "url": "https://github.com/Marker-Inc-Korea/AutoRAG",
+    "use_case": "Choosing a RAG pipeline"
+  },
+  {
+    "name": "DeepCode",
+    "description": "Turns a paper or a specification into a working repository, planning the modules before writing any of them.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 16360,
+    "url": "https://github.com/HKUDS/DeepCode",
+    "use_case": "Paper to implementation"
+  },
+  {
+    "name": "Browser Harness",
+    "description": "A managed browser runtime for agents, handling sessions, retries and stealth so a scraping agent stays up.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 16720,
+    "url": "https://github.com/browser-use/browser-harness",
+    "use_case": "Running browser agents"
+  },
+  {
+    "name": "Lightpanda",
+    "description": "A headless browser built for automation rather than rendering, using a fraction of the memory Chrome needs per session.",
+    "category": "Automation",
+    "tech_stack": [
+      "Zig",
+      "JavaScript"
+    ],
+    "github_stars": 33935,
+    "url": "https://github.com/lightpanda-io/browser",
+    "use_case": "Lightweight headless browsing"
+  },
+  {
+    "name": "MockingBird",
+    "description": "Clones a Mandarin voice from five seconds of audio and generates arbitrary speech in it, trained on open corpora.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 36910,
+    "url": "https://github.com/babysor/MockingBird",
+    "use_case": "Mandarin voice cloning"
+  },
+  {
+    "name": "pyvideotrans",
+    "description": "Translates a video end to end \u2014 transcribe, translate, re-voice and re-time the subtitles \u2014 in one pass.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 18696,
+    "url": "https://github.com/jianchang512/pyvideotrans",
+    "use_case": "Translating video"
   }
 ]
