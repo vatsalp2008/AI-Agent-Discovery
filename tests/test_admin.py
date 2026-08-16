@@ -593,3 +593,47 @@ class TestAgentStatus:
         row it loaded would be blanked on save."""
         agents = admin_client.get("/api/admin/agents").get_json()["agents"]
         assert all(a.get("status") for a in agents)
+
+
+class TestOneOnDiskFormat:
+    """The editor and the seeder both write agents.json. They disagreed about
+    `status`, so saving through /admin and then re-seeding rewrote 204
+    records neither of them meant to touch."""
+
+    def test_a_default_status_is_not_written(self):
+        assert "status" not in admin.for_file({"name": "A", "status": "active"})
+        assert "status" not in admin.for_file({"name": "A"})
+
+    def test_a_real_status_is_kept(self):
+        assert admin.for_file({"name": "A", "status": "archived"})["status"] == "archived"
+
+    def test_the_seeder_uses_the_same_rule(self):
+        """Two implementations is how they drifted in the first place."""
+        import scraper
+        from models import Agent
+
+        plain = Agent(name="A", description="d", category="c", tech_stack=["Python"])
+        gone = Agent(name="B", description="d", category="c", tech_stack=["Python"],
+                     status="archived")
+
+        assert scraper._for_file(plain) == admin.for_file(plain.to_dict())
+        assert scraper._for_file(gone) == admin.for_file(gone.to_dict())
+
+    def test_saving_then_seeding_leaves_the_file_alone(self, tmp_path, monkeypatch):
+        """The round-trip that produced the spurious diff."""
+        import json
+
+        import config
+        import scraper
+        from models import Agent
+
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "agents.json")
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        records = [{"name": "A", "description": "d", "category": "c",
+                    "tech_stack": ["Python"], "github_stars": 0, "url": "", "use_case": ""}]
+        admin.save_catalogue(records)
+        after_save = (tmp_path / "agents.json").read_text()
+
+        scraper.write_agents_json([Agent.from_dict(r) for r in json.loads(after_save)])
+        assert (tmp_path / "agents.json").read_text() == after_save

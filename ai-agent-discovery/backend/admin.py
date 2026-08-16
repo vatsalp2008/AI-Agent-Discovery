@@ -90,8 +90,26 @@ def load_catalogue():
     return records
 
 
+def for_file(record):
+    """One record as it belongs on disk.
+
+    `status` is omitted when it is the default. The seeder already did this
+    (scraper._for_file); the editor did not, so saving through /admin and
+    then re-seeding produced a diff neither writer meant to make.
+    """
+    # agents.json is hand-editable, so a record may be anything at all;
+    # passing it through unchanged keeps save_catalogue from destroying
+    # whatever a person put there.
+    if not isinstance(record, dict):
+        return record
+    if record.get("status", "active") == "active":
+        return {k: v for k, v in record.items() if k != "status"}
+    return record
+
+
 def save_catalogue(records):
     """Write agents.json atomically, so a crash cannot truncate it."""
+    records = [for_file(r) for r in records]
     try:
         # AGENTS_JSON is separately configurable, so it need not sit inside
         # DATA_DIR; create the directory it actually points at.

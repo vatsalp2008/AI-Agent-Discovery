@@ -1386,14 +1386,13 @@ def _warn_about_duplicates(agents: list[Agent]) -> None:
 def _for_file(agent: Agent) -> dict:
     """One record as it should appear on disk.
 
-    `status` is omitted when it is the default. Writing "active" on every
-    entry is 200-odd lines of noise that says nothing, and it made a re-seed
-    show up in the change history as though every agent had been edited.
+    Shared with the editor via admin.for_file, so the two writers cannot
+    disagree about the format — they did, and a save followed by a re-seed
+    rewrote 204 records for no reason.
     """
-    record = agent.to_dict()
-    if record.get("status", "active") == "active":
-        record.pop("status", None)
-    return record
+    from admin import for_file
+
+    return for_file(agent.to_dict())
 
 
 def write_agents_json(agents: list[Agent]) -> None:
