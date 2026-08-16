@@ -856,6 +856,21 @@ a.tech-item:hover {
     color: var(--accent-text);
 }
 
+.search-options {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0 0;
+}
+
+.option-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
 /* Change history */
 .change-entry {
     background: var(--card-bg);

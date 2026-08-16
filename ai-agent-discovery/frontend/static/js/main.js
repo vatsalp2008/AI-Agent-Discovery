@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Category chips act as a real server-side filter, not just a canned query.
     let activeCategory = null;
+    const maintainedOnly = document.getElementById('maintainedOnly');
+
+    /** Whether the "only maintained projects" toggle is on. */
+    function wantsMaintained() {
+        return Boolean(maintainedOnly && maintainedOnly.checked);
+    }
     // Reused by the no-match notice, which suggests somewhere to go instead.
     let loadedCategories = [];
 
@@ -268,7 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeholder = makeSummary('Generating overview…', { pending: true });
         resultsArea.prepend(placeholder);
 
-        const body = SearchState.searchBody({ query, category: activeCategory, summarize: true });
+        const body = SearchState.searchBody({
+            query, category: activeCategory, summarize: true,
+            maintained: wantsMaintained(),
+        });
 
         try {
             const response = await fetch('/api/search', {
@@ -307,7 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading();
         resultsArea.setAttribute('aria-busy', 'true');
 
-        const body = SearchState.searchBody({ query, category: activeCategory });
+        const body = SearchState.searchBody({
+            query, category: activeCategory, maintained: wantsMaintained(),
+        });
 
         try {
             const response = await fetch('/api/search', {

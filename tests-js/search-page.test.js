@@ -790,3 +790,43 @@ describe('saving records the filter that produced the results', () => {
         expect(globalThis.SavedSearches.list()[0].category).toBe('');
     });
 });
+
+describe('hiding abandoned projects', () => {
+    it('does not ask for the filter by default', async () => {
+        const calls = await boot();
+        submitSearch('agent');
+        await flush();
+
+        const sent = JSON.parse(calls.find(c => c.url.includes('/api/search')).options.body);
+        expect(sent.maintained).toBeUndefined();
+    });
+
+    it('asks for it when the toggle is on', async () => {
+        const calls = await boot();
+        document.getElementById('maintainedOnly').checked = true;
+        submitSearch('agent');
+        await flush();
+
+        const sent = JSON.parse(calls.find(c => c.url.includes('/api/search')).options.body);
+        expect(sent.maintained).toBe(true);
+    });
+
+    it('keeps the filter on a follow-up search', async () => {
+        const calls = await boot();
+        document.getElementById('maintainedOnly').checked = true;
+        submitSearch('agent');
+        await flush();
+        submitSearch('another');
+        await flush();
+
+        const bodies = calls.filter(c => c.url.includes('/api/search'))
+            .map(c => JSON.parse(c.options.body));
+        expect(bodies.every(b => b.maintained === true)).toBe(true);
+    });
+
+    it('has a label a screen reader can use', async () => {
+        await boot();
+        const label = document.querySelector('label[for="maintainedOnly"]');
+        expect(label.textContent.trim()).toContain('maintained');
+    });
+});

@@ -165,6 +165,12 @@ export const SEARCH_HTML = `
       <button id="searchBtn" type="submit">go</button>
     </form>
     <div id="filters"></div>
+    <div class="search-options">
+      <label class="option-toggle" for="maintainedOnly">
+        <input type="checkbox" id="maintainedOnly">
+        Only maintained projects
+      </label>
+    </div>
     <div class="recent" id="recent" hidden>
       <span id="recentLabel">Recent</span>
       <span id="recentList"></span>

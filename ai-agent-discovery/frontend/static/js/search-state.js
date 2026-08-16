@@ -27,10 +27,12 @@ const SearchState = (() => {
     }
 
     /** Body for POST /api/search. Optional fields are omitted, not sent null. */
-    function searchBody({ query, category, summarize } = {}) {
+    function searchBody({ query, category, summarize, maintained } = {}) {
         const body = { query };
         if (category) body.category = category;
         if (summarize) body.summarize = true;
+        // Omitted when off, so the request says only what was asked for.
+        if (maintained) body.maintained = true;
         return body;
     }
 
