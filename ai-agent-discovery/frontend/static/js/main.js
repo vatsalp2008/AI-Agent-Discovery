@@ -394,6 +394,14 @@ document.addEventListener('DOMContentLoaded', () => {
         activeCategory = name;
     }
 
+    if (maintainedOnly) {
+        maintainedOnly.addEventListener('change', () => {
+            const query = searchInput.value.trim();
+            if (query) performSearch(query, { updateUrl: false });
+            else loadInitialAgents();
+        });
+    }
+
     function makeChip(name, count) {
         const chip = document.createElement('button');
         chip.type = 'button';
@@ -437,7 +445,9 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function loadInitialAgents() {
         try {
-            const response = await fetch('/api/agents?limit=6');
+            const params = new URLSearchParams({ limit: '6' });
+            if (wantsMaintained()) params.set('maintained', '1');
+            const response = await fetch(`/api/agents?${params}`);
             if (!response.ok) return;
 
             const body = await response.json();

@@ -830,3 +830,44 @@ describe('hiding abandoned projects', () => {
         expect(label.textContent.trim()).toContain('maintained');
     });
 });
+
+describe('the maintained toggle takes effect immediately', () => {
+    it('re-runs the current search when ticked', async () => {
+        /** A filter that only applies to the *next* search is a filter
+         *  people reasonably think is broken. Category chips re-search on
+         *  click; this now behaves the same way. */
+        const calls = await boot();
+        submitSearch('agent');
+        await flush();
+        const before = calls.filter(c => c.url.includes('/api/search')).length;
+
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        // The summary is a second request to the same path, so count "more
+        // than before" rather than an exact number.
+        const searches = calls.filter(c => c.url.includes('/api/search'));
+        expect(searches.length).toBeGreaterThan(before);
+        expect(JSON.parse(searches.at(-1).options.body).maintained).toBe(true);
+    });
+
+    it('reloads the browse grid when there is no query', async () => {
+        const calls = await boot();
+
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        const listing = calls.filter(c => c.url.includes('/api/agents')).at(-1);
+        expect(listing.url).toContain('maintained=1');
+    });
+
+    it('does not ask the listing to filter when it is off', async () => {
+        const calls = await boot();
+        const listing = calls.filter(c => c.url.includes('/api/agents')).at(-1);
+        expect(listing.url).not.toContain('maintained');
+    });
+});
