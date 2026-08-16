@@ -199,3 +199,39 @@ class TestThrottling:
     def test_a_real_failure_is_still_broken(self, links, monkeypatch):
         monkeypatch.setattr(links.urllib.request, "build_opener", self.refusing(404))
         assert links.check_url("https://example.com")[0] == links.BROKEN
+
+    def test_a_throttled_get_retry_is_not_broken(self, links, monkeypatch):
+        """A host that refuses HEAD with 403 and then rate-limits the GET is
+        still refusing to answer. This landed in the generic handler and came
+        out BROKEN — the case the throttled state exists for."""
+        def build(*args, **kwargs):
+            class FakeOpener:
+                def __init__(self):
+                    self.calls = 0
+
+                def open(self, request, timeout=0):
+                    self.calls += 1
+                    code = 403 if self.calls == 1 else 429
+                    raise urllib.error.HTTPError("u", code, "Refused", {}, None)
+            return FakeOpener()
+
+        monkeypatch.setattr(links.urllib.request, "build_opener", build)
+        status, detail = links.check_url("https://example.com")
+
+        assert status == links.THROTTLED
+        assert "429" in detail
+
+    def test_a_genuine_failure_on_the_get_retry_is_still_broken(self, links, monkeypatch):
+        def build(*args, **kwargs):
+            class FakeOpener:
+                def __init__(self):
+                    self.calls = 0
+
+                def open(self, request, timeout=0):
+                    self.calls += 1
+                    code = 403 if self.calls == 1 else 404
+                    raise urllib.error.HTTPError("u", code, "Refused", {}, None)
+            return FakeOpener()
+
+        monkeypatch.setattr(links.urllib.request, "build_opener", build)
+        assert links.check_url("https://example.com")[0] == links.BROKEN

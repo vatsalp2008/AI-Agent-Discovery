@@ -77,6 +77,13 @@ def check_url(url, timeout=10):
                     return OK, f"{response.status} (GET)"
             except _Redirected as redirect:
                 return REDIRECT, f"-> {redirect.location}"
+            except urllib.error.HTTPError as inner:
+                # The retry can be throttled too: a host that refuses HEAD
+                # with 403 and then rate-limits the GET is still refusing to
+                # answer, not reporting a dead page.
+                if inner.code == 429:
+                    return THROTTLED, "HTTP 429 on GET (rate limited, not necessarily broken)"
+                return BROKEN, f"{e.code}, and GET failed: HTTP {inner.code}"
             except Exception as inner:
                 return BROKEN, f"{e.code}, and GET failed: {inner}"
         return BROKEN, f"HTTP {e.code}"
