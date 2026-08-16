@@ -176,6 +176,7 @@ def call_tool(name, arguments=None):
             limit=max(1, min(limit, config.SEARCH_MAX_LIMIT)),
             category=arguments.get("category"),
             min_score=arguments.get("min_score"),
+            maintained=bool(arguments.get("maintained")),
         )
         confident = bool(results) and results[0]["score"] >= config.SEARCH_MIN_SCORE
         return {
@@ -241,16 +242,21 @@ def build_server():
 
     @mcp.tool()
     async def search_agents(query: str, limit: int = 5, category: str | None = None,
-                            min_score: float | None = None) -> dict:
+                            min_score: float | None = None,
+                            maintained: bool = False) -> dict:
         """Search the AI agent catalogue by natural language.
 
         Returns agents ranked by semantic similarity, each with a 0-1
         relevance score. When nothing matches well the response says so
         rather than presenting weak results as answers.
+
+        Set `maintained` to leave out archived and dormant projects — worth
+        doing when the answer is a recommendation rather than a survey.
         """
         return await _run("search_agents", {
             "query": query, "limit": limit,
             "category": category, "min_score": min_score,
+            "maintained": maintained,
         })
 
     @mcp.tool()

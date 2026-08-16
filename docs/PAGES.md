@@ -50,6 +50,10 @@ Entries carry an optional `status`. Absent means `active` and shows nothing;
 does not say a project has been archived is misleading in the one way that
 matters when choosing a tool.
 
+The search page offers **Only maintained projects**, which leaves those
+entries out. The filter runs during the scan, so the page stays full: an
+archived project is replaced by the next live one rather than leaving a gap.
+
 It is set by `audit.py` from what GitHub reports — see
 [CATALOGUE.md](CATALOGUE.md) — and cleared again when a project comes back, so
 a stale warning does not outlive the thing it warned about. The editor can

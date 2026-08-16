@@ -220,3 +220,16 @@ class TestProjectHealth:
         result is context the caller pays for and cannot use."""
         assert "status" not in mcp._slim(self.result())
         assert "status" not in mcp._slim(self.result(status="active"))
+
+
+def test_search_can_leave_out_abandoned_projects(mcp, store):
+    """Worth doing when the answer is a recommendation rather than a survey."""
+    seen = {}
+    real = store.search
+    store.search = lambda q, **kw: (seen.update(kw), real(q, **kw))[1]
+
+    mcp.call_tool("search_agents", {"query": "agent", "maintained": True})
+    assert seen["maintained"] is True
+
+    mcp.call_tool("search_agents", {"query": "agent"})
+    assert seen["maintained"] is False

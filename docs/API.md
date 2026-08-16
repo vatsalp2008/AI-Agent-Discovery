@@ -187,6 +187,25 @@ so one typo does not discard the agents that did resolve. Capped at
 page stops its picker at the same number so the limit never arrives as a
 failed request.
 
+## Hiding abandoned projects
+
+Both `POST /api/search` and `GET /api/agents` take a **maintained** filter that
+leaves out entries whose `status` is `archived` or `dormant`:
+
+```bash
+POST /api/search   {"query": "prompt injection guardrails", "maintained": true}
+GET  /api/agents?maintained=1
+```
+
+The search filter runs *during* the scan rather than trimming the results
+afterwards, so a page of ten is still a page of ten — an archived project is
+replaced by the next live one, not simply dropped. `/api/search` wants a real
+boolean; the query string on `/api/agents` accepts `1`, `true`, `yes` or `on`,
+since a query string has no booleans.
+
+The MCP `search_agents` tool takes the same argument, which is worth setting
+when the answer is a recommendation rather than a survey.
+
 ## Catalogue history
 
 ```bash
