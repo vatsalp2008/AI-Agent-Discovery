@@ -115,7 +115,10 @@ def find_issues(record, data, stale_months=DEFAULT_STALE_MONTHS):
     current = (data.get("full_name") or "").casefold()
     recorded = (parse_repo(record.get("url")) or "").casefold()
     if current and recorded and current != recorded:
-        issues.append({"kind": "moved",
+        # `to` carried structurally: --follow-moves rewrites the URL from it,
+        # and parsing the prose back out would be one wording change away
+        # from silently doing nothing.
+        issues.append({"kind": "moved", "to": data["full_name"],
                        "detail": f"now at {data['full_name']}, recorded as {recorded}"})
 
     months = _months_since(data.get("pushed_at"))
@@ -230,6 +233,47 @@ def apply_statuses(records, wanted, checked=None):
     return changes
 
 
+def follow_moves(records, findings, checked=None):
+    """Rewrite the URL of every entry whose repository was renamed.
+
+    Returns (name, before, after) for each change. Only the owner/name part
+    is replaced, so a URL pointing at a subpath or a non-github host is left
+    alone — the finding is about the repository, not about the whole link.
+    """
+    moves = {}
+    for finding in findings:
+        for issue in finding["issues"]:
+            if issue["kind"] == "moved" and issue.get("to"):
+                moves[finding["name"]] = issue["to"]
+
+    changes = []
+    for record in records:
+        name = record.get("name")
+        if name not in moves or (checked is not None and name not in checked):
+            continue
+
+        old = record.get("url") or ""
+        repo = parse_repo(old)
+        if not repo:
+            continue
+
+        new = old.replace(repo, moves[name], 1)
+        if new != old:
+            record["url"] = new
+            changes.append((name, old, new))
+    return changes
+
+
+def _write_catalogue(records):
+    """tmp + replace, like admin.save_catalogue and changelog.main: an
+    interrupted CI step must not leave a truncated catalogue."""
+    tmp = f"{config.AGENTS_JSON}.tmp"
+    with open(tmp, "w") as f:
+        json.dump(records, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, config.AGENTS_JSON)
+
+
 def format_finding(finding):
     lines = [f"  {finding['name']:<24} {finding['url']}"]
     lines += [f"      {issue['kind']}: {issue['detail']}" for issue in finding["issues"]]
@@ -246,6 +290,8 @@ def main(argv=None):
                         help="exit non-zero when anything needs attention")
     parser.add_argument("--apply-status", action="store_true",
                         help="write archived/dormant back into the catalogue")
+    parser.add_argument("--follow-moves", action="store_true",
+                        help="rewrite URLs for repositories that were renamed")
     parser.add_argument("--token", default=os.getenv("GITHUB_TOKEN"),
                         help="GitHub token (or set GITHUB_TOKEN)")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -289,6 +335,21 @@ def main(argv=None):
         logger.warning("Could not check %d of %d: %s", len(skipped), len(checkable),
                        ", ".join(name for name, _ in skipped[:5]))
 
+    if args.follow_moves:
+        if skipped:
+            logger.error("Refusing to rewrite URLs: %d entr(y|ies) could not be checked.",
+                         len(skipped))
+            return 1
+
+        moved = follow_moves(records, findings, checked=checked)
+        if moved:
+            _write_catalogue(records)
+            print(f"\nFollowed {len(moved)} rename(s):")
+            for name, before, after in moved:
+                print(f"  {name:<24} {before}\n  {'':<24} -> {after}")
+        else:
+            print("\nNo renames to follow.")
+
     if args.apply_status:
         if skipped:
             # An entry that could not be checked would look "not flagged" and
@@ -300,13 +361,7 @@ def main(argv=None):
 
         changes = apply_statuses(records, statuses_for(findings, records), checked=checked)
         if changes:
-            # tmp + replace, like admin.save_catalogue and changelog.main: an
-            # interrupted CI step must not leave a truncated catalogue.
-            tmp = f"{config.AGENTS_JSON}.tmp"
-            with open(tmp, "w") as f:
-                json.dump(records, f, indent=2)
-                f.write("\n")
-            os.replace(tmp, config.AGENTS_JSON)
+            _write_catalogue(records)
             print(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
             for name, before, after in changes:
                 print(f"  {name:<24} {before} -> {after}")

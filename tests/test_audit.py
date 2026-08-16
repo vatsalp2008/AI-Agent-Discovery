@@ -303,3 +303,76 @@ def test_applying_statuses_writes_atomically(monkeypatch, tmp_path):
     assert audit.main(["--apply-status"]) == 0
     assert replaced, "the catalogue was written in place rather than swapped"
     assert json.loads(path.read_text())[0]["status"] == "archived"
+
+
+class TestFollowingRenames:
+    """Projects get renamed constantly — 21 in one run on 08-10, 2 on 08-14.
+    The audit already knows the new path; acting on it is a rewrite of one
+    substring, and getting it wrong points the catalogue at nothing."""
+
+    def moved(self, name, to):
+        return {"name": name, "url": "", "issues": [{"kind": "moved", "to": to,
+                                                     "detail": ""}]}
+
+    def test_it_rewrites_the_repository_path(self):
+        records = [entry(name="A", url="https://github.com/old/repo")]
+        changes = audit.follow_moves(records, [self.moved("A", "new/repo")])
+
+        assert records[0]["url"] == "https://github.com/new/repo"
+        assert changes == [("A", "https://github.com/old/repo",
+                            "https://github.com/new/repo")]
+
+    def test_it_leaves_the_rest_of_the_url_alone(self):
+        """The finding is about the repository, not the whole link."""
+        records = [entry(name="A", url="https://github.com/old/repo/tree/main/docs")]
+        audit.follow_moves(records, [self.moved("A", "new/repo")])
+
+        assert records[0]["url"] == "https://github.com/new/repo/tree/main/docs"
+
+    def test_an_entry_hosted_elsewhere_is_untouched(self):
+        records = [entry(name="A", url="https://example.com/thing")]
+        assert audit.follow_moves(records, [self.moved("A", "new/repo")]) == []
+        assert records[0]["url"] == "https://example.com/thing"
+
+    def test_an_unchecked_entry_is_not_rewritten(self):
+        records = [entry(name="A", url="https://github.com/old/repo")]
+        assert audit.follow_moves(records, [self.moved("A", "new/repo")],
+                                  checked=set()) == []
+
+    def test_other_findings_are_ignored(self):
+        """Only a rename says where the project went."""
+        records = [entry(name="A", url="https://github.com/old/repo")]
+        archived = {"name": "A", "url": "", "issues": [{"kind": "archived", "detail": ""}]}
+
+        assert audit.follow_moves(records, [archived]) == []
+
+    def test_a_finding_with_no_destination_is_ignored(self):
+        """A `moved` written by an older version carried only prose."""
+        records = [entry(name="A", url="https://github.com/old/repo")]
+        stale = {"name": "A", "url": "", "issues": [{"kind": "moved", "detail": "now at x/y"}]}
+
+        assert audit.follow_moves(records, [stale]) == []
+
+    def test_the_command_writes_the_change(self, monkeypatch):
+        records = [entry(name="A", url="https://github.com/old/repo")]
+        path = _write(records)
+        monkeypatch.setattr(config, "AGENTS_JSON", path)
+        monkeypatch.setattr(audit, "fetch_repo",
+                            lambda repo, **kw: payload(full_name="new/repo"))
+
+        assert audit.main(["--follow-moves"]) == 0
+        assert json.loads(path.read_text())[0]["url"] == "https://github.com/new/repo"
+
+    def test_it_refuses_when_something_could_not_be_checked(self, monkeypatch):
+        def fake(repo, **kwargs):
+            if repo == "acme/down":
+                raise audit.Unavailable("HTTP 500")
+            return payload(full_name="new/repo")
+
+        monkeypatch.setattr(audit, "fetch_repo", fake)
+        path = _write([entry(name="Down", url="https://github.com/acme/down"),
+                       entry(name="A", url="https://github.com/old/repo")])
+        monkeypatch.setattr(config, "AGENTS_JSON", path)
+
+        assert audit.main(["--follow-moves"]) == 1
+        assert json.loads(path.read_text())[1]["url"] == "https://github.com/old/repo"

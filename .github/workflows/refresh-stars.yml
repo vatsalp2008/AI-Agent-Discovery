@@ -71,6 +71,14 @@ jobs:
       # catalogue says so on the card. --apply-status refuses to write if any
       # repository could not be checked, since an unchecked entry looks
       # "not flagged" and would have a real warning cleared.
+      # Renames are the one finding with an unambiguous fix: the audit
+      # already knows the new path. Run before the status pass so a project
+      # that was both renamed and archived is recorded at its new URL.
+      - name: Follow repository renames
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python ai-agent-discovery/audit.py --follow-moves || true
+
       - name: Audit entry health
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -56,9 +56,15 @@ because nothing shows up until somebody clicks through.
 | `missing` | Deleted or made private |
 | `stack` | The primary language is absent from the entry's `tech_stack` |
 
-Only `archived` and `dormant` become a `status` on the entry, shown as a badge.
-The rest want a human: a rename might mean a new URL or a new name, and a
-missing repository might mean the entry should go entirely.
+`archived` and `dormant` become a `status` on the entry, shown as a badge.
+`moved` is followed automatically by `--follow-moves`, which rewrites only the
+`owner/name` part of the URL — a link pointing at a subpath keeps it, and an
+entry hosted outside GitHub is left alone. `missing` always wants a human: it
+might mean the entry should go entirely.
+
+Both writers refuse if any repository could not be checked, for the same
+reason: an unchecked entry looks unflagged, and acting on that would clear a
+warning nobody re-verified.
 
 Two rules keep the report worth reading. **Format languages are not stack
 findings** — GitHub reports whichever language has the most bytes, so an ML
