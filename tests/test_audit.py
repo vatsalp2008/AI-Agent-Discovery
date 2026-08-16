@@ -284,3 +284,22 @@ class TestApplyingStatus:
 
         assert audit.main(["--apply-status"]) == 1
         assert "status" not in json.loads(path.read_text())[1]
+
+
+def test_applying_statuses_writes_atomically(monkeypatch, tmp_path):
+    """An interrupted CI step must not leave a truncated catalogue. Every
+    other writer of this file uses tmp + replace."""
+    records = [entry(name="A", url="https://github.com/acme/a")]
+    path = _write(records)
+    monkeypatch.setattr(config, "AGENTS_JSON", path)
+    monkeypatch.setattr(audit, "fetch_repo",
+                        lambda repo, **kw: payload(full_name="acme/a", archived=True))
+
+    replaced = []
+    real = audit.os.replace
+    monkeypatch.setattr(audit.os, "replace",
+                        lambda src, dst: (replaced.append((src, dst)), real(src, dst))[1])
+
+    assert audit.main(["--apply-status"]) == 0
+    assert replaced, "the catalogue was written in place rather than swapped"
+    assert json.loads(path.read_text())[0]["status"] == "archived"

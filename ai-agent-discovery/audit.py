@@ -300,9 +300,13 @@ def main(argv=None):
 
         changes = apply_statuses(records, statuses_for(findings, records), checked=checked)
         if changes:
-            with open(config.AGENTS_JSON, "w") as f:
+            # tmp + replace, like admin.save_catalogue and changelog.main: an
+            # interrupted CI step must not leave a truncated catalogue.
+            tmp = f"{config.AGENTS_JSON}.tmp"
+            with open(tmp, "w") as f:
                 json.dump(records, f, indent=2)
                 f.write("\n")
+            os.replace(tmp, config.AGENTS_JSON)
             print(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
             for name, before, after in changes:
                 print(f"  {name:<24} {before} -> {after}")
