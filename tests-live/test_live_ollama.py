@@ -316,6 +316,16 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("structure a data science project", {"Kedro", "Metaflow", "ZenML"}),
     ("build a fine tuning dataset from documents", {"Easy Dataset", "Argilla"}),
     ("embeddings database with sql filtering", {"txtai", "LEANN", "Chroma"}),
+    # Added at 236, from AI-specific data topics after "data-analysis"
+    # returned pandas and superset.
+    ("ask my warehouse a question in plain english", {"WrenAI", "Vanna AI", "Chat2DB", "SQLBot"}),
+    ("automatically compare many machine learning models", {"PyCaret", "FLAML", "H2O-3", "AutoGluon"}),
+    ("tune a model within a compute budget", {"FLAML", "PyCaret"}),
+    ("generate features from relational data", {"Featuretools"}),
+    ("evaluate which rag pipeline works best", {"AutoRAG", "Ragas", "DeepEval"}),
+    ("headless browser for automation", {"Lightpanda", "Browser Use", "Browser Harness", "Stagehand"}),
+    ("statistical time series forecasting", {"StatsForecast"}),
+    ("translate and re-voice a video", {"pyvideotrans"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
