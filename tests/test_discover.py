@@ -498,3 +498,22 @@ def test_the_run_stays_inside_the_search_budget():
     """Each added topic is another request; GitHub allows 10 a minute
     unauthenticated."""
     assert 60 / discover.PAUSE_ANONYMOUS <= 10
+
+
+def test_every_default_topic_is_one_the_catalogue_would_want():
+    """A topic is only worth searching if its results belong here.
+
+    "data-analysis" lasted one day and returned pandas, superset, metabase,
+    CyberChef and goaccess — good software, none of it AI. The check is that
+    each default topic maps to a category *and* that the mapping is not the
+    catch-all Framework bucket, which would hide a topic returning anything
+    at all.
+    """
+    by_topic = dict(discover.TOPIC_CATEGORIES)
+    unmapped = [t for t in discover.DEFAULT_TOPICS if t not in by_topic]
+    assert not unmapped, f"searched but never categorised: {unmapped}"
+
+    # Framework is where a generic agent topic lands; more than a handful of
+    # defaults pointing there means the search has lost its focus.
+    generic = [t for t in discover.DEFAULT_TOPICS if by_topic[t] == "Framework"]
+    assert len(generic) <= 5, f"too many defaults land in Framework: {generic}"
