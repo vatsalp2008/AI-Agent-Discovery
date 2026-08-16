@@ -350,6 +350,29 @@ def test_every_category_answers_a_generic_query(live_store):
 
 
 @needs_embeddings
+def test_the_maintained_filter_returns_only_live_projects(live_store):
+    """19 of 223 entries are archived or dormant, and several rank highly for
+    their own subject — LLM Guard and Rebuff both surface for prompt
+    injection."""
+    for query in ["prompt injection guardrails", "autonomous agent that runs tasks",
+                  "text to speech", "agent framework"]:
+        results = live_store.search(query, limit=8, maintained=True)
+
+        assert results, f"{query!r} returned nothing with the filter on"
+        stale = [r["metadata"]["name"] for r in results
+                 if (r["metadata"].get("status") or "active") != "active"]
+        assert not stale, f"{query!r} still returned {stale}"
+
+
+@needs_embeddings
+def test_the_filter_backfills_rather_than_shrinking_the_page(live_store):
+    """Dropping results afterwards would hand back a short page for any query
+    whose top hits happen to be abandoned."""
+    for query in ["prompt injection guardrails", "voice cloning"]:
+        assert len(live_store.search(query, limit=8, maintained=True)) == 8
+
+
+@needs_embeddings
 def test_growth_has_not_flattened_the_score_gap(live_store):
     """A bigger catalogue must still separate relevant from irrelevant."""
     good = live_store.search("agent that edits code in my terminal", limit=1)[0]
