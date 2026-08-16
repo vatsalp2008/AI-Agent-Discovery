@@ -2887,5 +2887,74 @@
     "github_stars": 18696,
     "url": "https://github.com/jianchang512/pyvideotrans",
     "use_case": "Translating video"
+  },
+  {
+    "name": "DeepSpeed",
+    "description": "Memory and speed optimisations for training large models, including the ZeRO stages that made billion-parameter runs affordable.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "CUDA"
+    ],
+    "github_stars": 42944,
+    "url": "https://github.com/deepspeedai/DeepSpeed",
+    "use_case": "Training beyond one GPU"
+  },
+  {
+    "name": "Liger Kernel",
+    "description": "Fused Triton kernels for the hot spots in LLM training, cutting memory enough to raise the batch size on the same card.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "Triton"
+    ],
+    "github_stars": 6570,
+    "url": "https://github.com/linkedin/Liger-Kernel",
+    "use_case": "Faster training kernels"
+  },
+  {
+    "name": "Adversarial Robustness Toolbox",
+    "description": "Attacks and defences for models across evasion, poisoning and extraction, so a defence can be measured rather than asserted.",
+    "category": "Safety",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 6178,
+    "url": "https://github.com/Trusted-AI/adversarial-robustness-toolbox",
+    "use_case": "Testing model robustness"
+  },
+  {
+    "name": "Fickling",
+    "description": "Decompiles and rewrites pickle files to show what they execute on load, which is how a downloaded model becomes code execution.",
+    "category": "Safety",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 662,
+    "url": "https://github.com/trailofbits/fickling",
+    "use_case": "Inspecting pickle payloads"
+  },
+  {
+    "name": "smolagents",
+    "description": "A minimal agent library whose agents write their actions as Python rather than as JSON tool calls, in about a thousand lines.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 28823,
+    "url": "https://github.com/huggingface/smolagents",
+    "use_case": "Code-writing agents"
+  },
+  {
+    "name": "Cleanlab",
+    "description": "Finds label errors and outliers in a dataset automatically, on the premise that most model problems are data problems.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 11626,
+    "url": "https://github.com/cleanlab/cleanlab",
+    "use_case": "Auditing training data"
   }
 ]

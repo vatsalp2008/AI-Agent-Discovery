@@ -1,5 +1,29 @@
 [
   {
+    "commit": "6245d3ac",
+    "at": "2026-08-16T11:14:26-07:00",
+    "subject": "Add 13 data and automation agents",
+    "total": 236,
+    "added": [
+      "AutoRAG",
+      "Browser Harness",
+      "DeepCode",
+      "FLAML",
+      "Featuretools",
+      "H2O-3",
+      "Lightpanda",
+      "MockingBird",
+      "PyCaret",
+      "SQLBot",
+      "StatsForecast",
+      "WrenAI",
+      "pyvideotrans"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "3c78e18c",
     "at": "2026-08-15T12:04:53-07:00",
     "subject": "Correct eight drifted tech stacks",
