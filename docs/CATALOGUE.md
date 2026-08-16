@@ -77,6 +77,18 @@ cleared.
 Statuses are cleared as well as set: archived repositories get unarchived, and
 a stale warning is wrong in the other direction.
 
+### What the audit found
+
+Run against 242 entries: **9 archived** and **10 dormant**, plus 8 whose
+recorded `tech_stack` no longer matched the repository. Two of those had
+drifted completely — OpenInterpreter is now 96% Rust after a rewrite while the
+entry still said Python, and Quivr is 99.3% Python while the entry said
+TypeScript. Neither would have surfaced without checking.
+
+A `stack` finding is a prompt, not a verdict: the fix is a judgement about what
+the entry should say, taken from the repository's own language breakdown rather
+than from the single word GitHub reports as "the language".
+
 ## 🔭 Finding new agents
 
 ```bash
