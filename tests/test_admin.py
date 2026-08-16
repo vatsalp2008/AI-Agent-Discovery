@@ -620,7 +620,12 @@ class TestOneOnDiskFormat:
         assert scraper._for_file(gone) == admin.for_file(gone.to_dict())
 
     def test_saving_then_seeding_leaves_the_file_alone(self, tmp_path, monkeypatch):
-        """The round-trip that produced the spurious diff."""
+        """The round-trip that produced the spurious diff.
+
+        Goes through validate() first, which is what the editor does and
+        what puts `status` on the record — writing the raw dict would not
+        exercise the disagreement at all.
+        """
         import json
 
         import config
@@ -630,10 +635,15 @@ class TestOneOnDiskFormat:
         monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "agents.json")
         monkeypatch.setattr(config, "DATA_DIR", tmp_path)
 
-        records = [{"name": "A", "description": "d", "category": "c",
-                    "tech_stack": ["Python"], "github_stars": 0, "url": "", "use_case": ""}]
-        admin.save_catalogue(records)
+        edited = admin.validate({
+            "name": "A", "description": "A description well past the sixty character floor.",
+            "category": "Automation", "tech_stack": ["Python"], "github_stars": 0,
+            "url": "", "use_case": "x"}, [])
+        assert edited["status"] == "active", "validate should fill the default in memory"
+
+        admin.save_catalogue([edited])
         after_save = (tmp_path / "agents.json").read_text()
+        assert '"status"' not in after_save, "the editor wrote a default status to disk"
 
         scraper.write_agents_json([Agent.from_dict(r) for r in json.loads(after_save)])
         assert (tmp_path / "agents.json").read_text() == after_save
