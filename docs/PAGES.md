@@ -50,9 +50,21 @@ Entries carry an optional `status`. Absent means `active` and shows nothing;
 does not say a project has been archived is misleading in the one way that
 matters when choosing a tool.
 
-The search page offers **Only maintained projects**, which leaves those
-entries out. The filter runs during the scan, so the page stays full: an
-archived project is replaced by the next live one rather than leaving a gap.
+Where it shows up:
+
+| Surface | What it does |
+| --- | --- |
+| Search result card | A badge, only when not active |
+| Agent detail page | A "Project health" row, only when not active |
+| Comparison table | A row for every agent — comparing two tools without seeing that one is abandoned is the comparison going wrong |
+| Search and dashboard | **Only maintained projects**, which leaves them out entirely |
+| MCP `search_agents` | A `status` field on the result, and a `maintained` argument |
+
+The filter runs during the scan rather than trimming afterwards, so a page of
+ten is still a page of ten — an archived project is replaced by the next live
+one rather than leaving a gap. It also applies to an exact name match: asking
+for "LLM Guard" with the filter on returns live alternatives instead, because
+the name lookup injects at score 1.0 and would otherwise sail straight past.
 
 It is set by `audit.py` from what GitHub reports — see
 [CATALOGUE.md](CATALOGUE.md) — and cleared again when a project comes back, so
