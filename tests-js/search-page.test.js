@@ -871,3 +871,52 @@ describe('the maintained toggle takes effect immediately', () => {
         expect(listing.url).not.toContain('maintained');
     });
 });
+
+describe('the health filter travels with the link', () => {
+    it('restores the toggle from a shared URL', async () => {
+        /** "Copy link" is advertised as reproducing the results; a link that
+         *  drops the filter reproduces different ones. */
+        window.history.replaceState({}, '', '/?q=agent&maintained=1');
+        await boot();
+
+        expect(document.getElementById('maintainedOnly').checked).toBe(true);
+    });
+
+    it('puts it in the URL when a filtered search runs', async () => {
+        await boot();
+        document.getElementById('maintainedOnly').checked = true;
+        submitSearch('agent');
+        await flush();
+
+        expect(window.location.search).toContain('maintained=1');
+    });
+
+    it('leaves a plain search with a plain URL', async () => {
+        await boot();
+        submitSearch('agent');
+        await flush();
+
+        expect(window.location.search).not.toContain('maintained');
+    });
+
+    it('records the filter on a saved search', async () => {
+        /** The snapshot was taken with it applied; /saved re-running without
+         *  it would report every excluded project as brand new. */
+        await boot();
+        document.getElementById('maintainedOnly').checked = true;
+        submitSearch('agent');
+        await flush();
+        document.querySelector('.save-search-btn').click();
+
+        expect(globalThis.SavedSearches.list()[0].maintained).toBe(true);
+    });
+
+    it('an unfiltered save records it as off', async () => {
+        await boot();
+        submitSearch('agent');
+        await flush();
+        document.querySelector('.save-search-btn').click();
+
+        expect(globalThis.SavedSearches.list()[0].maintained).toBe(false);
+    });
+});

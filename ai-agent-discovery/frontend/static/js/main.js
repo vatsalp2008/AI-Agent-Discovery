@@ -31,10 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function writeStateToUrl(query, category, { replace = false } = {}) {
-        const url = SearchState.toUrl(window.location.pathname, { query, category });
+        const maintained = wantsMaintained();
+        const url = SearchState.toUrl(window.location.pathname,
+                                      { query, category, maintained });
         if (url === window.location.pathname + window.location.search) return;
 
-        const state = { query, category };
+        const state = { query, category, maintained };
         if (replace) {
             window.history.replaceState(state, '', url);
         } else {
@@ -168,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Save this query, so the saved-searches page can tell the user later
      * what has changed about its answers.
      */
-    function makeSaveButton(query, category, results) {
+    function makeSaveButton(query, category, maintained, results) {
         const button = document.createElement('button');
         button.type = 'button';
         // Styled like the export buttons beside it, but deliberately not one
@@ -181,7 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // button would then save this query under a filter that did not
         // produce these results. The first check on /saved re-runs it
         // filtered and reports nearly everything as "No longer matches".
-        const saved = () => SavedSearches.has(query, category);
+        const options = { maintained };
+        const saved = () => SavedSearches.has(query, category, options);
         const label = () => (saved() ? 'Saved ✓' : 'Save this search');
         button.textContent = label();
 
@@ -189,8 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // A second click un-saves it: the button is the only affordance
             // for this query, and making it one-way would send someone to
             // another page to undo a misclick.
-            if (saved()) SavedSearches.remove(query, category);
-            else if (!SavedSearches.save(query, category, results)) {
+            if (saved()) SavedSearches.remove(query, category, options);
+            else if (!SavedSearches.save(query, category, results, options)) {
                 button.textContent = 'Could not save';
                 setTimeout(() => { button.textContent = label(); }, 2000);
                 return;
@@ -354,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // activeCategory holds now: a chip clicked while the request
                 // was in flight would otherwise label these results with a
                 // filter that did not produce them.
-                bar.appendChild(makeSaveButton(query, body.category || '', data.results));
+                bar.appendChild(makeSaveButton(query, body.category || '',
+                                               Boolean(body.maintained), data.results));
                 bar.appendChild(makeExportButton('CSV', () => ExportResults.asCsv(data.results, query)));
                 bar.appendChild(makeExportButton('JSON', () => ExportResults.asJson(data.results, query)));
                 bar.appendChild(makeCopyLinkButton());
@@ -495,6 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
         activeCategory = state.category;
         searchInput.value = state.query;
         setActiveChip(state.category);
+        // Restored from the link, so a shared URL reproduces what the sender
+        // was looking at rather than an unfiltered version of it.
+        if (maintainedOnly) maintainedOnly.checked = Boolean(state.maintained);
 
         if (state.query) {
             await performSearch(state.query, { updateUrl });
@@ -511,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // so loadCategories re-applies the active one once they do.
     const initial = readStateFromUrl();
     activeCategory = initial.category;
+    if (maintainedOnly) maintainedOnly.checked = Boolean(initial.maintained);
     if (recentClear) {
         recentClear.addEventListener('click', () => {
             RecentSearches.clear();

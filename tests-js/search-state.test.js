@@ -11,11 +11,11 @@ beforeAll(() => {
 describe('fromSearch', () => {
     it('reads the query and category', () => {
         expect(SearchState.fromSearch('?q=code+editor&category=Code%20Generation'))
-            .toEqual({ query: 'code editor', category: 'Code Generation' });
+            .toEqual({ query: 'code editor', category: 'Code Generation', maintained: false });
     });
 
     it.each(['', '?', undefined, null])('returns empty state for %s', (input) => {
-        expect(SearchState.fromSearch(input)).toEqual({ query: '', category: null });
+        expect(SearchState.fromSearch(input)).toEqual({ query: '', category: null, maintained: false });
     });
 
     it('treats a blank category as absent', () => {
@@ -29,7 +29,7 @@ describe('fromSearch', () => {
 
     it('ignores unrelated parameters', () => {
         expect(SearchState.fromSearch('?utm_source=x&q=real')).toEqual({
-            query: 'real', category: null,
+            query: 'real', category: null, maintained: false,
         });
     });
 });
@@ -50,7 +50,7 @@ describe('toUrl', () => {
     });
 
     it('round-trips through fromSearch', () => {
-        const state = { query: 'a & b', category: 'Code Generation' };
+        const state = { query: 'a & b', category: 'Code Generation', maintained: false };
         const url = SearchState.toUrl('/', state);
         expect(SearchState.fromSearch(url.slice(url.indexOf('?')))).toEqual(state);
     });
@@ -89,5 +89,34 @@ describe('emptyMessage', () => {
 
     it('falls back to a generic message', () => {
         expect(SearchState.emptyMessage(null)).toBe('No agents found matching your query.');
+    });
+});
+
+describe('the health filter is part of the shared state', () => {
+    it('reads it back out of a URL', () => {
+        expect(SearchState.fromSearch('?q=agent&maintained=1').maintained).toBe(true);
+    });
+
+    it('is absent unless explicitly set', () => {
+        expect(SearchState.fromSearch('?q=agent').maintained).toBe(false);
+        expect(SearchState.fromSearch('?q=agent&maintained=0').maintained).toBe(false);
+    });
+
+    it('writes it into a URL', () => {
+        expect(SearchState.toUrl('/', { query: 'agent', maintained: true }))
+            .toContain('maintained=1');
+    });
+
+    it('leaves it out when off, so a plain search has a plain URL', () => {
+        expect(SearchState.toUrl('/', { query: 'agent' })).toBe('/?q=agent');
+    });
+
+    it('round-trips', () => {
+        /** A shared link that drops it reproduces different results than the
+         *  sender was looking at. */
+        const url = SearchState.toUrl('/', { query: 'agent', category: 'Safety', maintained: true });
+        const state = SearchState.fromSearch(url.slice(url.indexOf('?')));
+
+        expect(state).toEqual({ query: 'agent', category: 'Safety', maintained: true });
     });
 });

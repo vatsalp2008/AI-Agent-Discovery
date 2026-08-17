@@ -10,17 +10,21 @@ const SearchState = (() => {
         const params = new URLSearchParams(search || '');
         const query = (params.get('q') || '').trim();
         const category = (params.get('category') || '').trim();
-        return { query, category: category || null };
+        // Part of the state, not a UI preference: a shared link that drops it
+        // reproduces different results than the sender was looking at.
+        const maintained = params.get('maintained') === '1';
+        return { query, category: category || null, maintained };
     }
 
     /**
      * Build the URL for a given state. Returns just the pathname when there
      * is nothing to encode, so a cleared search does not leave a bare "?".
      */
-    function toUrl(pathname, { query, category } = {}) {
+    function toUrl(pathname, { query, category, maintained } = {}) {
         const params = new URLSearchParams();
         if (query) params.set('q', query);
         if (category) params.set('category', category);
+        if (maintained) params.set('maintained', '1');
 
         const search = params.toString();
         return search ? `${pathname}?${search}` : pathname;
