@@ -1,8 +1,8 @@
 """Build a change history for the catalogue from git.
 
-    python changelog.py              # write data/changelog.json
-    python changelog.py --dry-run    # show what it would contain
-    python changelog.py --since 2026-08-01
+    python changelog.py                          # write data/changelog.json
+    python changelog.py --dry-run                # show what it would contain
+    python changelog.py --since 2026-08-01 --dry-run
 
 `data/agents.json` is version controlled, so its history already exists — this
 turns it into something the app can serve. Every commit that touched the file

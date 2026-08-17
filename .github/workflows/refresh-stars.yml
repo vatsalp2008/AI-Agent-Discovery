@@ -77,7 +77,22 @@ jobs:
       - name: Follow repository renames
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python ai-agent-discovery/audit.py --follow-moves || true
+        run: |
+          set -eo pipefail
+          python ai-agent-discovery/audit.py --follow-moves || true
+
+          # Its own commit: swept into the status commit below, the change
+          # history and the Atom feed would describe a URL rewrite as a
+          # health update.
+          if git diff --quiet -- data/agents.json; then
+            echo "No renames to follow."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/agents.json
+          git commit -m "Follow renamed repository URLs"
+          git push
 
       - name: Audit entry health
         env:
