@@ -231,6 +231,14 @@ export const CHANGES_HTML = `
     <main id="changesArea" aria-live="polite" aria-busy="true"></main>
 `;
 
+/** The technology index's markup, mirroring templates/tech-index.html. */
+export const TECH_INDEX_HTML = `
+    <p id="techIndexCount">Loading…</p>
+    <label class="sr-only" for="techFilter">Filter technologies</label>
+    <input type="search" id="techFilter">
+    <main id="techIndex" aria-live="polite" aria-busy="true"></main>
+`;
+
 /** The technology page's markup, mirroring templates/tech.html. */
 export const TECH_HTML = `
     <h1 id="techHeading">Python</h1>

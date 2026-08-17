@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Technologies | AI Agent Discovery{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/dashboard">Dashboard</a> <span aria-hidden="true">/</span>
+    <span aria-current="page">Technologies</span>
+</nav>
+
+<section class="hero hero-compact">
+    <h1>Technologies</h1>
+    <p id="techIndexCount">Loading…</p>
+</section>
+
+<div class="controls">
+    <label class="sr-only" for="techFilter">Filter technologies</label>
+    <input type="search" id="techFilter" class="control-input"
+           placeholder="Filter technologies…" autocomplete="off">
+</div>
+
+<main id="techIndex" aria-live="polite" aria-busy="true"></main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/tech-index.js"></script>
+{% endblock %}

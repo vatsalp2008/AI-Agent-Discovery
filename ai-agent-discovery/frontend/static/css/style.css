@@ -871,6 +871,17 @@ a.tech-item:hover {
     cursor: pointer;
 }
 
+.tech-group {
+    margin-bottom: 2rem;
+}
+
+.tech-group h2 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0 0 0.75rem;
+}
+
 /* Change history */
 .change-entry {
     background: var(--card-bg);

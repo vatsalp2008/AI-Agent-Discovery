@@ -82,6 +82,11 @@ def changes():
     """How the catalogue has changed. Served from data/changelog.json."""
     return render_template('changes.html', page='changes')
 
+@app.route('/tech')
+def tech_index():
+    """Every technology, as a way into the /tech/<name> pages."""
+    return render_template('tech-index.html', page='dashboard')
+
 @app.route('/tech/<path:name>')
 def tech(name):
     """Everything built with one technology. Fetched client-side."""
