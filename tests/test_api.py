@@ -953,3 +953,60 @@ def test_every_feed_entry_has_a_distinct_id(client, history):
 
     ids = [e.find(f"{ns}id").text for e in feed.findall(f"{ns}entry")]
     assert len(set(ids)) == len(ids)
+
+
+class TestFeedSurvivesADamagedHistory:
+    """changelog.json is generated, but it is a file on disk that a person
+    can edit and an older version may have written differently. The JSON
+    endpoint survives anything because it only slices; the feed reads inside
+    each entry, and was returning 500 where the JSON endpoint returned 200.
+    """
+
+    NS = "{http://www.w3.org/2005/Atom}"
+
+    def entry(self, **overrides):
+        base = {"commit": "abc12345", "at": "2026-08-16T00:00:00+00:00",
+                "subject": "s", "total": 1, "added": [], "removed": [], "edited": []}
+        base.update(overrides)
+        return base
+
+    @pytest.mark.parametrize("damage", [
+        {"edited": ["Cursor"]},           # strings where objects belong
+        {"edited": [None, 7]},
+        {"added": [None]},                # nulls in a name list
+        {"added": "Kedro"},               # a string where a list belongs
+        {"removed": {"a": 1}},
+        {"total": "lots"},
+        {"at": None},
+        {"at": ""},
+        {"subject": None},
+    ])
+    def test_it_still_serves_a_feed(self, client, history, damage):
+        history([self.entry(**damage)])
+
+        response = client.get("/api/changelog.atom")
+        assert response.status_code == 200, f"{damage} produced a {response.status_code}"
+        assert client.get("/api/changelog").status_code == 200
+
+    @pytest.mark.parametrize("missing_at", [{"at": None}, {"at": ""}, {}])
+    def test_updated_is_never_empty(self, client, history, missing_at):
+        """`<updated />` is not a Date construct; a strict reader rejects the
+        whole document over one malformed entry."""
+        import xml.etree.ElementTree as ET
+
+        entry = self.entry(**missing_at)
+        entry.pop("at", None) if not missing_at else None
+        history([entry])
+
+        feed = ET.fromstring(client.get("/api/changelog.atom").get_data())
+        for element in feed.iter(f"{self.NS}updated"):
+            assert element.text and element.text.strip(), "an <updated> was empty"
+
+    def test_a_usable_entry_beside_a_damaged_one_still_reads(self, client, history):
+        history([self.entry(edited=["junk"]), self.entry(commit="def", added=["Kedro"])])
+
+        import xml.etree.ElementTree as ET
+        feed = ET.fromstring(client.get("/api/changelog.atom").get_data())
+        summaries = [e.text for e in feed.iter(f"{self.NS}summary")]
+
+        assert any("Added Kedro" in s for s in summaries)

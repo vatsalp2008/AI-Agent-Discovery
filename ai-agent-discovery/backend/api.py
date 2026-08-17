@@ -483,19 +483,56 @@ def get_changelog():
     })
 
 
+def _names(value, key=None):
+    """String names out of a changelog list, whatever it actually holds.
+
+    changelog.json is generated, but it is also a file on disk that a person
+    can edit and an older version may have written differently. The JSON
+    endpoint survives anything because it only slices; the feed reads inside
+    each entry, so it needs the same tolerance or it 500s where the JSON
+    endpoint returns 200.
+    """
+    if not isinstance(value, list):
+        return []
+    names = []
+    for item in value:
+        if key and isinstance(item, dict):
+            item = item.get(key)
+        if isinstance(item, str) and item.strip():
+            names.append(item)
+    return names
+
+
 def _feed_summary(entry):
     """One entry as a sentence, for a reader that shows no markup."""
     parts = []
-    if entry.get("added"):
-        parts.append(f"Added {', '.join(entry['added'])}")
-    if entry.get("removed"):
-        parts.append(f"Removed {', '.join(entry['removed'])}")
-    if entry.get("edited"):
-        names = [e.get("name", "?") for e in entry["edited"]]
-        shown = ", ".join(names[:5]) + (f" and {len(names) - 5} more" if len(names) > 5 else "")
+    added, removed = _names(entry.get("added")), _names(entry.get("removed"))
+    edited = _names(entry.get("edited"), key="name")
+
+    if added:
+        parts.append(f"Added {', '.join(added)}")
+    if removed:
+        parts.append(f"Removed {', '.join(removed)}")
+    if edited:
+        shown = ", ".join(edited[:5]) + (f" and {len(edited) - 5} more" if len(edited) > 5 else "")
         parts.append(f"Edited {shown}")
-    parts.append(f"{entry.get('total', 0)} agents in the catalogue")
+
+    total = entry.get("total")
+    parts.append(f"{total if isinstance(total, int) else 0} agents in the catalogue")
     return ". ".join(parts) + "."
+
+
+def _feed_timestamp(entry=None):
+    """An RFC 3339 date for <updated>.
+
+    Never empty: an entry with no `at` produced `<updated />`, which is not a
+    Date construct, and a strict reader rejects the whole document over one
+    malformed entry.
+    """
+    at = (entry or {}).get("at")
+    if isinstance(at, str) and at.strip():
+        return at
+    return datetime.now(timezone.utc).isoformat()
 
 
 @api_bp.route('/changelog.atom', methods=['GET'])
@@ -519,8 +556,7 @@ def get_changelog_feed():
     ET.SubElement(ET.SubElement(feed, "author"), "name").text = "AI Agent Discovery"
     # An empty feed still needs one: readers treat a missing updated as
     # malformed rather than as "nothing yet".
-    ET.SubElement(feed, "updated").text = (
-        entries[0].get("at") if entries else datetime.now(timezone.utc).isoformat())
+    ET.SubElement(feed, "updated").text = _feed_timestamp(entries[0] if entries else None)
 
     for entry in entries:
         item = ET.SubElement(feed, "entry")
@@ -529,7 +565,7 @@ def get_changelog_feed():
         # makes every reader re-announce every entry.
         ET.SubElement(item, "id").text = f"{origin}/changes#{entry.get('commit', '')}"
         ET.SubElement(item, "link", {"href": f"{origin}/changes"})
-        ET.SubElement(item, "updated").text = entry.get("at") or ""
+        ET.SubElement(item, "updated").text = _feed_timestamp(entry)
         ET.SubElement(item, "summary").text = _feed_summary(entry)
 
     xml = ET.tostring(feed, encoding="utf-8", xml_declaration=True)
