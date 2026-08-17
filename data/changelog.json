@@ -1,5 +1,26 @@
 [
   {
+    "commit": "52c11a39",
+    "at": "2026-08-16T11:48:42-07:00",
+    "subject": "Reword a description that read as its opposite",
+    "total": 242,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Megatron-LM",
+        "fields": [
+          {
+            "field": "description",
+            "from": "NVIDIA's tensor, pipeline and sequence parallelism for training models past the point where one GPU's memory is the limit.",
+            "to": "NVIDIA's tensor, pipeline and sequence parallelism for training models too large for a single accelerator to hold."
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "3bf2da8f",
     "at": "2026-08-16T11:45:42-07:00",
     "subject": "Say what deepspeed does without the ambiguity",
