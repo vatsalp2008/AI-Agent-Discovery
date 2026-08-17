@@ -59,6 +59,12 @@ TOOLS = [
                     "type": "number",
                     "description": "Drop results below this relevance score (0-1)",
                 },
+                "maintained": {
+                    "type": "boolean",
+                    "description": ("Leave out archived and dormant projects. Worth "
+                                    "setting when the answer is a recommendation "
+                                    "rather than a survey."),
+                },
             },
             "required": ["query"],
         },

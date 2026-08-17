@@ -233,3 +233,24 @@ def test_search_can_leave_out_abandoned_projects(mcp, store):
 
     mcp.call_tool("search_agents", {"query": "agent"})
     assert seen["maintained"] is False
+
+
+def test_every_declared_search_argument_reaches_the_store(mcp, store):
+    """A client reads inputSchema to know what it may send, so an argument
+    the wrapper honours but the schema omits is one no caller will ever pass
+    — and one the schema declares but the wrapper drops is a lie.
+    """
+    declared = next(t for t in mcp.TOOLS if t["name"] == "search_agents")
+    properties = set(declared["inputSchema"]["properties"]) - {"query", "limit"}
+
+    seen = {}
+    real = store.search
+    store.search = lambda q, **kw: (seen.update(kw), real(q, **kw))[1]
+
+    sent = {"query": "agent", "category": "Code Generation",
+            "min_score": 0.1, "maintained": True}
+    mcp.call_tool("search_agents", sent)
+
+    missing = [name for name in properties if name not in seen]
+    assert not missing, f"declared but never passed to the store: {missing}"
+    assert seen["maintained"] is True
