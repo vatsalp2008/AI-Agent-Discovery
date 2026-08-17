@@ -26,7 +26,7 @@ const SavedSearches = (() => {
      * one saved search, not two — otherwise the list fills with duplicates
      * that all report the same thing.
      */
-    function keyFor(query, category) {
+    function keyFor(query, category, maintained) {
         // Coerced rather than assumed to be strings: importAll() builds keys
         // from a hand-edited file, and a numeric category used to throw out
         // of here, out of the import, and out of the FileReader handler —
@@ -36,7 +36,10 @@ const SavedSearches = (() => {
         // the two simply concatenated, ("ab", "") and ("a", "b") would be
         // the same saved search.
         const text = value => (typeof value === 'string' ? value : '').trim().toLowerCase();
-        return `${text(query)}\n${text(category)}`;
+        // The health filter is part of the identity, like the category: the
+        // snapshot was taken with it applied, so re-running without it
+        // reports every excluded project as brand new.
+        return `${text(query)}\n${text(category)}\n${maintained ? '1' : ''}`;
     }
 
     function isRecord(entry) {
@@ -67,12 +70,13 @@ const SavedSearches = (() => {
             const seen = new Set();
             const clean = [];
             raw.filter(isRecord).forEach(entry => {
-                const key = keyFor(entry.query, entry.category);
+                const key = keyFor(entry.query, entry.category, entry.maintained);
                 if (seen.has(key)) return;   // a duplicate from a hand edit
                 seen.add(key);
                 clean.push({
                     query: entry.query.trim(),
                     category: typeof entry.category === 'string' ? entry.category.trim() : '',
+                    maintained: Boolean(entry.maintained),
                     snapshot: cleanSnapshot(entry.snapshot),
                 });
             });
@@ -114,11 +118,12 @@ const SavedSearches = (() => {
     }
 
     /** Save a search, replacing any earlier save of the same query. */
-    function save(query, category, results) {
+    function save(query, category, results, { maintained = false } = {}) {
         if (typeof query !== 'string' || !query.trim()) return false;
 
-        const key = keyFor(query, category);
-        const entries = read().filter(e => keyFor(e.query, e.category) !== key);
+        const key = keyFor(query, category, maintained);
+        const entries = read().filter(
+            e => keyFor(e.query, e.category, e.maintained) !== key);
 
         // Newest first, and the cap drops the oldest rather than refusing
         // the save — being told "you have too many saved searches" is not
@@ -126,15 +131,17 @@ const SavedSearches = (() => {
         entries.unshift({
             query: query.trim(),
             category: (category || '').trim(),
+            maintained: Boolean(maintained),
             snapshot: snapshot(results),
         });
         return write(entries);
     }
 
-    function remove(query, category) {
-        const key = keyFor(query, category);
+    function remove(query, category, { maintained = false } = {}) {
+        const key = keyFor(query, category, maintained);
         const entries = read();
-        const kept = entries.filter(e => keyFor(e.query, e.category) !== key);
+        const kept = entries.filter(
+            e => keyFor(e.query, e.category, e.maintained) !== key);
         if (kept.length === entries.length) return false;
         return write(kept);
     }
@@ -147,9 +154,9 @@ const SavedSearches = (() => {
         return read();
     }
 
-    function has(query, category) {
-        const key = keyFor(query, category);
-        return read().some(e => keyFor(e.query, e.category) === key);
+    function has(query, category, { maintained = false } = {}) {
+        const key = keyFor(query, category, maintained);
+        return read().some(e => keyFor(e.query, e.category, e.maintained) === key);
     }
 
     /**
@@ -190,10 +197,11 @@ const SavedSearches = (() => {
     }
 
     /** Replace a saved search's snapshot, so the next check diffs from here. */
-    function refresh(query, category, results) {
-        const key = keyFor(query, category);
+    function refresh(query, category, results, { maintained = false } = {}) {
+        const key = keyFor(query, category, maintained);
         const entries = read();
-        const entry = entries.find(e => keyFor(e.query, e.category) === key);
+        const entry = entries.find(
+            e => keyFor(e.query, e.category, e.maintained) === key);
         if (!entry) return false;
 
         entry.snapshot = snapshot(results);
@@ -238,13 +246,13 @@ const SavedSearches = (() => {
         }
 
         const current = read();
-        const seen = new Set(current.map(e => keyFor(e.query, e.category)));
+        const seen = new Set(current.map(e => keyFor(e.query, e.category, e.maintained)));
 
         let added = 0;
         let skipped = 0;   // already saved here
         let full = 0;      // no room left
         payload.searches.filter(isRecord).forEach(entry => {
-            const key = keyFor(entry.query, entry.category);
+            const key = keyFor(entry.query, entry.category, entry.maintained);
             if (seen.has(key)) { skipped += 1; return; }
             // Counted apart from `skipped`: "you already have these" and
             // "these were thrown away because you are at the limit" are
@@ -255,6 +263,7 @@ const SavedSearches = (() => {
             current.push({
                 query: entry.query.trim(),
                 category: typeof entry.category === 'string' ? entry.category.trim() : '',
+                maintained: Boolean(entry.maintained),
                 snapshot: cleanSnapshot(entry.snapshot),
             });
             added += 1;

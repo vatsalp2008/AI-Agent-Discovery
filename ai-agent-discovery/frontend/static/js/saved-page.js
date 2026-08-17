@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function rerun(entry) {
         const payload = { query: entry.query };
         if (entry.category) payload.category = entry.category;
+        // The snapshot was taken with this applied; re-running without it
+        // would report every excluded project as brand new.
+        if (entry.maintained) payload.maintained = true;
 
         const response = await fetch('/api/search', {
             method: 'POST',
@@ -75,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         article.className = 'saved-card';
         article.dataset.query = entry.query;
         article.dataset.category = entry.category || '';
+        article.dataset.maintained = entry.maintained ? '1' : '';
 
         const heading = document.createElement('h2');
         const link = document.createElement('a');
@@ -89,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         meta.className = 'saved-meta';
         const bits = [`${entry.snapshot.names.length} result(s) when saved`];
         if (entry.category) bits.push(`filtered to ${entry.category}`);
+        if (entry.maintained) bits.push('maintained only');
         if (entry.snapshot.at) {
             bits.push(`saved ${new Date(entry.snapshot.at).toLocaleDateString()}`);
         }
@@ -116,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         remove.textContent = 'Remove';
         remove.setAttribute('aria-label', `Remove ${entry.query}`);
         remove.addEventListener('click', () => {
-            SavedSearches.remove(entry.query, entry.category);
+            SavedSearches.remove(entry.query, entry.category,
+                                 { maintained: entry.maintained });
             render();
             say(`Removed “${entry.query}”.`);
         });
@@ -144,9 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** The saved entry as it stands now, not as it was when rendered. */
     function current(entry) {
-        return SavedSearches.list().find(e =>
-            e.query === entry.query && (e.category || '') === (entry.category || ''))
-            || entry;
+        return SavedSearches.list().find(e => sameSearch(e, entry)) || entry;
+    }
+
+    /** Two records describe the same saved search. */
+    function sameSearch(a, b) {
+        return a.query === b.query
+            && (a.category || '') === (b.category || '')
+            && Boolean(a.maintained) === Boolean(b.maintained);
     }
 
     async function checkOne(entry, article) {
@@ -162,7 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showChanges(entry, article, changes);
             // Adopt the new results, so checking twice does not report the
             // same change twice.
-            SavedSearches.refresh(entry.query, entry.category, fresh);
+            SavedSearches.refresh(entry.query, entry.category, fresh,
+                                  { maintained: entry.maintained });
             return changes;
         } catch (error) {
             UI.showError(container, error.message);
@@ -182,9 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let failed = 0;
         // Sequential on purpose; see the note at the top of this file.
         for (const article of cards) {
-            const entry = SavedSearches.list().find(e =>
-                e.query === article.dataset.query
-                && (e.category || '') === article.dataset.category);
+            const entry = SavedSearches.list().find(e => sameSearch(e, {
+                query: article.dataset.query,
+                category: article.dataset.category,
+                maintained: article.dataset.maintained === '1',
+            }));
             if (!entry) continue;
 
             const changes = await checkOne(entry, article);

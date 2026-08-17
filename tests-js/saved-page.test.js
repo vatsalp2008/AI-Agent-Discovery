@@ -373,3 +373,50 @@ describe('importing into a full list', () => {
         expect(text).not.toContain('Nothing new');
     });
 });
+
+describe('a saved search remembers its health filter', () => {
+    it('re-runs with the filter it was saved under', async () => {
+        const calls = boot();
+        globalThis.SavedSearches.save('agents', '', [{ name: 'A', metadata: { name: 'A' } }],
+                                      { maintained: true });
+        window.SavedPage.render();
+
+        document.querySelector('.saved-card button').click();
+        await flush();
+
+        const sent = JSON.parse(calls.find(c => c.url.includes('/api/search')).options.body);
+        expect(sent.maintained).toBe(true);
+    });
+
+    it('does not send it when it was saved without', async () => {
+        const calls = boot();
+        save('agents', [['A', 1]]);
+        window.SavedPage.render();
+
+        document.querySelector('.saved-card button').click();
+        await flush();
+
+        const sent = JSON.parse(calls.find(c => c.url.includes('/api/search')).options.body);
+        expect(sent.maintained).toBeUndefined();
+    });
+
+    it('says so on the card', async () => {
+        boot();
+        globalThis.SavedSearches.save('agents', '', [{ name: 'A', metadata: { name: 'A' } }],
+                                      { maintained: true });
+        window.SavedPage.render();
+
+        expect(document.querySelector('.saved-meta').textContent).toContain('maintained only');
+    });
+
+    it('the same query saved both ways is two searches', async () => {
+        /** They return different answers, so they are different questions. */
+        boot();
+        const results = [{ name: 'A', metadata: { name: 'A' } }];
+        globalThis.SavedSearches.save('agents', '', results);
+        globalThis.SavedSearches.save('agents', '', results, { maintained: true });
+        window.SavedPage.render();
+
+        expect(document.querySelectorAll('.saved-card')).toHaveLength(2);
+    });
+});
