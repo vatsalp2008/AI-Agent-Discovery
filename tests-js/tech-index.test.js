@@ -134,3 +134,41 @@ describe('the busy flag', () => {
         expect(document.getElementById('techIndex').getAttribute('aria-busy')).toBe('false');
     });
 });
+
+describe('the filter box and the fetch', () => {
+    it('applies a word typed while the request is still in flight', async () => {
+        /** /api/tech is a network round trip. render() used to take the needle
+         *  as an argument and the load called it with none, so a word typed
+         *  before the technologies arrived was silently discarded. */
+        let release;
+        globalThis.fetch = () => new Promise(resolve => { release = resolve; });
+        bootPage({ html: TECH_INDEX_HTML, script: 'tech-index.js',
+                   extraScripts: scriptsFor('tech-index.html', 'tech-index.js') });
+        await flush();
+
+        const filter = document.getElementById('techFilter');
+        filter.value = 'zig';
+        filter.dispatchEvent(new window.Event('input'));
+
+        release({ ok: true, status: 200, json: () => Promise.resolve(TECH) });
+        await flush();
+
+        const shown = [...document.querySelectorAll('#techIndex a')].map(a => a.textContent);
+        expect(shown).toEqual(['Zig (1)']);
+    });
+
+    it('leaves the box working when the load failed', async () => {
+        /** The error path returned before the listener was attached, so the
+         *  filter did nothing for the rest of the page's life. */
+        globalThis.fetch = () => Promise.reject(new Error('offline'));
+        bootPage({ html: TECH_INDEX_HTML, script: 'tech-index.js',
+                   extraScripts: scriptsFor('tech-index.html', 'tech-index.js') });
+        await flush();
+
+        const filter = document.getElementById('techFilter');
+        filter.value = 'zig';
+        expect(() => filter.dispatchEvent(new window.Event('input'))).not.toThrow();
+        await flush();
+        expect(document.getElementById('techIndex').textContent).toMatch(/Nothing matches/);
+    });
+});

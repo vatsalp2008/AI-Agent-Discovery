@@ -27,7 +27,11 @@ document.addEventListener('DOMContentLoaded', async () => {
      * searching. Sorting the whole lot together buries the first in the
      * second.
      */
-    function render(needle = '') {
+    function render() {
+        // Read from the box rather than take an argument: /api/tech resolves
+        // after the user may already have typed, and a render() that trusted
+        // its caller threw that first word away.
+        const needle = filter ? filter.value.trim() : '';
         const matching = technologies.filter(
             t => t.name.toLowerCase().includes(needle.toLowerCase()));
 
@@ -67,6 +71,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return section;
     }
 
+    // Attached before the fetch, not after it: /api/tech is a network round
+    // trip, and anything typed while it is in flight went nowhere. The error
+    // path used to `return` before this line too, which left the box inert
+    // for good on a failed load.
+    if (filter) {
+        filter.addEventListener('input', () => render());
+    }
+
     try {
         const response = await fetch('/api/tech');
         if (!response.ok) throw new Error(`Request failed (${response.status})`);
@@ -80,10 +92,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error(error);
         UI.showError(area, 'Could not load the technologies.');
         countEl.textContent = 'Could not load.';
-        return;
-    }
-
-    if (filter) {
-        filter.addEventListener('input', () => render(filter.value.trim()));
     }
 });
