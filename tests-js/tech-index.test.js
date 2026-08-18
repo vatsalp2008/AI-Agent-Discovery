@@ -115,3 +115,22 @@ describe('when the API fails', () => {
         expect(document.getElementById('techIndexCount').textContent).not.toBe('Loading…');
     });
 });
+
+describe('the busy flag', () => {
+    it('is cleared when nothing matches the filter', async () => {
+        /** The early return skipped the line that clears it, leaving a live
+         *  region marked busy for good. */
+        await boot();
+        const filter = document.getElementById('techFilter');
+        filter.value = 'cobol';
+        filter.dispatchEvent(new window.Event('input'));
+        await flush();
+
+        expect(document.getElementById('techIndex').getAttribute('aria-busy')).toBe('false');
+    });
+
+    it('is cleared when there are no technologies at all', async () => {
+        await boot([]);
+        expect(document.getElementById('techIndex').getAttribute('aria-busy')).toBe('false');
+    });
+});

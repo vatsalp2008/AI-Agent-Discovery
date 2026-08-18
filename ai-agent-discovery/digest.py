@@ -110,6 +110,8 @@ def summarise_findings(findings):
         if not isinstance(finding, dict):
             continue
         for issue in finding.get("issues") or []:
+            if not isinstance(issue, dict):
+                continue
             kind = issue.get("kind")
             if kind in NEEDS_A_PERSON:
                 grouped.setdefault(kind, []).append(

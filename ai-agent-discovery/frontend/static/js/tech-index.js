@@ -32,9 +32,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             t => t.name.toLowerCase().includes(needle.toLowerCase()));
 
         if (!matching.length) {
+            // showMessage clears aria-busy itself; the early return used to
+            // skip the line below that does it, leaving the live region
+            // marked busy for good.
             UI.showMessage(area, needle
                 ? `Nothing matches “${needle}”.`
                 : 'No technologies recorded yet.');
+            area.setAttribute('aria-busy', 'false');
             return;
         }
 

@@ -170,3 +170,12 @@ class TestTheCommand:
     def test_a_zero_window_is_refused(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "DATA_DIR", self.write(tmp_path, [entry()]))
         assert digest.main(["--days", "0"]) == 1
+
+
+def test_a_malformed_issue_does_not_fail_the_whole_job():
+    """The refresh workflow runs under `set -eo pipefail`, so a crash here
+    fails everything after it rather than degrading to a changes-only
+    digest."""
+    findings = [{"name": "A", "issues": ["a string", None, 7,
+                                         {"kind": "missing", "detail": "gone"}]}]
+    assert digest.summarise_findings(findings) == {"missing": [("A", "gone")]}
