@@ -1,5 +1,46 @@
 [
   {
+    "commit": "a631f0ad",
+    "at": "2026-08-18T09:41:39-07:00",
+    "subject": "Say single GPU where that is the point",
+    "total": 303,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "PEFT",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Hugging Face's parameter-efficient fine-tuning library, including LoRA and QLoRA adapters.",
+            "to": "Hugging Face's parameter-efficient fine-tuning library: LoRA and QLoRA adapters train a fraction of the weights, so a large model fits on one GPU."
+          },
+          {
+            "field": "use_case",
+            "from": "Adapter-based fine-tuning",
+            "to": "Adapter fine-tuning on one GPU"
+          }
+        ]
+      },
+      {
+        "name": "Unsloth",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Fine-tunes language models several times faster and with far less memory through custom kernels.",
+            "to": "Fine-tunes language models on a single consumer GPU, several times faster and with far less memory, through custom kernels."
+          },
+          {
+            "field": "use_case",
+            "from": "Fast low-memory fine-tuning",
+            "to": "Fine-tuning on one GPU"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "dff98f1f",
     "at": "2026-08-18T09:35:05-07:00",
     "subject": "Add four benchmarking and red teaming tools",
