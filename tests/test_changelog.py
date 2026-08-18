@@ -272,3 +272,24 @@ class TestSinceIsReadOnly:
 
         assert changelog.main(["--since", "2000-01-01", "--dry-run"]) == 0
         assert capsys.readouterr().out.strip()
+
+
+def test_the_history_cannot_describe_its_own_commit(repo):
+    """changelog.py reads git history, so a rebuild run before committing
+    produces a history one commit behind — describing the state before the
+    change it was run for. The weekly workflow avoids this by rebuilding in
+    its own commit; this pins the reason.
+    """
+    path = repo / "data" / "agents.json"
+    path.write_text(json.dumps([agent("A"), agent("B"), agent("C")]))
+
+    # Built while the change is only in the working tree.
+    before_commit = changelog.build(repo_root=repo)
+    assert before_commit[0]["total"] == 2, "an uncommitted change was somehow visible"
+
+    subprocess.run(["git", "commit", "-qam", "Add C"], cwd=repo, check=True,
+                   capture_output=True)
+
+    after_commit = changelog.build(repo_root=repo)
+    assert after_commit[0]["total"] == 3
+    assert after_commit[0]["added"] == ["C"]

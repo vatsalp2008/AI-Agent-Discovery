@@ -89,6 +89,20 @@ A `stack` finding is a prompt, not a verdict: the fix is a judgement about what
 the entry should say, taken from the repository's own language breakdown rather
 than from the single word GitHub reports as "the language".
 
+### Rebuild it *after* the commit
+
+`changelog.py` reads git history, so it can only see commits that already
+exist. Running it in the same step as a catalogue edit produces a history that
+is one commit behind — it describes the state before the change it was run for.
+
+The weekly workflow gets this right by making the rebuild its own commit after
+the data commits. Do the same by hand:
+
+```bash
+git commit -m "Add six agents"     # first
+make changelog && git commit -am "Rebuild the change history"
+```
+
 ## The weekly digest
 
 ```bash
