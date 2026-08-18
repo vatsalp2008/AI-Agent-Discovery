@@ -1124,7 +1124,7 @@
   },
   {
     "name": "Whisper",
-    "description": "OpenAI's speech recognition model, robust across accents, background noise and languages.",
+    "description": "OpenAI's speech-to-text model, robust across accents, background noise and languages.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",
@@ -1132,11 +1132,11 @@
     ],
     "github_stars": 107412,
     "url": "https://github.com/openai/whisper",
-    "use_case": "Transcribing audio"
+    "use_case": "Transcribing speech to text"
   },
   {
     "name": "Faster Whisper",
-    "description": "A CTranslate2 reimplementation of Whisper that transcribes several times faster for less memory.",
+    "description": "A CTranslate2 reimplementation of Whisper that turns speech into text several times faster for less memory.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",
@@ -1144,7 +1144,7 @@
     ],
     "github_stars": 24946,
     "url": "https://github.com/SYSTRAN/faster-whisper",
-    "use_case": "Fast local transcription"
+    "use_case": "Fast local speech-to-text"
   },
   {
     "name": "Coqui TTS",
@@ -1880,7 +1880,7 @@
   },
   {
     "name": "WhisperX",
-    "description": "Speech recognition with word-level timestamps and speaker diarisation on top of Whisper.",
+    "description": "Speech-to-text with word-level timestamps and speaker diarisation on top of Whisper.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",
@@ -2319,7 +2319,7 @@
   },
   {
     "name": "FunASR",
-    "description": "Speech recognition with punctuation, timestamps and speaker turns, packaged for production rather than for a benchmark.",
+    "description": "Speech-to-text with punctuation, timestamps and speaker turns, packaged for production use.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",
@@ -2327,7 +2327,7 @@
     ],
     "github_stars": 19874,
     "url": "https://github.com/modelscope/FunASR",
-    "use_case": "Production transcription"
+    "use_case": "Production speech-to-text"
   },
   {
     "name": "IndexTTS",
@@ -2702,7 +2702,7 @@
   },
   {
     "name": "Vosk",
-    "description": "Offline speech recognition in twenty languages with models small enough for a phone or a Raspberry Pi.",
+    "description": "Offline speech-to-text in twenty languages with models small enough for a phone or a Raspberry Pi.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",

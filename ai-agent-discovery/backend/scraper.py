@@ -561,21 +561,21 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Whisper",
-        description="OpenAI's speech recognition model, robust across accents, background noise and languages.",
+        description="OpenAI's speech-to-text model, robust across accents, background noise and languages.",
         category="Multimodal",
         tech_stack=["Python", "PyTorch"],
         github_stars=106984,
         url="https://github.com/openai/whisper",
-        use_case="Transcribing audio"
+        use_case="Transcribing speech to text"
     ),
     Agent(
         name="Faster Whisper",
-        description="A CTranslate2 reimplementation of Whisper that transcribes several times faster for less memory.",
+        description="A CTranslate2 reimplementation of Whisper that turns speech into text several times faster for less memory.",
         category="Multimodal",
         tech_stack=["Python", "CTranslate2"],
         github_stars=24833,
         url="https://github.com/SYSTRAN/faster-whisper",
-        use_case="Fast local transcription"
+        use_case="Fast local speech-to-text"
     ),
     Agent(
         name="Coqui TTS",
@@ -1110,7 +1110,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="WhisperX",
-        description="Speech recognition with word-level timestamps and speaker diarisation on top of Whisper.",
+        description="Speech-to-text with word-level timestamps and speaker diarisation on top of Whisper.",
         category="Multimodal",
         tech_stack=['Python', 'PyTorch'],
         github_stars=23546,
