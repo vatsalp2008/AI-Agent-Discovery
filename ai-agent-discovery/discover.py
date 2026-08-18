@@ -186,7 +186,12 @@ NOT_A_TOOL = (
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
     "course", "lecture", "learning path", "study guide", "interview",
     "paper list", "reading list", "resources for", "book",
-    "example", "cookbook", "demo project", "sample code",
+    # The plural, not the singular: "example" alone rejected ChatterBot,
+    # which "learns replies from example conversations" — there the word
+    # describes training data. A repository that *is* a set of examples calls
+    # itself "examples", as agent-examples and openai-cookbook do.
+    "examples", "example project", "example app", "cookbook",
+    "demo project", "sample code",
     "from scratch in", "build your own",
 )
 

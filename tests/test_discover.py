@@ -554,3 +554,26 @@ def test_every_default_topic_is_one_the_catalogue_would_want():
     # defaults pointing there means the search has lost its focus.
     generic = [t for t in discover.DEFAULT_TOPICS if by_topic[t] == "Framework"]
     assert len(generic) <= 5, f"too many defaults land in Framework: {generic}"
+
+
+class TestExampleIsNotAlwaysAnExampleRepo:
+    """`example` on its own was too broad.
+
+    It rejected ChatterBot, whose description says it "learns replies from
+    example conversations" — the word is about the training data, not about
+    the repository being a demo. The catalogue is ground truth for "this is a
+    tool", so a phrase that refuses one of its entries is the phrase that is
+    wrong.
+    """
+
+    def test_a_tool_may_mention_example_data(self):
+        assert discover.looks_like_a_tool({
+            "name": "ChatterBot",
+            "description": "A dialog engine that learns replies from example conversations."})
+
+    def test_a_repository_that_is_an_example_is_still_refused(self):
+        for description in ["Example project showing how to use the API",
+                            "Examples of agent patterns",
+                            "Example app built with LangChain"]:
+            assert not discover.looks_like_a_tool(
+                {"name": "demos", "description": description}), description
