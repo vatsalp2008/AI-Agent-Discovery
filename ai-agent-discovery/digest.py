@@ -23,7 +23,8 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
-import config  # noqa: E402
+import changelog_data  # noqa: E402
+
 from logging_setup import configure  # noqa: E402
 
 logger = logging.getLogger("digest")
@@ -67,19 +68,6 @@ def recent(entries, days):
     return kept
 
 
-def _names(value, key=None):
-    """String names out of a changelog list, whatever it holds."""
-    if not isinstance(value, list):
-        return []
-    out = []
-    for item in value:
-        if key and isinstance(item, dict):
-            item = item.get(key)
-        if isinstance(item, str) and item.strip():
-            out.append(item)
-    return out
-
-
 def summarise_changes(entries):
     """Totals across a window, deduplicated by agent.
 
@@ -89,9 +77,9 @@ def summarise_changes(entries):
     """
     added, removed, edited = set(), set(), set()
     for entry in entries:
-        added |= set(_names(entry.get("added")))
-        removed |= set(_names(entry.get("removed")))
-        edited |= set(_names(entry.get("edited"), key="name"))
+        added |= set(changelog_data.names(entry.get("added")))
+        removed |= set(changelog_data.names(entry.get("removed")))
+        edited |= set(changelog_data.names(entry.get("edited"), key="name"))
 
     # Something added and removed in the same window nets out; reporting it
     # as both is two pieces of news about a thing that is not there.
@@ -175,17 +163,11 @@ def main(argv=None):
         logger.error("--days must be at least 1.")
         return 1
 
-    try:
-        with open(config.DATA_DIR / "changelog.json") as f:
-            entries = json.load(f)
-    except (OSError, json.JSONDecodeError):
+    entries = changelog_data.read()
+    if not entries:
         # No history is not an empty week: say so rather than reporting
         # "nothing changed" for a file that was never built.
         logger.error("No changelog to summarise. Run changelog.py first.")
-        return 1
-
-    if not isinstance(entries, list):
-        logger.error("The changelog is not a list of entries.")
         return 1
 
     findings = []

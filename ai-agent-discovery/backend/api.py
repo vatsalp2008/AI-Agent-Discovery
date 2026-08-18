@@ -6,6 +6,7 @@ import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
+import changelog_data
 from flask import Blueprint, jsonify, make_response, request
 from werkzeug.exceptions import HTTPException
 
@@ -439,29 +440,6 @@ def get_tech_stacks():
     return _etag_response(get_store().get_tech_stacks())
 
 
-def _read_changelog():
-    """The generated history, or [] when there is none to read.
-
-    Absent is the normal state before changelog.py has ever run, and an empty
-    history is a truthful answer to "what changed" — not a 500.
-    """
-    path = config.DATA_DIR / "changelog.json"
-    try:
-        with open(path) as f:
-            entries = json.load(f)
-    except (OSError, json.JSONDecodeError):
-        logger.info("No changelog at %s; run changelog.py to build one.", path)
-        return []
-
-    if not isinstance(entries, list):
-        return []
-    # A list can still hold anything. The JSON endpoint survives that because
-    # it only slices; the feed reads fields, so it would 500 on the first
-    # non-object — and "a damaged history is an empty history" is the
-    # contract both of them owe.
-    return [entry for entry in entries if isinstance(entry, dict)]
-
-
 @api_bp.route('/changelog', methods=['GET'])
 def get_changelog():
     """How the catalogue has changed, newest first.
@@ -470,7 +448,7 @@ def get_changelog():
     process may not have a working tree (a container ships the JSON, not the
     repository), and the history only changes when the catalogue does.
     """
-    entries = _read_changelog()
+    entries = changelog_data.read()
 
     try:
         limit = _parse_int_arg('limit', 50, 1, 500)
@@ -483,31 +461,12 @@ def get_changelog():
     })
 
 
-def _names(value, key=None):
-    """String names out of a changelog list, whatever it actually holds.
-
-    changelog.json is generated, but it is also a file on disk that a person
-    can edit and an older version may have written differently. The JSON
-    endpoint survives anything because it only slices; the feed reads inside
-    each entry, so it needs the same tolerance or it 500s where the JSON
-    endpoint returns 200.
-    """
-    if not isinstance(value, list):
-        return []
-    names = []
-    for item in value:
-        if key and isinstance(item, dict):
-            item = item.get(key)
-        if isinstance(item, str) and item.strip():
-            names.append(item)
-    return names
-
-
 def _feed_summary(entry):
     """One entry as a sentence, for a reader that shows no markup."""
     parts = []
-    added, removed = _names(entry.get("added")), _names(entry.get("removed"))
-    edited = _names(entry.get("edited"), key="name")
+    added = changelog_data.names(entry.get("added"))
+    removed = changelog_data.names(entry.get("removed"))
+    edited = changelog_data.names(entry.get("edited"), key="name")
 
     if added:
         parts.append(f"Added {', '.join(added)}")
@@ -543,7 +502,7 @@ def get_changelog_feed():
     entry, both of which a git commit already has, and readers treat those
     as the identity of an item rather than guessing from the title.
     """
-    entries = _read_changelog()[:50]
+    entries = changelog_data.read()[:50]
     origin = request.url_root.rstrip("/")
 
     feed = ET.Element("feed", {"xmlns": "http://www.w3.org/2005/Atom"})
