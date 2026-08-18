@@ -1398,6 +1398,43 @@ SAMPLE_AGENTS = [
         url="https://github.com/SeldonIO/alibi-detect",
         use_case="Drift and outlier detection"
     ),
+    # Fine-tuning
+    Agent(
+        name="XTuner",
+        description="An efficient toolkit for fine-tuning LLMs and vision-language models on limited hardware.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "DeepSpeed"],
+        github_stars=5180,
+        url="https://github.com/InternLM/xtuner",
+        use_case="Memory-efficient LLM fine-tuning"
+    ),
+    Agent(
+        name="TorchTitan",
+        description="PyTorch's own reference for pretraining large models, showing each parallelism in plain code.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "FSDP"],
+        github_stars=5633,
+        url="https://github.com/pytorch/torchtitan",
+        use_case="Large-scale distributed pretraining"
+    ),
+    Agent(
+        name="verl",
+        description="A reinforcement learning library for post-training LLMs, built for RLHF at scale.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "Ray", "vLLM"],
+        github_stars=23003,
+        url="https://github.com/verl-project/verl",
+        use_case="RLHF and reasoning post-training"
+    ),
+    Agent(
+        name="AutoTrain Advanced",
+        description="Trains and fine-tunes models from a config file or web UI, without writing a training loop.",
+        category="Fine-tuning",
+        tech_stack=["Python", "Transformers", "PEFT"],
+        github_stars=4604,
+        url="https://github.com/huggingface/autotrain-advanced",
+        use_case="No-code model fine-tuning"
+    ),
 ]
 
 class CatalogueError(Exception):
