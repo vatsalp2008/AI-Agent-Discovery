@@ -456,21 +456,26 @@ and `--json` emits the same results as data.
 
 ## 🔗 Keeping the catalogue current
 
-Links rot, star counts drift, and new tools appear. Three commands cover it:
+Links rot, star counts drift, tools are abandoned and new ones appear. Six
+commands cover it:
 
 ```bash
-make check-links      # verify every URL still resolves
+# Weekly, in a scheduled workflow that commits what it changes:
 make refresh-stars    # update star counts from the GitHub API
-make discover         # find agents the catalogue is missing
 make audit            # flag entries that have gone stale
+make check-links      # verify every URL still resolves
 make digest           # summarise the last week of activity
-make quality          # measure how findable the catalogue is
+
+make discover         # find agents the catalogue is missing (on demand)
+make quality          # measure how findable the catalogue is (on every push)
 ```
 
-All but `make discover` run weekly; discovery is manual, and the weekly
-digest reports what it would have proposed. See
-**[docs/CATALOGUE.md](docs/CATALOGUE.md)** for what each one does, what the
-crawler refuses to propose and why, and how the weekly job reports results.
+`make discover` is deliberately not scheduled: the weekly digest already
+reports what it would have proposed, and a second issue every Thursday was a
+second thing to read. `make quality` needs a real Ollama, so it runs in the CI
+job that has one. See **[docs/CATALOGUE.md](docs/CATALOGUE.md)** for what each
+one does, what the crawler refuses to propose and why, and how the weekly job
+reports its results.
 
 ## ⚡ Performance
 

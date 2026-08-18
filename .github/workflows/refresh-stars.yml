@@ -107,20 +107,38 @@ jobs:
           # entry, for a report the first pass already computed.
           # stderr is left alone so the narration lands in the job log, where
           # it is visible; only stdout needs keeping clean for jq.
-          python ai-agent-discovery/audit.py --apply-status --json > audit.json || true
+          # The exit status is kept, not discarded. `|| true` plus an empty
+          # audit.json falling back to `[]` made a total failure — an expired
+          # token, a network outage, audit.py raising before it prints — look
+          # exactly like a clean bill of health: the summary said "Every entry
+          # looks current" and the digest said "Nothing outstanding". A run
+          # that could not check anything must not report that it found
+          # nothing wrong.
+          if python ai-agent-discovery/audit.py --apply-status --json > audit.json; then
+            audited=yes
+          else
+            audited=no
+          fi
+          # Valid JSON either way, since jq and digest.py both read it.
           [ -s audit.json ] || echo '[]' > audit.json
+          jq empty audit.json 2>/dev/null || { echo '[]' > audit.json; audited=no; }
 
           # The digest only lists findings that need a decision, so archived
           # and dormant would otherwise appear nowhere anyone reads.
           {
             echo "### Catalogue health"
             echo
-            if [ "$(jq length audit.json)" = "0" ]; then
+            if [ "$audited" = "no" ]; then
+              echo "⚠️ The audit did not complete — see the log above. "
+              echo "Nothing below should be read as a clean bill of health."
+            elif [ "$(jq length audit.json)" = "0" ]; then
               echo "Every entry looks current."
             else
               jq -r '.[] | "- **\(.name)** — \([.issues[].kind] | join(", "))"' audit.json
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+          [ "$audited" = "yes" ] || echo "::warning::The catalogue audit failed to run."
 
       - name: Commit status changes
         run: |
