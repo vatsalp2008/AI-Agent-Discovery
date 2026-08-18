@@ -326,6 +326,14 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("headless browser for automation", {"Lightpanda", "Browser Use", "Browser Harness", "Stagehand"}),
     ("statistical time series forecasting", {"StatsForecast"}),
     ("translate and re-voice a video", {"pyvideotrans"}),
+    # Added at 248.
+    ("general purpose agent that plans and runs code", {"OpenManus", "Suna", "OpenHands"}),
+    ("open source self driving stack", {"Autoware", "openpilot"}),
+    ("speech recognition and synthesis in one toolkit", {"PaddleSpeech", "FunASR", "sherpa-onnx"}),
+    ("let a coding agent search my whole repository", {"Claude Context", "cognee"}),
+    ("train a model faster with fused kernels", {"Liger Kernel", "DeepSpeed"}),
+    ("find mislabelled training data", {"Cleanlab", "Label Studio"}),
+    ("adversarial attacks and defences", {"Adversarial Robustness Toolbox", "Garak", "PyRIT"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
