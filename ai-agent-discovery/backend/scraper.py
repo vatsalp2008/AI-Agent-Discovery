@@ -1766,6 +1766,43 @@ SAMPLE_AGENTS = [
         url="https://github.com/mosaicml/composer",
         use_case="Faster training through algorithms"
     ),
+    # Evaluation and Safety
+    Agent(
+        name="SWE-bench",
+        description="Benchmarks coding agents on real GitHub issues, scored by whether the repository's own tests pass afterwards.",
+        category="Evaluation",
+        tech_stack=["Python", "Docker"],
+        github_stars=5663,
+        url="https://github.com/SWE-bench/SWE-bench",
+        use_case="Benchmarking coding agents on real bugs"
+    ),
+    Agent(
+        name="MTEB",
+        description="Ranks text embedding models across retrieval, clustering and classification, so one leaderboard covers the trade-offs.",
+        category="Evaluation",
+        tech_stack=["Python", "Sentence Transformers"],
+        github_stars=3397,
+        url="https://github.com/embeddings-benchmark/mteb",
+        use_case="Comparing embedding models"
+    ),
+    Agent(
+        name="DeepTeam",
+        description="Red teams an LLM application against a catalogue of vulnerabilities, generating the attacks rather than listing them.",
+        category="Safety",
+        tech_stack=["Python", "DeepEval"],
+        github_stars=2503,
+        url="https://github.com/confident-ai/deepteam",
+        use_case="Automated LLM red teaming"
+    ),
+    Agent(
+        name="AgentDojo",
+        description="Puts an agent in a sandboxed environment and measures whether injected instructions in its tool output can hijack it.",
+        category="Safety",
+        tech_stack=["Python"],
+        github_stars=756,
+        url="https://github.com/ethz-spylab/agentdojo",
+        use_case="Measuring prompt injection resistance"
+    ),
 ]
 
 class CatalogueError(Exception):
