@@ -3501,5 +3501,70 @@
     "github_stars": 28216,
     "url": "https://github.com/Budibase/budibase",
     "use_case": "Internal apps over existing data"
+  },
+  {
+    "name": "SkyPilot",
+    "description": "Runs training and serving jobs on whichever cloud has capacity, and moves them when it is cheaper elsewhere.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Kubernetes",
+      "Ray"
+    ],
+    "github_stars": 10505,
+    "url": "https://github.com/skypilot-org/skypilot",
+    "use_case": "Running jobs across clouds"
+  },
+  {
+    "name": "KServe",
+    "description": "Serves models on Kubernetes with autoscaling to zero, canary rollout and a common prediction interface.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Go",
+      "Kubernetes",
+      "Knative"
+    ],
+    "github_stars": 5801,
+    "url": "https://github.com/kserve/kserve",
+    "use_case": "Serving models on Kubernetes"
+  },
+  {
+    "name": "Seldon Core",
+    "description": "Deploys models as inference graphs, so pre-processing, the model and an explainer are one deployment.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Go",
+      "Python",
+      "Kubernetes"
+    ],
+    "github_stars": 4773,
+    "url": "https://github.com/SeldonIO/seldon-core",
+    "use_case": "Model deployment and inference graphs"
+  },
+  {
+    "name": "Mage",
+    "description": "Builds and schedules data pipelines from notebook-style blocks that each stay independently runnable.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "React",
+      "Docker"
+    ],
+    "github_stars": 8804,
+    "url": "https://github.com/mage-ai/mage-ai",
+    "use_case": "Building and scheduling data pipelines"
+  },
+  {
+    "name": "Polyaxon",
+    "description": "Tracks experiments and schedules distributed training on Kubernetes, keeping every run reproducible.",
+    "category": "MLOps",
+    "tech_stack": [
+      "Python",
+      "Kubernetes",
+      "Docker"
+    ],
+    "github_stars": 3719,
+    "url": "https://github.com/polyaxon/polyaxon",
+    "use_case": "Experiment tracking and orchestration"
   }
 ]
