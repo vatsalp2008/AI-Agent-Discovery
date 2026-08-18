@@ -1,5 +1,21 @@
 [
   {
+    "commit": "b361361f",
+    "at": "2026-08-18T09:32:30-07:00",
+    "subject": "Add five large-scale training tools",
+    "total": 299,
+    "added": [
+      "Colossal-AI",
+      "Composer",
+      "GPT-NeoX",
+      "LMFlow",
+      "PyTorch Lightning"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "2811670d",
     "at": "2026-08-18T09:08:58-07:00",
     "subject": "Describe two entries in words people search",
