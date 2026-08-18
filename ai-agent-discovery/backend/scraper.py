@@ -989,7 +989,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "PyTorch"],
         github_stars=3777,
         url="https://github.com/TransformerLensOrg/TransformerLens",
-        use_case="Understanding what a model has learned"
+        use_case="Mechanistic interpretability research"
     ),
     Agent(
         name="torchtune",

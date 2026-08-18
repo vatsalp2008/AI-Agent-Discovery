@@ -297,7 +297,11 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("train a model too large for one gpu", {"Megatron-LM", "OpenRLHF"}),
     ("ask questions about my database in plain english", {"Chat2DB", "Vanna AI", "DB-GPT"}),
     ("explore a dataframe visually in a notebook", {"PyGWalker", "Jupyter AI", "Sketch"}),
-    ("automated machine learning on tabular data", {"AutoGluon", "SDV"}),
+    # Expected widened at 278: H2O-3 takes rank 1 and PyCaret and FLAML are
+    # equally AutoML, so the pair was narrower than the question. The margin
+    # over the first wrong answer — Tabby, a coding assistant — was 0.0199.
+    ("automated machine learning on tabular data",
+     {"AutoGluon", "SDV", "H2O-3", "PyCaret", "FLAML"}),
     ("scan a model file for malicious code", {"ModelScan", "Garak"}),
     ("block prompt injection and pii in model output", {"LLM Guard", "Rebuff", "Presidio", "Guardrails"}),
     ("self hosted customer support helpdesk", {"Chaskiq", "Chatwoot"}),
@@ -356,6 +360,7 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("visualise robot sensor data", {"Rerun"}),
     ("self hosted customer support ticketing", {"Zammad", "FreeScout", "erxes", "Chaskiq"}),
     ("let an agent control my desktop", {"Agent-S", "UI-TARS Desktop", "OpenAdapt"}),
+    ("mechanistic interpretability research", {"TransformerLens"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.

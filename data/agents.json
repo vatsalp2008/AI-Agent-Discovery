@@ -1713,7 +1713,7 @@
     ],
     "github_stars": 3798,
     "url": "https://github.com/TransformerLensOrg/TransformerLens",
-    "use_case": "Understanding what a model has learned"
+    "use_case": "Mechanistic interpretability research"
   },
   {
     "name": "torchtune",

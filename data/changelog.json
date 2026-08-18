@@ -1,5 +1,81 @@
 [
   {
+    "commit": "06c253f4",
+    "at": "2026-08-18T08:44:01-07:00",
+    "subject": "Say speech-to-text where that is the job",
+    "total": 278,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Faster Whisper",
+        "fields": [
+          {
+            "field": "description",
+            "from": "A CTranslate2 reimplementation of Whisper that transcribes several times faster for less memory.",
+            "to": "A CTranslate2 reimplementation of Whisper that turns speech into text several times faster for less memory."
+          },
+          {
+            "field": "use_case",
+            "from": "Fast local transcription",
+            "to": "Fast local speech-to-text"
+          }
+        ]
+      },
+      {
+        "name": "FunASR",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Speech recognition with punctuation, timestamps and speaker turns, packaged for production rather than for a benchmark.",
+            "to": "Speech-to-text with punctuation, timestamps and speaker turns, packaged for production use."
+          },
+          {
+            "field": "use_case",
+            "from": "Production transcription",
+            "to": "Production speech-to-text"
+          }
+        ]
+      },
+      {
+        "name": "Vosk",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Offline speech recognition in twenty languages with models small enough for a phone or a Raspberry Pi.",
+            "to": "Offline speech-to-text in twenty languages with models small enough for a phone or a Raspberry Pi."
+          }
+        ]
+      },
+      {
+        "name": "Whisper",
+        "fields": [
+          {
+            "field": "description",
+            "from": "OpenAI's speech recognition model, robust across accents, background noise and languages.",
+            "to": "OpenAI's speech-to-text model, robust across accents, background noise and languages."
+          },
+          {
+            "field": "use_case",
+            "from": "Transcribing audio",
+            "to": "Transcribing speech to text"
+          }
+        ]
+      },
+      {
+        "name": "WhisperX",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Speech recognition with word-level timestamps and speaker diarisation on top of Whisper.",
+            "to": "Speech-to-text with word-level timestamps and speaker diarisation on top of Whisper."
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "6692211c",
     "at": "2026-08-17T17:53:54-07:00",
     "subject": "Add six computer-use agents and frameworks",
