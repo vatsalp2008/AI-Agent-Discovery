@@ -3566,5 +3566,55 @@
     "github_stars": 3719,
     "url": "https://github.com/polyaxon/polyaxon",
     "use_case": "Experiment tracking and orchestration"
+  },
+  {
+    "name": "MaxKB",
+    "description": "Builds agents that answer from a company's own knowledge base, with the retrieval and the chat UI included.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Python",
+      "Vue.js",
+      "LangChain"
+    ],
+    "github_stars": 22542,
+    "url": "https://github.com/1Panel-dev/MaxKB",
+    "use_case": "Knowledge base question answering"
+  },
+  {
+    "name": "AstrBot",
+    "description": "One assistant reachable from Discord, Telegram, WeChat and QQ at once, extended through plugins.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Python",
+      "Docker"
+    ],
+    "github_stars": 39332,
+    "url": "https://github.com/AstrBotDevs/AstrBot",
+    "use_case": "One bot across messaging platforms"
+  },
+  {
+    "name": "ChatterBot",
+    "description": "A dialog engine that learns replies from example conversations, with no model provider involved.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Python",
+      "SQLAlchemy"
+    ],
+    "github_stars": 14510,
+    "url": "https://github.com/gunthercox/ChatterBot",
+    "use_case": "Rule and corpus based chat bots"
+  },
+  {
+    "name": "Frappe Helpdesk",
+    "description": "Customer support ticketing with a knowledge base and canned replies, self-hosted end to end.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "Python",
+      "Vue.js",
+      "Frappe"
+    ],
+    "github_stars": 3319,
+    "url": "https://github.com/frappe/helpdesk",
+    "use_case": "Support ticketing and knowledge base"
   }
 ]
