@@ -161,10 +161,10 @@ noise:
 | RPA tools tagged `robotics` | EasySpider and Wechaty both are, and neither is robotics |
 | Repos already known | Matched on `owner/name`, so a trailing slash is not a new project — and the pending queue counts, or every run re-proposes what the reviewer has not got to |
 
-A weekly workflow runs it and **opens an issue** listing what it found, rather
-than queueing: `data/submissions.jsonl` is runtime state and gitignored, so a
-queue written on an ephemeral runner would vanish with it. Nothing new is the
-usual result, and no issue is opened in that case.
+Discovery is run by hand; the weekly job runs the crawler only to fold its
+findings into the digest, and opens no issue of its own. It reports rather
+than queues because `data/submissions.jsonl` is runtime state and gitignored,
+so a queue written on an ephemeral runner would vanish with it.
 
 ### Staying inside the API budget
 

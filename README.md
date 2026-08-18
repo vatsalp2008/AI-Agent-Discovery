@@ -24,6 +24,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Semantic Understanding**: Goes beyond keyword matching to understand intent
 - **Relevance Ranking**: Results ranked by similarity using vector embeddings
 - **Category Filtering**: Restrict results to Code Generation, Research, Automation, etc.
+- **Browse by Technology**: `/tech` lists every technology in the catalogue and `/tech/<name>` everything built on one — PyTorch, ROS 2, TypeScript — the question "what will this fit into", beside "what does it do"
 - **Project Health**: Archived and dormant projects say so on the card, and **Only maintained projects** leaves them out of a search; an Atom feed tracks every catalogue change
 - **AI Overviews**: A local chat model summarizes why the top results match, using only the retrieved agents
 - **Shareable Searches**: The query and filter live in the URL, so results can be bookmarked and shared
@@ -465,9 +466,10 @@ make audit            # flag entries that have gone stale
 make digest           # summarise the last week of activity
 ```
 
-All three run on a schedule. See **[docs/CATALOGUE.md](docs/CATALOGUE.md)** for
-what each one does, what the crawler refuses to propose and why, and how the
-weekly workflows report their results.
+All but `make discover` run weekly; discovery is manual, and the weekly
+digest reports what it would have proposed. See
+**[docs/CATALOGUE.md](docs/CATALOGUE.md)** for what each one does, what the
+crawler refuses to propose and why, and how the weekly job reports results.
 
 ## ⚡ Performance
 

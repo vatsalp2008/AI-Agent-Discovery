@@ -1,16 +1,17 @@
 name: Discover agents
 
 # The catalogue is hand-curated, which is why it is any good and also why it
-# goes stale. This searches GitHub weekly for tools the catalogue does not
-# have yet and opens an issue listing them.
+# goes stale. This searches GitHub for tools the catalogue does not have yet
+# and opens an issue listing them.
+#
+# Run on demand, not on a schedule: the weekly refresh job runs the same
+# search and folds the candidates into one digest, so a second issue every
+# Thursday was a second thing to read and the first thing to ignore. This one
+# survives for casting a wider net than the weekly pass takes.
 #
 # It reports rather than queues. data/submissions.jsonl is runtime state and
 # is gitignored, so a queue written on an ephemeral runner would vanish with
 # it; an issue is durable, and a maintainer can act on it from anywhere.
-# No schedule: the weekly refresh job runs the same search and folds the
-# candidates into one digest, so a second issue every Thursday was a second
-# thing to read and the first thing to ignore. Kept for running on demand,
-# with a wider net than the weekly pass takes.
 on:
   workflow_dispatch:
     inputs:

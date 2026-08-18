@@ -811,3 +811,22 @@ def test_a_job_reads_every_file_it_redirects_into():
             elsewhere = re.sub(rf'\d?>\s*{re.escape(target)}', '', script)
             assert target in elsewhere, (
                 f"{where} job {job!r} writes {target} and never reads it")
+
+
+def test_discovery_stays_off_the_schedule():
+    """Discovery runs on demand only, and three documents now say so.
+
+    The cron was removed because the weekly refresh job runs the same search
+    and folds the results into one digest; a second issue every Thursday was
+    a second thing to read. Restoring the schedule would silently make the
+    README, docs/CATALOGUE.md and the workflow's own header wrong together.
+    """
+    import yaml
+
+    workflow = config.REPO_ROOT / ".github" / "workflows" / "discover.yml"
+    triggers = yaml.safe_load(workflow.read_text()).get(True, {})
+
+    assert "workflow_dispatch" in triggers, "discovery must stay runnable by hand"
+    assert "schedule" not in triggers, (
+        "discovery is documented as manual in README.md and docs/CATALOGUE.md; "
+        "adding a schedule back means updating both")
