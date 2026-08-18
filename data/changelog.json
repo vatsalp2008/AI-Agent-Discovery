@@ -1,5 +1,22 @@
 [
   {
+    "commit": "f734504e",
+    "at": "2026-08-17T17:08:29-07:00",
+    "subject": "Add six agents including two autonomous ones",
+    "total": 248,
+    "added": [
+      "Autoware",
+      "BISHENG",
+      "Claude Context",
+      "OpenManus",
+      "PaddleSpeech",
+      "Suna"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "52c11a39",
     "at": "2026-08-16T11:48:42-07:00",
     "subject": "Reword a description that read as its opposite",
