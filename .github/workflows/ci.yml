@@ -56,7 +56,7 @@ jobs:
       # none at all until it was added here.
       - name: Check script imports resolve
         working-directory: ai-agent-discovery
-        run: python -c "import audit, benchmark, changelog, check_links, cli, digest, discover, doctor, mcp_server, refresh_stars, seed"
+        run: python -c "import audit, benchmark, changelog, check_links, cli, digest, discover, doctor, mcp_server, quality, refresh_stars, seed"
 
       - name: Byte-compile all sources
         run: python -m compileall -q ai-agent-discovery
