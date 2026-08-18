@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
     ADMIN_HTML, AGENT_HTML, bootPage, COLLECTIONS_HTML, COMPARE_HTML,
     CHANGES_HTML, DASHBOARD_HTML, flush, SAVED_HTML, SEARCH_HTML, scriptsFor,
-    stubFetch, SUBMIT_HTML, TECH_HTML,
+    stubFetch, SUBMIT_HTML, TECH_HTML, TECH_INDEX_HTML,
 } from './helpers.js';
 
 /** The name a screen reader would announce for `el`. */
@@ -168,6 +168,15 @@ describe('rendered controls have accessible names', () => {
         });
         bootPage({ html: SEARCH_HTML, script: 'main.js',
                    extraScripts: scriptsFor('index.html', 'main.js') });
+        await flush();
+        expect(unnamedControls()).toEqual([]);
+    });
+
+    it('technology index, with a filter', async () => {
+        stubFetch({ '/api/tech': { body: [{ name: 'Python', count: 9 },
+                                          { name: 'Zig', count: 1 }] } });
+        bootPage({ html: TECH_INDEX_HTML, script: 'tech-index.js',
+                   extraScripts: scriptsFor('tech-index.html', 'tech-index.js') });
         await flush();
         expect(unnamedControls()).toEqual([]);
     });

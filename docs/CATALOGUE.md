@@ -115,7 +115,12 @@ issues. That is four places to look and two to ignore. `digest.py` reads what
 those steps already produced — `data/changelog.json` for what changed, and the
 audit's JSON for what still needs a person — and turns it into one report.
 
-It makes no network calls, so it costs no API budget and can be run offline.
+It makes no network calls of its own, so it costs no API budget and can be run
+offline. The weekly job passes it the audit findings and the crawler's
+candidates, both produced earlier in the same run — so one schedule produces
+one report covering what changed, what needs a decision and what could be
+added. Discovery used to open its own issue every Thursday; a second weekly
+issue is a second thing to read and the first thing to ignore.
 
 Two rules keep it worth reading. Long lists are **abbreviated** past twelve
 names: a busy week added 115 agents, and printing all of them is the wall the
