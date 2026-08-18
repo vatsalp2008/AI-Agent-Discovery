@@ -160,6 +160,15 @@ noise:
 | Anything it cannot categorise | A wrong category teaches the catalogue's own structure something false, so no proposal is better |
 | RPA tools tagged `robotics` | EasySpider and Wechaty both are, and neither is robotics |
 | Repos already known | Matched on `owner/name`, so a trailing slash is not a new project — and the pending queue counts, or every run re-proposes what the reviewer has not got to |
+| Archived repositories | `archived:false` in the query. A repository can be archived *and* recently pushed, so the date filter below does not imply this one: microsoft/TaskWeaver was archived at 6,176 stars with a push inside any six-month window |
+| Anything quiet for six months | `pushed:>=` a date `DEFAULT_FRESH_MONTHS` back. Shorter than audit.py's 18-month dormancy line on purpose — that asks whether an entry already vetted has gone quiet, this asks whether a stranger is worth a reviewer's attention at all |
+
+Both are query filters rather than checks on the results, so a dead project
+never occupies one of the per-topic slots a live one could have used. The
+freshness window applies to a bare `make discover` too. It did not always: the
+default was "no filter", and one hand-run session produced six candidates —
+Petals, TaskWeaver, Voyager, AgentVerse, bolt.new and uptrain — that were all
+archived or two years silent, each rejected by hand after being looked up.
 
 Discovery is run by hand; the weekly job runs the crawler only to fold its
 findings into the digest, and opens no issue of its own. It reports rather
