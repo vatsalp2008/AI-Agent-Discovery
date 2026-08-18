@@ -1,5 +1,75 @@
 [
   {
+    "commit": "e0c69f3f",
+    "at": "2026-08-18T08:53:29-07:00",
+    "subject": "Add four customer support tools",
+    "total": 294,
+    "added": [
+      "AstrBot",
+      "ChatterBot",
+      "Frappe Helpdesk",
+      "MaxKB"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "87ba9483",
+    "at": "2026-08-18T08:52:25-07:00",
+    "subject": "Add five deployment and pipeline tools",
+    "total": 290,
+    "added": [
+      "KServe",
+      "Mage",
+      "Polyaxon",
+      "Seldon Core",
+      "SkyPilot"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "311acfa3",
+    "at": "2026-08-18T08:51:13-07:00",
+    "subject": "Compare the history against what is committed",
+    "total": 285,
+    "added": [
+      "Apache Airflow",
+      "Budibase",
+      "Conductor",
+      "Prefect",
+      "Temporal",
+      "ToolJet",
+      "Trigger.dev"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "c48d296c",
+    "at": "2026-08-18T08:45:34-07:00",
+    "subject": "Give the thin guards room",
+    "total": 278,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "TransformerLens",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Understanding what a model has learned",
+            "to": "Mechanistic interpretability research"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "06c253f4",
     "at": "2026-08-18T08:44:01-07:00",
     "subject": "Say speech-to-text where that is the job",
