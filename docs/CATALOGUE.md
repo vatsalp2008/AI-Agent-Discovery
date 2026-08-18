@@ -210,3 +210,44 @@ The one thing it will not do is report success having checked nothing. If every
 topic fails — no network, expired token, GitHub down — it exits non-zero and
 says so. "Nothing new found" and "nothing was looked at" are opposite outcomes,
 and on a schedule the second one silently looks like a healthy catalogue.
+
+## Is the catalogue still findable?
+
+```bash
+make quality                                        # the report
+python ai-agent-discovery/quality.py --category Research
+python ai-agent-discovery/quality.py --json > quality.json
+```
+
+Links rot and stars drift, and both are easy to check. Retrieval quality
+decays too, and nothing announced it: every agent added is another neighbour
+competing for the same queries, and the loss shows up one displaced result at
+a time.
+
+`quality.py` puts two numbers on it.
+
+**Self-retrieval.** Ask for each agent using its own `use_case` and see where
+it ranks, averaged per category as a mean reciprocal rank. An entry its own
+description cannot find is, in practice, not in the catalogue. This is how
+TransformerLens surfaced: it sat outside the top ten for "Understanding what a
+model has learned", a use case that equally describes half the catalogue.
+Rewritten to "Mechanistic interpretability research" — the term people
+actually search — it returns first.
+
+**Guard margin.** For each case in the live retrieval suite, the gap between
+the best expected result and the best result that would fail it. This exists
+because a guard can be green and worthless at the same time:
+`fine tune a model on one GPU` passed for weeks with its expected agent third
+by **0.002**, while two entries that answer a different question outranked
+every right one. The next agent added displaced it, which read as a regression
+in that change rather than a weakness that had been there all along.
+
+Nothing here fails a build. The scores are a property of the catalogue and of
+the embedding model, and the signal is how they move between runs, not whether
+they clear some absolute bar. Two findings on the first run were worth acting
+on, though:
+
+| Found | Done |
+| --- | --- |
+| `transcribe speech to text` returned two **text-to-speech** tools above every speech-to-text one, and passed by 0.0067 | Five entries said "speech recognition"; embeddings do not read direction, and "speech-to-text" is both the commoner term and the unambiguous one. Whisper went from sixth (0.6396) to first (0.7372) |
+| `automated machine learning on tabular data` expected only AutoGluon and SDV | H2O-3 takes first place and is equally an answer, as are PyCaret and FLAML. The guard was narrower than the question |

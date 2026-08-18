@@ -464,6 +464,7 @@ make refresh-stars    # update star counts from the GitHub API
 make discover         # find agents the catalogue is missing
 make audit            # flag entries that have gone stale
 make digest           # summarise the last week of activity
+make quality          # measure how findable the catalogue is
 ```
 
 All but `make discover` run weekly; discovery is manual, and the weekly
