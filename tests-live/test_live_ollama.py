@@ -258,17 +258,17 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("store embeddings in postgres", {"pgvector", "Chroma", "Qdrant"}),
     ("run language models on my own machine", {"Ollama", "vLLM", "LocalGPT", "Tabby"}),
     # Categories added as the catalogue grew past 82.
-    # Expected widened at 278, after AutoTrain Advanced displaced LLaMA-Factory
-    # from third place. The case had been passing on 0.002: the top eight here
-    # score 0.610 down to 0.566, and two entries that are *not* answers to this
-    # question — Megatron-LM (multi-node) and MLC LLM (inference) — already
-    # outranked every right answer before the additions. Nothing in any
-    # description says "one GPU", so the embedding keys on "GPU" alone and the
-    # ordering inside that band is noise. Listing every genuine fine-tuning
-    # tool keeps the case honest about what it can actually tell apart.
+    # Narrowed back at 303, once the cause was fixed rather than accommodated.
+    # This case passed by 0.002 for weeks with Megatron-LM (multi-node) and
+    # MLC LLM (inference) above every right answer, then broke, and was
+    # widened to most of the category to keep it honest — which left it unable
+    # to tell "one GPU" from "many". The real fault was that nothing in
+    # Unsloth's or PEFT's entry said single-GPU, though that is the whole
+    # reason both exist. Said plainly, they take the top two places at 0.788
+    # and 0.761 against 0.621 for the nearest multi-GPU tool, so the case can
+    # go back to asserting what it was written to assert.
     ("fine tune a model on one GPU",
-     {"Unsloth", "LLaMA-Factory", "PEFT", "Axolotl", "AutoTrain Advanced",
-      "XTuner", "ms-swift"}),
+     {"Unsloth", "PEFT", "LLaMA-Factory", "Axolotl", "XTuner"}),
     ("transcribe speech to text", {"Whisper", "Faster Whisper"}),
     ("generate images locally", {"Stable Diffusion WebUI", "ComfyUI"}),
     ("build a realtime voice agent", {"Pipecat", "LiveKit Agents", "Vocode"}),
@@ -284,7 +284,11 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("transcribe audio with speaker labels", {"WhisperX", "Whisper", "Faster Whisper"}),
     ("generate speech from text", {"Bark", "Parler TTS", "Coqui TTS"}),
     ("red team a model for safety", {"PyRIT", "Garak", "PurpleLlama"}),
-    ("fine tune a model with limited memory", {"Unsloth", "Axolotl", "PEFT"}),
+    # XTuner added at 303: it takes rank 1 here and its whole description is
+    # "on limited hardware", so leaving it out made the case pass at third by
+    # 0.0116 while the best answer went uncounted.
+    ("fine tune a model with limited memory",
+     {"Unsloth", "Axolotl", "PEFT", "XTuner"}),
     ("orchestrate data pipelines", {"Dagster", "Metaflow", "Flyte", "ZenML"}),
     ("self hosted chat interface for local models", {"Open WebUI", "LibreChat", "LobeChat"}),
     ("sandbox for running generated code", {"E2B", "OpenInterpreter"}),

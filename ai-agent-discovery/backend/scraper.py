@@ -489,12 +489,12 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Unsloth",
-        description="Fine-tunes language models several times faster and with far less memory through custom kernels.",
+        description="Fine-tunes language models on a single consumer GPU, several times faster and with far less memory, through custom kernels.",
         category="Fine-tuning",
         tech_stack=["Python", "Triton", "CUDA"],
         github_stars=69775,
         url="https://github.com/unslothai/unsloth",
-        use_case="Fast low-memory fine-tuning"
+        use_case="Fine-tuning on one GPU"
     ),
     Agent(
         name="LLaMA-Factory",
@@ -516,12 +516,12 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="PEFT",
-        description="Hugging Face's parameter-efficient fine-tuning library, including LoRA and QLoRA adapters.",
+        description="Hugging Face's parameter-efficient fine-tuning library: LoRA and QLoRA adapters train a fraction of the weights, so a large model fits on one GPU.",
         category="Fine-tuning",
         tech_stack=["Python", "PyTorch", "Transformers"],
         github_stars=21523,
         url="https://github.com/huggingface/peft",
-        use_case="Adapter-based fine-tuning"
+        use_case="Adapter fine-tuning on one GPU"
     ),
     Agent(
         name="TRL",
