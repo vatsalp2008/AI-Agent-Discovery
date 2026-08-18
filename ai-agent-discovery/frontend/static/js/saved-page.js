@@ -84,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = document.createElement('a');
         const params = new URLSearchParams({ q: entry.query });
         if (entry.category) params.set('category', entry.category);
+        // Without this a card labelled "maintained only" opens the
+        // unfiltered search, bringing back exactly what it excluded.
+        if (entry.maintained) params.set('maintained', '1');
         link.href = `/?${params}`;
         link.textContent = entry.query;
         heading.appendChild(link);

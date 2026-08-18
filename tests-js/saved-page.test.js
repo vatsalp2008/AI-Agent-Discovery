@@ -420,3 +420,26 @@ describe('a saved search remembers its health filter', () => {
         expect(document.querySelectorAll('.saved-card')).toHaveLength(2);
     });
 });
+
+describe('the card links to the search it saved', () => {
+    it('carries the health filter into the link', async () => {
+        /** A card labelled "maintained only" that opens the unfiltered
+         *  search brings back exactly what it excluded. */
+        boot();
+        globalThis.SavedSearches.save('agents', '', [{ name: 'A', metadata: { name: 'A' } }],
+                                      { maintained: true });
+        window.SavedPage.render();
+
+        expect(document.querySelector('.saved-card h2 a').getAttribute('href'))
+            .toContain('maintained=1');
+    });
+
+    it('leaves it out when the search was unfiltered', async () => {
+        boot();
+        save('agents', [['A', 1]]);
+        window.SavedPage.render();
+
+        expect(document.querySelector('.saved-card h2 a').getAttribute('href'))
+            .not.toContain('maintained');
+    });
+});

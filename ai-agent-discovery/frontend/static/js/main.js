@@ -401,8 +401,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (maintainedOnly) {
         maintainedOnly.addEventListener('change', () => {
             const query = searchInput.value.trim();
-            if (query) performSearch(query, { updateUrl: false });
-            else loadInitialAgents();
+            // The URL has to follow the toggle: "Copy link" copies the
+            // address bar, so a filtered view with an unfiltered URL shares
+            // results the recipient will not see.
+            if (query) {
+                performSearch(query);
+            } else {
+                writeStateToUrl('', activeCategory, { replace: true });
+                loadInitialAgents();
+            }
         });
     }
 

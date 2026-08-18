@@ -920,3 +920,46 @@ describe('the health filter travels with the link', () => {
         expect(globalThis.SavedSearches.list()[0].maintained).toBe(false);
     });
 });
+
+describe('toggling the filter updates the address bar', () => {
+    it('writes it when toggled on with a query', async () => {
+        /** "Copy link" copies the address bar; a filtered view with an
+         *  unfiltered URL shares results the recipient will not see. */
+        await boot();
+        submitSearch('agent');
+        await flush();
+
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(window.location.search).toContain('maintained=1');
+    });
+
+    it('removes it when toggled back off', async () => {
+        await boot();
+        submitSearch('agent');
+        await flush();
+
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+        toggle.checked = false;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(window.location.search).not.toContain('maintained');
+    });
+
+    it('writes it with no query, where only the browse grid changes', async () => {
+        await boot();
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(window.location.search).toContain('maintained=1');
+    });
+});
