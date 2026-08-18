@@ -407,7 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (query) {
                 performSearch(query);
             } else {
-                writeStateToUrl('', activeCategory, { replace: true });
+                // Pushed, not replaced: the category chips push in both
+                // branches, and replacing here meant ticking the filter on an
+                // empty search box and pressing Back left the site.
+                writeStateToUrl('', activeCategory);
                 loadInitialAgents();
             }
         });

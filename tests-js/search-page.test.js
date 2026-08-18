@@ -962,4 +962,19 @@ describe('toggling the filter updates the address bar', () => {
 
         expect(window.location.search).toContain('maintained=1');
     });
+
+    it('leaves a Back step when toggled with no query', async () => {
+        /** The category chips push in both branches; replacing here meant
+         *  ticking the filter on an empty box and pressing Back left the
+         *  site entirely. */
+        await boot();
+        const before = window.history.length;
+
+        const toggle = document.getElementById('maintainedOnly');
+        toggle.checked = true;
+        toggle.dispatchEvent(new window.Event('change'));
+        await flush();
+
+        expect(window.history.length).toBeGreaterThan(before);
+    });
 });
