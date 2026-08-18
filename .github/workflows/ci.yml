@@ -159,6 +159,19 @@ jobs:
           LIVE_TESTS_REQUIRED: "1"
         run: python -m pytest tests-live -v --tb=short
 
+      # After the live tests, not before: a red suite is the louder signal and
+      # should not be buried under a table. Never fails the job — the scores
+      # are a property of the catalogue and of nomic-embed-text, so a
+      # threshold here would either sit slack or block unrelated work. The
+      # value is having the number in the run someone is already reading when
+      # a guard breaks, so "was this always thin" has an answer.
+      - name: Report retrieval quality
+        if: always()
+        run: |
+          set -eo pipefail
+          python ai-agent-discovery/quality.py --out quality.md || exit 0
+          cat quality.md >> "$GITHUB_STEP_SUMMARY"
+
   frontend:
     runs-on: ubuntu-latest
     steps:
