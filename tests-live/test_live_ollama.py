@@ -373,6 +373,17 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("support ticketing system", {"Frappe Helpdesk", "Zammad", "FreeScout", "Chaskiq"}),
     ("chatbot across messaging platforms", {"AstrBot", "Botpress"}),
     ("answer questions from a company knowledge base", {"MaxKB", "Onyx", "AnythingLLM"}),
+    # Added at 303, in the categories the quality report showed thin but
+    # strong: fine-tuning (0.972), safety (0.912) and evaluation (0.908).
+    ("train a model across many gpus",
+     {"Colossal-AI", "GPT-NeoX", "Megatron-LM", "DeepSpeed"}),
+    ("organise pytorch training code", {"PyTorch Lightning"}),
+    ("faster training through algorithmic methods", {"Composer", "Liger Kernel"}),
+    ("benchmark a coding agent on real github issues", {"SWE-bench"}),
+    ("compare embedding models", {"MTEB"}),
+    ("red team an llm application", {"DeepTeam", "Garak", "PyRIT"}),
+    ("test whether an agent resists prompt injection",
+     {"AgentDojo", "Rebuff", "LLM Guard"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
