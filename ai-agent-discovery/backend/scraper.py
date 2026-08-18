@@ -1209,12 +1209,12 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="MetaGPT",
-        description="The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
+        description="Assigns a software team's roles to separate agents, turning one line of requirement into a design, tasks and a repository.",
         category="Autonomous Agent",
         tech_stack=["Python", "Multi-Agent"],
         github_stars=38000,
         url="https://github.com/geekan/MetaGPT",
-        use_case="Software development lifecycle automation"
+        use_case="Multi-agent software development"
     ),
     Agent(
         name="LangChain",
@@ -1576,7 +1576,7 @@ SAMPLE_AGENTS = [
     # Automation
     Agent(
         name="Apache Airflow",
-        description="Schedules and monitors workflows written as Python code, with retries and backfills built in.",
+        description="Schedules and monitors data pipelines defined as Python DAGs, with retries, backfills and dependency handling built in.",
         category="Automation",
         tech_stack=["Python", "Celery", "Kubernetes"],
         github_stars=46521,

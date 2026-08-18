@@ -103,7 +103,7 @@
   },
   {
     "name": "MetaGPT",
-    "description": "The Multi-Agent Framework: Given one line Requirement, return PRD, Design, Tasks, Repo.",
+    "description": "Assigns a software team's roles to separate agents, turning one line of requirement into a design, tasks and a repository.",
     "category": "Autonomous Agent",
     "tech_stack": [
       "Python",
@@ -111,7 +111,7 @@
     ],
     "github_stars": 69860,
     "url": "https://github.com/FoundationAgents/MetaGPT",
-    "use_case": "Software development lifecycle automation"
+    "use_case": "Multi-agent software development"
   },
   {
     "name": "LangChain",
@@ -3414,7 +3414,7 @@
   },
   {
     "name": "Apache Airflow",
-    "description": "Schedules and monitors workflows written as Python code, with retries and backfills built in.",
+    "description": "Schedules and monitors data pipelines defined as Python DAGs, with retries, backfills and dependency handling built in.",
     "category": "Automation",
     "tech_stack": [
       "Python",

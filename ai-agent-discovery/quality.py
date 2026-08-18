@@ -12,6 +12,14 @@ is, for practical purposes, not in the catalogue. Reported per category as a
 mean reciprocal rank, because the weakness is rarely one entry — it is a
 crowded neighbourhood where thirty tools all say "fine-tune a model".
 
+Read a low score as "look at this", not as "this is broken". Two tools that
+genuinely do the same job compete for the same words, and one of them has to
+come second: Apache Airflow loses "Scheduling data and ML pipelines" to Mage,
+whose own use case is a near-verbatim restatement of it. That is the metric
+working, not a defect in either entry. What it is good at is the other case —
+an entry whose wording says nothing specific at all, like TransformerLens
+under "Understanding what a model has learned".
+
 **Guard margin.** For each case in the live retrieval suite, the gap between
 the best expected result and the best result that would fail it. A guard
 passing by 0.002 is not a guard; it is a coin that has landed the same way so
