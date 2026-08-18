@@ -131,8 +131,15 @@ def guard_margins(store, cases, limit=10):
         hit = next((r for r in results if r["name"] in expected), None)
         # The rival is whatever would take third place if the expected agent
         # slipped one position — the live suite asserts a top-3 finish.
+        #
+        # None, not the weakest result, when fewer than three others came
+        # back: nothing there can displace the expected agent from the top
+        # three, so there is no margin to report. Falling back to `others[-1]`
+        # measured the gap to a result that could never take the place, which
+        # understated it and flagged comfortable guards as thin — every one of
+        # them under `--limit 3`, the limit the live suite itself uses.
         others = [r for r in results if r["name"] not in expected]
-        rival = others[2] if len(others) > 2 else (others[-1] if others else None)
+        rival = others[2] if len(others) > 2 else None
 
         rows.append({
             "query": query,
@@ -169,8 +176,11 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN):
                        f"loses to {beaten}")
         out.append("")
 
+    # A negative margin means the guard is already failing, and it is listed
+    # as such below; counting it here as well would report it twice and read
+    # as "passes by -0.2".
     at_risk = [g for g in guards
-               if g["margin"] is not None and g["margin"] < thin_margin]
+               if g["margin"] is not None and 0 <= g["margin"] < thin_margin]
     failing = [g for g in guards if g["rank"] is None or g["rank"] > 3]
 
     out.append("## Guards")

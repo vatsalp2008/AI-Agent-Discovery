@@ -9,7 +9,12 @@ import sys
 
 import pytest
 
-sys.path.insert(0, "ai-agent-discovery")
+import config
+
+# Resolved from config rather than a relative path: `sys.path.insert(0,
+# "ai-agent-discovery")` is relative to the working directory, so collection
+# failed outright whenever pytest ran from anywhere but the repo root.
+sys.path.insert(0, str(config.PACKAGE_DIR))
 
 import quality  # noqa: E402
 
@@ -185,3 +190,49 @@ class TestRendering:
                                 "rival": None, "expected": ["Right"]}])
 
         assert "1 failing now" in report
+
+
+class TestMarginsThatCannotBeMeasured:
+    """A margin needs something that could actually take the place."""
+
+    def test_too_few_rivals_reports_no_margin_rather_than_a_wrong_one(self):
+        """Under `--limit 3` — the depth the live suite asserts on — there are
+        never three non-expected results, so the old fallback measured the gap
+        to the weakest visible one. That understates it, and understating is
+        what makes a comfortable guard look thin.
+        """
+        store = FakeStore({"q": [("Right", 0.9), ("A", 0.5), ("B", 0.4)]})
+        row = quality.guard_margins(store, [("q", {"Right"})], limit=3)[0]
+
+        assert row["rank"] == 1
+        assert row["margin"] is None
+        assert row["rival"] is None
+
+    def test_three_rivals_is_enough_to_measure(self):
+        store = FakeStore({"q": [("Right", 0.9), ("A", 0.5), ("B", 0.4), ("C", 0.3)]})
+        row = quality.guard_margins(store, [("q", {"Right"})])[0]
+
+        assert row["rival"] == "C"
+        assert row["margin"] == pytest.approx(0.6)
+
+
+class TestFailingIsNotThin:
+    def test_a_failing_guard_is_not_also_counted_as_passing_narrowly(self):
+        """It was reported twice — once as failing, once as "passes by
+        -0.2", which is not a thing a guard can do."""
+        report = quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.5, "unfindable": 0}], [],
+            [{"query": "q", "rank": 7, "margin": -0.2, "rival": "X",
+              "expected": ["R"]}])
+
+        assert "1 failing now" in report
+        assert "0 of 1 pass by less than" in report
+        assert "None — every guard has room." in report
+
+    def test_a_guard_that_is_thin_but_passing_still_counts(self):
+        report = quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.5, "unfindable": 0}], [],
+            [{"query": "q", "rank": 2, "margin": 0.001, "rival": "X",
+              "expected": ["R"]}])
+
+        assert "1 of 1 pass by less than" in report
