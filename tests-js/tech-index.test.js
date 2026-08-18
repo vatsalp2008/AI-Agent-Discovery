@@ -157,9 +157,11 @@ describe('the filter box and the fetch', () => {
         expect(shown).toEqual(['Zig (1)']);
     });
 
-    it('leaves the box working when the load failed', async () => {
-        /** The error path returned before the listener was attached, so the
-         *  filter did nothing for the rest of the page's life. */
+    it('keeps the load error instead of answering the filter', async () => {
+        /** Attaching the listener before the fetch fixed one bug and exposed
+         *  another: typing after a failed load rendered "Nothing matches" over
+         *  "Could not load the technologies", reporting a network failure as a
+         *  confident empty result. */
         globalThis.fetch = () => Promise.reject(new Error('offline'));
         bootPage({ html: TECH_INDEX_HTML, script: 'tech-index.js',
                    extraScripts: scriptsFor('tech-index.html', 'tech-index.js') });
@@ -169,6 +171,9 @@ describe('the filter box and the fetch', () => {
         filter.value = 'zig';
         expect(() => filter.dispatchEvent(new window.Event('input'))).not.toThrow();
         await flush();
-        expect(document.getElementById('techIndex').textContent).toMatch(/Nothing matches/);
+
+        const area = document.getElementById('techIndex');
+        expect(area.textContent).toMatch(/Could not load/);
+        expect(area.textContent).not.toMatch(/Nothing matches/);
     });
 });

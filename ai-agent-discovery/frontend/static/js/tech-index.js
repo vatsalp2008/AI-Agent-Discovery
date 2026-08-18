@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filter = document.getElementById('techFilter');
 
     let technologies = [];
+    // Distinguishes "the list is empty" from "the list never arrived". Without
+    // it, typing in the filter after a failed load replaced "Could not load
+    // the technologies" with "Nothing matches “zig”" — turning a network
+    // failure into a confident, wrong answer.
+    let loaded = false;
 
     function chip(tech) {
         const link = document.createElement('a');
@@ -28,6 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
      * second.
      */
     function render() {
+        if (!loaded) return;   // nothing to filter, and an error to preserve
+
         // Read from the box rather than take an argument: /api/tech resolves
         // after the user may already have typed, and a render() that trusted
         // its caller threw that first word away.
@@ -85,6 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const body = await response.json();
         technologies = Array.isArray(body) ? body : [];
+        loaded = true;
 
         countEl.textContent = `${technologies.length} technologies across the catalogue`;
         render();
