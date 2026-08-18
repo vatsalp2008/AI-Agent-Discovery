@@ -1490,6 +1490,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/google-deepmind/mujoco_menagerie",
         use_case="Ready-made robot models for simulation"
     ),
+    # Customer Service
+    Agent(
+        name="Zammad",
+        description="A help desk that pulls tickets from mail, chat and social into one timeline per customer.",
+        category="Customer Service",
+        tech_stack=["Ruby", "Rails", "Elasticsearch"],
+        github_stars=5852,
+        url="https://github.com/zammad/zammad",
+        use_case="Self-hosted ticketing and help desk"
+    ),
+    Agent(
+        name="FreeScout",
+        description="A shared inbox and help desk that runs on ordinary PHP hosting.",
+        category="Customer Service",
+        tech_stack=["PHP", "Laravel", "MySQL"],
+        github_stars=4482,
+        url="https://github.com/freescout-help-desk/freescout",
+        use_case="Shared inbox for support mail"
+    ),
+    Agent(
+        name="erxes",
+        description="An experience suite joining support, sales and marketing so one conversation carries across them.",
+        category="Customer Service",
+        tech_stack=["TypeScript", "React", "GraphQL"],
+        github_stars=4066,
+        url="https://github.com/erxes/erxes",
+        use_case="Customer engagement across channels"
+    ),
 ]
 
 class CatalogueError(Exception):
