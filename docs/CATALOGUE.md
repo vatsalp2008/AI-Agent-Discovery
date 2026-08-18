@@ -77,6 +77,17 @@ cleared.
 Statuses are cleared as well as set: archived repositories get unarchived, and
 a stale warning is wrong in the other direction.
 
+### A failed audit is not a clean one
+
+The weekly step keeps the audit's exit status rather than discarding it. It
+used to run `audit.py … || true` and fall back to an empty `[]`, which meant
+an expired token or a network outage produced exactly the output of a healthy
+catalogue: the summary said "Every entry looks current" and the digest said
+"Nothing outstanding". A run that could not check anything must not report
+that it found nothing wrong, so a failure now prints a warning annotation and
+says so in the summary — while still exiting 0, because the link check after
+it is worth running either way.
+
 ### What the audit found
 
 Run against 242 entries: **9 archived** and **10 dormant**, plus 8 whose
@@ -251,3 +262,29 @@ on, though:
 | --- | --- |
 | `transcribe speech to text` returned two **text-to-speech** tools above every speech-to-text one, and passed by 0.0067 | Five entries said "speech recognition"; embeddings do not read direction, and "speech-to-text" is both the commoner term and the unambiguous one. Whisper went from sixth (0.6396) to first (0.7372) |
 | `automated machine learning on tabular data` expected only AutoGluon and SDV | H2O-3 takes first place and is equally an answer, as are PyCaret and FLAML. The guard was narrower than the question |
+| TransformerLens and MetaGPT sat outside the top ten for their own use case | Both said nothing specific — "Understanding what a model has learned", and a README tagline about returning a "PRD". Reworded; no entry is outside the top ten now |
+
+### What it costs to grow
+
+The report is most useful pointed at the thing that caused it. Adding twenty-five
+agents in one sitting moved the scores in both directions, and the numbers say
+which way:
+
+| Category | Before | After | Added |
+| --- | ---: | ---: | ---: |
+| Fine-tuning | 0.972 | 0.978 | 5 |
+| MLOps | 0.967 | 0.975 | 5 |
+| Customer Service | 0.967 | 0.947 | 4 |
+| Safety | 0.912 | 0.849 | 2 |
+
+Five well-differentiated training tools *improved* fine-tuning; two red-teaming
+tools cost safety six points, because they landed on top of Garak, PyRIT and
+Rebuff, which already answer the same question. And `fine tune a model on one
+GPU` — the guard that broke last week — is thin again at +0.0156, crowded by
+the same five additions that helped the category average.
+
+None of that is an argument against growing the catalogue. It is an argument
+for knowing which categories are crowded before choosing where to grow, which
+is what the report is for: the additions above went into the categories that
+were thin *and* scoring well, and skipped Research and Infrastructure, the two
+weakest.
