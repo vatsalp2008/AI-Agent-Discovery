@@ -1297,6 +1297,61 @@ SAMPLE_AGENTS = [
         url="https://github.com/imartinez/privateGPT",
         use_case="Document QA, RAG"
     ),
+    # Safety
+    Agent(
+        name="TextAttack",
+        description="A framework for adversarial attacks, data augmentation and adversarial training in NLP.",
+        category="Safety",
+        tech_stack=["Python", "PyTorch", "Transformers"],
+        github_stars=3467,
+        url="https://github.com/QData/TextAttack",
+        use_case="Adversarial testing of text models"
+    ),
+    Agent(
+        name="Foolbox",
+        description="A library of adversarial attacks for finding the smallest perturbation that fools a model.",
+        category="Safety",
+        tech_stack=["Python", "PyTorch", "JAX"],
+        github_stars=2972,
+        url="https://github.com/bethgelab/foolbox",
+        use_case="Measuring model robustness"
+    ),
+    Agent(
+        name="Counterfit",
+        description="A command line tool for assessing the security of machine learning systems.",
+        category="Safety",
+        tech_stack=["Python", "CLI"],
+        github_stars=935,
+        url="https://github.com/Azure/counterfit",
+        use_case="Red teaming ML services"
+    ),
+    Agent(
+        name="Opacus",
+        description="Trains PyTorch models with differential privacy, with little change to the training loop.",
+        category="Safety",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=1951,
+        url="https://github.com/meta-pytorch/opacus",
+        use_case="Differentially private training"
+    ),
+    Agent(
+        name="Fairlearn",
+        description="Assesses and mitigates unfairness in models, with metrics grouped by who is affected.",
+        category="Safety",
+        tech_stack=["Python", "scikit-learn"],
+        github_stars=2268,
+        url="https://github.com/fairlearn/fairlearn",
+        use_case="Fairness assessment and mitigation"
+    ),
+    Agent(
+        name="AI Fairness 360",
+        description="A toolkit of bias metrics and mitigation algorithms for datasets and models.",
+        category="Safety",
+        tech_stack=["Python", "R", "scikit-learn"],
+        github_stars=2852,
+        url="https://github.com/Trusted-AI/AIF360",
+        use_case="Bias detection and mitigation"
+    ),
 ]
 
 class CatalogueError(Exception):
