@@ -361,6 +361,18 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("self hosted customer support ticketing", {"Zammad", "FreeScout", "erxes", "Chaskiq"}),
     ("let an agent control my desktop", {"Agent-S", "UI-TARS Desktop", "OpenAdapt"}),
     ("mechanistic interpretability research", {"TransformerLens"}),
+    # Added at 294, filling the categories the quality report showed were both
+    # thin and strong — adding to a weak neighbourhood only crowds it further.
+    ("schedule a data pipeline", {"Apache Airflow", "Mage", "Prefect", "Dagster"}),
+    ("durable workflow that survives a crash", {"Temporal"}),
+    ("orchestrate microservices as a workflow", {"Conductor", "Temporal"}),
+    ("background jobs for typescript", {"Trigger.dev"}),
+    ("build an internal tool without writing a front end", {"ToolJet", "Budibase"}),
+    ("run training jobs on any cloud", {"SkyPilot"}),
+    ("serve a model on kubernetes", {"KServe", "Seldon Core", "Kubeflow"}),
+    ("support ticketing system", {"Frappe Helpdesk", "Zammad", "FreeScout", "Chaskiq"}),
+    ("chatbot across messaging platforms", {"AstrBot", "Botpress"}),
+    ("answer questions from a company knowledge base", {"MaxKB", "Onyx", "AnythingLLM"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
