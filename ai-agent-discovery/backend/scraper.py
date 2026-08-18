@@ -1573,6 +1573,70 @@ SAMPLE_AGENTS = [
         url="https://github.com/i-am-bee/beeai-framework",
         use_case="Production agents in two languages"
     ),
+    # Automation
+    Agent(
+        name="Apache Airflow",
+        description="Schedules and monitors workflows written as Python code, with retries and backfills built in.",
+        category="Automation",
+        tech_stack=["Python", "Celery", "Kubernetes"],
+        github_stars=46521,
+        url="https://github.com/apache/airflow",
+        use_case="Scheduling data and ML pipelines"
+    ),
+    Agent(
+        name="Prefect",
+        description="Turns ordinary Python functions into observable workflows, with state and retries added by decorator.",
+        category="Automation",
+        tech_stack=["Python", "Pydantic"],
+        github_stars=23634,
+        url="https://github.com/PrefectHQ/prefect",
+        use_case="Orchestrating Python workflows"
+    ),
+    Agent(
+        name="Temporal",
+        description="Runs long-lived workflows durably: a process survives a crash and resumes where it stopped.",
+        category="Automation",
+        tech_stack=["Go", "Java", "TypeScript"],
+        github_stars=22387,
+        url="https://github.com/temporalio/temporal",
+        use_case="Durable long-running workflows"
+    ),
+    Agent(
+        name="Conductor",
+        description="Orchestrates microservices as a workflow defined in JSON, with each step visible while it runs.",
+        category="Automation",
+        tech_stack=["Java", "Spring", "Redis"],
+        github_stars=32101,
+        url="https://github.com/conductor-oss/conductor",
+        use_case="Microservice workflow orchestration"
+    ),
+    Agent(
+        name="Trigger.dev",
+        description="Background jobs and AI workflows for TypeScript, written in your own codebase and run elsewhere.",
+        category="Automation",
+        tech_stack=["TypeScript", "Next.js", "PostgreSQL"],
+        github_stars=16056,
+        url="https://github.com/triggerdotdev/trigger.dev",
+        use_case="Long-running background jobs"
+    ),
+    Agent(
+        name="ToolJet",
+        description="Builds internal tools and AI agents from a drag-and-drop canvas wired to your own databases and APIs.",
+        category="Automation",
+        tech_stack=["JavaScript", "React", "NestJS"],
+        github_stars=40433,
+        url="https://github.com/ToolJet/ToolJet",
+        use_case="Low-code internal tools"
+    ),
+    Agent(
+        name="Budibase",
+        description="Builds internal apps and automations over existing data without writing the front end.",
+        category="Automation",
+        tech_stack=["TypeScript", "Svelte", "CouchDB"],
+        github_stars=28216,
+        url="https://github.com/Budibase/budibase",
+        use_case="Internal apps over existing data"
+    ),
 ]
 
 class CatalogueError(Exception):
