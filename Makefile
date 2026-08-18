@@ -37,6 +37,9 @@ audit:  ## Report catalogue entries that have gone stale
 changelog:  ## Rebuild data/changelog.json from git history
 	$(PYTHON) $(APP_DIR)/changelog.py
 
+digest:  ## Summarise the last week of catalogue activity
+	$(PYTHON) $(APP_DIR)/digest.py
+
 stats:  ## Print index statistics
 	$(PYTHON) $(APP_DIR)/cli.py --stats
 

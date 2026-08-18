@@ -100,6 +100,8 @@ jobs:
         run: |
           set -eo pipefail
           python ai-agent-discovery/audit.py --apply-status > audit.log 2>&1 || true
+          # Reused by the digest below, so it costs no extra API budget.
+          python ai-agent-discovery/audit.py --json > audit.json 2>/dev/null || echo '[]' > audit.json
           {
             echo "### Catalogue health"
             echo '```'
@@ -139,6 +141,35 @@ jobs:
           git add data/changelog.json
           git commit -m "Rebuild the catalogue change history"
           git push
+
+      # One report instead of four step summaries nobody scrolls to. Opened
+      # only when something actually happened: a weekly issue saying "nothing
+      # changed" trains everyone to close it unread.
+      - name: Open the weekly digest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          python ai-agent-discovery/digest.py --days 7 --audit audit.json --out digest.md
+
+          if grep -q "Nothing changed" digest.md && grep -q "Nothing outstanding" digest.md; then
+            echo "A quiet week; no digest issue."
+            cat digest.md >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          {
+            echo
+            echo "Built from \`data/changelog.json\` and this run's audit."
+            echo "See [the change history](../../blob/main/data/changelog.json) or"
+            echo "subscribe to \`/api/changelog.atom\`."
+          } >> digest.md
+
+          cat digest.md >> "$GITHUB_STEP_SUMMARY"
+          gh issue create \
+            --title "Catalogue digest — $(date -u +%Y-%m-%d)" \
+            --body-file digest.md \
+            || echo "::warning::Could not open the digest issue."
 
       # Projects get renamed, archived and deleted. A redirect is reported but
       # tolerated — the link still works. A *broken* link is a real defect in
