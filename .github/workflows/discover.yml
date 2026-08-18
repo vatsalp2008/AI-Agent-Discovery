@@ -51,7 +51,6 @@ jobs:
             --json \
             --min-stars "${{ inputs.min_stars || '1000' }}" \
             --max-proposals "${{ inputs.max_proposals || '15' }}" \
-            --pushed-since "$(date -u -d '6 months ago' +%Y-%m-%d)" \
             > candidates.json
 
       - name: Summarise

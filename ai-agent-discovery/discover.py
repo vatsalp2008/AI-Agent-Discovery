@@ -29,6 +29,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timedelta, timezone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
@@ -160,6 +161,14 @@ TECH_TOPICS = {
 # something the queue would then refuse.
 MIN_DESCRIPTION = submissions.MIN_DESCRIPTION
 
+# How recently a repository must have been pushed to be worth proposing.
+# Shorter than audit.py's 18-month dormancy line, and deliberately so: that
+# one asks "has an entry we already vetted gone quiet", this one asks "is this
+# worth a reviewer's attention at all", and a project silent for a year is
+# not. Applied by default rather than only when a caller remembers — a bare
+# `make discover` was proposing projects two years dead.
+DEFAULT_FRESH_MONTHS = 6
+
 # Reading lists, tutorials and books dominate a stars-sorted topic search —
 # "awesome-llm-apps" outranks every actual tool by an order of magnitude.
 # They are not agents, so no reviewer would ever accept one; filtering here
@@ -221,13 +230,24 @@ class RateLimited(Exception):
     """GitHub refused the request because the quota is exhausted."""
 
 
+def fresh_since(months=DEFAULT_FRESH_MONTHS, today=None):
+    """The `pushed:` cutoff date, as GitHub wants it."""
+    today = today or datetime.now(timezone.utc).date()
+    return (today - timedelta(days=round(months * 30.44))).isoformat()
+
+
 def build_query(topic, min_stars, pushed_since=None):
     """A GitHub search query for one topic.
 
-    `pushed:` filters out repositories that were popular once and have since
-    been abandoned, which is most of what a stars-only search returns.
+    Two separate filters, because they catch different things. `pushed:`
+    excludes projects that were popular once and went quiet, which is most of
+    what a stars-only search returns. `archived:false` excludes projects whose
+    authors have declared them finished — and a repository can be archived
+    *and* recently pushed, so the first filter does not imply the second:
+    microsoft/TaskWeaver was archived with 6,176 stars and a push inside any
+    six-month window, and came back as a candidate until this was added.
     """
-    parts = [f"topic:{topic}", f"stars:>={min_stars}"]
+    parts = [f"topic:{topic}", f"stars:>={min_stars}", "archived:false"]
     if pushed_since:
         parts.append(f"pushed:>={pushed_since}")
     return " ".join(parts)
@@ -482,7 +502,8 @@ def main(argv=None):
     parser.add_argument("--max-proposals", type=int, default=10,
                         help="stop after queueing this many (default: 10)")
     parser.add_argument("--pushed-since", default=None,
-                        help="only repositories pushed since this date, e.g. 2026-01-01")
+                        help=f"only repositories pushed since this date "
+                             f"(default: {DEFAULT_FRESH_MONTHS} months ago)")
     parser.add_argument("--dry-run", action="store_true",
                         help="report candidates without queueing them")
     parser.add_argument("--json", action="store_true", dest="as_json",
@@ -510,7 +531,7 @@ def main(argv=None):
             min_stars=args.min_stars,
             token=args.token,
             limit=args.limit,
-            pushed_since=args.pushed_since,
+            pushed_since=args.pushed_since or fresh_since(),
         )
     except RateLimited as e:
         logger.error("%s", e)

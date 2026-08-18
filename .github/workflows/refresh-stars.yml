@@ -165,7 +165,6 @@ jobs:
           set -eo pipefail
           python ai-agent-discovery/discover.py --json --min-stars 1500 \
             --max-proposals 12 \
-            --pushed-since "$(date -u -d '6 months ago' +%Y-%m-%d)" \
             > candidates.json || echo '[]' > candidates.json
           [ -s candidates.json ] || echo '[]' > candidates.json
 

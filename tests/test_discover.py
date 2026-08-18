@@ -261,11 +261,48 @@ class TestDeduplication:
 
 class TestQueryBuilding:
     def test_the_query_carries_the_topic_and_the_floor(self):
-        assert discover.build_query("rag", 1000) == "topic:rag stars:>=1000"
+        assert discover.build_query("rag", 1000) == (
+            "topic:rag stars:>=1000 archived:false")
 
     def test_a_date_filters_out_abandoned_projects(self):
         query = discover.build_query("rag", 1000, "2026-01-01")
         assert "pushed:>=2026-01-01" in query
+
+    def test_archived_repositories_are_excluded_server_side(self):
+        """A recent push does not mean a live project.
+
+        microsoft/TaskWeaver was archived at 6,176 stars with a push inside
+        any six-month window, so `pushed:` let it through every time; it had
+        to be rejected by hand. Filtering in the query rather than after the
+        fact also stops archived repos consuming the per-topic result budget.
+        """
+        assert "archived:false" in discover.build_query("agent", 1000)
+        assert "archived:false" in discover.build_query("agent", 1000, "2026-01-01")
+
+
+class TestFreshnessDefault:
+    """A bare `make discover` used to apply no recency filter at all, which is
+    how six two-year-dead projects reached a reviewer in one sitting."""
+
+    def test_the_cutoff_is_months_back_from_today(self):
+        import datetime
+
+        cutoff = discover.fresh_since(6, today=datetime.date(2026, 8, 18))
+        assert cutoff == "2026-02-16"
+
+    def test_a_bare_run_still_filters_by_date(self, monkeypatch):
+        seen = []
+        monkeypatch.setattr(discover, "discover",
+                            lambda *a, **kw: (seen.append(kw.get("pushed_since")), ([], {}))[1])
+        discover.main(["--json"])
+        assert seen and seen[0], "no recency filter was applied"
+
+    def test_an_explicit_date_still_wins(self, monkeypatch):
+        seen = []
+        monkeypatch.setattr(discover, "discover",
+                            lambda *a, **kw: (seen.append(kw.get("pushed_since")), ([], {}))[1])
+        discover.main(["--json", "--pushed-since", "2025-01-01"])
+        assert seen == ["2025-01-01"]
 
     def test_every_default_topic_maps_to_a_category(self):
         """Searching a topic the crawler cannot then categorise burns API

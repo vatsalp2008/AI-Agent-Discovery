@@ -830,3 +830,13 @@ def test_discovery_stays_off_the_schedule():
     assert "schedule" not in triggers, (
         "discovery is documented as manual in README.md and docs/CATALOGUE.md; "
         "adding a schedule back means updating both")
+
+
+def test_no_workflow_restates_the_crawler_freshness_window():
+    """discover.py applies its own `pushed:` cutoff now, so a workflow passing
+    one again is a second number to keep in step with the first — and both
+    workflows had hand-rolled the same `date -u -d '6 months ago'`."""
+    for where, name, script in _workflow_steps():
+        assert "--pushed-since" not in script, (
+            f"{where} step {name!r} overrides DEFAULT_FRESH_MONTHS; "
+            "change the default in discover.py instead")
