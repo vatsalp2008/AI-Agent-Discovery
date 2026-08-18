@@ -1720,6 +1720,52 @@ SAMPLE_AGENTS = [
         url="https://github.com/frappe/helpdesk",
         use_case="Support ticketing and knowledge base"
     ),
+    # Fine-tuning
+    Agent(
+        name="Colossal-AI",
+        description="Trains models too large for one GPU by combining tensor, pipeline and sequence parallelism behind a small API.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "CUDA"],
+        github_stars=41437,
+        url="https://github.com/hpcaitech/ColossalAI",
+        use_case="Large-scale parallel training"
+    ),
+    Agent(
+        name="PyTorch Lightning",
+        description="Takes the training loop, checkpointing and multi-GPU wiring off you while leaving the model plain PyTorch.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=31292,
+        url="https://github.com/Lightning-AI/pytorch-lightning",
+        use_case="Structuring and scaling training code"
+    ),
+    Agent(
+        name="LMFlow",
+        description="Fine-tunes and serves large foundation models from one toolkit, aimed at teams without a cluster.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "DeepSpeed"],
+        github_stars=8485,
+        url="https://github.com/OptimalScale/LMFlow",
+        use_case="Fine-tuning foundation models"
+    ),
+    Agent(
+        name="GPT-NeoX",
+        description="EleutherAI's library for training large autoregressive language models across many GPUs.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch", "DeepSpeed"],
+        github_stars=7453,
+        url="https://github.com/EleutherAI/gpt-neox",
+        use_case="Training large language models"
+    ),
+    Agent(
+        name="Composer",
+        description="Speeds up training with a library of algorithmic methods that can be switched on individually.",
+        category="Fine-tuning",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=5495,
+        url="https://github.com/mosaicml/composer",
+        use_case="Faster training through algorithms"
+    ),
 ]
 
 class CatalogueError(Exception):
