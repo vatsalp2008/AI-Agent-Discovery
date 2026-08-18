@@ -1,5 +1,20 @@
 [
   {
+    "commit": "dff98f1f",
+    "at": "2026-08-18T09:35:05-07:00",
+    "subject": "Add four benchmarking and red teaming tools",
+    "total": 303,
+    "added": [
+      "AgentDojo",
+      "DeepTeam",
+      "MTEB",
+      "SWE-bench"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "b361361f",
     "at": "2026-08-18T09:32:30-07:00",
     "subject": "Add five large-scale training tools",
