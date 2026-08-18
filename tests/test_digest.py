@@ -230,3 +230,46 @@ class TestCandidates:
         digest.main(["--days", "7", "--candidates", str(tmp_path / "cands.json")])
         out = capsys.readouterr().out
         assert "Nothing changed" in out and "Could be added" in out
+
+
+class TestAnEmptyHistoryIsNotAMissingOne:
+    """`changelog_data.read()` returns [] for missing, corrupt and
+    legitimately-empty files alike. Treating all three as fatal made a valid
+    empty history fail the weekly job — which runs under `set -eo pipefail`,
+    so it skipped the link check after it too."""
+
+    def test_a_missing_file_is_an_error(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+        assert digest.main([]) == 1
+
+    def test_an_empty_history_reports_a_quiet_week(self, tmp_path, monkeypatch, capsys):
+        (tmp_path / "changelog.json").write_text("[]")
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert digest.main([]) == 0
+        assert "Nothing changed" in capsys.readouterr().out
+
+    def test_a_corrupt_file_also_reports_rather_than_failing(self, tmp_path, monkeypatch, capsys):
+        """The file exists, so this is a data problem to report, not a setup
+        mistake to stop for."""
+        (tmp_path / "changelog.json").write_text("{ not json")
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert digest.main([]) == 0
+        assert "Nothing changed" in capsys.readouterr().out
+
+
+class TestCandidateValues:
+    @pytest.mark.parametrize("stars", [None, "lots", {}, []])
+    def test_a_non_numeric_star_count_does_not_crash_the_run(self, stars):
+        """The workflow runs under `set -eo pipefail`; a TypeError here fails
+        everything after it."""
+        rows = digest.summarise_candidates(
+            [{"name": "A", "category": "X", "github_stars": stars, "url": "u"}])
+
+        assert rows == [("A", "X", 0, "u")]
+        assert "| A | X | 0 |" in digest.render(
+            {"added": [], "removed": [], "edited": []}, {}, 7, candidates=rows)
+
+    def test_a_missing_category_or_url_is_filled_in(self):
+        assert digest.summarise_candidates([{"name": "A"}]) == [("A", "?", 0, "")]

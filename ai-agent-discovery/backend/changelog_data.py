@@ -19,6 +19,11 @@ import config
 logger = logging.getLogger(__name__)
 
 
+def path():
+    """Where the generated history lives."""
+    return config.DATA_DIR / "changelog.json"
+
+
 def read():
     """The history, or [] when there is none to read.
 
@@ -27,12 +32,12 @@ def read():
     Entries that are not objects are dropped: a list that parses can still
     hold anything, and every caller reads fields off each entry.
     """
-    path = config.DATA_DIR / "changelog.json"
+    where = path()
     try:
-        with open(path) as f:
+        with open(where) as f:
             entries = json.load(f)
     except (OSError, json.JSONDecodeError):
-        logger.info("No changelog at %s; run changelog.py to build one.", path)
+        logger.info("No changelog at %s; run changelog.py to build one.", where)
         return []
 
     if not isinstance(entries, list):

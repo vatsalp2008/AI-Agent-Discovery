@@ -24,7 +24,6 @@ from datetime import datetime, timedelta, timezone
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
 import changelog_data  # noqa: E402
-
 from logging_setup import configure  # noqa: E402
 
 logger = logging.getLogger("digest")
@@ -125,8 +124,10 @@ def summarise_candidates(candidates):
     for candidate in candidates or []:
         if not isinstance(candidate, dict) or not candidate.get("name"):
             continue
-        rows.append((candidate["name"], candidate.get("category", "?"),
-                     candidate.get("github_stars", 0), candidate.get("url", "")))
+        stars = candidate.get("github_stars")
+        rows.append((candidate["name"], candidate.get("category") or "?",
+                     stars if isinstance(stars, int) else 0,
+                     candidate.get("url") or ""))
     return sorted(rows, key=lambda row: -row[2])
 
 
@@ -190,12 +191,14 @@ def main(argv=None):
         logger.error("--days must be at least 1.")
         return 1
 
-    entries = changelog_data.read()
-    if not entries:
-        # No history is not an empty week: say so rather than reporting
-        # "nothing changed" for a file that was never built.
+    # "No file" and "a file with nothing in it" are different: the first is a
+    # setup mistake worth failing on, the second is a truthful quiet week.
+    # Collapsing them made a valid empty history fail the weekly job.
+    if not changelog_data.path().exists():
         logger.error("No changelog to summarise. Run changelog.py first.")
         return 1
+
+    entries = changelog_data.read()
 
     findings = []
     if args.audit:
