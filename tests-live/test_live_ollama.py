@@ -258,7 +258,17 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("store embeddings in postgres", {"pgvector", "Chroma", "Qdrant"}),
     ("run language models on my own machine", {"Ollama", "vLLM", "LocalGPT", "Tabby"}),
     # Categories added as the catalogue grew past 82.
-    ("fine tune a model on one GPU", {"Unsloth", "LLaMA-Factory", "PEFT", "Axolotl"}),
+    # Expected widened at 278, after AutoTrain Advanced displaced LLaMA-Factory
+    # from third place. The case had been passing on 0.002: the top eight here
+    # score 0.610 down to 0.566, and two entries that are *not* answers to this
+    # question — Megatron-LM (multi-node) and MLC LLM (inference) — already
+    # outranked every right answer before the additions. Nothing in any
+    # description says "one GPU", so the embedding keys on "GPU" alone and the
+    # ordering inside that band is noise. Listing every genuine fine-tuning
+    # tool keeps the case honest about what it can actually tell apart.
+    ("fine tune a model on one GPU",
+     {"Unsloth", "LLaMA-Factory", "PEFT", "Axolotl", "AutoTrain Advanced",
+      "XTuner", "ms-swift"}),
     ("transcribe speech to text", {"Whisper", "Faster Whisper"}),
     ("generate images locally", {"Stable Diffusion WebUI", "ComfyUI"}),
     ("build a realtime voice agent", {"Pipecat", "LiveKit Agents", "Vocode"}),
@@ -334,6 +344,18 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("train a model faster with fused kernels", {"Liger Kernel", "DeepSpeed"}),
     ("find mislabelled training data", {"Cleanlab", "Label Studio"}),
     ("adversarial attacks and defences", {"Adversarial Robustness Toolbox", "Garak", "PyRIT"}),
+    # Added at 278, filling the thinnest categories: safety, evaluation,
+    # fine-tuning, robotics, customer service and computer-use agents.
+    ("measure bias and fairness in a model", {"AI Fairness 360", "Fairlearn"}),
+    ("train with differential privacy", {"Opacus"}),
+    ("holistic benchmark across many metrics", {"HELM"}),
+    ("trace and score a rag pipeline", {"TruLens", "Ragas", "Phoenix", "Opik"}),
+    ("reinforcement learning for language models", {"verl", "TRL", "OpenRLHF"}),
+    ("simulate a self driving car", {"CARLA"}),
+    ("simulate a robot arm picking things up", {"ManiSkill", "SAPIEN", "robosuite"}),
+    ("visualise robot sensor data", {"Rerun"}),
+    ("self hosted customer support ticketing", {"Zammad", "FreeScout", "erxes", "Chaskiq"}),
+    ("let an agent control my desktop", {"Agent-S", "UI-TARS Desktop", "OpenAdapt"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
