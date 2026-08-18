@@ -298,35 +298,36 @@ def test_the_history_cannot_describe_its_own_commit(repo):
 def test_the_shipped_history_is_not_behind_the_shipped_catalogue():
     """The committed changelog must describe the committed catalogue.
 
-    It went stale twice. Both times the catalogue grew over several commits
-    and the rebuild — a separate command — was not among them, so `/changes`,
-    `/api/changelog`, the Atom feed and `make digest` all served a total
-    thirty agents out of date while `/api/agents` served the real one.
+    It went stale twice by additions, so the first version of this compared
+    totals — and then a commit that only *edited* two entries slipped past it
+    with 294 == 294 on both sides, which is precisely the state it exists to
+    catch. Compares the newest recorded commit against the last commit that
+    touched the catalogue instead: that moves for an edit, a rename and a
+    removal, none of which change the count.
 
-    Compared against `HEAD:data/agents.json` rather than the working tree,
-    because changelog.py reads git history and so cannot describe a change
-    that is not committed yet. Checking the working tree would make every
-    catalogue commit impossible: the rebuild has to come after it, which is
-    what the weekly workflow does and what docs/CATALOGUE.md describes.
-
-    Totals rather than commit hashes, since the newest entry is the last
-    commit that *touched the catalogue* and is rarely the tip.
+    Read from git rather than the working tree, because changelog.py reads git
+    history and cannot describe a change that is not committed yet. Checking
+    the working tree would make every catalogue commit impossible, since the
+    rebuild has to come after it — which is what the weekly workflow does and
+    what docs/CATALOGUE.md describes.
     """
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=config.REPO_ROOT,
+                              capture_output=True, text=True, timeout=30)
+
     try:
-        committed = subprocess.run(
-            ["git", "show", "HEAD:data/agents.json"],
-            cwd=config.REPO_ROOT, capture_output=True, text=True, timeout=30)
+        latest = git("log", "-1", "--format=%H", "--", "data/agents.json")
     except (OSError, subprocess.SubprocessError):
         pytest.skip("git is not available")
-    if committed.returncode:
-        pytest.skip("no committed catalogue to compare against")
+    if latest.returncode or not latest.stdout.strip():
+        pytest.skip("no catalogue history to compare against")
 
-    catalogue = json.loads(committed.stdout)
     history = json.loads((config.DATA_DIR / "changelog.json").read_text())
-
     assert history, "no changelog has been built"
-    assert history[0]["total"] == len(catalogue), (
-        f"changelog.json describes {history[0]['total']} agents but the "
-        f"committed catalogue has {len(catalogue)} — run `make changelog` "
-        f"and commit it"
+
+    # changelog.py records an abbreviated hash; git log gives the full one.
+    described, expected = history[0]["commit"], latest.stdout.strip()
+    assert expected.startswith(described), (
+        f"data/agents.json last changed in {expected[:8]} but changelog.json "
+        f"stops at {described} — run `make changelog` and commit it"
     )
