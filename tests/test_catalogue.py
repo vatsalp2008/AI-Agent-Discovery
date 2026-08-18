@@ -748,3 +748,66 @@ def test_a_workflow_that_pushes_declares_the_permission():
             missing.append(workflow.name)
 
     assert not missing, f"these push without `contents: write`: {missing}"
+
+
+def _workflow_steps():
+    """Every run-script in every workflow, tagged with where it came from."""
+    import yaml
+
+    for workflow in sorted((config.REPO_ROOT / ".github" / "workflows").glob("*.yml")):
+        parsed = yaml.safe_load(workflow.read_text())
+        for job in (parsed.get("jobs") or {}).values():
+            for step in job.get("steps") or []:
+                if step.get("run"):
+                    yield workflow.name, step.get("name") or "?", step["run"]
+
+
+def _workflow_jobs():
+    """Every job's run-scripts joined, for checks that span steps."""
+    import yaml
+
+    for workflow in sorted((config.REPO_ROOT / ".github" / "workflows").glob("*.yml")):
+        parsed = yaml.safe_load(workflow.read_text())
+        for name, job in (parsed.get("jobs") or {}).items():
+            scripts = [s["run"] for s in job.get("steps") or [] if s.get("run")]
+            if scripts:
+                yield workflow.name, name, "\n".join(scripts)
+
+
+def test_no_step_writes_the_same_summary_heading_twice():
+    """Two blocks appending the same heading to $GITHUB_STEP_SUMMARY means one
+    is a leftover.
+
+    The audit step gained a jq summary without the raw-log block it replaced
+    being deleted, so every weekly run printed "### Catalogue health" twice —
+    the second copy showing only stderr noise, because the same change had
+    routed narration away from stdout.
+    """
+    import re
+    from collections import Counter
+
+    for where, name, script in _workflow_steps():
+        if "GITHUB_STEP_SUMMARY" not in script:
+            continue
+        headings = re.findall(r'echo "(#{2,4} [^"]+)"', script)
+        repeated = sorted(h for h, n in Counter(headings).items() if n > 1)
+        assert not repeated, f"{where} step {name!r} writes {repeated} twice"
+
+
+def test_a_job_reads_every_file_it_redirects_into():
+    """A redirect to a file nothing opens is a step that only thinks it
+    reports. `2>audit.log` outlived the block that tailed it, sending the
+    audit's narration to a file nobody read instead of the job log.
+
+    Scoped to the job, not the step: the runner's working directory persists
+    between steps, and discover.yml legitimately writes candidates.json in one
+    step and renders it in three later ones.
+    """
+    import re
+
+    for where, job, script in _workflow_jobs():
+        written = set(re.findall(r'\d?>\s*([\w./-]+\.(?:log|txt|json))', script))
+        for target in written:
+            elsewhere = re.sub(rf'\d?>\s*{re.escape(target)}', '', script)
+            assert target in elsewhere, (
+                f"{where} job {job!r} writes {target} and never reads it")

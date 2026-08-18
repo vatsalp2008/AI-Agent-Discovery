@@ -103,9 +103,11 @@ jobs:
         run: |
           set -eo pipefail
           # --json here rather than a second invocation: `audit.py --json`
-          # re-runs the whole audit, which is one API call per entry — 248 of
-          # them, for a report the first pass already computed.
-          python ai-agent-discovery/audit.py --apply-status --json > audit.json 2>audit.log || true
+          # re-runs the whole audit, which is one API call per catalogue
+          # entry, for a report the first pass already computed.
+          # stderr is left alone so the narration lands in the job log, where
+          # it is visible; only stdout needs keeping clean for jq.
+          python ai-agent-discovery/audit.py --apply-status --json > audit.json || true
           [ -s audit.json ] || echo '[]' > audit.json
 
           # The digest only lists findings that need a decision, so archived
@@ -118,12 +120,6 @@ jobs:
             else
               jq -r '.[] | "- **\(.name)** — \([.issues[].kind] | join(", "))"' audit.json
             fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          {
-            echo "### Catalogue health"
-            echo '```'
-            tail -40 audit.log
-            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit status changes
