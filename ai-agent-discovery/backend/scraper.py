@@ -1435,6 +1435,61 @@ SAMPLE_AGENTS = [
         url="https://github.com/huggingface/autotrain-advanced",
         use_case="No-code model fine-tuning"
     ),
+    # Robotics
+    Agent(
+        name="ManiSkill",
+        description="A GPU-parallelised simulator for robot manipulation, with hundreds of tasks and demonstrations.",
+        category="Robotics",
+        tech_stack=["Python", "SAPIEN", "PyTorch"],
+        github_stars=3234,
+        url="https://github.com/mani-skill/ManiSkill",
+        use_case="Manipulation benchmarks and training"
+    ),
+    Agent(
+        name="SAPIEN",
+        description="A physics simulator built for articulated objects, so doors, drawers and tools behave.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "PhysX"],
+        github_stars=818,
+        url="https://github.com/haosulab/SAPIEN",
+        use_case="Articulated object simulation"
+    ),
+    Agent(
+        name="CARLA",
+        description="An open simulator for autonomous driving research, with configurable towns, traffic and weather.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "Unreal Engine"],
+        github_stars=14300,
+        url="https://github.com/carla-simulator/carla",
+        use_case="Self-driving simulation and testing"
+    ),
+    Agent(
+        name="Rerun",
+        description="A viewer for multimodal robot data: log point clouds, images and transforms and scrub through time.",
+        category="Robotics",
+        tech_stack=["Rust", "Python", "C++"],
+        github_stars=11314,
+        url="https://github.com/rerun-io/rerun",
+        use_case="Visualising and debugging robot data"
+    ),
+    Agent(
+        name="dora-rs",
+        description="A low-latency dataflow runtime for robotics, wiring nodes together with shared memory.",
+        category="Robotics",
+        tech_stack=["Rust", "Python", "Arrow"],
+        github_stars=3879,
+        url="https://github.com/dora-rs/dora",
+        use_case="Robot dataflow and middleware"
+    ),
+    Agent(
+        name="MuJoCo Menagerie",
+        description="A collection of high-quality MuJoCo models for real robots, tuned so simulation matches hardware.",
+        category="Robotics",
+        tech_stack=["MuJoCo", "XML", "Python"],
+        github_stars=3830,
+        url="https://github.com/google-deepmind/mujoco_menagerie",
+        use_case="Ready-made robot models for simulation"
+    ),
 ]
 
 class CatalogueError(Exception):
