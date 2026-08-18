@@ -376,3 +376,39 @@ class TestFollowingRenames:
 
         assert audit.main(["--follow-moves"]) == 1
         assert json.loads(path.read_text())[1]["url"] == "https://github.com/old/repo"
+
+
+class TestJsonOutputStaysParsable:
+    """With --json, stdout is the data. The write-back messages used to land
+    after the JSON array and make the file unusable for anything reading it —
+    which is exactly what the weekly digest does."""
+
+    def setup_catalogue(self, monkeypatch, archived=True):
+        monkeypatch.setattr(audit, "fetch_repo",
+                            lambda repo, **kw: payload(full_name="acme/a", archived=archived))
+        path = _write([entry(name="A", url="https://github.com/acme/a")])
+        monkeypatch.setattr(config, "AGENTS_JSON", path)
+        return path
+
+    def test_apply_status_and_json_together(self, monkeypatch, capsys):
+        self.setup_catalogue(monkeypatch)
+
+        assert audit.main(["--apply-status", "--json"]) == 0
+        findings = json.loads(capsys.readouterr().out)
+        assert findings[0]["name"] == "A"
+
+    def test_follow_moves_and_json_together(self, monkeypatch, capsys):
+        monkeypatch.setattr(audit, "fetch_repo",
+                            lambda repo, **kw: payload(full_name="new/a"))
+        monkeypatch.setattr(config, "AGENTS_JSON",
+                            _write([entry(name="A", url="https://github.com/acme/a")]))
+
+        assert audit.main(["--follow-moves", "--json"]) == 0
+        assert isinstance(json.loads(capsys.readouterr().out), list)
+
+    def test_the_human_report_still_says_what_it_did(self, monkeypatch, capsys):
+        """Only --json redirects it; a person running this wants to see it."""
+        self.setup_catalogue(monkeypatch)
+
+        audit.main(["--apply-status"])
+        assert "Updated" in capsys.readouterr().out

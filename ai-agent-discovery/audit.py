@@ -299,6 +299,15 @@ def main(argv=None):
 
     configure("DEBUG" if args.verbose else "INFO")
 
+    # With --json, stdout is the data and nothing else may go there: the
+    # write-back messages used to land after the JSON array and made the file
+    # unparsable for anything reading it.
+    def say(text):
+        if args.as_json:
+            logger.info("%s", text.strip())
+        else:
+            print(text)
+
     if not os.path.exists(config.AGENTS_JSON):
         logger.error("%s not found", config.AGENTS_JSON)
         return 1
@@ -344,11 +353,11 @@ def main(argv=None):
         moved = follow_moves(records, findings, checked=checked)
         if moved:
             _write_catalogue(records)
-            print(f"\nFollowed {len(moved)} rename(s):")
+            say(f"\nFollowed {len(moved)} rename(s):")
             for name, before, after in moved:
-                print(f"  {name:<24} {before}\n  {'':<24} -> {after}")
+                say(f"  {name:<24} {before}\n  {'':<24} -> {after}")
         else:
-            print("\nNo renames to follow.")
+            say("\nNo renames to follow.")
 
     if args.apply_status:
         if skipped:
@@ -362,11 +371,11 @@ def main(argv=None):
         changes = apply_statuses(records, statuses_for(findings, records), checked=checked)
         if changes:
             _write_catalogue(records)
-            print(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
+            say(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
             for name, before, after in changes:
-                print(f"  {name:<24} {before} -> {after}")
+                say(f"  {name:<24} {before} -> {after}")
         else:
-            print("\nNo status changes.")
+            say("\nNo status changes.")
 
     return 1 if (findings and args.fail_on_findings) else 0
 

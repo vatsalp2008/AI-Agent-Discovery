@@ -16,6 +16,9 @@ on:
 
 permissions:
   contents: write
+  # The digest step opens an issue; without this `gh issue create` 403s and
+  # the `|| echo` fallback keeps the job green while nothing is ever filed.
+  issues: write
 
 jobs:
   refresh:
@@ -99,9 +102,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eo pipefail
-          python ai-agent-discovery/audit.py --apply-status > audit.log 2>&1 || true
-          # Reused by the digest below, so it costs no extra API budget.
-          python ai-agent-discovery/audit.py --json > audit.json 2>/dev/null || echo '[]' > audit.json
+          # --json here rather than a second invocation: `audit.py --json`
+          # re-runs the whole audit, which is one API call per entry — 248 of
+          # them, for a report the first pass already computed.
+          python ai-agent-discovery/audit.py --apply-status --json > audit.json 2>audit.log || true
+          [ -s audit.json ] || echo '[]' > audit.json
           {
             echo "### Catalogue health"
             echo '```'
