@@ -1518,6 +1518,61 @@ SAMPLE_AGENTS = [
         url="https://github.com/erxes/erxes",
         use_case="Customer engagement across channels"
     ),
+    # Autonomous Agent
+    Agent(
+        name="UI-TARS Desktop",
+        description="A desktop app that drives your computer and browser from natural language, using a vision-language model.",
+        category="Autonomous Agent",
+        tech_stack=["TypeScript", "Electron", "UI-TARS"],
+        github_stars=38612,
+        url="https://github.com/bytedance/UI-TARS-desktop",
+        use_case="GUI automation from plain instructions"
+    ),
+    Agent(
+        name="Agent-S",
+        description="An agent framework for using a computer the way a person does, learning from its own past attempts.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "GPT-4", "Claude"],
+        github_stars=12164,
+        url="https://github.com/simular-ai/Agent-S",
+        use_case="Computer use with experience reuse"
+    ),
+    Agent(
+        name="Rowboat",
+        description="Builds and runs multi-agent workflows from a description, with the agents visible as a graph.",
+        category="Autonomous Agent",
+        tech_stack=["TypeScript", "Next.js", "MCP"],
+        github_stars=17305,
+        url="https://github.com/rowboatlabs/rowboat",
+        use_case="Assembling multi-agent workflows"
+    ),
+    Agent(
+        name="Upsonic",
+        description="An agent framework built around reliability, with verification passes over each task's output.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "Pydantic", "MCP"],
+        github_stars=7941,
+        url="https://github.com/Upsonic/Upsonic",
+        use_case="Agents with verified outputs"
+    ),
+    Agent(
+        name="PocketFlow",
+        description="A minimal agent framework in a hundred lines, expressing everything as a graph of nodes.",
+        category="Framework",
+        tech_stack=["Python"],
+        github_stars=11108,
+        url="https://github.com/The-Pocket/PocketFlow",
+        use_case="Minimal dependency-free agent graphs"
+    ),
+    Agent(
+        name="BeeAI Framework",
+        description="IBM's framework for production agents, with the same workflows available in Python and TypeScript.",
+        category="Framework",
+        tech_stack=["Python", "TypeScript", "MCP"],
+        github_stars=3380,
+        url="https://github.com/i-am-bee/beeai-framework",
+        use_case="Production agents in two languages"
+    ),
 ]
 
 class CatalogueError(Exception):
