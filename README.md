@@ -357,6 +357,8 @@ AI-Agent-Discovery/
 │   ├── refresh_stars.py        # Star count refresh
 │   ├── discover.py             # Finds new agents on GitHub
 │   ├── audit.py                # Flags entries that have gone stale
+│   ├── changelog.py            # Builds the change history from git
+│   ├── digest.py               # Summarises a week of activity
 │   ├── requirements.txt        # Runtime dependencies
 │   ├── requirements-dev.txt    # Plus pytest and ruff
 │   └── seed.py                 # Index building script
@@ -460,6 +462,7 @@ make check-links      # verify every URL still resolves
 make refresh-stars    # update star counts from the GitHub API
 make discover         # find agents the catalogue is missing
 make audit            # flag entries that have gone stale
+make digest           # summarise the last week of activity
 ```
 
 All three run on a schedule. See **[docs/CATALOGUE.md](docs/CATALOGUE.md)** for

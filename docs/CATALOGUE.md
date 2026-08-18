@@ -89,6 +89,30 @@ A `stack` finding is a prompt, not a verdict: the fix is a judgement about what
 the entry should say, taken from the repository's own language breakdown rather
 than from the single word GitHub reports as "the language".
 
+## The weekly digest
+
+```bash
+make digest                                              # last 7 days
+python ai-agent-discovery/digest.py --days 30 --audit audit.json
+```
+
+Four scheduled steps each wrote their own step summary and two of them opened
+issues. That is four places to look and two to ignore. `digest.py` reads what
+those steps already produced — `data/changelog.json` for what changed, and the
+audit's JSON for what still needs a person — and turns it into one report.
+
+It makes no network calls, so it costs no API budget and can be run offline.
+
+Two rules keep it worth reading. Long lists are **abbreviated** past twelve
+names: a busy week added 115 agents, and printing all of them is the wall the
+digest exists to replace. And the weekly job **opens no issue for a quiet
+week** — an issue saying "nothing changed" trains everyone to close it unread,
+so a quiet week goes to the step summary and nowhere else.
+
+The "needs a decision" section deliberately excludes `archived` and `dormant`:
+the audit already acts on those by writing a status, and listing them would be
+a to-do item nobody has to do.
+
 ## 🔭 Finding new agents
 
 ```bash
