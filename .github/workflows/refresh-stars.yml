@@ -147,6 +147,20 @@ jobs:
           git commit -m "Rebuild the catalogue change history"
           git push
 
+      # Runs here rather than in its own weekly job so the week produces one
+      # report rather than two. --json implies --dry-run, so it cannot write
+      # to the queue; it paces itself inside the search budget.
+      - name: Look for new agents
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          python ai-agent-discovery/discover.py --json --min-stars 1500 \
+            --max-proposals 15 \
+            --pushed-since "$(date -u -d '6 months ago' +%Y-%m-%d)" \
+            > candidates.json || echo '[]' > candidates.json
+          [ -s candidates.json ] || echo '[]' > candidates.json
+
       # One report instead of four step summaries nobody scrolls to. Opened
       # only when something actually happened: a weekly issue saying "nothing
       # changed" trains everyone to close it unread.
@@ -155,9 +169,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eo pipefail
-          python ai-agent-discovery/digest.py --days 7 --audit audit.json --out digest.md
+          python ai-agent-discovery/digest.py --days 7 \
+            --audit audit.json --candidates candidates.json --out digest.md
 
-          if grep -q "Nothing changed" digest.md && grep -q "Nothing outstanding" digest.md; then
+          if grep -q "Nothing changed" digest.md \
+             && grep -q "Nothing outstanding" digest.md \
+             && ! grep -q "Could be added" digest.md; then
             echo "A quiet week; no digest issue."
             cat digest.md >> "$GITHUB_STEP_SUMMARY"
             exit 0

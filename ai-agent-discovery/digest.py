@@ -114,7 +114,23 @@ def _listed(names):
     return f"{', '.join(names[:MAX_NAMED])} and {len(names) - MAX_NAMED} more"
 
 
-def render(changes, findings, days, total=None):
+def summarise_candidates(candidates):
+    """Crawler proposals worth a look, best-starred first.
+
+    Passed through rather than filtered: discover.py has already refused the
+    reading lists and the configuration collections, so what arrives here is
+    a shortlist somebody should actually skim.
+    """
+    rows = []
+    for candidate in candidates or []:
+        if not isinstance(candidate, dict) or not candidate.get("name"):
+            continue
+        rows.append((candidate["name"], candidate.get("category", "?"),
+                     candidate.get("github_stars", 0), candidate.get("url", "")))
+    return sorted(rows, key=lambda row: -row[2])
+
+
+def render(changes, findings, days, total=None, candidates=None):
     """The digest as markdown."""
     lines = [f"## Catalogue activity, last {days} days", ""]
 
@@ -145,6 +161,15 @@ def render(changes, findings, days, total=None):
         # Said explicitly: silence could equally mean the audit never ran.
         lines += ["### Needs a decision", "", "Nothing outstanding.", ""]
 
+    if candidates:
+        lines += ["### Could be added", "",
+                  "| Agent | Category | Stars | Link |", "| --- | --- | --- | --- |"]
+        lines += [f"| {name} | {category} | {stars:,} | {url} |"
+                  for name, category, stars, url in candidates[:MAX_NAMED]]
+        if len(candidates) > MAX_NAMED:
+            lines.append(f"| …and {len(candidates) - MAX_NAMED} more | | | |")
+        lines.append("")
+
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -153,6 +178,8 @@ def main(argv=None):
     parser.add_argument("--days", type=int, default=7, help="window in days (default: 7)")
     parser.add_argument("--audit", default=None,
                         help="JSON from audit.py --json, to include what needs a person")
+    parser.add_argument("--candidates", default=None,
+                        help="JSON from discover.py --json, to include what could be added")
     parser.add_argument("--out", default=None, help="write here instead of stdout")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
@@ -179,9 +206,19 @@ def main(argv=None):
             # A missing audit is a smaller problem than no digest at all.
             logger.warning("Could not read %s (%s); reporting changes only.", args.audit, e)
 
+    candidates = []
+    if args.candidates:
+        try:
+            with open(args.candidates) as f:
+                candidates = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            logger.warning("Could not read %s (%s); reporting without candidates.",
+                           args.candidates, e)
+
     window = recent(entries, args.days)
     total = next((e.get("total") for e in window if isinstance(e.get("total"), int)), None)
-    text = render(summarise_changes(window), summarise_findings(findings), args.days, total)
+    text = render(summarise_changes(window), summarise_findings(findings), args.days,
+                  total, summarise_candidates(candidates))
 
     if args.out:
         with open(args.out, "w") as f:

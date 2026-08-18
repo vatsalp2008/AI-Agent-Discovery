@@ -179,3 +179,54 @@ def test_a_malformed_issue_does_not_fail_the_whole_job():
     findings = [{"name": "A", "issues": ["a string", None, 7,
                                          {"kind": "missing", "detail": "gone"}]}]
     assert digest.summarise_findings(findings) == {"missing": [("A", "gone")]}
+
+
+class TestCandidates:
+    """The crawler's proposals belong in the same report: a second weekly
+    issue is a second thing to read and the first thing to ignore."""
+
+    def test_best_starred_first(self):
+        rows = digest.summarise_candidates([
+            {"name": "Small", "github_stars": 10, "category": "X", "url": "u"},
+            {"name": "Big", "github_stars": 900, "category": "Y", "url": "v"}])
+
+        assert [r[0] for r in rows] == ["Big", "Small"]
+
+    def test_junk_is_ignored(self):
+        assert digest.summarise_candidates(["nonsense", None, {}, {"github_stars": 5}]) == []
+
+    def test_they_render_as_a_table(self):
+        text = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                             candidates=[("A", "Safety", 9000, "https://e.com")])
+
+        assert "### Could be added" in text
+        assert "| A | Safety | 9,000 | https://e.com |" in text
+
+    def test_a_long_list_is_abbreviated(self):
+        rows = [(f"A{i}", "X", i, "u") for i in range(40)]
+        text = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                             candidates=rows)
+
+        assert "and 28 more" in text
+
+    def test_no_section_when_there_are_none(self):
+        text = digest.render({"added": [], "removed": [], "edited": []}, {}, 7, candidates=[])
+        assert "Could be added" not in text
+
+    def test_a_missing_candidates_file_is_a_warning_not_a_failure(self, tmp_path, monkeypatch):
+        (tmp_path / "changelog.json").write_text(json.dumps([entry(added=["A"])]))
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert digest.main(["--candidates", str(tmp_path / "absent.json")]) == 0
+
+    def test_candidates_alone_make_the_week_worth_reporting(self, tmp_path, monkeypatch, capsys):
+        """Nothing changed and nothing is outstanding, but there is still
+        something to look at."""
+        (tmp_path / "changelog.json").write_text(json.dumps([entry(at=days_ago(90))]))
+        (tmp_path / "cands.json").write_text(json.dumps(
+            [{"name": "New Thing", "category": "Safety", "github_stars": 1, "url": "u"}]))
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        digest.main(["--days", "7", "--candidates", str(tmp_path / "cands.json")])
+        out = capsys.readouterr().out
+        assert "Nothing changed" in out and "Could be added" in out
