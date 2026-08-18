@@ -1,5 +1,101 @@
 [
   {
+    "commit": "6692211c",
+    "at": "2026-08-17T17:53:54-07:00",
+    "subject": "Add six computer-use agents and frameworks",
+    "total": 278,
+    "added": [
+      "Agent-S",
+      "BeeAI Framework",
+      "PocketFlow",
+      "Rowboat",
+      "UI-TARS Desktop",
+      "Upsonic"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "185e8433",
+    "at": "2026-08-17T17:53:25-07:00",
+    "subject": "Fill out the customer service shelf",
+    "total": 272,
+    "added": [
+      "FreeScout",
+      "Zammad",
+      "erxes"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "aed23a67",
+    "at": "2026-08-17T17:53:01-07:00",
+    "subject": "Add six robotics simulators and tools",
+    "total": 269,
+    "added": [
+      "CARLA",
+      "ManiSkill",
+      "MuJoCo Menagerie",
+      "Rerun",
+      "SAPIEN",
+      "dora-rs"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "bab1acab",
+    "at": "2026-08-17T17:52:35-07:00",
+    "subject": "Add four training and post-training tools",
+    "total": 263,
+    "added": [
+      "AutoTrain Advanced",
+      "TorchTitan",
+      "XTuner",
+      "verl"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "8c98a459",
+    "at": "2026-08-17T17:52:11-07:00",
+    "subject": "Add five evaluation and drift tools",
+    "total": 259,
+    "added": [
+      "Alibi Detect",
+      "HELM",
+      "LightEval",
+      "OpenAI Evals",
+      "TruLens"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
+    "commit": "0bf14102",
+    "at": "2026-08-17T17:51:46-07:00",
+    "subject": "Add six safety and robustness tools",
+    "total": 254,
+    "added": [
+      "AI Fairness 360",
+      "Counterfit",
+      "Fairlearn",
+      "Foolbox",
+      "Opacus",
+      "TextAttack"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "f734504e",
     "at": "2026-08-17T17:08:29-07:00",
     "subject": "Add six agents including two autonomous ones",

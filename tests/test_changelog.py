@@ -293,3 +293,28 @@ def test_the_history_cannot_describe_its_own_commit(repo):
     after_commit = changelog.build(repo_root=repo)
     assert after_commit[0]["total"] == 3
     assert after_commit[0]["added"] == ["C"]
+
+
+def test_the_shipped_history_is_not_behind_the_shipped_catalogue():
+    """The committed changelog.json must describe the committed catalogue.
+
+    It went stale twice. Both times the catalogue grew across several commits
+    and the rebuild — a separate command — was not among them, so `/changes`,
+    `/api/changelog`, the Atom feed and `make digest` all served a total
+    thirty agents out of date while `/api/agents` served the real one. Nothing
+    failed; the number was simply wrong everywhere it appeared.
+
+    Compares totals rather than commit hashes on purpose: the newest entry is
+    the last commit that *touched the catalogue*, which is rarely the tip, and
+    a rebuild cannot describe its own commit anyway.
+    """
+    import config
+
+    catalogue = json.loads((config.DATA_DIR / "agents.json").read_text())
+    history = json.loads((config.DATA_DIR / "changelog.json").read_text())
+
+    assert history, "no changelog has been built"
+    assert history[0]["total"] == len(catalogue), (
+        f"changelog.json describes {history[0]['total']} agents but the "
+        f"catalogue has {len(catalogue)} — run `make changelog` and commit it"
+    )
