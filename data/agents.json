@@ -2956,5 +2956,76 @@
     "github_stars": 11626,
     "url": "https://github.com/cleanlab/cleanlab",
     "use_case": "Auditing training data"
+  },
+  {
+    "name": "OpenManus",
+    "description": "An open reimplementation of a general-purpose agent that plans, browses and runs code, with no invite list or API key required.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python"
+    ],
+    "github_stars": 57998,
+    "url": "https://github.com/FoundationAgents/OpenManus",
+    "use_case": "Running a task end to end"
+  },
+  {
+    "name": "Suna",
+    "description": "A generalist agent with a managed browser, file and shell toolchain, packaged to self-host rather than to demo.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 20108,
+    "url": "https://github.com/kortix-ai/suna",
+    "use_case": "Self-hosted general agent"
+  },
+  {
+    "name": "Autoware",
+    "description": "The reference open-source autonomous driving stack, covering perception, planning and control on ROS 2.",
+    "category": "Robotics",
+    "tech_stack": [
+      "C++",
+      "ROS 2"
+    ],
+    "github_stars": 11991,
+    "url": "https://github.com/autowarefoundation/autoware",
+    "use_case": "Self-driving research"
+  },
+  {
+    "name": "PaddleSpeech",
+    "description": "Speech recognition, synthesis, translation and speaker verification in one toolkit, with pretrained models for each.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PaddlePaddle"
+    ],
+    "github_stars": 12662,
+    "url": "https://github.com/PaddlePaddle/PaddleSpeech",
+    "use_case": "End-to-end speech tasks"
+  },
+  {
+    "name": "Claude Context",
+    "description": "Indexes a whole repository into a vector store and serves it over MCP, so a coding agent can search code it was never shown.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "TypeScript",
+      "Milvus"
+    ],
+    "github_stars": 12408,
+    "url": "https://github.com/zilliztech/claude-context",
+    "use_case": "Giving an agent a codebase"
+  },
+  {
+    "name": "BISHENG",
+    "description": "An enterprise LLM application platform with visual workflows, document pipelines and the audit trail a regulated team needs.",
+    "category": "Framework",
+    "tech_stack": [
+      "Python",
+      "TypeScript"
+    ],
+    "github_stars": 11873,
+    "url": "https://github.com/dataelement/bisheng",
+    "use_case": "Building governed LLM apps"
   }
 ]
