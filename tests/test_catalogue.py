@@ -708,3 +708,43 @@ def test_project_health_is_surfaced_wherever_an_agent_is_rendered():
 
     mcp = (config.PACKAGE_DIR / "mcp_server.py").read_text()
     assert "status" in mcp, "MCP results omit project health"
+
+
+def test_a_workflow_that_opens_an_issue_declares_the_permission():
+    """`gh issue create` needs `issues: write`. Without it the call 403s, and
+    a `|| echo "::warning::"` fallback keeps the job green while nothing is
+    ever filed — which is how the weekly digest shipped.
+    """
+    import yaml
+
+    workflows = config.REPO_ROOT / ".github" / "workflows"
+
+    missing = []
+    for workflow in sorted(workflows.glob("*.yml")):
+        text = workflow.read_text()
+        if "gh issue create" not in text:
+            continue
+        permissions = yaml.safe_load(text).get("permissions") or {}
+        if permissions.get("issues") != "write":
+            missing.append(workflow.name)
+
+    assert not missing, f"these open issues without `issues: write`: {missing}"
+
+
+def test_a_workflow_that_pushes_declares_the_permission():
+    """The same shape, one step earlier: a push without `contents: write`
+    fails on a schedule where nobody is watching."""
+    import yaml
+
+    workflows = config.REPO_ROOT / ".github" / "workflows"
+
+    missing = []
+    for workflow in sorted(workflows.glob("*.yml")):
+        text = workflow.read_text()
+        if "git push" not in text:
+            continue
+        permissions = yaml.safe_load(text).get("permissions") or {}
+        if permissions.get("contents") != "write":
+            missing.append(workflow.name)
+
+    assert not missing, f"these push without `contents: write`: {missing}"
