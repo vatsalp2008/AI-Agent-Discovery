@@ -85,12 +85,12 @@ def changes():
 @app.route('/tech')
 def tech_index():
     """Every technology, as a way into the /tech/<name> pages."""
-    return render_template('tech-index.html', page='dashboard')
+    return render_template('tech-index.html', page='tech')
 
 @app.route('/tech/<path:name>')
 def tech(name):
     """Everything built with one technology. Fetched client-side."""
-    return render_template('tech.html', page='dashboard', name=name)
+    return render_template('tech.html', page='tech', name=name)
 
 @app.route('/submit')
 def submit_page():

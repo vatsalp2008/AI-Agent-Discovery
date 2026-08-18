@@ -244,3 +244,27 @@ def test_the_feed_is_discoverable_from_the_head(real_app):
     head = body[:body.index("</head>")]
 
     assert "changelog.atom" in head, "the autodiscovery link is outside <head>"
+
+
+def test_every_page_is_linked_from_somewhere(real_app, monkeypatch):
+    """A page nobody links to is a page nobody finds.
+
+    /tech shipped with no inbound link at all — not the nav, not the
+    dashboard, not the breadcrumb on /tech/<name>, which skipped straight to
+    /dashboard. The page built to make technologies discoverable was itself
+    reachable only by typing the URL.
+
+    Rendered rather than read off disk, so the check sees what a visitor
+    sees. Both feature flags are turned on first: /admin and /submit are off
+    by default and their nav links correctly disappear with them, so leaving
+    the defaults would report a working gate as a missing link.
+    """
+    monkeypatch.setattr(config, "ENABLE_ADMIN", True)
+    monkeypatch.setattr(config, "ENABLE_SUBMISSIONS", True)
+    client = real_app.test_client()
+    everywhere = "".join(client.get(path).get_data(as_text=True)
+                         for path in _page_paths(real_app))
+
+    unreachable = [path for path in _page_paths(real_app)
+                   if path != "/" and f'href="{path}"' not in everywhere]
+    assert not unreachable, f"no page links to: {unreachable}"
