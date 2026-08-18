@@ -3102,5 +3102,68 @@
     "github_stars": 2852,
     "url": "https://github.com/Trusted-AI/AIF360",
     "use_case": "Bias detection and mitigation"
+  },
+  {
+    "name": "HELM",
+    "description": "Stanford's holistic benchmark, scoring models on accuracy, calibration, bias and toxicity together.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "Transformers"
+    ],
+    "github_stars": 2879,
+    "url": "https://github.com/stanford-crfm/helm",
+    "use_case": "Broad multi-metric model benchmarking"
+  },
+  {
+    "name": "OpenAI Evals",
+    "description": "A registry of benchmarks and a framework for writing your own against any model.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "YAML"
+    ],
+    "github_stars": 19187,
+    "url": "https://github.com/openai/evals",
+    "use_case": "Writing and running custom evals"
+  },
+  {
+    "name": "TruLens",
+    "description": "Instruments LLM apps and scores each step with feedback functions for groundedness and relevance.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "LangChain",
+      "LlamaIndex"
+    ],
+    "github_stars": 3512,
+    "url": "https://github.com/truera/trulens",
+    "use_case": "Tracing and scoring RAG pipelines"
+  },
+  {
+    "name": "LightEval",
+    "description": "A lightweight harness for evaluating models across several backends from one config.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "Transformers",
+      "vLLM"
+    ],
+    "github_stars": 2520,
+    "url": "https://github.com/huggingface/lighteval",
+    "use_case": "Fast multi-backend evaluation"
+  },
+  {
+    "name": "Alibi Detect",
+    "description": "Detects outliers, adversarial input and drift in production data, for text and images alike.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "TensorFlow",
+      "PyTorch"
+    ],
+    "github_stars": 2547,
+    "url": "https://github.com/SeldonIO/alibi-detect",
+    "use_case": "Drift and outlier detection"
   }
 ]
