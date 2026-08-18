@@ -107,6 +107,18 @@ jobs:
           # them, for a report the first pass already computed.
           python ai-agent-discovery/audit.py --apply-status --json > audit.json 2>audit.log || true
           [ -s audit.json ] || echo '[]' > audit.json
+
+          # The digest only lists findings that need a decision, so archived
+          # and dormant would otherwise appear nowhere anyone reads.
+          {
+            echo "### Catalogue health"
+            echo
+            if [ "$(jq length audit.json)" = "0" ]; then
+              echo "Every entry looks current."
+            else
+              jq -r '.[] | "- **\(.name)** — \([.issues[].kind] | join(", "))"' audit.json
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
           {
             echo "### Catalogue health"
             echo '```'
@@ -156,7 +168,7 @@ jobs:
         run: |
           set -eo pipefail
           python ai-agent-discovery/discover.py --json --min-stars 1500 \
-            --max-proposals 15 \
+            --max-proposals 12 \
             --pushed-since "$(date -u -d '6 months ago' +%Y-%m-%d)" \
             > candidates.json || echo '[]' > candidates.json
           [ -s candidates.json ] || echo '[]' > candidates.json

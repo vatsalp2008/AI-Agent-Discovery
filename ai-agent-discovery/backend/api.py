@@ -6,10 +6,10 @@ import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
-import changelog_data
 from flask import Blueprint, jsonify, make_response, request
 from werkzeug.exceptions import HTTPException
 
+import changelog_data
 import config
 import generation
 import rate_limit

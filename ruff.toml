@@ -27,6 +27,7 @@ select = [
 
 [lint.isort]
 known-first-party = [
+    "changelog_data",
     "admin", "api", "config", "embedding_cache", "check_links", "doctor", "embeddings", "generation", "logging_setup",
     "models", "rate_limit", "request_log", "mcp_server", "scoring", "scraper", "security", "submissions", "vectorstore",
 ]
