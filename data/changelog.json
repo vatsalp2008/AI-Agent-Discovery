@@ -1,5 +1,126 @@
 [
   {
+    "commit": "a6a27a90",
+    "at": "2026-08-19T09:06:29-07:00",
+    "subject": "Give each safety tool its own description",
+    "total": 303,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "AI Fairness 360",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Bias detection and mitigation",
+            "to": "A catalogue of bias mitigation algorithms"
+          }
+        ]
+      },
+      {
+        "name": "Adversarial Robustness Toolbox",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Testing model robustness",
+            "to": "Evasion, poisoning and extraction defences"
+          }
+        ]
+      },
+      {
+        "name": "AgentDojo",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Measuring prompt injection resistance",
+            "to": "Benchmarking an agent against injected instructions"
+          }
+        ]
+      },
+      {
+        "name": "Counterfit",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Red teaming ML services",
+            "to": "Attacking a deployed ML service"
+          }
+        ]
+      },
+      {
+        "name": "DeepTeam",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Automated LLM red teaming",
+            "to": "Red teaming an LLM application"
+          }
+        ]
+      },
+      {
+        "name": "Fairlearn",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Fairness assessment and mitigation",
+            "to": "Fairness metrics grouped by who is affected"
+          }
+        ]
+      },
+      {
+        "name": "Foolbox",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Measuring model robustness",
+            "to": "Finding the smallest perturbation that fools a model"
+          }
+        ]
+      },
+      {
+        "name": "Garak",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Red teaming a model before deployment",
+            "to": "Scanning a model for known weaknesses"
+          }
+        ]
+      },
+      {
+        "name": "LLM Guard",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Filtering model I/O",
+            "to": "Scanning prompts and replies for risk"
+          }
+        ]
+      },
+      {
+        "name": "PurpleLlama",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Safety benchmarking and guardrails",
+            "to": "Input and output guardrails for Llama"
+          }
+        ]
+      },
+      {
+        "name": "PyRIT",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Automated red teaming",
+            "to": "Orchestrating automated attack probes"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "71b01d4a",
     "at": "2026-08-19T09:03:26-07:00",
     "subject": "Say what four entries actually do",
