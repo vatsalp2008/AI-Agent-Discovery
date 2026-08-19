@@ -80,7 +80,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Pandas", "LLMs"],
         github_stars=11000,
         url="https://github.com/gventuri/pandas-ai",
-        use_case="Chat with data, analysis"
+        use_case="Asking a dataframe questions in English"
     ),
     Agent(
         name="Vanna AI",
@@ -359,7 +359,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "ML"],
         github_stars=5741,
         url="https://github.com/Giskard-AI/giskard",
-        use_case="Automated vulnerability scanning for models"
+        use_case="Scanning an agent for hallucination and bias"
     ),
     Agent(
         name="Guardrails",
@@ -377,7 +377,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Colang"],
         github_stars=6895,
         url="https://github.com/NVIDIA/NeMo-Guardrails",
-        use_case="Constraining what a chatbot will discuss"
+        use_case="Programmable dialogue rails in Colang"
     ),
     Agent(
         name="Rebuff",
@@ -557,7 +557,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "AWS", "Kubernetes"],
         github_stars=10206,
         url="https://github.com/Netflix/metaflow",
-        use_case="Productionising ML pipelines"
+        use_case="Taking a notebook workflow to production"
     ),
     Agent(
         name="Whisper",
@@ -584,7 +584,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "PyTorch"],
         github_stars=45872,
         url="https://github.com/coqui-ai/TTS",
-        use_case="Speech synthesis and voice cloning"
+        use_case="Training and running text-to-speech models"
     ),
     Agent(
         name="ComfyUI",
@@ -665,7 +665,7 @@ SAMPLE_AGENTS = [
         tech_stack=["TypeScript", "Python", "MCP"],
         github_stars=89384,
         url="https://github.com/modelcontextprotocol/servers",
-        use_case="Connecting agents to tools and data"
+        use_case="Reference Model Context Protocol servers"
     ),
     Agent(
         name="Superagent",
@@ -1106,7 +1106,7 @@ SAMPLE_AGENTS = [
         tech_stack=['Python', 'PyTorch'],
         github_stars=5587,
         url="https://github.com/huggingface/parler-tts",
-        use_case="Controllable speech synthesis"
+        use_case="Describing a voice in plain language"
     ),
     Agent(
         name="WhisperX",
@@ -1272,12 +1272,12 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="SuperAGI",
-        description="Open Source autonomous AI agent framework to develop and deploy useful autonomous agents.",
+        description="Runs and monitors several autonomous agents at once from a dashboard, with tools, telemetry and the ability to pause one mid-run.",
         category="Autonomous Agent",
         tech_stack=["Python", "Docker", "PostgreSQL"],
         github_stars=14500,
         url="https://github.com/TransformerOptimus/SuperAGI",
-        use_case="Agent provisioning and management"
+        use_case="Running concurrent agents from a dashboard"
     ),
     Agent(
         name="ChatDev",
@@ -1378,7 +1378,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "LangChain", "LlamaIndex"],
         github_stars=3512,
         url="https://github.com/truera/trulens",
-        use_case="Tracing and scoring RAG pipelines"
+        use_case="Feedback functions over app traces"
     ),
     Agent(
         name="LightEval",
