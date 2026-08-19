@@ -1,5 +1,56 @@
 [
   {
+    "commit": "71b01d4a",
+    "at": "2026-08-19T09:03:26-07:00",
+    "subject": "Say what four entries actually do",
+    "total": 303,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Claude Context",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Giving an agent a codebase",
+            "to": "Semantic code search over a repository"
+          }
+        ]
+      },
+      {
+        "name": "Jina Reader",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Feeding web pages to a model",
+            "to": "Turning a web page into clean text"
+          }
+        ]
+      },
+      {
+        "name": "Transformers",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Loading and running models",
+            "to": "Pretrained model definitions and weights"
+          }
+        ]
+      },
+      {
+        "name": "Verba",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Turnkey retrieval-augmented chat",
+            "to": "Retrieval chat with citations"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "a631f0ad",
     "at": "2026-08-18T09:41:39-07:00",
     "subject": "Say single GPU where that is the point",
