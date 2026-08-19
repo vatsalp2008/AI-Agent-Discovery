@@ -624,7 +624,7 @@
     ],
     "github_stars": 7711,
     "url": "https://github.com/weaviate/Verba",
-    "use_case": "Turnkey retrieval-augmented chat",
+    "use_case": "Retrieval chat with citations",
     "status": "archived"
   },
   {
@@ -1392,7 +1392,7 @@
     ],
     "github_stars": 11872,
     "url": "https://github.com/jina-ai/reader",
-    "use_case": "Feeding web pages to a model"
+    "use_case": "Turning a web page into clean text"
   },
   {
     "name": "MarkItDown",
@@ -2245,7 +2245,7 @@
     ],
     "github_stars": 164161,
     "url": "https://github.com/huggingface/transformers",
-    "use_case": "Loading and running models"
+    "use_case": "Pretrained model definitions and weights"
   },
   {
     "name": "Meilisearch",
@@ -3014,7 +3014,7 @@
     ],
     "github_stars": 12408,
     "url": "https://github.com/zilliztech/claude-context",
-    "use_case": "Giving an agent a codebase"
+    "use_case": "Semantic code search over a repository"
   },
   {
     "name": "BISHENG",

@@ -388,6 +388,16 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("red team an llm application", {"DeepTeam", "Garak", "PyRIT"}),
     ("test whether an agent resists prompt injection",
      {"AgentDojo", "Rebuff", "LLM Guard"}),
+    # Added at 303, pinning four use_case fields that had described a whole
+    # category rather than the tool. Research and Infrastructure were the two
+    # weakest neighbourhoods; sharpening these four moved them +0.058 and
+    # +0.071.
+    ("turn a web page into clean text for a model",
+     {"Jina Reader", "Firecrawl", "Docling"}),
+    ("pretrained model definitions and weights", {"Transformers"}),
+    ("semantic code search over a repository for an agent",
+     {"Claude Context", "cognee"}),
+    ("retrieval chat with citations", {"Verba", "Onyx", "RAGFlow"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.

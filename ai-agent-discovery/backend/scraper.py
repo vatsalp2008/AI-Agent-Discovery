@@ -197,7 +197,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Weaviate", "React"],
         github_stars=7000,
         url="https://github.com/weaviate/Verba",
-        use_case="Turnkey retrieval-augmented chat"
+        use_case="Retrieval chat with citations"
     ),
     Agent(
         name="Khoj",
@@ -755,7 +755,7 @@ SAMPLE_AGENTS = [
         tech_stack=["TypeScript", "Puppeteer"],
         github_stars=11845,
         url="https://github.com/jina-ai/reader",
-        use_case="Feeding web pages to a model"
+        use_case="Turning a web page into clean text"
     ),
     Agent(
         name="MarkItDown",
