@@ -1877,6 +1877,61 @@ SAMPLE_AGENTS = [
         url="https://github.com/nanobrowser/nanobrowser",
         use_case="Browser tasks in your own session"
     ),
+    # Robotics
+    Agent(
+        name="Bullet",
+        description="The physics engine behind PyBullet, widely used for reinforcement learning because it is fast and free.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "PyBullet"],
+        github_stars=14683,
+        url="https://github.com/bulletphysics/bullet3",
+        use_case="Physics for reinforcement learning"
+    ),
+    Agent(
+        name="Webots",
+        description="A robot simulator with a large library of ready-made robots, sensors and worlds to drop them into.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "ROS 2"],
+        github_stars=4563,
+        url="https://github.com/cyberbotics/webots",
+        use_case="Simulating a robot in a prebuilt world"
+    ),
+    Agent(
+        name="Gazebo",
+        description="The simulator ROS grew up with, now rebuilt as separate libraries you can use without the rest.",
+        category="Robotics",
+        tech_stack=["C++", "ROS 2", "OGRE"],
+        github_stars=1451,
+        url="https://github.com/gazebosim/gz-sim",
+        use_case="Simulation alongside ROS"
+    ),
+    Agent(
+        name="Open3D",
+        description="Processes point clouds and meshes — registration, reconstruction and visualisation — from Python or C++.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "CUDA"],
+        github_stars=13897,
+        url="https://github.com/isl-org/Open3D",
+        use_case="Working with point clouds and meshes"
+    ),
+    Agent(
+        name="PX4",
+        description="Flight control software for drones and other autonomous vehicles, running on real airframes.",
+        category="Robotics",
+        tech_stack=["C++", "NuttX", "MAVLink"],
+        github_stars=12449,
+        url="https://github.com/PX4/PX4-Autopilot",
+        use_case="Flight control for autonomous vehicles"
+    ),
+    Agent(
+        name="cuRobo",
+        description="NVIDIA's GPU motion planner, solving inverse kinematics and collision-free trajectories in milliseconds.",
+        category="Robotics",
+        tech_stack=["Python", "CUDA", "PyTorch"],
+        github_stars=1779,
+        url="https://github.com/NVlabs/curobo",
+        use_case="Fast motion planning on a GPU"
+    ),
 ]
 
 class CatalogueError(Exception):
