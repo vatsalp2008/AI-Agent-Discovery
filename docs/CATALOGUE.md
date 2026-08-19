@@ -266,25 +266,36 @@ on, though:
 
 ### What it costs to grow
 
-The report is most useful pointed at the thing that caused it. Adding twenty-five
-agents in one sitting moved the scores in both directions, and the numbers say
-which way:
+The report is most useful pointed at the thing that caused it. Twenty-five
+agents went in over one day (278 → 303), and the scores moved in both
+directions.
+
+Only three categories grew *without* also having an entry reworded, so only
+these three isolate the cost of adding alone:
 
 | Category | Before | After | Added |
 | --- | ---: | ---: | ---: |
-| Fine-tuning | 0.972 | 0.978 | 5 |
 | MLOps | 0.967 | 0.975 | 5 |
 | Customer Service | 0.967 | 0.947 | 4 |
-| Safety | 0.912 | 0.849 | 2 |
+| Safety | 0.921 | 0.849 | 2 |
 
-Five well-differentiated training tools *improved* fine-tuning; two red-teaming
-tools cost safety six points, because they landed on top of Garak, PyRIT and
-Rebuff, which already answer the same question. And `fine tune a model on one
-GPU` — the guard that broke last week — is thin again at +0.0156, crowded by
-the same five additions that helped the category average.
+Five well-differentiated deployment tools *raised* MLOps. Two red-teaming
+tools cost safety seven points, because they landed on top of Garak, PyRIT
+and Rebuff, which already answer the same question. Adding to a crowded
+category is not free, and the bill is paid by every entry already in it.
 
-None of that is an argument against growing the catalogue. It is an argument
-for knowing which categories are crowded before choosing where to grow, which
-is what the report is for: the additions above went into the categories that
-were thin *and* scoring well, and skipped Research and Infrastructure, the two
-weakest.
+Automation (+7), Fine-tuning (+5), Evaluation (+2), Multimodal and Autonomous
+Agent all had wording changed in the same day, so their movement cannot be
+attributed to the additions and is left out rather than guessed at.
+
+One of those is worth its own note. Fine-tuning fell from 0.972 to **0.957**
+after Unsloth and PEFT were reworded around "one GPU" — the change that fixed
+`fine tune a model on one GPU`, which had been thin for a week. Aiming an
+entry at the question people ask moved it away from the question this metric
+asks, which is its own `use_case`. That is a real trade and worth making;
+it is recorded here so the drop is not later read as decay.
+
+None of this argues against growing the catalogue. It argues for knowing
+which categories are crowded before choosing where to grow, which is what the
+report is for: yesterday's additions went into categories that were thin *and*
+scoring well, and skipped Research and Infrastructure, the two weakest.
