@@ -1,5 +1,21 @@
 [
   {
+    "commit": "856856c7",
+    "at": "2026-08-19T09:13:41-07:00",
+    "subject": "Add five research and answer engines",
+    "total": 308,
+    "added": [
+      "AI Scientist",
+      "Morphic",
+      "R2R",
+      "STORM",
+      "Vane"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "acd8a932",
     "at": "2026-08-19T09:09:22-07:00",
     "subject": "Replace eleven vague use cases",
