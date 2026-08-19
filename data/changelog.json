@@ -1,5 +1,20 @@
 [
   {
+    "commit": "0996f866",
+    "at": "2026-08-19T09:21:13-07:00",
+    "subject": "Add four customer service tools",
+    "total": 321,
+    "added": [
+      "Rocket.Chat",
+      "Twenty",
+      "Ultravox",
+      "osTicket"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "2684fd40",
     "at": "2026-08-19T09:19:57-07:00",
     "subject": "Name the platform each automation tool drives",
