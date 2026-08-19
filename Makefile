@@ -37,6 +37,9 @@ audit:  ## Report catalogue entries that have gone stale
 quality:  ## Measure how well the catalogue answers questions about itself
 	$(PYTHON) $(APP_DIR)/quality.py
 
+quality-record:  ## Measure, and append the run to data/quality-history.jsonl
+	$(PYTHON) $(APP_DIR)/quality.py --record
+
 changelog:  ## Rebuild data/changelog.json from git history
 	$(PYTHON) $(APP_DIR)/changelog.py
 

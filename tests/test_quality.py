@@ -270,3 +270,125 @@ class TestUnmeasuredIsNotClear:
 
         assert "could not be measured" not in report
         assert "None of the measured guards is close." in report
+
+
+class TestReadingTheHistory:
+    def test_no_history_yet_is_not_an_error(self, tmp_path):
+        assert quality.read_history(tmp_path / "absent.jsonl") == []
+
+    def test_runs_come_back_oldest_first(self, tmp_path):
+        where = tmp_path / "h.jsonl"
+        where.write_text('{"commit": "aaa"}\n{"commit": "bbb"}\n')
+
+        assert [r["commit"] for r in quality.read_history(where)] == ["aaa", "bbb"]
+
+    def test_a_damaged_line_is_skipped_not_fatal(self, tmp_path):
+        """This is a record of measurements. Losing one is not worth failing
+        the measurement being taken now."""
+        where = tmp_path / "h.jsonl"
+        where.write_text('{"commit": "aaa"}\nnot json\n\n{"commit": "ccc"}\n')
+
+        assert [r["commit"] for r in quality.read_history(where)] == ["aaa", "ccc"]
+
+    def test_a_line_that_is_not_an_object_is_skipped(self, tmp_path):
+        where = tmp_path / "h.jsonl"
+        where.write_text('[1, 2]\n{"commit": "aaa"}\n')
+
+        assert [r["commit"] for r in quality.read_history(where)] == ["aaa"]
+
+
+class TestRecording:
+    def _rows(self):
+        return [{"category": "Safety", "agents": 21, "mrr": 0.849, "unfindable": 0},
+                {"category": "MLOps", "agents": 20, "mrr": 0.975, "unfindable": 0}]
+
+    def test_a_run_appends_rather_than_replaces(self, tmp_path):
+        where = tmp_path / "h.jsonl"
+        quality.record(self._rows(), [], 303, path=where)
+        quality.record(self._rows(), [], 304, path=where)
+
+        assert len(quality.read_history(where)) == 2
+
+    def test_it_keeps_what_a_later_comparison_needs(self, tmp_path):
+        where = tmp_path / "h.jsonl"
+        guards = [{"rank": 1, "margin": 0.4}, {"rank": 7, "margin": -0.1},
+                  {"rank": 1, "margin": None}]
+        run = quality.record(self._rows(), guards, 303, path=where)
+
+        assert run["agents"] == 303
+        assert run["categories"]["Safety"] == 0.849
+        assert run["guards"] == 3
+        assert run["failing"] == 1
+        assert run["thinnest"] == -0.1
+
+    def test_no_measurable_margin_records_none_rather_than_zero(self, tmp_path):
+        """Zero would read as "one guard is right on the edge"."""
+        run = quality.record(self._rows(), [{"rank": 1, "margin": None}], 303,
+                             path=tmp_path / "h.jsonl")
+
+        assert run["thinnest"] is None
+
+
+class TestMovement:
+    def _now(self, **scores):
+        return [{"category": c, "agents": 10, "mrr": m, "unfindable": 0}
+                for c, m in scores.items()]
+
+    def test_a_fall_past_the_threshold_is_reported(self):
+        moves = quality.movement(self._now(Safety=0.849),
+                                 {"categories": {"Safety": 0.921}})
+
+        assert moves == [{"category": "Safety", "from": 0.921,
+                          "to": 0.849, "delta": -0.072}]
+
+    def test_a_rise_is_reported_too(self):
+        """Only ever hearing bad news hides a wording fix working."""
+        moves = quality.movement(self._now(Evaluation=0.917),
+                                 {"categories": {"Evaluation": 0.855}})
+
+        assert moves[0]["delta"] == 0.062
+
+    def test_wobble_below_the_threshold_is_not(self):
+        moves = quality.movement(self._now(MLOps=0.975),
+                                 {"categories": {"MLOps": 0.967}})
+
+        assert moves == []
+
+    def test_the_biggest_fall_comes_first(self):
+        moves = quality.movement(
+            self._now(A=0.90, B=0.50, C=0.99),
+            {"categories": {"A": 0.95, "B": 0.90, "C": 0.90}})
+
+        assert [m["category"] for m in moves] == ["B", "A", "C"]
+
+    def test_a_new_category_has_nothing_to_compare_against(self):
+        assert quality.movement(self._now(Brand_New=0.5),
+                                {"categories": {"Other": 0.9}}) == []
+
+    def test_no_previous_run_reports_nothing(self):
+        assert quality.movement(self._now(A=0.5), None) == []
+
+    def test_a_non_numeric_stored_score_is_ignored(self):
+        """The file is hand-editable and appended to by two callers."""
+        assert quality.movement(self._now(A=0.5), {"categories": {"A": "?"}}) == []
+
+
+class TestRenderingTheTrend:
+    def _report(self, moves, previous=None):
+        return quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 0}], [],
+            [{"query": "q", "rank": 1, "margin": 0.4, "rival": "X",
+              "expected": ["R"]}], moves=moves, previous=previous)
+
+    def test_movement_is_shown_with_what_it_is_measured_against(self):
+        report = self._report(
+            [{"category": "Safety", "from": 0.921, "to": 0.849, "delta": -0.072}],
+            previous={"commit": "d9dad34", "at": "2026-08-18T00:00:00+00:00",
+                      "agents": 278})
+
+        assert "Moved since the last run" in report
+        assert "d9dad34" in report and "278 agents" in report
+        assert "-0.072" in report
+
+    def test_a_steady_run_says_nothing_about_movement(self):
+        assert "Moved since the last run" not in self._report([])

@@ -34,10 +34,13 @@ is how they move between runs, not whether they clear some absolute bar.
 
 import argparse
 import json
+import logging
 import os
 import re
+import subprocess
 import sys
 from collections import defaultdict
+from datetime import datetime, timezone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
@@ -46,9 +49,20 @@ from logging_setup import configure  # noqa: E402
 from scraper import load_agents  # noqa: E402
 from vectorstore import VectorStore  # noqa: E402
 
+logger = logging.getLogger(__name__)
+
 # How thin a guard's margin has to be before it is worth reporting. Set from
 # the one that actually broke: 0.002 was invisible until it cost a session.
 THIN_MARGIN = 0.02
+
+# Where recorded runs accumulate, one JSON object per line. Committed, so the
+# trend survives a fresh checkout and a CI runner that keeps nothing.
+HISTORY = "data/quality-history.jsonl"
+
+# How far a category has to move before it is worth mentioning. Scores wobble
+# by a thousandth or two between runs on identical data; 0.02 is the smallest
+# move that has meant something every time so far.
+NOTABLE_MOVE = 0.02
 
 # Where the live suite keeps its query/expected pairs. Read rather than
 # duplicated — a second copy of the ground truth would drift from the first,
@@ -152,7 +166,90 @@ def guard_margins(store, cases, limit=10):
     return rows
 
 
-def render(categories, weakest, guards, thin_margin=THIN_MARGIN):
+def history_path():
+    return config.REPO_ROOT / HISTORY
+
+
+def read_history(path=None):
+    """Previously recorded runs, oldest first.
+
+    A damaged line is skipped rather than fatal: this is a record of
+    measurements, and losing one is not worth failing the measurement that is
+    being taken now.
+    """
+    where = path or history_path()
+    try:
+        text = where.read_text()
+    except OSError:
+        return []
+
+    runs = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            run = json.loads(line)
+        except json.JSONDecodeError:
+            logger.warning("Skipping an unreadable line in %s", where)
+            continue
+        if isinstance(run, dict):
+            runs.append(run)
+    return runs
+
+
+def record(categories, guards, agents, path=None):
+    """Append this run to the history and return what was written."""
+    measured = [g for g in guards if g["margin"] is not None]
+    run = {
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "commit": _commit(),
+        "agents": agents,
+        "categories": {row["category"]: row["mrr"] for row in categories},
+        "guards": len(guards),
+        "thinnest": min((g["margin"] for g in measured), default=None),
+        "failing": sum(1 for g in guards
+                       if g["rank"] is None or g["rank"] > 3),
+    }
+    where = path or history_path()
+    with open(where, "a") as f:
+        f.write(json.dumps(run) + "\n")
+    return run
+
+
+def _commit():
+    """The commit the scores describe, so a move can be traced to a change."""
+    try:
+        found = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                               cwd=config.REPO_ROOT, capture_output=True,
+                               text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return found.stdout.strip() or None if found.returncode == 0 else None
+
+
+def movement(current, previous, notable=NOTABLE_MOVE):
+    """Categories that moved since the last recorded run, biggest fall first.
+
+    Both directions are reported. A category climbing is worth seeing too:
+    it is usually somebody's wording fix working, and the alternative is
+    only ever hearing bad news.
+    """
+    before = (previous or {}).get("categories") or {}
+    moves = []
+    for row in current:
+        was = before.get(row["category"])
+        if not isinstance(was, (int, float)):
+            continue
+        delta = row["mrr"] - was
+        if abs(delta) >= notable:
+            moves.append({"category": row["category"], "from": was,
+                          "to": row["mrr"], "delta": round(delta, 3)})
+    return sorted(moves, key=lambda m: m["delta"])
+
+
+def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
+           previous=None):
     out = ["# Retrieval quality", ""]
 
     out.append("## Self-retrieval by category")
@@ -189,6 +286,21 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN):
     measured = [g for g in guards if g["margin"] is not None]
     unmeasured = len(guards) - len(measured)
     at_risk = [g for g in measured if 0 <= g["margin"] < thin_margin]
+
+    if moves:
+        out.append("## Moved since the last run")
+        out.append("")
+        if previous:
+            out.append(f"Against `{previous.get('commit') or '?'}` "
+                       f"({previous.get('at', '?')}), which held "
+                       f"{previous.get('agents', '?')} agents.")
+            out.append("")
+        out.append("| Category | Was | Now | Change |")
+        out.append("| --- | ---: | ---: | ---: |")
+        for move in moves:
+            out.append(f"| {move['category']} | {move['from']:.3f} "
+                       f"| {move['to']:.3f} | {move['delta']:+.3f} |")
+        out.append("")
 
     out.append("## Guards")
     out.append("")
@@ -227,6 +339,8 @@ def main(argv=None):
                         help="how many weak entries to list (default: 15)")
     parser.add_argument("--thin-margin", type=float, default=THIN_MARGIN,
                         help=f"report guards passing by less (default: {THIN_MARGIN})")
+    parser.add_argument("--record", action="store_true",
+                        help=f"append this run to {HISTORY}")
     parser.add_argument("--json", action="store_true", dest="as_json")
     parser.add_argument("--out", help="write the report here instead of stdout")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -253,11 +367,30 @@ def main(argv=None):
                      key=lambda r: (r["reciprocal"], r["name"]))[:args.worst]
     guards = guard_margins(store, read_guards(), limit=args.limit)
 
+    # Read before recording, or the run being reported becomes its own
+    # baseline and every category looks unchanged.
+    history = read_history()
+    previous = history[-1] if history else None
+    # Only meaningful over the whole catalogue: --category measures a subset,
+    # and comparing that against a full run would report the difference
+    # between two questions as a change over time.
+    moves = movement(categories, previous) if not args.category else []
+
+    if args.record:
+        if args.category:
+            print("Refusing to record a partial run; drop --category.",
+                  file=sys.stderr)
+            return 1
+        written = record(categories, guards, len(agents))
+        print(f"Recorded {written['commit'] or 'this run'} to {HISTORY}",
+              file=sys.stderr)
+
     if args.as_json:
         report = json.dumps({"categories": categories, "agents": rows,
-                             "guards": guards}, indent=2)
+                             "guards": guards, "moved": moves}, indent=2)
     else:
-        report = render(categories, weakest, guards, args.thin_margin)
+        report = render(categories, weakest, guards, args.thin_margin,
+                        moves=moves, previous=previous)
 
     if args.out:
         with open(args.out, "w") as f:

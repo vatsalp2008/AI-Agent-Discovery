@@ -165,6 +165,10 @@ jobs:
       # threshold here would either sit slack or block unrelated work. The
       # value is having the number in the run someone is already reading when
       # a guard breaks, so "was this always thin" has an answer.
+      # Reads data/quality-history.jsonl and reports what moved since the
+      # last recorded run, but does not record: this runs on every push and
+      # cannot commit, so a line written here would be thrown away with the
+      # runner. Recording is `make quality-record`, run deliberately.
       - name: Report retrieval quality
         if: always()
         run: |
