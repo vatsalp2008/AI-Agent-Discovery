@@ -594,9 +594,25 @@ class TestAnInterviewCanBeAMethod:
             "name": "storm",
             "description": "Researches a topic by simulating expert interviews."})
 
-    def test_interview_prep_repositories_are_still_refused(self):
-        for description in ["Machine learning interview questions and answers",
-                            "A coding interview prep guide",
-                            "Interview guide for ML engineers"]:
-            assert not discover.looks_like_a_tool(
-                {"name": "prep", "description": description}), description
+    def test_a_tool_may_run_user_interviews(self):
+        assert discover.looks_like_a_tool({
+            "name": "notetaker",
+            "description": "Records user interviews and transcribes them for product teams."})
+
+    @pytest.mark.parametrize("description", [
+        "Machine learning interview questions and answers",
+        "A coding interview prep guide",
+        "Interview preparation for ML engineers",
+        "A deep learning interview question bank",
+        "System design interviews explained",
+        "Machine learning interviews handbook",
+        "Technical interview cheat sheet",
+        "Job interview answers for data science",
+    ])
+    def test_interview_prep_repositories_are_still_refused(self, description):
+        """A fixed phrase list could not do this: "interview prep" does not
+        match "interview preparation", and the pluralising `s?` in the main
+        pattern applies to the end of a phrase, so "interview questions" left
+        the singular "interview question" free."""
+        assert not discover.looks_like_a_tool(
+            {"name": "prep", "description": description}), description

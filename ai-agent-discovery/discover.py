@@ -185,11 +185,6 @@ NOT_A_TOOL = (
     "collection of resources", "collection of links",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
     "course", "lecture", "learning path", "study guide",
-    # "interview" alone refused STORM, which researches a topic "by simulating
-    # expert interviews" — there the word is the method, not the genre. Only
-    # the prep-repo forms are rejected.
-    "interview questions", "interview prep", "coding interview",
-    "interview guide",
     "paper list", "reading list", "resources for", "book",
     # The plural, not the singular: "example" alone rejected ChatterBot,
     # which "learns replies from example conversations" — there the word
@@ -228,6 +223,17 @@ CONFIG_COLLECTION = (
 NOT_A_TOOL_PATTERN = re.compile(
     r"\b(?:" + "|".join(re.escape(phrase)
                         for phrase in NOT_A_TOOL + CONFIG_COLLECTION) + r")s?\b")
+
+# "interview" needs the company it keeps, which is why it is not in the list
+# above. Bare, it refused STORM for researching a topic "by simulating expert
+# interviews" — there the word is the method. A fixed phrase list does not
+# work either: "interview prep" cannot match "interview preparation", and the
+# `s?` above only pluralises the end of a phrase, so "interview question"
+# slipped past "interview questions". This looks for the word near the ones a
+# prep repository uses, and for the phrases where it is the genre outright.
+INTERVIEW_PREP_PATTERN = re.compile(
+    r"\binterviews?\b[^.]{0,24}\b(?:prep\w*|questions?|answers?|guide|handbook|cheat)\b"
+    r"|\b(?:coding|technical|system design|job|behavioural|behavioral)\s+interviews?\b")
 
 # "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
 # tagged it — so the word alone cannot decide the category. A repo claiming
@@ -307,7 +313,8 @@ def looks_like_a_tool(repo):
     ("awesome-llm-apps") about as often as it describes itself.
     """
     haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
-    return NOT_A_TOOL_PATTERN.search(haystack) is None
+    return (NOT_A_TOOL_PATTERN.search(haystack) is None
+            and INTERVIEW_PREP_PATTERN.search(haystack) is None)
 
 
 def infer_category(repo):
