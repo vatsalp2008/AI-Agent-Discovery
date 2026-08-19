@@ -304,8 +304,8 @@ class TestRecording:
 
     def test_a_run_appends_rather_than_replaces(self, tmp_path):
         where = tmp_path / "h.jsonl"
-        quality.record(self._rows(), [], 303, path=where)
-        quality.record(self._rows(), [], 304, path=where)
+        quality.record(self._rows(), [], 303, 10, path=where)
+        quality.record(self._rows(), [], 304, 10, path=where)
 
         assert len(quality.read_history(where)) == 2
 
@@ -313,7 +313,7 @@ class TestRecording:
         where = tmp_path / "h.jsonl"
         guards = [{"rank": 1, "margin": 0.4}, {"rank": 7, "margin": -0.1},
                   {"rank": 1, "margin": None}]
-        run = quality.record(self._rows(), guards, 303, path=where)
+        run = quality.record(self._rows(), guards, 303, 10, path=where)
 
         assert run["agents"] == 303
         assert run["categories"]["Safety"] == 0.849
@@ -324,7 +324,7 @@ class TestRecording:
     def test_no_measurable_margin_records_none_rather_than_zero(self, tmp_path):
         """Zero would read as "one guard is right on the edge"."""
         run = quality.record(self._rows(), [{"rank": 1, "margin": None}], 303,
-                             path=tmp_path / "h.jsonl")
+                             10, path=tmp_path / "h.jsonl")
 
         assert run["thinnest"] is None
 
@@ -392,3 +392,39 @@ class TestRenderingTheTrend:
 
     def test_a_steady_run_says_nothing_about_movement(self):
         assert "Moved since the last run" not in self._report([])
+
+
+class TestTheLimitIsPartOfTheMeasurement:
+    """A run at `--limit 3` cannot see an agent ranked fourth, so every
+    reciprocal is lower. Comparing that against a default run reports the
+    setting as a change in the catalogue — an across-the-board rise that never
+    happened."""
+
+    def _rows(self):
+        return [{"category": "Safety", "agents": 21, "mrr": 0.849, "unfindable": 0}]
+
+    def test_the_limit_is_written_with_the_run(self, tmp_path):
+        run = quality.record(self._rows(), [], 303, 3, path=tmp_path / "h.jsonl")
+
+        assert run["limit"] == 3
+
+    def test_a_different_limit_is_not_compared(self):
+        moves = quality.movement(self._rows(),
+                                 {"categories": {"Safety": 0.976}, "limit": 3},
+                                 limit=10)
+
+        assert moves == []
+
+    def test_the_same_limit_is_compared(self):
+        moves = quality.movement(self._rows(),
+                                 {"categories": {"Safety": 0.976}, "limit": 10},
+                                 limit=10)
+
+        assert moves and moves[0]["delta"] == -0.127
+
+    def test_a_run_recorded_before_the_field_existed_still_compares(self):
+        """Every one of those was taken at the default."""
+        moves = quality.movement(self._rows(),
+                                 {"categories": {"Safety": 0.976}}, limit=10)
+
+        assert moves and moves[0]["delta"] == -0.127

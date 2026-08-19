@@ -198,13 +198,18 @@ def read_history(path=None):
     return runs
 
 
-def record(categories, guards, agents, path=None):
+def record(categories, guards, agents, limit, path=None):
     """Append this run to the history and return what was written."""
     measured = [g for g in guards if g["margin"] is not None]
     run = {
         "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "commit": _commit(),
         "agents": agents,
+        # Recorded because it changes the numbers: a run at --limit 3 cannot
+        # see an agent ranked fourth, so every reciprocal is that much lower.
+        # Comparing across limits would report the setting as a change in the
+        # catalogue.
+        "limit": limit,
         "categories": {row["category"]: row["mrr"] for row in categories},
         "guards": len(guards),
         "thinnest": min((g["margin"] for g in measured), default=None),
@@ -228,13 +233,20 @@ def _commit():
     return found.stdout.strip() or None if found.returncode == 0 else None
 
 
-def movement(current, previous, notable=NOTABLE_MOVE):
+def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
     """Categories that moved since the last recorded run, biggest fall first.
 
     Both directions are reported. A category climbing is worth seeing too:
     it is usually somebody's wording fix working, and the alternative is
     only ever hearing bad news.
     """
+    if previous and limit is not None:
+        was = previous.get("limit")
+        # Absent on runs recorded before the field existed; those were all at
+        # the default, so only an explicit mismatch is disqualifying.
+        if was is not None and was != limit:
+            return []
+
     before = (previous or {}).get("categories") or {}
     moves = []
     for row in current:
@@ -374,14 +386,15 @@ def main(argv=None):
     # Only meaningful over the whole catalogue: --category measures a subset,
     # and comparing that against a full run would report the difference
     # between two questions as a change over time.
-    moves = movement(categories, previous) if not args.category else []
+    moves = (movement(categories, previous, limit=args.limit)
+             if not args.category else [])
 
     if args.record:
         if args.category:
             print("Refusing to record a partial run; drop --category.",
                   file=sys.stderr)
             return 1
-        written = record(categories, guards, len(agents))
+        written = record(categories, guards, len(agents), args.limit)
         print(f"Recorded {written['commit'] or 'this run'} to {HISTORY}",
               file=sys.stderr)
 
