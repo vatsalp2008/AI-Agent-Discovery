@@ -395,7 +395,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python"],
         github_stars=8739,
         url="https://github.com/leondz/garak",
-        use_case="Red teaming a model before deployment"
+        use_case="Scanning a model for known weaknesses"
     ),
     Agent(
         name="Presidio",
@@ -1160,7 +1160,7 @@ SAMPLE_AGENTS = [
         tech_stack=['Python', 'PyTorch'],
         github_stars=4344,
         url="https://github.com/meta-llama/PurpleLlama",
-        use_case="Safety benchmarking and guardrails"
+        use_case="Input and output guardrails for Llama"
     ),
     Agent(
         name="PyRIT",
@@ -1169,7 +1169,7 @@ SAMPLE_AGENTS = [
         tech_stack=['Python'],
         github_stars=114,
         url="https://github.com/Azure/PyRIT",
-        use_case="Automated red teaming"
+        use_case="Orchestrating automated attack probes"
     ),
     Agent(
         name="Kubeflow",
@@ -1314,7 +1314,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "PyTorch", "JAX"],
         github_stars=2972,
         url="https://github.com/bethgelab/foolbox",
-        use_case="Measuring model robustness"
+        use_case="Finding the smallest perturbation that fools a model"
     ),
     Agent(
         name="Counterfit",
@@ -1323,7 +1323,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "CLI"],
         github_stars=935,
         url="https://github.com/Azure/counterfit",
-        use_case="Red teaming ML services"
+        use_case="Attacking a deployed ML service"
     ),
     Agent(
         name="Opacus",
@@ -1341,7 +1341,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "scikit-learn"],
         github_stars=2268,
         url="https://github.com/fairlearn/fairlearn",
-        use_case="Fairness assessment and mitigation"
+        use_case="Fairness metrics grouped by who is affected"
     ),
     Agent(
         name="AI Fairness 360",
@@ -1350,7 +1350,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "R", "scikit-learn"],
         github_stars=2852,
         url="https://github.com/Trusted-AI/AIF360",
-        use_case="Bias detection and mitigation"
+        use_case="A catalogue of bias mitigation algorithms"
     ),
     # Evaluation
     Agent(
@@ -1792,7 +1792,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "DeepEval"],
         github_stars=2503,
         url="https://github.com/confident-ai/deepteam",
-        use_case="Automated LLM red teaming"
+        use_case="Red teaming an LLM application"
     ),
     Agent(
         name="AgentDojo",
@@ -1801,7 +1801,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python"],
         github_stars=756,
         url="https://github.com/ethz-spylab/agentdojo",
-        use_case="Measuring prompt injection resistance"
+        use_case="Benchmarking an agent against injected instructions"
     ),
 ]
 
