@@ -168,14 +168,14 @@ class TestRendering:
         report = self._report([{"query": "q", "rank": 3, "margin": 0.001,
                                 "rival": "Other", "expected": ["Right"]}])
 
-        assert "1 of 1 pass by less than" in report
+        assert "1 of 1 measured guards pass by less than" in report
         assert "+0.0010" in report and "Other" in report
 
     def test_a_comfortable_guard_is_not(self):
         report = self._report([{"query": "q", "rank": 1, "margin": 0.4,
                                 "rival": "Other", "expected": ["Right"]}])
 
-        assert "None — every guard has room." in report
+        assert "None of the measured guards is close." in report
 
     def test_a_failing_guard_is_called_out_separately(self):
         """Distinct from a thin margin: one needs watching, the other needs
@@ -226,8 +226,8 @@ class TestFailingIsNotThin:
               "expected": ["R"]}])
 
         assert "1 failing now" in report
-        assert "0 of 1 pass by less than" in report
-        assert "None — every guard has room." in report
+        assert "0 of 1 measured guards pass by less than" in report
+        assert "None of the measured guards is close." in report
 
     def test_a_guard_that_is_thin_but_passing_still_counts(self):
         report = quality.render(
@@ -235,4 +235,38 @@ class TestFailingIsNotThin:
             [{"query": "q", "rank": 2, "margin": 0.001, "rival": "X",
               "expected": ["R"]}])
 
-        assert "1 of 1 pass by less than" in report
+        assert "1 of 1 measured guards pass by less than" in report
+
+
+class TestUnmeasuredIsNotClear:
+    """"We could not tell" must not print as "every guard has room"."""
+
+    def _report(self, guards):
+        return quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 0}], [], guards)
+
+    def test_guards_with_no_measurable_margin_leave_the_denominator(self):
+        """Under `--limit 3` every margin is None, and the old wording turned
+        a report that measured nothing into a clean bill of health."""
+        report = self._report([{"query": "q", "rank": 1, "margin": None,
+                                "rival": None, "expected": ["R"]}] * 3)
+
+        assert "0 of 0 measured guards" in report
+        assert "3 could not be measured" in report
+        assert "every guard has room" not in report
+
+    def test_a_mix_counts_only_what_was_measured(self):
+        report = self._report([
+            {"query": "a", "rank": 1, "margin": 0.4, "rival": "X", "expected": ["R"]},
+            {"query": "b", "rank": 1, "margin": None, "rival": None, "expected": ["R"]},
+        ])
+
+        assert "0 of 1 measured guards" in report
+        assert "1 could not be measured" in report
+
+    def test_nothing_unmeasured_says_nothing_about_it(self):
+        report = self._report([{"query": "a", "rank": 1, "margin": 0.4,
+                                "rival": "X", "expected": ["R"]}])
+
+        assert "could not be measured" not in report
+        assert "None of the measured guards is close." in report

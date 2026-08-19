@@ -179,9 +179,16 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN):
     # A negative margin means the guard is already failing, and it is listed
     # as such below; counting it here as well would report it twice and read
     # as "passes by -0.2".
-    at_risk = [g for g in guards
-               if g["margin"] is not None and 0 <= g["margin"] < thin_margin]
     failing = [g for g in guards if g["rank"] is None or g["rank"] > 3]
+
+    # Counted against the guards actually measured, not against all of them.
+    # A margin is None when too few rivals came back to say what would
+    # displace the expected agent, and folding those into the denominator
+    # turned "we could not tell" into "every guard has room" — under
+    # `--limit 3` that all-clear covered nothing at all.
+    measured = [g for g in guards if g["margin"] is not None]
+    unmeasured = len(guards) - len(measured)
+    at_risk = [g for g in measured if 0 <= g["margin"] < thin_margin]
 
     out.append("## Guards")
     out.append("")
@@ -191,16 +198,22 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN):
             out.append(f"- `{guard['query']}` — expected one of "
                        f"{', '.join(guard['expected'])}")
         out.append("")
-    out.append(f"{len(at_risk)} of {len(guards)} pass by less than {thin_margin}:")
+    out.append(f"{len(at_risk)} of {len(measured)} measured guards pass by "
+               f"less than {thin_margin}:")
     out.append("")
+    if unmeasured:
+        out.append(f"*{unmeasured} could not be measured — fewer than three "
+                   f"other results came back, so nothing there could take the "
+                   f"place. Raise `--limit` to measure them.*")
+        out.append("")
     if at_risk:
         out.append("| Query | Rank | Margin | Next in line |")
         out.append("| --- | ---: | ---: | --- |")
         for guard in sorted(at_risk, key=lambda g: g["margin"]):
             out.append(f"| {guard['query']} | {guard['rank']} "
                        f"| {guard['margin']:+.4f} | {guard['rival']} |")
-    else:
-        out.append("None — every guard has room.")
+    elif measured:
+        out.append("None of the measured guards is close.")
     return "\n".join(out) + "\n"
 
 
