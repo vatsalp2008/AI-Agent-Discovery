@@ -1932,6 +1932,43 @@ SAMPLE_AGENTS = [
         url="https://github.com/NVlabs/curobo",
         use_case="Fast motion planning on a GPU"
     ),
+    # Customer Service
+    Agent(
+        name="Ultravox",
+        description="A speech language model that listens and answers directly, without transcribing to text and back again.",
+        category="Customer Service",
+        tech_stack=["Python", "PyTorch", "Llama"],
+        github_stars=4546,
+        url="https://github.com/fixie-ai/ultravox",
+        use_case="Real-time voice conversation"
+    ),
+    Agent(
+        name="osTicket",
+        description="Routes support email and web forms into queues with SLAs, canned replies and per-department rules.",
+        category="Customer Service",
+        tech_stack=["PHP", "MySQL"],
+        github_stars=3893,
+        url="https://github.com/osTicket/osTicket",
+        use_case="Routing support email into queues"
+    ),
+    Agent(
+        name="Twenty",
+        description="An open CRM that keeps the record of every customer, deal and conversation on your own infrastructure.",
+        category="Customer Service",
+        tech_stack=["TypeScript", "NestJS", "PostgreSQL"],
+        github_stars=55128,
+        url="https://github.com/twentyhq/twenty",
+        use_case="Tracking customers and deals"
+    ),
+    Agent(
+        name="Rocket.Chat",
+        description="Team messaging with an omnichannel desk, so a customer on WhatsApp lands in the same place as internal chat.",
+        category="Customer Service",
+        tech_stack=["TypeScript", "MongoDB", "Meteor"],
+        github_stars=46005,
+        url="https://github.com/RocketChat/Rocket.Chat",
+        use_case="Self-hosted team and customer chat"
+    ),
 ]
 
 class CatalogueError(Exception):
