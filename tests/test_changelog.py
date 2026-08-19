@@ -295,39 +295,47 @@ def test_the_history_cannot_describe_its_own_commit(repo):
     assert after_commit[0]["added"] == ["C"]
 
 
-def test_the_shipped_history_is_not_behind_the_shipped_catalogue():
-    """The committed changelog must describe the committed catalogue.
+def test_the_shipped_history_matches_what_a_rebuild_would_produce():
+    """The committed changelog must be what `make changelog` produces today.
 
-    It went stale twice by additions, so the first version of this compared
-    totals — and then a commit that only *edited* two entries slipped past it
-    with 294 == 294 on both sides, which is precisely the state it exists to
-    catch. Compares the newest recorded commit against the last commit that
-    touched the catalogue instead: that moves for an edit, a rename and a
-    removal, none of which change the count.
+    Two earlier versions of this both got it wrong, in opposite directions.
+    Comparing *totals* let a commit that only edited two entries through at
+    294 == 294. Comparing the newest commit against `git log -1 --
+    data/agents.json` then failed in two ways of its own:
 
-    Read from git rather than the working tree, because changelog.py reads git
-    history and cannot describe a change that is not committed yet. Checking
-    the working tree would make every catalogue commit impossible, since the
-    rebuild has to come after it — which is what the weekly workflow does and
-    what docs/CATALOGUE.md describes.
+    * Under a shallow clone — what `actions/checkout@v4` does by default —
+      the grafted commit makes every file look newly added, so that command
+      returns HEAD unconditionally and the guard failed on every CI run.
+    * `github_stars` is deliberately not a tracked field, so the weekly star
+      refresh touches agents.json and records nothing. The guard would have
+      failed permanently from the next refresh on, and the `make changelog`
+      it told you to run regenerates an identical file — a demand that could
+      not be satisfied. Eleven of the sixty-four commits touching the
+      catalogue are in that class.
+
+    Rebuilding and comparing is exact and needs no such rules: a change that
+    belongs in the history shows up, one that does not stays quiet, and if
+    TRACKED_FIELDS ever changes the guard follows it. It costs about a
+    second, which is worth paying for a check that has now been wrong twice.
     """
-    def git(*args):
-        return subprocess.run(["git", *args], cwd=config.REPO_ROOT,
-                              capture_output=True, text=True, timeout=30)
+    if _is_shallow():
+        pytest.skip("a shallow clone has no history to rebuild from")
 
-    try:
-        latest = git("log", "-1", "--format=%H", "--", "data/agents.json")
-    except (OSError, subprocess.SubprocessError):
-        pytest.skip("git is not available")
-    if latest.returncode or not latest.stdout.strip():
-        pytest.skip("no catalogue history to compare against")
+    shipped = json.loads((config.DATA_DIR / "changelog.json").read_text())
+    rebuilt = changelog.build()
 
-    history = json.loads((config.DATA_DIR / "changelog.json").read_text())
-    assert history, "no changelog has been built"
-
-    # changelog.py records an abbreviated hash; git log gives the full one.
-    described, expected = history[0]["commit"], latest.stdout.strip()
-    assert expected.startswith(described), (
-        f"data/agents.json last changed in {expected[:8]} but changelog.json "
-        f"stops at {described} — run `make changelog` and commit it"
+    assert shipped == rebuilt, (
+        "data/changelog.json is not what `make changelog` produces — "
+        "run it and commit the result"
     )
+
+
+def _is_shallow():
+    """Whether git history has been truncated, so a rebuild would be wrong."""
+    try:
+        answer = subprocess.run(
+            ["git", "rev-parse", "--is-shallow-repository"],
+            cwd=config.REPO_ROOT, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return True
+    return answer.returncode != 0 or answer.stdout.strip() != "false"
