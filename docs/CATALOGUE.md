@@ -308,6 +308,40 @@ entry at the question people ask moved it away from the question this metric
 asks, which is its own `use_case`. That is a real trade and worth making;
 it is recorded here so the drop is not later read as decay.
 
+### The use case is the half that gets asked
+
+The report queries each entry's `use_case`, and the single most common cause
+of a weak score turned out to be a use case that names the *category* rather
+than the tool. Safety had four entries whose use case was some arrangement of
+"red teaming" and two that both said "model robustness"; every one of those
+tools is distinct, and every one of the descriptions said so. Only the use
+cases had collapsed into each other.
+
+Rewriting fifteen of them — to agree with the description already present,
+changing no facts — moved eight categories at once:
+
+| Category | Before | After |
+| --- | ---: | ---: |
+| Safety | 0.849 | 0.976 |
+| Multimodal | 0.889 | 0.957 |
+| Evaluation | 0.917 | 0.976 |
+| Framework | 0.895 | 0.952 |
+| Autonomous Agent | 0.895 | 0.944 |
+| Research | 0.879 | 0.917 |
+| Infrastructure | 0.894 | 0.924 |
+| Data Analysis | 0.968 | 1.000 |
+
+`test_no_two_entries_share_a_use_case` now refuses an exact collision. Only
+exact ones: twenty-three fine-tuning tools all mention fine-tuning, and that
+is honest rather than lazy — the difference needs judgement, which is what
+the report is for.
+
+What did *not* respond to rewriting is worth naming too. Apache Airflow still
+loses "Scheduling data and ML pipelines" to Mage, and PrivateGPT still loses
+to AnythingLLM and LocalGPT. Those are not vague entries; they are tools that
+genuinely do the same job, and rewording one to escape the other would be
+tuning the catalogue to flatter a metric.
+
 None of this argues against growing the catalogue. It argues for knowing
 which categories are crowded before choosing where to grow, which is what the
 report is for: yesterday's additions went into categories that were thin *and*

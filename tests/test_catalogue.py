@@ -840,3 +840,28 @@ def test_no_workflow_restates_the_crawler_freshness_window():
         assert "--pushed-since" not in script, (
             f"{where} step {name!r} overrides DEFAULT_FRESH_MONTHS; "
             "change the default in discover.py instead")
+
+
+def test_no_two_entries_share_a_use_case(catalogue):
+    """The use_case is what the quality report asks for, and two entries
+    answering to the same words means one of them cannot be found by it.
+
+    This is not hypothetical. Twenty-one safety tools once included four whose
+    use case was some arrangement of "red teaming" and two that both said
+    "model robustness" — two of which were written in a single sitting without
+    noticing the neighbour. Giving each the sentence its own description
+    already implied took the category from 0.849 to 0.976.
+
+    Exact matches only. Near-duplicates need judgement: twenty-three
+    fine-tuning tools all mention fine-tuning, and that is honest.
+    """
+    from collections import defaultdict
+
+    by_use_case = defaultdict(list)
+    for agent in catalogue:
+        text = (agent.get("use_case") or "").strip().casefold()
+        if text:
+            by_use_case[text].append(agent["name"])
+
+    shared = {text: names for text, names in by_use_case.items() if len(names) > 1}
+    assert not shared, f"these entries share a use case: {shared}"
