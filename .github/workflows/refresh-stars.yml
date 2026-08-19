@@ -154,8 +154,14 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-          echo "AUDIT_COMPLETE=$complete" >> "$GITHUB_ENV"
-          [ "$complete" = "yes" ] || echo "::warning::The catalogue audit did not finish."
+          # Both halves, or the digest inherits only one of them: an audit
+          # that exits 0 having written unreadable output was still reported
+          # downstream as "Nothing outstanding", which is the failure this
+          # whole step was rewritten to close.
+          trusted=yes
+          { [ "$complete" = "yes" ] && [ "$usable" = "yes" ]; } || trusted=no
+          echo "AUDIT_TRUSTED=$trusted" >> "$GITHUB_ENV"
+          [ "$trusted" = "yes" ] || echo "::warning::The catalogue audit could not be trusted."
 
       - name: Commit status changes
         run: |
@@ -215,7 +221,7 @@ jobs:
           # than "nothing outstanding" — which, on an otherwise quiet week,
           # the check below would have suppressed entirely.
           incomplete=""
-          [ "${AUDIT_COMPLETE:-yes}" = "yes" ] || incomplete="--audit-incomplete"
+          [ "${AUDIT_TRUSTED:-yes}" = "yes" ] || incomplete="--audit-incomplete"
 
           python ai-agent-discovery/digest.py --days 7 \
             --audit audit.json --candidates candidates.json --out digest.md \
