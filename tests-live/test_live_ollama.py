@@ -398,6 +398,22 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("semantic code search over a repository for an agent",
      {"Claude Context", "cognee"}),
     ("retrieval chat with citations", {"Verba", "Onyx", "RAGFlow"}),
+    # Added at 317. Research, Autonomous Agent and Robotics were the three
+    # thin categories still scoring well after the use_case pass, so the
+    # additions went there rather than into the crowded ones.
+    ("write a cited article from web research", {"STORM", "GPT Researcher"}),
+    ("self hosted answer engine with sources", {"Vane", "Morphic"}),
+    ("automate a whole research cycle", {"AI Scientist", "GPT Researcher"}),
+    ("retrieval behind one rest api", {"R2R", "txtai"}),
+    ("give an agent a sandboxed virtual machine", {"Cua", "E2B"}),
+    ("drive my own browser session", {"Nanobrowser", "Browser Use", "Automa"}),
+    ("physics engine for reinforcement learning",
+     {"Bullet", "MuJoCo", "Gymnasium"}),
+    ("simulate a robot with ready made models",
+     {"Webots", "MuJoCo Menagerie", "Gazebo"}),
+    ("process point clouds", {"Open3D"}),
+    ("flight control for a drone", {"PX4"}),
+    ("fast motion planning on a gpu", {"cuRobo"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
