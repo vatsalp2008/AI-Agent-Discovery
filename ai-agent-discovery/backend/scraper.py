@@ -1849,6 +1849,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/SakanaAI/AI-Scientist",
         use_case="Automating a research cycle"
     ),
+    # Autonomous Agent
+    Agent(
+        name="OWL",
+        description="A multi-agent framework built on CAMEL where agents divide a task and hand work between them.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "CAMEL", "MCP"],
+        github_stars=20086,
+        url="https://github.com/camel-ai/owl",
+        use_case="Dividing a task between agents"
+    ),
+    Agent(
+        name="Cua",
+        description="Gives an agent a sandboxed macOS or Linux virtual machine to work in, so it cannot touch the host.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "Swift", "Docker"],
+        github_stars=21579,
+        url="https://github.com/trycua/cua",
+        use_case="Computer use inside a sandbox"
+    ),
+    Agent(
+        name="Nanobrowser",
+        description="A Chrome extension that drives your own browser session, keeping cookies and logins already there.",
+        category="Autonomous Agent",
+        tech_stack=["TypeScript", "Chrome Extension"],
+        github_stars=13575,
+        url="https://github.com/nanobrowser/nanobrowser",
+        use_case="Browser tasks in your own session"
+    ),
 ]
 
 class CatalogueError(Exception):
