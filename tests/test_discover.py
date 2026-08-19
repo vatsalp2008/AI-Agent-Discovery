@@ -577,3 +577,26 @@ class TestExampleIsNotAlwaysAnExampleRepo:
                             "Example app built with LangChain"]:
             assert not discover.looks_like_a_tool(
                 {"name": "demos", "description": description}), description
+
+
+class TestAnInterviewCanBeAMethod:
+    """`interview` on its own refused STORM.
+
+    Its description says it researches a topic "by simulating expert
+    interviews" — the word names how the tool works, not what kind of
+    repository it is. Same shape as the `example` phrase before it: the
+    catalogue is the definition of "this is a tool", so a phrase that refuses
+    one of its entries is the phrase that is wrong.
+    """
+
+    def test_a_tool_may_interview_its_sources(self):
+        assert discover.looks_like_a_tool({
+            "name": "storm",
+            "description": "Researches a topic by simulating expert interviews."})
+
+    def test_interview_prep_repositories_are_still_refused(self):
+        for description in ["Machine learning interview questions and answers",
+                            "A coding interview prep guide",
+                            "Interview guide for ML engineers"]:
+            assert not discover.looks_like_a_tool(
+                {"name": "prep", "description": description}), description

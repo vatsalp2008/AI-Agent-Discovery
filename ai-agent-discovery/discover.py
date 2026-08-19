@@ -184,7 +184,12 @@ NOT_A_TOOL = (
     "awesome", "curated list", "curated collection", "collection of awesome",
     "collection of resources", "collection of links",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
-    "course", "lecture", "learning path", "study guide", "interview",
+    "course", "lecture", "learning path", "study guide",
+    # "interview" alone refused STORM, which researches a topic "by simulating
+    # expert interviews" — there the word is the method, not the genre. Only
+    # the prep-repo forms are rejected.
+    "interview questions", "interview prep", "coding interview",
+    "interview guide",
     "paper list", "reading list", "resources for", "book",
     # The plural, not the singular: "example" alone rejected ChatterBot,
     # which "learns replies from example conversations" — there the word

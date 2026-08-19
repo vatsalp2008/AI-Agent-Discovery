@@ -1803,6 +1803,52 @@ SAMPLE_AGENTS = [
         url="https://github.com/ethz-spylab/agentdojo",
         use_case="Benchmarking an agent against injected instructions"
     ),
+    # Research
+    Agent(
+        name="STORM",
+        description="Researches a topic by simulating expert interviews, then writes a cited Wikipedia-style article from what it found.",
+        category="Research",
+        tech_stack=["Python", "DSPy"],
+        github_stars=31072,
+        url="https://github.com/stanford-oval/storm",
+        use_case="Writing a cited article from research"
+    ),
+    Agent(
+        name="Vane",
+        description="An open answer engine that searches the web and cites its sources, formerly released as Perplexica.",
+        category="Research",
+        tech_stack=["TypeScript", "Next.js", "SearXNG"],
+        github_stars=36252,
+        url="https://github.com/ItzCrazyKns/Vane",
+        use_case="Self-hosted web answer engine"
+    ),
+    Agent(
+        name="R2R",
+        description="A retrieval engine with ingestion, hybrid search and knowledge graphs behind one REST API.",
+        category="Research",
+        tech_stack=["Python", "PostgreSQL", "FastAPI"],
+        github_stars=7974,
+        url="https://github.com/SciPhi-AI/R2R",
+        use_case="Retrieval behind a REST API"
+    ),
+    Agent(
+        name="Morphic",
+        description="A search interface that streams an answer alongside the sources and follow-up questions it suggests.",
+        category="Research",
+        tech_stack=["TypeScript", "Next.js", "Vercel AI SDK"],
+        github_stars=9048,
+        url="https://github.com/miurla/morphic",
+        use_case="Generative answers with follow-ups"
+    ),
+    Agent(
+        name="AI Scientist",
+        description="Runs a research loop end to end: proposes ideas, runs experiments, writes the paper and reviews it.",
+        category="Research",
+        tech_stack=["Python", "PyTorch", "LaTeX"],
+        github_stars=14425,
+        url="https://github.com/SakanaAI/AI-Scientist",
+        use_case="Automating a research cycle"
+    ),
 ]
 
 class CatalogueError(Exception):
