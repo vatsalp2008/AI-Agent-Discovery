@@ -131,7 +131,8 @@ def summarise_candidates(candidates):
     return sorted(rows, key=lambda row: -row[2])
 
 
-def render(changes, findings, days, total=None, candidates=None):
+def render(changes, findings, days, total=None, candidates=None,
+           audit_incomplete=False):
     """The digest as markdown."""
     lines = [f"## Catalogue activity, last {days} days", ""]
 
@@ -158,9 +159,20 @@ def render(changes, findings, days, total=None, candidates=None):
             if len(items) > MAX_NAMED:
                 lines.append(f"- …and {len(items) - MAX_NAMED} more")
             lines.append("")
-    else:
-        # Said explicitly: silence could equally mean the audit never ran.
+    elif not audit_incomplete:
         lines += ["### Needs a decision", "", "Nothing outstanding.", ""]
+
+    if audit_incomplete:
+        # The comment here used to say silence "could equally mean the audit
+        # never ran" — and then printed "Nothing outstanding" anyway. It now
+        # says which one it is. This wording also has to differ from the
+        # quiet-week phrase the workflow greps for, or a week where the audit
+        # broke and nothing else happened would suppress the issue entirely
+        # and the failure would surface nowhere anyone reads.
+        lines += ["### Needs a decision", "",
+                  "⚠️ **The audit did not complete**, so this is not a clean "
+                  "bill of health — anything it would have flagged is missing "
+                  "from this report. See the job log.", ""]
 
     if candidates:
         lines += ["### Could be added", "",
@@ -179,6 +191,9 @@ def main(argv=None):
     parser.add_argument("--days", type=int, default=7, help="window in days (default: 7)")
     parser.add_argument("--audit", default=None,
                         help="JSON from audit.py --json, to include what needs a person")
+    parser.add_argument("--audit-incomplete", action="store_true",
+                        help="say the audit could not be trusted, rather than "
+                             "reporting silence as nothing outstanding")
     parser.add_argument("--candidates", default=None,
                         help="JSON from discover.py --json, to include what could be added")
     parser.add_argument("--out", default=None, help="write here instead of stdout")
@@ -221,7 +236,8 @@ def main(argv=None):
     window = recent(entries, args.days)
     total = next((e.get("total") for e in window if isinstance(e.get("total"), int)), None)
     text = render(summarise_changes(window), summarise_findings(findings), args.days,
-                  total, summarise_candidates(candidates))
+                  total, summarise_candidates(candidates),
+                  audit_incomplete=args.audit_incomplete)
 
     if args.out:
         with open(args.out, "w") as f:

@@ -273,3 +273,47 @@ class TestCandidateValues:
 
     def test_a_missing_category_or_url_is_filled_in(self):
         assert digest.summarise_candidates([{"name": "A"}]) == [("A", "?", 0, "")]
+
+
+class TestAnIncompleteAuditIsNotACleanOne:
+    """An audit that could not run must not be reported as finding nothing.
+
+    The weekly job fell back to `[]` when the audit failed, so the digest said
+    "Nothing outstanding" — and on a week where nothing else changed, the
+    workflow's quiet-week check then suppressed the issue altogether. A
+    failure that hides itself is worse than no check at all.
+    """
+
+    def test_silence_is_reported_as_a_failure_not_a_clean_bill(self):
+        report = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                               audit_incomplete=True)
+
+        assert "did not complete" in report
+        assert "Nothing outstanding" not in report
+
+    def test_the_wording_does_not_look_like_a_quiet_week(self):
+        """The workflow suppresses the issue when it sees both "Nothing
+        changed" and "Nothing outstanding". The warning has to miss that
+        second phrase or the failure is silenced by the very check meant to
+        surface it."""
+        report = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                               audit_incomplete=True)
+
+        quiet = "Nothing changed" in report and "Nothing outstanding" in report
+        assert not quiet, "an incomplete audit would be suppressed as a quiet week"
+
+    def test_findings_are_still_shown_when_the_run_was_incomplete(self):
+        """audit.py prints its findings and *then* returns 1 if any repository
+        was skipped, so an incomplete run usually still carries real ones."""
+        report = digest.render({"added": [], "removed": [], "edited": []},
+                               {"missing": [("Flowise", "404 at its url")]}, 7,
+                               audit_incomplete=True)
+
+        assert "Flowise" in report
+        assert "did not complete" in report
+
+    def test_a_complete_audit_still_reports_nothing_outstanding(self):
+        report = digest.render({"added": [], "removed": [], "edited": []}, {}, 7)
+
+        assert "Nothing outstanding" in report
+        assert "did not complete" not in report

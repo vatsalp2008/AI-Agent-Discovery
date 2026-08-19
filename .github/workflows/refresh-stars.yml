@@ -114,31 +114,48 @@ jobs:
           # looks current" and the digest said "Nothing outstanding". A run
           # that could not check anything must not report that it found
           # nothing wrong.
+          # Two independent questions, and conflating them lost information
+          # in both directions. "Did it exit cleanly" is not "did it produce
+          # findings": audit.py prints the whole findings array and *then*
+          # returns 1 if any repository was skipped, so one transient failure
+          # out of three hundred used to hide every real finding behind a
+          # blanket "did not complete".
           if python ai-agent-discovery/audit.py --apply-status --json > audit.json; then
-            audited=yes
+            complete=yes
           else
-            audited=no
+            complete=no
           fi
-          # Valid JSON either way, since jq and digest.py both read it.
-          [ -s audit.json ] || echo '[]' > audit.json
-          jq empty audit.json 2>/dev/null || { echo '[]' > audit.json; audited=no; }
 
-          # The digest only lists findings that need a decision, so archived
-          # and dormant would otherwise appear nowhere anyone reads.
+          # Whether there is anything usable to report is asked separately,
+          # of the file itself. jq and digest.py both need valid JSON.
+          usable=yes
+          [ -s audit.json ] && jq empty audit.json 2>/dev/null || usable=no
+          [ "$usable" = "yes" ] || echo '[]' > audit.json
+
           {
             echo "### Catalogue health"
             echo
-            if [ "$audited" = "no" ]; then
-              echo "⚠️ The audit did not complete — see the log above. "
-              echo "Nothing below should be read as a clean bill of health."
+            if [ "$complete" = "no" ]; then
+              echo "⚠️ The audit did not finish — statuses were not written and"
+              echo "some entries went unchecked. Anything listed below is real,"
+              echo "but the absence of something is not evidence it is fine."
+              echo
+            fi
+            if [ "$usable" = "no" ]; then
+              echo "It produced no readable output at all. See the log above."
             elif [ "$(jq length audit.json)" = "0" ]; then
-              echo "Every entry looks current."
+              if [ "$complete" = "yes" ]; then
+                echo "Every entry looks current."
+              else
+                echo "No findings were recorded before it stopped."
+              fi
             else
               jq -r '.[] | "- **\(.name)** — \([.issues[].kind] | join(", "))"' audit.json
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-          [ "$audited" = "yes" ] || echo "::warning::The catalogue audit failed to run."
+          echo "AUDIT_COMPLETE=$complete" >> "$GITHUB_ENV"
+          [ "$complete" = "yes" ] || echo "::warning::The catalogue audit did not finish."
 
       - name: Commit status changes
         run: |
@@ -194,8 +211,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eo pipefail
+          # Carried through so the digest can say "could not check" rather
+          # than "nothing outstanding" — which, on an otherwise quiet week,
+          # the check below would have suppressed entirely.
+          incomplete=""
+          [ "${AUDIT_COMPLETE:-yes}" = "yes" ] || incomplete="--audit-incomplete"
+
           python ai-agent-discovery/digest.py --days 7 \
-            --audit audit.json --candidates candidates.json --out digest.md
+            --audit audit.json --candidates candidates.json --out digest.md \
+            $incomplete
 
           if grep -q "Nothing changed" digest.md \
              && grep -q "Nothing outstanding" digest.md \
