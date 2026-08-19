@@ -148,8 +148,19 @@ def render(changes, findings, days, total=None, candidates=None,
     else:
         lines += ["Nothing changed.", ""]
 
-    if findings:
+    # One heading, whatever combination follows it. The warning and the
+    # findings are not alternatives — audit.py prints its findings and *then*
+    # returns 1 when a repository was skipped, so an incomplete run carrying
+    # real findings is the common case, and it printed the heading twice.
+    if findings or audit_incomplete:
         lines += ["### Needs a decision", ""]
+
+    if audit_incomplete:
+        lines += ["⚠️ **The audit did not complete**, so this is not a clean "
+                  "bill of health — anything it would have flagged is missing "
+                  "from this report. See the job log.", ""]
+
+    if findings:
         for kind in NEEDS_A_PERSON:
             items = findings.get(kind)
             if not items:
@@ -160,19 +171,11 @@ def render(changes, findings, days, total=None, candidates=None,
                 lines.append(f"- …and {len(items) - MAX_NAMED} more")
             lines.append("")
     elif not audit_incomplete:
+        # Said explicitly, and the wording differs from the warning above on
+        # purpose: the workflow greps for "Nothing outstanding" to decide a
+        # week was quiet, so a broken audit must not produce that phrase or
+        # the failure suppresses its own report.
         lines += ["### Needs a decision", "", "Nothing outstanding.", ""]
-
-    if audit_incomplete:
-        # The comment here used to say silence "could equally mean the audit
-        # never ran" — and then printed "Nothing outstanding" anyway. It now
-        # says which one it is. This wording also has to differ from the
-        # quiet-week phrase the workflow greps for, or a week where the audit
-        # broke and nothing else happened would suppress the issue entirely
-        # and the failure would surface nowhere anyone reads.
-        lines += ["### Needs a decision", "",
-                  "⚠️ **The audit did not complete**, so this is not a clean "
-                  "bill of health — anything it would have flagged is missing "
-                  "from this report. See the job log.", ""]
 
     if candidates:
         lines += ["### Could be added", "",
