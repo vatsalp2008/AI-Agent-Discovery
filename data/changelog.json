@@ -1,5 +1,22 @@
 [
   {
+    "commit": "605fc578",
+    "at": "2026-08-19T09:15:09-07:00",
+    "subject": "Add six robotics simulators and planners",
+    "total": 317,
+    "added": [
+      "Bullet",
+      "Gazebo",
+      "Open3D",
+      "PX4",
+      "Webots",
+      "cuRobo"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "424f944b",
     "at": "2026-08-19T09:14:23-07:00",
     "subject": "Add three computer-use agents",
