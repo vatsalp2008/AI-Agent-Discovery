@@ -1,5 +1,131 @@
 [
   {
+    "commit": "acd8a932",
+    "at": "2026-08-19T09:09:22-07:00",
+    "subject": "Replace eleven vague use cases",
+    "total": 303,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Coqui TTS",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Speech synthesis and voice cloning",
+            "to": "Training and running text-to-speech models"
+          }
+        ]
+      },
+      {
+        "name": "Giskard",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Automated vulnerability scanning for models",
+            "to": "Scanning an agent for hallucination and bias"
+          }
+        ]
+      },
+      {
+        "name": "Haystack",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Production RAG pipelines",
+            "to": "Composable search and retrieval pipelines"
+          }
+        ]
+      },
+      {
+        "name": "MCP Servers",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Connecting agents to tools and data",
+            "to": "Reference Model Context Protocol servers"
+          }
+        ]
+      },
+      {
+        "name": "Metaflow",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Productionising ML pipelines",
+            "to": "Taking a notebook workflow to production"
+          }
+        ]
+      },
+      {
+        "name": "NeMo Guardrails",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Constraining what a chatbot will discuss",
+            "to": "Programmable dialogue rails in Colang"
+          }
+        ]
+      },
+      {
+        "name": "PandasAI",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Chat with data, analysis",
+            "to": "Asking a dataframe questions in English"
+          }
+        ]
+      },
+      {
+        "name": "Parler TTS",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Controllable speech synthesis",
+            "to": "Describing a voice in plain language"
+          }
+        ]
+      },
+      {
+        "name": "Semantic Kernel",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Enterprise LLM orchestration",
+            "to": "Adding models to an app as plugins and planners"
+          }
+        ]
+      },
+      {
+        "name": "SuperAGI",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Open Source autonomous AI agent framework to develop and deploy useful autonomous agents.",
+            "to": "Runs and monitors several autonomous agents at once from a dashboard, with tools, telemetry and the ability to pause one mid-run."
+          },
+          {
+            "field": "use_case",
+            "from": "Agent provisioning and management",
+            "to": "Running concurrent agents from a dashboard"
+          }
+        ]
+      },
+      {
+        "name": "TruLens",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Tracing and scoring RAG pipelines",
+            "to": "Feedback functions over app traces"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "a6a27a90",
     "at": "2026-08-19T09:06:29-07:00",
     "subject": "Give each safety tool its own description",
