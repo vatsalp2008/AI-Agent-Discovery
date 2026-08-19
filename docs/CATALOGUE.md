@@ -253,6 +253,19 @@ by **0.002**, while two entries that answer a different question outranked
 every right one. The next agent added displaced it, which read as a regression
 in that change rather than a weakness that had been there all along.
 
+**Movement.** `make quality-record` appends the run to
+`data/quality-history.jsonl`, and every later report says which categories
+moved since, in both directions. A single run cannot tell decay from a
+deliberate trade: fine-tuning dropped 0.972 → 0.957 the day Unsloth and PEFT
+were reworded, and without the record beside it that number is just a lower
+number. Recording is a deliberate step rather than something CI does, because
+CI runs on every push and cannot commit, so a line written there would go in
+the bin with the runner.
+
+Only whole-catalogue runs are recorded — `--category` measures a subset, and
+comparing that against a full run reports the difference between two
+questions as a change over time.
+
 Nothing here fails a build. The scores are a property of the catalogue and of
 the embedding model, and the signal is how they move between runs, not whether
 they clear some absolute bar. Two findings on the first run were worth acting

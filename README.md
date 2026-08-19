@@ -468,6 +468,7 @@ make digest           # summarise the last week of activity
 
 make discover         # find agents the catalogue is missing (on demand)
 make quality          # measure how findable the catalogue is (on every push)
+make quality-record   # ...and keep the score, so decay shows as a trend
 ```
 
 `make discover` is deliberately not scheduled: the weekly digest already
