@@ -414,6 +414,11 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("process point clouds", {"Open3D"}),
     ("flight control for a drone", {"PX4"}),
     ("fast motion planning on a gpu", {"cuRobo"}),
+    ("support ticket queues with slas",
+     {"osTicket", "Zammad", "Frappe Helpdesk", "FreeScout"}),
+    ("open source crm", {"Twenty"}),
+    ("team chat with customer messaging", {"Rocket.Chat", "Chatwoot"}),
+    ("speech model that answers without transcribing first", {"Ultravox"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
