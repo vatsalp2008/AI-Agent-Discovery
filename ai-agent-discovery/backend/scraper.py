@@ -1088,7 +1088,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Windows", "Vision"],
         github_stars=9453,
         url="https://github.com/microsoft/UFO",
-        use_case="Operating desktop applications"
+        use_case="Operating Windows applications"
     ),
     Agent(
         name="Cloudflare Agents",

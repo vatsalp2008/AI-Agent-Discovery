@@ -1851,7 +1851,7 @@
     ],
     "github_stars": 9495,
     "url": "https://github.com/microsoft/UFO",
-    "use_case": "Operating desktop applications"
+    "use_case": "Operating Windows applications"
   },
   {
     "name": "Cloudflare Agents",
@@ -2583,7 +2583,7 @@
     ],
     "github_stars": 17163,
     "url": "https://github.com/getmaxun/maxun",
-    "use_case": "Scraping without code"
+    "use_case": "Turning a website into an API"
   },
   {
     "name": "Page Agent",
