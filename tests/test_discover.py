@@ -580,39 +580,49 @@ class TestExampleIsNotAlwaysAnExampleRepo:
 
 
 class TestAnInterviewCanBeAMethod:
-    """`interview` on its own refused STORM.
+    """`interview` cuts both ways, and the first two attempts each cut wrong.
 
-    Its description says it researches a topic "by simulating expert
-    interviews" — the word names how the tool works, not what kind of
-    repository it is. Same shape as the `example` phrase before it: the
-    catalogue is the definition of "this is a tool", so a phrase that refuses
-    one of its entries is the phrase that is wrong.
+    Bare, it refused STORM, which researches a topic "by simulating expert
+    interviews". A proximity regex over {prep, question, answer, guide,
+    handbook, cheat} plus bare "technical|job interview" then refused three
+    real tools that *conduct* interviews — a live category — while still
+    accepting "practice mock interviews with an LLM".
+
+    What is left matches only phrasings about studying for one. The cases
+    below run in both directions on purpose, because a refusal list is only
+    half-tested by the things it catches.
     """
 
-    def test_a_tool_may_interview_its_sources(self):
-        assert discover.looks_like_a_tool({
-            "name": "storm",
-            "description": "Researches a topic by simulating expert interviews."})
-
-    def test_a_tool_may_run_user_interviews(self):
-        assert discover.looks_like_a_tool({
-            "name": "notetaker",
-            "description": "Records user interviews and transcribes them for product teams."})
+    @pytest.mark.parametrize("description", [
+        "An AI agent that conducts technical interviews with candidates and scores them.",
+        "Automates job interviews end to end for recruiting teams.",
+        "Runs customer interviews and turns the answers into a report.",
+        "Researches a topic by simulating expert interviews, then writes a cited article.",
+        "Records user interviews and transcribes them for product teams.",
+    ])
+    def test_a_tool_that_conducts_interviews_is_accepted(self, description):
+        assert discover.looks_like_a_tool({"name": "x", "description": description})
 
     @pytest.mark.parametrize("description", [
-        "Machine learning interview questions and answers",
-        "A coding interview prep guide",
+        "Practice mock interviews with an LLM.",
         "Interview preparation for ML engineers",
         "A deep learning interview question bank",
-        "System design interviews explained",
-        "Machine learning interviews handbook",
-        "Technical interview cheat sheet",
-        "Job interview answers for data science",
+        "Coding interview questions and answers",
+        "Preparing for machine learning interviews",
+        "Interview practice with instant feedback",
     ])
-    def test_interview_prep_repositories_are_still_refused(self, description):
-        """A fixed phrase list could not do this: "interview prep" does not
-        match "interview preparation", and the pluralising `s?` in the main
-        pattern applies to the end of a phrase, so "interview questions" left
-        the singular "interview question" free."""
-        assert not discover.looks_like_a_tool(
-            {"name": "prep", "description": description}), description
+    def test_studying_for_an_interview_is_refused(self, description):
+        """None of these is caught by the plain phrase list — checked, so the
+        cases exercise the pattern they are written for rather than passing
+        on `handbook` or `cheat sheet`, which NOT_A_TOOL already holds."""
+        assert not discover.NOT_A_TOOL_PATTERN.search(description.lower()), (
+            "the phrase list already catches this, so it tests nothing new")
+        assert not discover.looks_like_a_tool({"name": "x", "description": description})
+
+    def test_a_prep_repo_can_still_slip_past(self):
+        """Recorded rather than fixed. Catching "system design interviews
+        explained" needs a bare "system design interview" branch, and that is
+        exactly what refused the AI interviewers. One rejection by a reviewer
+        beats a category that never reaches one."""
+        assert discover.looks_like_a_tool(
+            {"name": "x", "description": "System design interviews explained"})

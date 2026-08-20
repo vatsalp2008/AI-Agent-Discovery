@@ -228,16 +228,29 @@ NOT_A_TOOL_PATTERN = re.compile(
 # above. Bare, it refused STORM for researching a topic "by simulating expert
 # interviews" — there the word is the method. A fixed phrase list does not
 # work either: "interview prep" cannot match "interview preparation", and the
-# `s?` above only pluralises the end of a phrase, so "interview question"
-# slipped past "interview questions". This looks for the word near the ones a
-# prep repository uses, and for the phrases where it is the genre outright.
+# `s?` above only pluralises the end of a phrase.
+#
+# The first attempt at this over-corrected badly. Matching "interview" near
+# any of {prep, question, answer, guide, handbook, cheat}, plus a bare
+# "technical|job|system design interview", refused an AI agent that "conducts
+# technical interviews with candidates", one that "automates job interviews",
+# and one that "runs customer interviews and turns the answers into a report"
+# — a live category, silently dropped — while still letting "practice mock
+# interviews with an LLM" through.
+#
+# So: only phrasings that describe studying *for* an interview, never ones
+# that describe conducting one. "System design interviews explained" gets
+# past this, and that is the deliberate trade — a prep repository reaching a
+# reviewer costs one rejection, whereas refusing every AI interviewer costs
+# a category nobody ever sees.
 INTERVIEW_PREP_PATTERN = re.compile(
-    r"\binterviews?\b[^.]{0,24}\b(?:prep\w*|questions?|answers?|guide|handbook|cheat)\b"
-    r"|\b(?:coding|technical|system design|job|behavioural|behavioral)\s+interviews?\b")
+    r"\bmock\s+interviews?\b"
+    r"|\binterviews?\s+prep\w*\b"
+    r"|\binterview\s+questions?\b"
+    r"|\b(?:interviews?\s+practice|practice\s+interviews?)\b"
+    r"|\binterview\s+(?:study|cheat)\w*\b"
+    r"|\bprepar\w+\s+for\s+(?:\w+\s+){0,2}interviews?\b")
 
-# "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
-# tagged it — so the word alone cannot decide the category. A repo claiming
-# robotics while describing process automation is filed by what it says.
 RPA_HINTS = ("rpa", "robotic process", "process automation", "web scraping",
              "scraper", "crawler", "chatbot", "workflow")
 

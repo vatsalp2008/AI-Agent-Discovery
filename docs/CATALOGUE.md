@@ -211,8 +211,29 @@ list:
 | `collection of` | MCP Servers | "the reference **collection of** Model Context Protocol servers" |
 | `paper` | PaperQA | "questions over scientific **papers** with citations" |
 | `boilerplate` | Jina Reader | "stripping navigation and **boilerplate**" |
+| `example` | ChatterBot | "learns replies from **example** conversations" |
+| `interview` | STORM | "by simulating expert **interviews**" |
 
-All three were replaced with narrower forms. The same applies to the
+All five were replaced with narrower forms.
+
+**`interview` does not live in the phrase list at all.** It is the one word
+where narrowing to phrases was not enough, and the record of getting it wrong
+is worth keeping. `interview prep` cannot match "interview preparation", and
+the pattern's trailing `s?` only pluralises the end of a phrase, so
+`interview questions` left the singular free. The replacement — matching
+`interview` near any of *prep, question, answer, guide, handbook, cheat*, plus
+a bare "technical / job / system design interview" — then refused an agent
+that "conducts technical interviews with candidates", one that "automates job
+interviews", and one that "runs customer interviews and turns the answers into
+a report". AI interviewers are a real and growing category, and the crawler
+was dropping every one of them silently.
+
+`INTERVIEW_PREP_PATTERN` in `discover.py` now matches only phrasings about
+studying *for* an interview: mock interviews, interview questions, interview
+practice, preparing for interviews. "System design interviews explained" gets
+past it, and that is deliberate — catching it needs the bare-phrase branch
+that caused the false positives, and one prep repository reaching a reviewer
+is cheaper than a category that never reaches one. The same applies to the
 configuration filter: `prompt` alone would reject Prompt Optimizer, and
 `skills` alone would reject a robotics skill library, so it matches
 `system prompt`, `agent skill` and `plugin marketplace` instead.
