@@ -1,5 +1,19 @@
 [
   {
+    "commit": "01e90f4f",
+    "at": "2026-08-20T09:51:29-07:00",
+    "subject": "Add three observability tools",
+    "total": 331,
+    "added": [
+      "Helicone",
+      "Langtrace",
+      "Weave"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "ed2fcd96",
     "at": "2026-08-20T09:50:44-07:00",
     "subject": "Add four serving and feature tools",
