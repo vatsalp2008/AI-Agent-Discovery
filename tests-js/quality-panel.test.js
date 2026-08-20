@@ -96,16 +96,29 @@ describe('when there is nothing to show', () => {
         expect(area.getAttribute('aria-busy')).toBe('false');
     });
 
-    it('reports a failure without taking the page with it', async () => {
-        /** The two panels load independently on purpose. The change history
-         *  is why people come here; it must not vanish because the quality
-         *  file is missing or the endpoint is down. */
+    it('reports a failure without disturbing the change history', async () => {
+        /** The two panels load independently on purpose: the history is why
+         *  people come to this page, and it must not vanish because the
+         *  quality file is missing or the endpoint is down.
+         *
+         *  Asserted as "quality-panel.js leaves #changesArea alone and does
+         *  not throw", which is the property that makes them independent.
+         *  An earlier version asserted `#changesArea` merely existed after a
+         *  quality failure — but `scriptsFor` drops changes.js (it filters to
+         *  files declaring a top-level `const X = (() => {`, and changes.js
+         *  is a bare DOMContentLoaded listener), so that only proved the
+         *  fixture contained the element and would have passed with
+         *  changes.js deleted. changes-page.test.js covers the history
+         *  itself. */
         boot({ '/api/quality': { ok: false, status: 500 } });
         await flush();
 
         expect(document.getElementById('qualityArea').textContent)
             .toMatch(/Could not load the quality scores/);
-        expect(document.getElementById('changesArea')).not.toBeNull();
+
+        const history = document.getElementById('changesArea');
+        expect(history.textContent).toBe('');
+        expect(history.getAttribute('aria-busy')).toBe('true');
     });
 
     it('ignores a category whose score is not a number', async () => {

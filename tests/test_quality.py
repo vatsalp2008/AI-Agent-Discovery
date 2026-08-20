@@ -656,3 +656,33 @@ class TestTheReaderTheWebProcessUses:
         import quality_data
 
         assert quality.DEFAULT_LIMIT is quality_data.DEFAULT_LIMIT
+
+
+class TestACategoryRunSaysWhyItCannotCompare:
+    """`--category` zeroes `moves` while leaving `previous` set, so the
+    "nothing to compare" note — which only checked the depth mismatch — never
+    fired and the report printed no movement section at all. The same shape as
+    the recorded lesson that a guard checking one side is half a guard."""
+
+    def _report(self, **kwargs):
+        return quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 0}], [],
+            [{"query": "q", "rank": 1, "margin": 0.4, "rival": "X", "expected": ["R"]}],
+            moves=[], history=[{"commit": "aaa", "limit": 10}], **kwargs)
+
+    def test_a_single_category_run_says_so(self):
+        report = self._report(previous={"commit": "aaa", "limit": 10}, partial=True)
+
+        assert "Not compared" in report
+        assert "measured one category" in report
+
+    def test_a_depth_mismatch_still_says_its_own_reason(self):
+        report = self._report(previous=None, limit=3, partial=False)
+
+        assert "Nothing to compare against" in report
+        assert "measured to 3" in report
+
+    def test_a_full_run_with_a_baseline_and_no_movement_stays_quiet(self):
+        report = self._report(previous={"commit": "aaa", "limit": 10}, partial=False)
+
+        assert "Moved since the last run" not in report

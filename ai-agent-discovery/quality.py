@@ -281,7 +281,7 @@ def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
 
 
 def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
-           previous=None, limit=DEFAULT_LIMIT, history=None):
+           previous=None, limit=DEFAULT_LIMIT, history=None, partial=False):
     out = ["# Retrieval quality", ""]
 
     out.append("## Self-retrieval by category")
@@ -319,17 +319,24 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
     unmeasured = len(guards) - len(measured)
     at_risk = [g for g in measured if 0 <= g["margin"] < thin_margin]
 
-    if not moves and history and previous is None:
-        # Silence here would read as a steady week, which is the same
-        # information loss the limit guard exists to prevent, only quieter.
-        depths = sorted({run.get("limit", DEFAULT_LIMIT) for run in history})
+    # Silence would read as a steady week, which is the same information loss
+    # the limit guard exists to prevent, only quieter. Both reasons for having
+    # nothing to say get said: this checked only the depth mismatch, and a
+    # --category run — which zeroes `moves` while leaving `previous` set —
+    # printed no section at all. A guard that checks one side is half a guard.
+    if not moves and history and (previous is None or partial):
         out.append("## Moved since the last run")
         out.append("")
-        out.append(f"*Nothing to compare against: this run measured to "
-                   f"{limit}, and the {len(history)} recorded "
-                   f"{'run' if len(history) == 1 else 'runs'} used "
-                   f"{', '.join(str(d) for d in depths)}. Scores are not "
-                   f"comparable across depths.*")
+        if partial:
+            out.append("*Not compared: this run measured one category, and a "
+                       "recorded run covers all of them.*")
+        else:
+            depths = sorted({run.get("limit", DEFAULT_LIMIT) for run in history})
+            out.append(f"*Nothing to compare against: this run measured to "
+                       f"{limit}, and the {len(history)} recorded "
+                       f"{'run' if len(history) == 1 else 'runs'} used "
+                       f"{', '.join(str(d) for d in depths)}. Scores are not "
+                       f"comparable across depths.*")
         out.append("")
 
     if moves:
@@ -440,7 +447,7 @@ def main(argv=None):
     else:
         report = render(categories, weakest, guards, args.thin_margin,
                         moves=moves, previous=previous, limit=args.limit,
-                        history=history)
+                        history=history, partial=bool(args.category))
 
     if args.out:
         with open(args.out, "w") as f:

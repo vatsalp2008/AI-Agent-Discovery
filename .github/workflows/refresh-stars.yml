@@ -176,9 +176,10 @@ jobs:
           git commit -m "Update project health statuses"
           git push
 
-      # Rebuilt after the commits above, so the feed includes them. Derived
-      # from git history, so it is always regenerable — a failure here is
-      # worth reporting but not worth failing the job over.
+      # Rebuilt after the commits above, so the feed includes them. It is
+      # always regenerable from git — but those commits have already landed,
+      # so *not* regenerating it leaves main inconsistent. The step body
+      # explains why that now fails the job instead of warning.
       - name: Rebuild the change history
         run: |
           set -eo pipefail
@@ -210,7 +211,7 @@ jobs:
       # report rather than two. --json implies --dry-run, so it cannot write
       # to the queue; it paces itself inside the search budget.
       - name: Look for new agents
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -224,7 +225,7 @@ jobs:
       # only when something actually happened: a weekly issue saying "nothing
       # changed" trains everyone to close it unread.
       - name: Open the weekly digest
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -271,7 +272,7 @@ jobs:
       # fails on one. Run twice before failing, so a transient outage on a
       # single host does not turn the weekly job red.
       - name: Check catalogue links
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           set -o pipefail
           if ! python ai-agent-discovery/check_links.py --fail-on-broken > links.log 2>&1; then

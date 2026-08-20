@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         summary.className = 'quality-summary';
         const [worst, worstScore] = categories[0];
         summary.textContent =
-            `Every agent is searched for using its own description. Across `
+            `Every agent is searched for using its own use case. Across `
             + `${latest.agents} agents, the weakest category is ${worst} at `
             + `${worstScore.toFixed(3)} — 1.000 means every agent in it comes `
             + `back first.`;
