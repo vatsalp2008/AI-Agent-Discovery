@@ -626,3 +626,41 @@ class TestAnInterviewCanBeAMethod:
         beats a category that never reaches one."""
         assert discover.looks_like_a_tool(
             {"name": "x", "description": "System design interviews explained"})
+
+
+class TestPrepReposNameThemselves:
+    """`looks_like_a_tool` searches the repository *name* as well as the
+    description, and GitHub names are hyphenated.
+
+    Requiring literal whitespace between the words let `interview-prep`,
+    `interview-questions` and `coding-interview-prep` straight through — all
+    three refused by the looser pattern that preceded it. The name is checked
+    for exactly this reason: a prep repository names itself about as often as
+    it describes itself.
+    """
+
+    @pytest.mark.parametrize("name", [
+        "interview-prep", "interview-questions", "coding-interview-prep",
+        "mock-interviews", "interview_prep_2026",
+    ])
+    def test_a_hyphenated_prep_repo_is_refused(self, name):
+        assert not discover.looks_like_a_tool({"name": name, "description": "notes"})
+
+
+class TestGeneratingQuestionsIsNotStudying:
+    """"Interview questions" is the one phrase that cuts both ways: a prep
+    repository collects them, a recruiting agent produces them. The verb
+    decides."""
+
+    @pytest.mark.parametrize("description", [
+        "Generates interview questions from a job description for hiring managers",
+        "Writes interview questions tailored to a role",
+        "Asks interview questions and scores the answers",
+    ])
+    def test_a_tool_that_produces_them_is_accepted(self, description):
+        assert discover.looks_like_a_tool({"name": "recruiterbot",
+                                           "description": description})
+
+    def test_a_collection_of_them_is_still_refused(self):
+        assert not discover.looks_like_a_tool(
+            {"name": "x", "description": "A deep learning interview question bank"})

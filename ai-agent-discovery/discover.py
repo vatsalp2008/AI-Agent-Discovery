@@ -243,14 +243,35 @@ NOT_A_TOOL_PATTERN = re.compile(
 # past this, and that is the deliberate trade — a prep repository reaching a
 # reviewer costs one rejection, whereas refusing every AI interviewer costs
 # a category nobody ever sees.
-INTERVIEW_PREP_PATTERN = re.compile(
-    r"\bmock\s+interviews?\b"
-    r"|\binterviews?\s+prep\w*\b"
-    r"|\binterview\s+questions?\b"
-    r"|\b(?:interviews?\s+practice|practice\s+interviews?)\b"
-    r"|\binterview\s+(?:study|cheat)\w*\b"
-    r"|\bprepar\w+\s+for\s+(?:\w+\s+){0,2}interviews?\b")
+# A separator that a repository name and a sentence both use. The haystack is
+# `name + description`, and GitHub names are hyphenated, so requiring literal
+# whitespace let "interview-prep", "interview-questions" and
+# "coding-interview-prep" straight through — every one of them refused by the
+# looser pattern this replaced, and names are checked precisely because a
+# prep repo names itself about as often as it describes itself.
+_GAP = r"[\s\-_]+"
 
+INTERVIEW_PREP_PATTERN = re.compile(
+    rf"\bmock{_GAP}interviews?\b"
+    rf"|\binterviews?{_GAP}prep\w*\b"
+    rf"|\b(?:interviews?{_GAP}practice|practice{_GAP}interviews?)\b"
+    rf"|\binterview{_GAP}(?:study|cheat)\w*\b"
+    rf"|\bprepar\w+{_GAP}for{_GAP}(?:\w+{_GAP}){{0,2}}interviews?\b"
+    # "interview questions" cuts both ways — a prep repository collects them,
+    # a recruiting agent generates them — so the verb decides, in
+    # INTERVIEW_TOOL_PATTERN below, which is consulted first.
+    rf"|\binterview{_GAP}questions?\b")
+
+# A tool that *produces* interview questions is an interviewer's tool, not
+# study material. Checked before the pattern above, because the phrase alone
+# cannot tell them apart.
+INTERVIEW_TOOL_PATTERN = re.compile(
+    r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|score|transcrib)\w*"
+    r"[\s\w]{0,20}?\binterview")
+
+# "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
+# tagged it — so the word alone cannot decide the category. A repo claiming
+# robotics while describing process automation is filed by what it says.
 RPA_HINTS = ("rpa", "robotic process", "process automation", "web scraping",
              "scraper", "crawler", "chatbot", "workflow")
 
@@ -326,8 +347,11 @@ def looks_like_a_tool(repo):
     ("awesome-llm-apps") about as often as it describes itself.
     """
     haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
-    return (NOT_A_TOOL_PATTERN.search(haystack) is None
-            and INTERVIEW_PREP_PATTERN.search(haystack) is None)
+    if NOT_A_TOOL_PATTERN.search(haystack) is not None:
+        return False
+    if INTERVIEW_TOOL_PATTERN.search(haystack) is not None:
+        return True
+    return INTERVIEW_PREP_PATTERN.search(haystack) is None
 
 
 def infer_category(repo):
