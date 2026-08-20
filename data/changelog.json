@@ -1,5 +1,19 @@
 [
   {
+    "commit": "e466e426",
+    "at": "2026-08-20T09:49:59-07:00",
+    "subject": "Add three terminal and review coding agents",
+    "total": 324,
+    "added": [
+      "Codex CLI",
+      "Crush",
+      "PR-Agent"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "6f32d9d9",
     "at": "2026-08-20T09:39:23-07:00",
     "subject": "Follow PyRIT to its new home",
