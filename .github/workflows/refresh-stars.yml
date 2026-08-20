@@ -182,9 +182,19 @@ jobs:
       - name: Rebuild the change history
         run: |
           set -eo pipefail
+          # Fails the step rather than warning. Earlier steps in this job
+          # have already committed data/agents.json, so a rebuild that does
+          # not happen leaves main describing a catalogue that no longer
+          # exists — and `test_the_shipped_history_matches_what_a_rebuild_
+          # would_produce` now runs in CI, so the next unrelated pull request
+          # goes red and its author has to trace a buried warning in a
+          # scheduled job they did not run. Better that this job is the thing
+          # that goes red, at the moment it breaks.
           if ! python ai-agent-discovery/changelog.py; then
-            echo "::warning::Could not rebuild the change history."
-            exit 0
+            echo "::error::Could not rebuild the change history. main now has"
+            echo "::error::a catalogue newer than its changelog; CI will fail"
+            echo '::error::until `make changelog` is run and committed.'
+            exit 1
           fi
           if git diff --quiet -- data/changelog.json; then
             echo "Change history is unchanged."
@@ -200,6 +210,7 @@ jobs:
       # report rather than two. --json implies --dry-run, so it cannot write
       # to the queue; it paces itself inside the search budget.
       - name: Look for new agents
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -213,6 +224,7 @@ jobs:
       # only when something actually happened: a weekly issue saying "nothing
       # changed" trains everyone to close it unread.
       - name: Open the weekly digest
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -259,6 +271,7 @@ jobs:
       # fails on one. Run twice before failing, so a transient outage on a
       # single host does not turn the weekly job red.
       - name: Check catalogue links
+        if: always()
         run: |
           set -o pipefail
           if ! python ai-agent-discovery/check_links.py --fail-on-broken > links.log 2>&1; then
