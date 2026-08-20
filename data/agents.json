@@ -1148,7 +1148,7 @@
   },
   {
     "name": "Coqui TTS",
-    "description": "A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices.",
+    "description": "A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; maintained on as idiap/coqui-ai-TTS since the company closed.",
     "category": "Multimodal",
     "tech_stack": [
       "Python",
@@ -1961,10 +1961,9 @@
     "tech_stack": [
       "Python"
     ],
-    "github_stars": 115,
-    "url": "https://github.com/Azure/PyRIT",
-    "use_case": "Orchestrating automated attack probes",
-    "status": "archived"
+    "github_stars": 4337,
+    "url": "https://github.com/microsoft/PyRIT",
+    "use_case": "Orchestrating automated attack probes"
   },
   {
     "name": "Kubeflow",

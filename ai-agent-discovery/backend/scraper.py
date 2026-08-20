@@ -579,7 +579,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Coqui TTS",
-        description="A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices.",
+        description="A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; maintained on as idiap/coqui-ai-TTS since the company closed.",
         category="Multimodal",
         tech_stack=["Python", "PyTorch"],
         github_stars=45872,
@@ -1168,7 +1168,7 @@ SAMPLE_AGENTS = [
         category="Safety",
         tech_stack=['Python'],
         github_stars=114,
-        url="https://github.com/Azure/PyRIT",
+        url="https://github.com/microsoft/PyRIT",
         use_case="Orchestrating automated attack probes"
     ),
     Agent(
