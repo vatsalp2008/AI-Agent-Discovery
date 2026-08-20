@@ -1,5 +1,26 @@
 [
   {
+    "commit": "1ce69c6b",
+    "at": "2026-08-20T09:57:14-07:00",
+    "subject": "Explain what K8sGPT explains",
+    "total": 334,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "K8sGPT",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Cluster diagnostics and triage",
+            "to": "Explaining Kubernetes errors in plain English"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "018f98da",
     "at": "2026-08-20T09:53:13-07:00",
     "subject": "Add three data inspection tools",
