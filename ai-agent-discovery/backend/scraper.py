@@ -1969,6 +1969,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/RocketChat/Rocket.Chat",
         use_case="Self-hosted team and customer chat"
     ),
+    # Code Generation
+    Agent(
+        name="Codex CLI",
+        description="OpenAI's coding agent for the terminal, running against your checkout inside a configurable sandbox.",
+        category="Code Generation",
+        tech_stack=["Rust", "TypeScript"],
+        github_stars=107085,
+        url="https://github.com/openai/codex",
+        use_case="Sandboxed coding tasks in the terminal"
+    ),
+    Agent(
+        name="Crush",
+        description="A terminal coding agent that reads your project through its language server and switches model mid-session.",
+        category="Code Generation",
+        tech_stack=["Go", "LSP", "MCP"],
+        github_stars=27523,
+        url="https://github.com/charmbracelet/crush",
+        use_case="Coding with language server context"
+    ),
+    Agent(
+        name="PR-Agent",
+        description="Answers slash commands on a pull request — describe it, review it, suggest improvements — from the thread itself.",
+        category="Code Generation",
+        tech_stack=["Python", "GitHub Actions"],
+        github_stars=12633,
+        url="https://github.com/The-PR-Agent/pr-agent",
+        use_case="Slash commands on a pull request"
+    ),
 ]
 
 class CatalogueError(Exception):
