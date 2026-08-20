@@ -287,6 +287,14 @@ Only whole-catalogue runs are recorded — `--category` measures a subset, and
 comparing that against a full run reports the difference between two
 questions as a change over time.
 
+**Published, not private.** `/api/quality` serves the recorded runs and
+`/changes` renders them: the weakest category, every score as a bar, and what
+moved since the previous measurement. A directory that has grown past the
+point of being searchable should say so where people can see it. The panel
+loads independently of the change history on that page, so neither can take
+the other down — the history is the reason to visit, and it should not vanish
+because nobody has measured lately.
+
 Nothing here fails a build. The scores are a property of the catalogue and of
 the embedding model, and the signal is how they move between runs, not whether
 they clear some absolute bar. Two findings on the first run were worth acting

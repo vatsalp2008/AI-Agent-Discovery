@@ -28,6 +28,7 @@ AI Agent Discovery helps developers and researchers find the right AI agents for
 - **Project Health**: Archived and dormant projects say so on the card, and **Only maintained projects** leaves them out of a search; an Atom feed tracks every catalogue change
 - **AI Overviews**: A local chat model summarizes why the top results match, using only the retrieved agents
 - **Shareable Searches**: The query and filter live in the URL, so results can be bookmarked and shared
+- **Findability, Published**: `/changes` shows how well each category can actually be searched, and what moved since the last measurement — the catalogue's own health, not just the maintainer's
 - **Saved Searches**: Keep a question and see what changed about its answers — new matches, ones that dropped out, projects whose momentum moved
 - **Result Caching**: Repeat queries are served from memory instead of re-embedding
 
