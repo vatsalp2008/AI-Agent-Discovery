@@ -91,8 +91,19 @@ def _months_since(timestamp):
     return int((datetime.now(timezone.utc) - when) / timedelta(days=30))
 
 
+def _canonical_tech(name):
+    """One technology written two ways is one technology.
+
+    GitHub reports the language as "Vue"; a curated stack is as likely to say
+    "Vue.js", and both are right. Comparing the strings raw reported drift
+    against an entry that already named the language — a false finding, and
+    the expensive kind, because acting on it means editing a correct entry.
+    """
+    return (name or "").casefold().strip().removesuffix(".js")
+
+
 def _recorded_stack(record):
-    return {tech.casefold() for tech in record.get("tech_stack") or []}
+    return {_canonical_tech(tech) for tech in record.get("tech_stack") or []}
 
 
 def find_issues(record, data, stale_months=DEFAULT_STALE_MONTHS):
@@ -131,7 +142,7 @@ def find_issues(record, data, stale_months=DEFAULT_STALE_MONTHS):
     language = data.get("language")
     if language and language not in FORMAT_LANGUAGES:
         named = LANGUAGE_NAMES.get(language, language)
-        if named.casefold() not in _recorded_stack(record):
+        if _canonical_tech(named) not in _recorded_stack(record):
             issues.append({"kind": "stack",
                            "detail": f"mostly {named}, which the entry does not list"})
 

@@ -412,3 +412,32 @@ class TestJsonOutputStaysParsable:
 
         audit.main(["--apply-status"])
         assert "Updated" in capsys.readouterr().out
+
+
+class TestOneTechnologyWrittenTwoWays:
+    """GitHub reports "Vue"; a curated stack is as likely to say "Vue.js".
+
+    Comparing raw strings reported drift against Frappe Helpdesk, whose stack
+    already named the language. A false stack finding is the expensive kind:
+    acting on it means editing an entry that was right.
+    """
+
+    def _record(self, stack):
+        return {"name": "X", "url": "https://github.com/a/b", "tech_stack": stack}
+
+    def _kinds(self, stack, language):
+        data = {"full_name": "a/b", "archived": False, "language": language,
+                "pushed_at": "2026-08-01T00:00:00Z"}
+        return [i["kind"] for i in audit.find_issues(self._record(stack), data)]
+
+    def test_a_dot_js_suffix_still_matches(self):
+        assert "stack" not in self._kinds(["Python", "Vue.js"], "Vue")
+
+    def test_the_bare_form_matches_a_suffixed_entry(self):
+        assert "stack" not in self._kinds(["Node.js"], "Node")
+
+    def test_a_genuinely_absent_language_is_still_reported(self):
+        assert "stack" in self._kinds(["Python", "Vue.js"], "Rust")
+
+    def test_case_still_does_not_matter(self):
+        assert "stack" not in self._kinds(["typescript"], "TypeScript")
