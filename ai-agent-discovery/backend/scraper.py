@@ -579,7 +579,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Coqui TTS",
-        description="A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; maintained on as idiap/coqui-ai-TTS since the company closed.",
+        description="A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; carried on as idiap/coqui-ai-TTS since the company closed.",
         category="Multimodal",
         tech_stack=["Python", "PyTorch"],
         github_stars=45872,

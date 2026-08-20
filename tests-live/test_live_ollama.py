@@ -433,7 +433,7 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("log every model call and its cost", {"Helicone", "Langfuse", "Opik"}),
     ("llm traces in opentelemetry", {"Langtrace", "OpenLLMetry"}),
     ("inspect a dataframe in a browser", {"D-Tale", "PyGWalker"}),
-    ("one call report on a dataset", {"Data Profiling"}),
+    ("one call report on a dataset", {"fg-data-profiling"}),
     ("data quality checks in yaml", {"Soda Core", "Great Expectations"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
