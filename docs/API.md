@@ -231,6 +231,41 @@ description are distinguishable. Star counts are deliberately excluded — a bot
 refreshes them weekly, and including them would bury every addition under a
 wall of numbers.
 
+## Retrieval quality
+
+`GET /api/quality` reports how findable the catalogue is, and how that has
+moved.
+
+```json
+{
+  "latest": {
+    "at": "2026-08-20T09:00:00+00:00",
+    "commit": "2dce8c4",
+    "agents": 321,
+    "limit": 10,
+    "categories": {"Safety": 0.976, "Infrastructure": 0.924},
+    "guards": 127,
+    "failing": 0,
+    "thinnest": 0.0325
+  },
+  "moved": [{"category": "Automation", "from": 0.895, "to": 0.946, "delta": 0.051}],
+  "runs": [{"at": "...", "commit": "...", "agents": 321, "categories": {}}],
+  "metadata": {"count": 5}
+}
+```
+
+Each category's score is a mean reciprocal rank: every agent is looked up
+using its own `use_case`, and the score is how near the top it comes back.
+1.000 means every agent in the category is the first result for a plain
+description of itself.
+
+Served from `data/quality-history.jsonl`, written by `make quality-record`,
+never computed on request — measuring it costs one embedding round trip per
+agent. `moved` compares the two most recent runs **taken at the same depth**;
+a run at `--limit 3` cannot see an agent ranked fourth, so comparing across
+depths would report the setting as a change in the catalogue. With fewer than
+two comparable runs it is an empty list.
+
 ## List technologies
 
 ```bash

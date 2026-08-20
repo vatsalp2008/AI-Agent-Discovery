@@ -1010,3 +1010,68 @@ class TestFeedSurvivesADamagedHistory:
         summaries = [e.text for e in feed.iter(f"{self.NS}summary")]
 
         assert any("Added Kedro" in s for s in summaries)
+
+
+class TestTheQualityEndpoint:
+    """`/api/quality` publishes what `make quality-record` measured.
+
+    Served from the recorded file, never computed: measuring means one model
+    round trip per agent, which is not something a page load should pay for.
+    """
+
+    def _history(self, tmp_path, monkeypatch, *runs):
+        import config
+        (tmp_path / "quality-history.jsonl").write_text(
+            "".join(json.dumps(run) + "\n" for run in runs))
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+    def test_no_runs_yet_is_an_empty_answer_not_an_error(self, client, tmp_path, monkeypatch):
+        import config
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        body = client.get('/api/quality').get_json()
+
+        assert body["runs"] == [] and body["latest"] is None
+        assert "quality-record" in body["metadata"]["note"]
+
+    def test_it_serves_the_newest_run_first(self, client, tmp_path, monkeypatch):
+        self._history(tmp_path, monkeypatch,
+                      {"commit": "old", "agents": 300, "limit": 10,
+                       "categories": {"Safety": 0.80}},
+                      {"commit": "new", "agents": 321, "limit": 10,
+                       "categories": {"Safety": 0.90}})
+
+        body = client.get('/api/quality').get_json()
+
+        assert body["latest"]["commit"] == "new"
+        assert body["latest"]["agents"] == 321
+        assert [r["commit"] for r in body["runs"]] == ["new", "old"]
+
+    def test_it_reports_what_moved(self, client, tmp_path, monkeypatch):
+        self._history(tmp_path, monkeypatch,
+                      {"commit": "old", "limit": 10, "categories": {"Safety": 0.80}},
+                      {"commit": "new", "limit": 10, "categories": {"Safety": 0.90}})
+
+        moved = client.get('/api/quality').get_json()["moved"]
+
+        assert moved == [{"category": "Safety", "from": 0.80, "to": 0.90, "delta": 0.1}]
+
+    def test_two_depths_are_not_compared(self, client, tmp_path, monkeypatch):
+        """A run at `--limit 3` cannot see an agent ranked fourth, so the
+        difference would be the setting rather than the catalogue."""
+        self._history(tmp_path, monkeypatch,
+                      {"commit": "old", "limit": 10, "categories": {"Safety": 0.90}},
+                      {"commit": "new", "limit": 3, "categories": {"Safety": 0.60}})
+
+        assert client.get('/api/quality').get_json()["moved"] == []
+
+    def test_it_carries_an_etag_like_the_other_reads(self, client, tmp_path, monkeypatch):
+        self._history(tmp_path, monkeypatch,
+                      {"commit": "a", "limit": 10, "categories": {"Safety": 0.9}})
+
+        first = client.get('/api/quality')
+        assert first.headers.get("ETag")
+
+        again = client.get('/api/quality',
+                           headers={"If-None-Match": first.headers["ETag"]})
+        assert again.status_code == 304

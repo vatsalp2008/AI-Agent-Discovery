@@ -6,6 +6,7 @@ import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
+import quality_data
 from flask import Blueprint, jsonify, make_response, request
 from werkzeug.exceptions import HTTPException
 
@@ -492,6 +493,48 @@ def _feed_timestamp(entry=None):
     if isinstance(at, str) and at.strip():
         return at
     return datetime.now(timezone.utc).isoformat()
+
+
+@api_bp.route('/quality', methods=['GET'])
+def get_quality():
+    """How well the catalogue can be searched, measured over time.
+
+    Read from data/quality-history.jsonl rather than computed: measuring it
+    means embedding a query per agent, which is a model round trip apiece and
+    not something a page load should pay for. `make quality-record` writes a
+    run; this serves what has been written.
+
+    Published rather than kept to the maintainer's terminal because the number
+    is about the catalogue, not about the tooling. A directory that has grown
+    past the point of being searchable should say so where people can see it.
+    """
+    runs = quality_data.read()
+    if not runs:
+        return _etag_response({
+            "runs": [], "latest": None, "moved": [],
+            "metadata": {"count": 0,
+                         "note": "No runs recorded yet; run `make quality-record`."},
+        })
+
+    latest = runs[0]
+    return _etag_response({
+        "latest": {
+            "at": latest.get("at"),
+            "commit": latest.get("commit"),
+            "agents": latest.get("agents"),
+            "limit": latest.get("limit", quality_data.DEFAULT_LIMIT),
+            "categories": latest.get("categories") or {},
+            "guards": latest.get("guards"),
+            "failing": latest.get("failing"),
+            "thinnest": latest.get("thinnest"),
+        },
+        "moved": quality_data.movement(runs),
+        "runs": [{"at": run.get("at"), "commit": run.get("commit"),
+                  "agents": run.get("agents"),
+                  "categories": run.get("categories") or {}}
+                 for run in runs],
+        "metadata": {"count": len(runs)},
+    })
 
 
 @api_bp.route('/changelog.atom', methods=['GET'])
