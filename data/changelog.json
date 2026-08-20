@@ -1,5 +1,32 @@
 [
   {
+    "commit": "2bed8d44",
+    "at": "2026-08-20T10:18:40-07:00",
+    "subject": "Name the profiler after the project",
+    "total": 334,
+    "added": [
+      "fg-data-profiling"
+    ],
+    "removed": [
+      "Data Profiling"
+    ],
+    "edited": [
+      {
+        "name": "Coqui TTS",
+        "fields": [
+          {
+            "field": "description",
+            "from": "A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; maintained on as idiap/coqui-ai-TTS since the company closed.",
+            "to": "A deep learning toolkit for text-to-speech, with voice cloning and dozens of pretrained voices; carried on as idiap/coqui-ai-TTS since the company closed."
+          }
+        ]
+      }
+    ],
+    "gone": [
+      "Data Profiling"
+    ]
+  },
+  {
     "commit": "1ce69c6b",
     "at": "2026-08-20T09:57:14-07:00",
     "subject": "Explain what K8sGPT explains",
@@ -32,7 +59,9 @@
     ],
     "removed": [],
     "edited": [],
-    "gone": []
+    "gone": [
+      "Data Profiling"
+    ]
   },
   {
     "commit": "01e90f4f",
