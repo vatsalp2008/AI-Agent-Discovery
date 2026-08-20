@@ -1,5 +1,48 @@
 [
   {
+    "commit": "c66800a6",
+    "at": "2026-08-20T09:34:10-07:00",
+    "subject": "Spell each technology one way",
+    "total": 321,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Automa",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "Vue",
+              "JavaScript"
+            ],
+            "to": [
+              "Vue.js",
+              "JavaScript"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Prompt Optimizer",
+        "fields": [
+          {
+            "field": "tech_stack",
+            "from": [
+              "TypeScript",
+              "Vue"
+            ],
+            "to": [
+              "TypeScript",
+              "Vue.js"
+            ]
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "0996f866",
     "at": "2026-08-19T09:21:13-07:00",
     "subject": "Add four customer service tools",
