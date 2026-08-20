@@ -5,6 +5,7 @@ these tests is the arithmetic and the parsing, and a real index would make
 them slow, non-deterministic and dependent on which model is installed.
 """
 
+import json
 import sys
 
 import pytest
@@ -422,9 +423,122 @@ class TestTheLimitIsPartOfTheMeasurement:
 
         assert moves and moves[0]["delta"] == -0.127
 
-    def test_a_run_recorded_before_the_field_existed_still_compares(self):
-        """Every one of those was taken at the default."""
-        moves = quality.movement(self._rows(),
-                                 {"categories": {"Safety": 0.976}}, limit=10)
+    def test_a_run_recorded_before_the_field_existed_is_read_as_the_default(self):
+        """Those runs were all taken at the default, so that is what an
+        absent field means — not "comparable with anything you ask for".
+        Read as None, a legacy line reported a 0.376 collapse in Safety that
+        was entirely the effect of `--limit 3`."""
+        legacy = {"categories": {"Safety": 0.976}}
 
-        assert moves and moves[0]["delta"] == -0.127
+        assert quality.movement(self._rows(), legacy,
+                                limit=quality.DEFAULT_LIMIT)[0]["delta"] == -0.127
+        assert quality.movement(self._rows(), legacy, limit=3) == []
+
+
+class TestChoosingSomethingToCompareAgainst:
+    def test_the_newest_run_at_the_same_depth_wins(self):
+        """One `--record --limit 3` used to blind every later default run:
+        it mismatched, movement returned nothing, and a comparable run sat
+        one line above it unused."""
+        history = [{"commit": "aaa", "limit": 10}, {"commit": "bbb", "limit": 3}]
+
+        assert quality.comparable(history, 10)["commit"] == "aaa"
+        assert quality.comparable(history, 3)["commit"] == "bbb"
+
+    def test_a_legacy_line_counts_as_the_default(self):
+        assert quality.comparable([{"commit": "old"}], quality.DEFAULT_LIMIT)
+
+    def test_nothing_at_that_depth_is_none(self):
+        assert quality.comparable([{"commit": "aaa", "limit": 10}], 3) is None
+
+    def test_no_history_is_none(self):
+        assert quality.comparable([], 10) is None
+
+
+class TestSayingWhyThereIsNoComparison:
+    def test_a_depth_with_no_baseline_says_so(self):
+        """Going silent reads as a steady week, which is the same information
+        loss the limit guard exists to prevent, only quieter."""
+        report = quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 0}], [],
+            [{"query": "q", "rank": 1, "margin": 0.4, "rival": "X", "expected": ["R"]}],
+            moves=[], previous=None, limit=3,
+            history=[{"commit": "aaa", "limit": 10}])
+
+        assert "Nothing to compare against" in report
+        assert "measured to 3" in report
+
+    def test_a_first_ever_run_says_nothing_about_comparison(self):
+        report = quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 0}], [],
+            [{"query": "q", "rank": 1, "margin": 0.4, "rival": "X", "expected": ["R"]}],
+            moves=[], previous=None, limit=10, history=[])
+
+        assert "Nothing to compare against" not in report
+
+
+class TestTheReportStatesItsOwnDepth:
+    def _report(self, limit):
+        return quality.render(
+            [{"category": "C", "agents": 1, "mrr": 0.9, "unfindable": 1}],
+            [{"name": "A", "category": "C", "rank": None, "reciprocal": 0.0,
+              "beaten_by": ["B"]}],
+            [], limit=limit)
+
+    def test_the_column_counts_what_it_says_it_counts(self):
+        """`--limit 3` produced a column headed "Not in top 10" counting
+        agents outside the top three."""
+        assert "Not in top 3 " in self._report(3)
+        assert "Not in top 10 " in self._report(10)
+
+    def test_a_missing_agent_is_described_at_the_right_depth(self):
+        assert "outside the top 3" in self._report(3)
+
+
+class TestMainThreadsTheLimitThrough:
+    """Every other test here calls movement() and record() directly. These
+    drive main, so the wiring is covered too — choosing the baseline, and
+    recording the depth it was taken at.
+
+    Two guards now stop a cross-depth comparison, and only one is load
+    bearing here: `comparable()` picks a baseline at the right depth, after
+    which `movement`'s own limit check has nothing left to reject. That
+    second check is kept for direct callers, who pass whatever `previous`
+    they like, and the tests above cover it at that level.
+    """
+
+    @pytest.fixture
+    def wired(self, tmp_path, monkeypatch, capsys):
+        import config
+
+        history = tmp_path / "quality-history.jsonl"
+        history.write_text(json.dumps(
+            {"commit": "old", "limit": 10, "agents": 2,
+             "categories": {"Infra": 0.90}}) + "\n")
+        monkeypatch.setattr(quality, "history_path", lambda: history)
+
+        agent = Agent("Ollama", "Infra", "run models locally")
+        monkeypatch.setattr(quality, "load_agents", lambda: [agent])
+        monkeypatch.setattr(quality, "read_guards", lambda path=None: [])
+        # Rank 3, so the score depends on how deep the run looks.
+        monkeypatch.setattr(quality, "VectorStore", lambda: FakeStore(
+            {"run models locally": [("A", 0.9), ("B", 0.8), ("Ollama", 0.7)]}))
+        monkeypatch.setattr(config, "REPO_ROOT", tmp_path)
+        return history
+
+    def test_a_shallower_run_is_not_compared_against_a_default_one(self, wired, capsys):
+        assert quality.main(["--limit", "3"]) == 0
+        report = capsys.readouterr().out
+
+        assert "Nothing to compare against" in report
+        assert "0.90" not in report, "it compared across depths"
+
+    def test_a_matching_run_is_compared(self, wired, capsys):
+        assert quality.main([]) == 0
+
+        assert "Moved since the last run" in capsys.readouterr().out
+
+    def test_the_recorded_limit_is_the_one_that_was_used(self, wired):
+        quality.main(["--record", "--limit", "3"])
+
+        assert quality.read_history(wired)[-1]["limit"] == 3

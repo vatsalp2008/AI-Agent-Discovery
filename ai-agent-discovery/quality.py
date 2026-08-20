@@ -59,6 +59,11 @@ THIN_MARGIN = 0.02
 # trend survives a fresh checkout and a CI runner that keeps nothing.
 HISTORY = "data/quality-history.jsonl"
 
+# How deep to look for each agent. Named because four places need to agree
+# on it: the two measuring functions, the CLI default, and the rule that a
+# history line without a recorded limit was taken at this one.
+DEFAULT_LIMIT = 10
+
 # How far a category has to move before it is worth mentioning. Scores wobble
 # by a thousandth or two between runs on identical data; 0.02 is the smallest
 # move that has meant something every time so far.
@@ -78,7 +83,7 @@ def rank_of(results, wanted):
     return None
 
 
-def self_retrieval(store, agents, limit=10):
+def self_retrieval(store, agents, limit=DEFAULT_LIMIT):
     """Where each agent ranks when asked for in its own words."""
     rows = []
     for agent in agents:
@@ -127,7 +132,7 @@ def read_guards(path=None):
     return cases
 
 
-def guard_margins(store, cases, limit=10):
+def guard_margins(store, cases, limit=DEFAULT_LIMIT):
     """How close each guard case is to failing.
 
     The margin is the expected agent's score minus the score of the best
@@ -233,6 +238,19 @@ def _commit():
     return found.stdout.strip() or None if found.returncode == 0 else None
 
 
+def comparable(history, limit):
+    """The newest recorded run measured at the same depth, if there is one.
+
+    Taking simply the last line meant one `--record --limit 3` blinded every
+    later default run: it mismatched, movement returned nothing, and a
+    perfectly comparable run sat one line above it unused.
+    """
+    for run in reversed(history or []):
+        if run.get("limit", DEFAULT_LIMIT) == limit:
+            return run
+    return None
+
+
 def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
     """Categories that moved since the last recorded run, biggest fall first.
 
@@ -241,10 +259,12 @@ def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
     only ever hearing bad news.
     """
     if previous and limit is not None:
-        was = previous.get("limit")
-        # Absent on runs recorded before the field existed; those were all at
-        # the default, so only an explicit mismatch is disqualifying.
-        if was is not None and was != limit:
+        # Absent means a run recorded before the field existed, and every one
+        # of those was taken at the default — so default it, rather than
+        # treating "unknown" as "matches whatever you are asking for". Read
+        # as None, a legacy line reported a 0.376 collapse in Safety that was
+        # entirely the effect of `--limit 3`.
+        if previous.get("limit", DEFAULT_LIMIT) != limit:
             return []
 
     before = (previous or {}).get("categories") or {}
@@ -261,14 +281,14 @@ def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
 
 
 def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
-           previous=None):
+           previous=None, limit=DEFAULT_LIMIT, history=None):
     out = ["# Retrieval quality", ""]
 
     out.append("## Self-retrieval by category")
     out.append("")
     out.append("Asking for each agent in its own words, and seeing where it lands.")
     out.append("")
-    out.append("| Category | Agents | MRR | Not in top 10 |")
+    out.append(f"| Category | Agents | MRR | Not in top {limit} |")
     out.append("| --- | ---: | ---: | ---: |")
     for row in categories:
         out.append(f"| {row['category']} | {row['agents']} | {row['mrr']:.3f} "
@@ -280,7 +300,7 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
         out.append("")
         for row in weakest:
             beaten = ", ".join(row["beaten_by"]) or "—"
-            where = row["rank"] or "outside the top 10"
+            where = row["rank"] or f"outside the top {limit}"
             out.append(f"- **{row['name']}** ({row['category']}) — {where}; "
                        f"loses to {beaten}")
         out.append("")
@@ -298,6 +318,19 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
     measured = [g for g in guards if g["margin"] is not None]
     unmeasured = len(guards) - len(measured)
     at_risk = [g for g in measured if 0 <= g["margin"] < thin_margin]
+
+    if not moves and history and previous is None:
+        # Silence here would read as a steady week, which is the same
+        # information loss the limit guard exists to prevent, only quieter.
+        depths = sorted({run.get("limit", DEFAULT_LIMIT) for run in history})
+        out.append("## Moved since the last run")
+        out.append("")
+        out.append(f"*Nothing to compare against: this run measured to "
+                   f"{limit}, and the {len(history)} recorded "
+                   f"{'run' if len(history) == 1 else 'runs'} used "
+                   f"{', '.join(str(d) for d in depths)}. Scores are not "
+                   f"comparable across depths.*")
+        out.append("")
 
     if moves:
         out.append("## Moved since the last run")
@@ -345,7 +378,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="quality.py",
                                      description=__doc__.split("\n")[0])
     parser.add_argument("--category", help="only measure agents in this category")
-    parser.add_argument("--limit", type=int, default=10,
+    parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT,
                         help="how deep to look for each agent (default: 10)")
     parser.add_argument("--worst", type=int, default=15,
                         help="how many weak entries to list (default: 15)")
@@ -382,7 +415,7 @@ def main(argv=None):
     # Read before recording, or the run being reported becomes its own
     # baseline and every category looks unchanged.
     history = read_history()
-    previous = history[-1] if history else None
+    previous = comparable(history, args.limit)
     # Only meaningful over the whole catalogue: --category measures a subset,
     # and comparing that against a full run would report the difference
     # between two questions as a change over time.
@@ -400,10 +433,14 @@ def main(argv=None):
 
     if args.as_json:
         report = json.dumps({"categories": categories, "agents": rows,
-                             "guards": guards, "moved": moves}, indent=2)
+                             "guards": guards, "limit": args.limit,
+                             "moved": moves,
+                             "compared_against": (previous or {}).get("commit")},
+                            indent=2)
     else:
         report = render(categories, weakest, guards, args.thin_margin,
-                        moves=moves, previous=previous)
+                        moves=moves, previous=previous, limit=args.limit,
+                        history=history)
 
     if args.out:
         with open(args.out, "w") as f:
