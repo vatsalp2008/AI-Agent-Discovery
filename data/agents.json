@@ -2405,7 +2405,7 @@
     "category": "Framework",
     "tech_stack": [
       "TypeScript",
-      "Vue"
+      "Vue.js"
     ],
     "github_stars": 33215,
     "url": "https://github.com/linshenkx/prompt-optimizer",
@@ -2567,7 +2567,7 @@
     "description": "Browser automation built from visual blocks, so a repetitive web task becomes a saved workflow rather than a script.",
     "category": "Automation",
     "tech_stack": [
-      "Vue",
+      "Vue.js",
       "JavaScript"
     ],
     "github_stars": 21575,

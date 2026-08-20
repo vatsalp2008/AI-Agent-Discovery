@@ -865,3 +865,27 @@ def test_no_two_entries_share_a_use_case(catalogue):
 
     shared = {text: names for text, names in by_use_case.items() if len(names) > 1}
     assert not shared, f"these entries share a use case: {shared}"
+
+
+def test_no_technology_is_spelled_two_ways(catalogue):
+    """`/tech` groups agents by the exact string in `tech_stack`, so two
+    spellings of one technology become two pages, each showing a subset of
+    the agents built on it — and neither showing the whole picture.
+
+    "Vue" and "Vue.js" were both in use across five entries. The same slip
+    also made the audit report stack drift against Frappe Helpdesk, whose
+    entry already named the language: GitHub says "Vue", the entry said
+    "Vue.js", and the raw string comparison called that a mismatch.
+    """
+    from collections import defaultdict
+
+    def canonical(tech):
+        return tech.casefold().strip().removesuffix(".js").replace(" ", "").replace("-", "")
+
+    spellings = defaultdict(set)
+    for agent in catalogue:
+        for tech in agent.get("tech_stack") or []:
+            spellings[canonical(tech)].add(tech)
+
+    split = {key: sorted(names) for key, names in spellings.items() if len(names) > 1}
+    assert not split, f"one technology written several ways: {split}"
