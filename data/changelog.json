@@ -1,5 +1,20 @@
 [
   {
+    "commit": "ed2fcd96",
+    "at": "2026-08-20T09:50:44-07:00",
+    "subject": "Add four serving and feature tools",
+    "total": 328,
+    "added": [
+      "Feast",
+      "LocalAI",
+      "Triton Inference Server",
+      "Xinference"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "e466e426",
     "at": "2026-08-20T09:49:59-07:00",
     "subject": "Add three terminal and review coding agents",
