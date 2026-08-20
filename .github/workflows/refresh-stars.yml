@@ -221,7 +221,12 @@ jobs:
           # than "nothing outstanding" — which, on an otherwise quiet week,
           # the check below would have suppressed entirely.
           incomplete=""
-          [ "${AUDIT_TRUSTED:-yes}" = "yes" ] || incomplete="--audit-incomplete"
+          # Defaults to *not* trusted. If the audit step ever stops writing
+          # this — renamed, reordered, made conditional, given
+          # continue-on-error — the safe reading of a missing verdict is "we
+          # do not know", not "fine". Defaulting to yes is the fail-open
+          # shape this whole step was rewritten to remove.
+          [ "${AUDIT_TRUSTED:-no}" = "yes" ] || incomplete="--audit-incomplete"
 
           python ai-agent-discovery/digest.py --days 7 \
             --audit audit.json --candidates candidates.json --out digest.md \

@@ -148,12 +148,13 @@ def render(changes, findings, days, total=None, candidates=None,
     else:
         lines += ["Nothing changed.", ""]
 
-    # One heading, whatever combination follows it. The warning and the
-    # findings are not alternatives — audit.py prints its findings and *then*
-    # returns 1 when a repository was skipped, so an incomplete run carrying
-    # real findings is the common case, and it printed the heading twice.
-    if findings or audit_incomplete:
-        lines += ["### Needs a decision", ""]
+    # One heading, written once. The warning and the findings are not
+    # alternatives — audit.py prints its findings and *then* returns 1 when a
+    # repository was skipped, so an incomplete run carrying real findings is
+    # the common case, and it printed the heading twice. Unconditional rather
+    # than repeated in two exhaustive branches, which is the same invariant
+    # stated in two places that can drift.
+    lines += ["### Needs a decision", ""]
 
     if audit_incomplete:
         lines += ["⚠️ **The audit did not complete**, so this is not a clean "
@@ -171,11 +172,11 @@ def render(changes, findings, days, total=None, candidates=None,
                 lines.append(f"- …and {len(items) - MAX_NAMED} more")
             lines.append("")
     elif not audit_incomplete:
-        # Said explicitly, and the wording differs from the warning above on
-        # purpose: the workflow greps for "Nothing outstanding" to decide a
-        # week was quiet, so a broken audit must not produce that phrase or
-        # the failure suppresses its own report.
-        lines += ["### Needs a decision", "", "Nothing outstanding.", ""]
+        # The wording differs from the warning above on purpose: the workflow
+        # greps for "Nothing outstanding" to decide a week was quiet, so a
+        # broken audit must not produce that phrase or the failure suppresses
+        # its own report.
+        lines += ["Nothing outstanding.", ""]
 
     if candidates:
         lines += ["### Could be added", "",
