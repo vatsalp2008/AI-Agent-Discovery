@@ -228,6 +228,8 @@ export const COMPARE_HTML = `
 
 /** The change history page's markup, mirroring templates/changes.html. */
 export const CHANGES_HTML = `
+    <section id="qualityArea" aria-live="polite" aria-busy="true"
+             aria-label="Retrieval quality"></section>
     <main id="changesArea" aria-live="polite" aria-busy="true"></main>
 `;
 

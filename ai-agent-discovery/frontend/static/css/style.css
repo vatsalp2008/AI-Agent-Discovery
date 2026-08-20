@@ -1527,3 +1527,80 @@ a.filter-tag {
 .change-down {
     color: var(--change-down);
 }
+
+/* Retrieval quality, on /changes. Fourteen scores between 0.9 and 1.0 are
+   hard to rank by reading, so each gets a bar as well as the number — the
+   shape is what makes the weakest one obvious. */
+#qualityArea {
+    margin-bottom: 2rem;
+}
+
+.quality-summary {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    max-width: 60ch;
+}
+
+.quality-scores {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+}
+
+.quality-row {
+    align-items: center;
+    display: grid;
+    font-size: 0.85rem;
+    gap: 0.75rem;
+    grid-template-columns: minmax(7rem, 10rem) 1fr 3.5rem;
+    padding: 0.2rem 0;
+}
+
+.quality-name {
+    color: var(--text-secondary);
+}
+
+.quality-track {
+    background: var(--border-color);
+    border-radius: 3px;
+    display: block;
+    height: 6px;
+    overflow: hidden;
+}
+
+.quality-fill {
+    background: var(--accent-color);
+    display: block;
+    height: 100%;
+}
+
+.quality-value {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.quality-moved {
+    font-size: 0.85rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* The sign and the numbers carry the meaning; colour only reinforces it. */
+.quality-rose {
+    color: var(--change-up);
+}
+
+.quality-fell {
+    color: var(--change-down);
+}
+
+@media (max-width: 600px) {
+    .quality-row {
+        grid-template-columns: 1fr 3.5rem;
+    }
+
+    .quality-track {
+        display: none;
+    }
+}

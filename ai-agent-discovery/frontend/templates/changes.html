@@ -9,9 +9,13 @@
        <a href="/api/changelog.atom">Follow by Atom</a>.</p>
 </section>
 
+<section id="qualityArea" aria-live="polite" aria-busy="true"
+         aria-label="Retrieval quality"></section>
+
 <main id="changesArea" aria-live="polite" aria-busy="true"></main>
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/quality-panel.js"></script>
 <script src="/static/js/changes.js"></script>
 {% endblock %}
