@@ -44,7 +44,8 @@ from datetime import datetime, timezone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
-from quality_data import DEFAULT_LIMIT  # noqa: E402
+import quality_data  # noqa: E402
+from quality_data import DEFAULT_LIMIT, NOTABLE_MOVE  # noqa: E402
 
 import config  # noqa: E402
 from logging_setup import configure  # noqa: E402
@@ -60,11 +61,6 @@ THIN_MARGIN = 0.02
 # Where recorded runs accumulate, one JSON object per line. Committed, so the
 # trend survives a fresh checkout and a CI runner that keeps nothing.
 HISTORY = "data/quality-history.jsonl"
-
-# How far a category has to move before it is worth mentioning. Scores wobble
-# by a thousandth or two between runs on identical data; 0.02 is the smallest
-# move that has meant something every time so far.
-NOTABLE_MOVE = 0.02
 
 # Where the live suite keeps its query/expected pairs. Read rather than
 # duplicated — a second copy of the ground truth would drift from the first,
@@ -169,7 +165,14 @@ def guard_margins(store, cases, limit=DEFAULT_LIMIT):
 
 
 def history_path():
-    return config.REPO_ROOT / HISTORY
+    """Deferred to quality_data, which honours DATA_DIR.
+
+    Resolving it here as REPO_ROOT/data meant a deployment that sets the
+    documented DATA_DIR wrote runs to one file and served /api/quality from
+    another — so the panel stayed empty forever, which is exactly the drift
+    the shared module was introduced to prevent.
+    """
+    return quality_data.path()
 
 
 def read_history(path=None):

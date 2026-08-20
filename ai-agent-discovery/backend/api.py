@@ -529,11 +529,16 @@ def get_quality():
             "thinnest": latest.get("thinnest"),
         },
         "moved": quality_data.movement(runs),
+        # Scores per run are deliberately not repeated here: the panel reads
+        # `latest` and `moved`, and shipping a fourteen-category map for
+        # every run put a few hundred unread floats through the ETag hash.
         "runs": [{"at": run.get("at"), "commit": run.get("commit"),
-                  "agents": run.get("agents"),
-                  "categories": run.get("categories") or {}}
+                  "agents": run.get("agents")}
                  for run in runs],
-        "metadata": {"count": len(runs)},
+        # `total` as well as `count`, like /api/changelog: read() caps at
+        # MAX_RUNS, and a client should be able to tell a short history from
+        # a truncated one.
+        "metadata": {"count": len(runs), "total": quality_data.total()},
     })
 
 

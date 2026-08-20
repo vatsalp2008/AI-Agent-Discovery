@@ -23,6 +23,12 @@ logger = logging.getLogger(__name__)
 # made the trend on /changes come out empty the first time it was wired up.
 DEFAULT_LIMIT = 10
 
+# How far a category has to move before it is worth mentioning. Scores wobble
+# by a thousandth or two between runs on identical data, and the published
+# panel is where that noise would be most visible. Defined here so the page
+# and `make quality` cannot answer "what moved" differently.
+NOTABLE_MOVE = 0.02
+
 # Enough to show a trend without turning the page into a spreadsheet. The
 # oldest runs matter least: what a maintainer wants is "is this getting
 # worse", which the recent ones answer.
@@ -65,13 +71,12 @@ def read(limit=MAX_RUNS):
     return runs[:limit] if limit else runs
 
 
-def latest():
-    """The most recent run, or None."""
-    runs = read(limit=1)
-    return runs[0] if runs else None
+def total():
+    """How many runs have been recorded, before read()'s cap applies."""
+    return len(read(limit=None))
 
 
-def movement(runs):
+def movement(runs, notable=NOTABLE_MOVE):
     """What changed between the two most recent comparable runs.
 
     Comparable means measured to the same depth: a run at `--limit 3` cannot
@@ -94,7 +99,7 @@ def movement(runs):
         was = before.get(category)
         if not isinstance(was, (int, float)) or not isinstance(score, (int, float)):
             continue
-        if was != score:
+        if abs(score - was) >= notable:
             moves.append({"category": category, "from": was, "to": score,
                           "delta": round(score - was, 3)})
     return sorted(moves, key=lambda move: move["delta"])

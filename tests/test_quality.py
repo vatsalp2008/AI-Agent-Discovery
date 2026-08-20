@@ -572,7 +572,6 @@ class TestTheReaderTheWebProcessUses:
         monkeypatch.setattr(config, "DATA_DIR", tmp_path)
 
         assert quality_data.read() == []
-        assert quality_data.latest() is None
 
     def test_a_damaged_line_is_skipped(self, tmp_path, monkeypatch):
         import quality_data
@@ -599,6 +598,38 @@ class TestTheReaderTheWebProcessUses:
         import quality_data
 
         assert quality_data.movement([{"categories": {"A": 0.5}}]) == []
+
+    def test_the_reader_and_the_writer_resolve_the_same_file(self, tmp_path, monkeypatch):
+        """The writer resolved REPO_ROOT/data and the reader DATA_DIR, so a
+        deployment that sets the documented env var wrote runs to one file
+        and served /api/quality from another — the panel stayed empty for
+        good, which is the drift this module was introduced to prevent."""
+        import quality_data
+
+        import config
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path / "elsewhere")
+
+        assert quality.history_path() == quality_data.path()
+
+    def test_a_thousandth_of_wobble_is_not_movement(self):
+        """The page and `make quality` must answer "what moved" the same
+        way; the reader had no threshold at all."""
+        import quality_data
+
+        assert quality_data.movement([
+            {"limit": 10, "categories": {"Safety": 0.975}},
+            {"limit": 10, "categories": {"Safety": 0.976}},
+        ]) == []
+
+    def test_a_real_move_still_shows(self):
+        import quality_data
+
+        moves = quality_data.movement([
+            {"limit": 10, "categories": {"Safety": 0.849}},
+            {"limit": 10, "categories": {"Safety": 0.976}},
+        ])
+
+        assert moves and moves[0]["delta"] == -0.127
 
     def test_a_run_recorded_before_the_limit_field_still_compares(self):
         """Both are at the default depth; reading the absent field as unknown

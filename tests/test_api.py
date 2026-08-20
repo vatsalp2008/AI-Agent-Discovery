@@ -1075,3 +1075,23 @@ class TestTheQualityEndpoint:
         again = client.get('/api/quality',
                            headers={"If-None-Match": first.headers["ETag"]})
         assert again.status_code == 304
+
+
+class TestTheQualityEndpointTruncates:
+    def test_it_reports_the_true_total_alongside_the_page(self, client, tmp_path, monkeypatch):
+        """`read()` caps at MAX_RUNS, and without a total a client cannot
+        tell a short history from a truncated one — /api/changelog returns
+        both for the same reason."""
+        import quality_data
+
+        import config
+        runs = [{"commit": f"c{i}", "limit": 10, "categories": {"A": 0.9}}
+                for i in range(quality_data.MAX_RUNS + 5)]
+        (tmp_path / "quality-history.jsonl").write_text(
+            "".join(json.dumps(r) + "\n" for r in runs))
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        meta = client.get('/api/quality').get_json()["metadata"]
+
+        assert meta["count"] == quality_data.MAX_RUNS
+        assert meta["total"] == quality_data.MAX_RUNS + 5
