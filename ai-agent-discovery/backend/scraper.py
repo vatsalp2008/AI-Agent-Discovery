@@ -1997,6 +1997,43 @@ SAMPLE_AGENTS = [
         url="https://github.com/The-PR-Agent/pr-agent",
         use_case="Slash commands on a pull request"
     ),
+    # MLOps
+    Agent(
+        name="Feast",
+        description="A feature store that serves the same feature definitions to training and to production, so the two cannot drift.",
+        category="MLOps",
+        tech_stack=["Python", "Redis", "BigQuery"],
+        github_stars=7223,
+        url="https://github.com/feast-dev/feast",
+        use_case="Sharing features between training and serving"
+    ),
+    Agent(
+        name="Triton Inference Server",
+        description="NVIDIA's server for running models from any framework on one GPU fleet, with batching and concurrent execution.",
+        category="MLOps",
+        tech_stack=["C++", "Python", "CUDA"],
+        github_stars=10926,
+        url="https://github.com/triton-inference-server/server",
+        use_case="High-throughput GPU inference"
+    ),
+    Agent(
+        name="LocalAI",
+        description="Serves local models behind the OpenAI API, so existing clients point at your hardware without code changes.",
+        category="MLOps",
+        tech_stack=["Go", "llama.cpp", "Docker"],
+        github_stars=48597,
+        url="https://github.com/mudler/LocalAI",
+        use_case="An OpenAI-shaped API over local models"
+    ),
+    Agent(
+        name="Xinference",
+        description="Runs and scales language, embedding and image models across a cluster from one registry.",
+        category="MLOps",
+        tech_stack=["Python", "vLLM", "Ray"],
+        github_stars=9502,
+        url="https://github.com/xorbitsai/inference",
+        use_case="Serving many model types from one cluster"
+    ),
 ]
 
 class CatalogueError(Exception):
