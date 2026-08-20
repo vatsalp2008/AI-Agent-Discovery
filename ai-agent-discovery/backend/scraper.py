@@ -287,7 +287,7 @@ SAMPLE_AGENTS = [
         tech_stack=["Go", "Kubernetes"],
         github_stars=8053,
         url="https://github.com/k8sgpt-ai/k8sgpt",
-        use_case="Cluster diagnostics and triage"
+        use_case="Explaining Kubernetes errors in plain English"
     ),
     Agent(
         name="Langfuse",
