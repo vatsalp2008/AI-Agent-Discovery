@@ -2062,6 +2062,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/Scale3-Labs/langtrace",
         use_case="LLM spans in an existing observability stack"
     ),
+    # Data Analysis
+    Agent(
+        name="D-Tale",
+        description="Opens a pandas dataframe in a browser where you can sort, filter, chart and describe it without writing code.",
+        category="Data Analysis",
+        tech_stack=["Python", "React", "Flask"],
+        github_stars=5215,
+        url="https://github.com/man-group/dtale",
+        use_case="Inspecting a dataframe in a browser"
+    ),
+    Agent(
+        name="Data Profiling",
+        description="Turns a dataframe into an HTML report of distributions, correlations and missing values in one call.",
+        category="Data Analysis",
+        tech_stack=["Python", "pandas", "Jupyter"],
+        github_stars=13679,
+        url="https://github.com/Data-Centric-AI-Community/fg-data-profiling",
+        use_case="A one-call report on a dataset"
+    ),
+    Agent(
+        name="Soda Core",
+        description="Checks data against expectations written in a readable YAML dialect and fails the pipeline when they break.",
+        category="Data Analysis",
+        tech_stack=["Python", "SQL", "YAML"],
+        github_stars=2413,
+        url="https://github.com/sodadata/soda-core",
+        use_case="Data checks written in plain YAML"
+    ),
 ]
 
 class CatalogueError(Exception):
