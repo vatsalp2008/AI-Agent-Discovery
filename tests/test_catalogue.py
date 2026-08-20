@@ -877,10 +877,13 @@ def test_no_technology_is_spelled_two_ways(catalogue):
     entry already named the language: GitHub says "Vue", the entry said
     "Vue.js", and the raw string comparison called that a mismatch.
     """
+    # The audit's own rule, imported rather than restated: a second, looser
+    # copy let "Objective-C" satisfy this guard while still producing a stack
+    # finding — the false finding the audit change existed to remove.
+    import sys
     from collections import defaultdict
-
-    def canonical(tech):
-        return tech.casefold().strip().removesuffix(".js").replace(" ", "").replace("-", "")
+    sys.path.insert(0, str(config.PACKAGE_DIR))
+    from discover import canonical_tech as canonical
 
     spellings = defaultdict(set)
     for agent in catalogue:

@@ -134,6 +134,19 @@ CATEGORY_USE_CASES = {
 
 # GitHub's language field is whatever the repo has most bytes of, which is
 # not always a technology anyone would list. autoware reports "Dockerfile".
+def canonical_tech(name):
+    """One technology written several ways is one technology.
+
+    GitHub reports the language as "Vue"; a curated stack is as likely to say
+    "Vue.js", and both are right. Two copies of this rule disagreed once
+    already — the audit stripped only a `.js` suffix while the catalogue guard
+    also folded spaces and hyphens, so "Objective-C" against GitHub's
+    "Objective C" satisfied the guard and still produced a stack finding.
+    """
+    return ((name or "").casefold().strip()
+            .removesuffix(".js").replace(" ", "").replace("-", ""))
+
+
 LANGUAGE_NAMES = {
     "Jupyter Notebook": "Jupyter",
     "Dockerfile": "Docker",
