@@ -55,7 +55,7 @@ jobs:
       # would otherwise hide.
       - name: Check backend imports resolve
         working-directory: ai-agent-discovery/backend
-        run: python -c "import admin, api, changelog_data, config, embedding_cache, embeddings, generation, logging_setup, models, rate_limit, request_log, scoring, scraper, security, submissions, vectorstore"
+        run: python -c "import admin, api, changelog_data, config, embedding_cache, embeddings, generation, logging_setup, models, quality_data, rate_limit, request_log, scoring, scraper, security, submissions, vectorstore"
 
       # compileall below catches syntax errors but not import errors, and
       # these scripts have no unit tests that import them — discover.py had

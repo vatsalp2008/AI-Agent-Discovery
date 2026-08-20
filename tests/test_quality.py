@@ -542,3 +542,86 @@ class TestMainThreadsTheLimitThrough:
         quality.main(["--record", "--limit", "3"])
 
         assert quality.read_history(wired)[-1]["limit"] == 3
+
+
+class TestTheReaderTheWebProcessUses:
+    """`quality_data` exists so the Flask app can read the history without
+    importing quality.py, which pulls in the vector store and an embedding
+    client to answer a question about a small text file."""
+
+    def _write(self, tmp_path, *runs):
+        (tmp_path / "quality-history.jsonl").write_text(
+            "".join(json.dumps(run) + "\n" for run in runs))
+        return tmp_path
+
+    def test_runs_come_back_newest_first(self, tmp_path, monkeypatch):
+        import quality_data
+
+        import config
+        monkeypatch.setattr(config, "DATA_DIR",
+                            self._write(tmp_path,
+                                        {"commit": "old", "categories": {"A": 0.5}},
+                                        {"commit": "new", "categories": {"A": 0.9}}))
+
+        assert [r["commit"] for r in quality_data.read()] == ["new", "old"]
+
+    def test_a_missing_file_is_not_an_error(self, tmp_path, monkeypatch):
+        import quality_data
+
+        import config
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert quality_data.read() == []
+        assert quality_data.latest() is None
+
+    def test_a_damaged_line_is_skipped(self, tmp_path, monkeypatch):
+        import quality_data
+
+        import config
+        (tmp_path / "quality-history.jsonl").write_text(
+            '{"commit": "a", "categories": {}}\nnot json\n'
+            '{"commit": "b", "categories": {}}\n')
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert [r["commit"] for r in quality_data.read()] == ["b", "a"]
+
+    def test_a_line_without_categories_is_not_a_run(self, tmp_path, monkeypatch):
+        import quality_data
+
+        import config
+        (tmp_path / "quality-history.jsonl").write_text(
+            '{"commit": "a"}\n{"commit": "b", "categories": {"X": 1.0}}\n')
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert [r["commit"] for r in quality_data.read()] == ["b"]
+
+    def test_movement_needs_two_runs(self, tmp_path, monkeypatch):
+        import quality_data
+
+        assert quality_data.movement([{"categories": {"A": 0.5}}]) == []
+
+    def test_a_run_recorded_before_the_limit_field_still_compares(self):
+        """Both are at the default depth; reading the absent field as unknown
+        made the trend come out empty the first time this was wired up."""
+        import quality_data
+
+        moves = quality_data.movement([
+            {"limit": quality_data.DEFAULT_LIMIT, "categories": {"A": 0.9}},
+            {"categories": {"A": 0.8}},
+        ])
+
+        assert moves == [{"category": "A", "from": 0.8, "to": 0.9, "delta": 0.1}]
+
+    def test_a_different_depth_is_not_compared(self):
+        import quality_data
+
+        assert quality_data.movement([
+            {"limit": 3, "categories": {"A": 0.6}},
+            {"limit": 10, "categories": {"A": 0.9}},
+        ]) == []
+
+    def test_the_writer_and_the_reader_agree_on_the_default(self):
+        """One constant, or a run recorded by one is misread by the other."""
+        import quality_data
+
+        assert quality.DEFAULT_LIMIT is quality_data.DEFAULT_LIMIT

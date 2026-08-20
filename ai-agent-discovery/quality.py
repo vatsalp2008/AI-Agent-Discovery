@@ -44,6 +44,8 @@ from datetime import datetime, timezone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
+from quality_data import DEFAULT_LIMIT  # noqa: E402
+
 import config  # noqa: E402
 from logging_setup import configure  # noqa: E402
 from scraper import load_agents  # noqa: E402
@@ -58,11 +60,6 @@ THIN_MARGIN = 0.02
 # Where recorded runs accumulate, one JSON object per line. Committed, so the
 # trend survives a fresh checkout and a CI runner that keeps nothing.
 HISTORY = "data/quality-history.jsonl"
-
-# How deep to look for each agent. Named because four places need to agree
-# on it: the two measuring functions, the CLI default, and the rule that a
-# history line without a recorded limit was taken at this one.
-DEFAULT_LIMIT = 10
 
 # How far a category has to move before it is worth mentioning. Scores wobble
 # by a thousandth or two between runs on identical data; 0.02 is the smallest
