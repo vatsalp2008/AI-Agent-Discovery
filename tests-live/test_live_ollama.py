@@ -419,6 +419,22 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("open source crm", {"Twenty"}),
     ("team chat with customer messaging", {"Rocket.Chat", "Chatwoot"}),
     ("speech model that answers without transcribing first", {"Ultravox"}),
+    # Added at 334, into the categories that were thin and already scoring
+    # well: code generation, MLOps, evaluation and data analysis.
+    ("sandboxed coding agent in the terminal",
+     {"Codex CLI", "Claude Code", "OpenCode"}),
+    ("coding agent that reads my language server", {"Crush", "Continue"}),
+    ("review a pull request automatically", {"PR-Agent", "CodeRabbit"}),
+    ("feature store for training and serving", {"Feast"}),
+    ("high throughput gpu inference server",
+     {"Triton Inference Server", "vLLM", "Ray"}),
+    ("openai compatible api over local models",
+     {"LocalAI", "OpenLLM", "LiteLLM", "Ollama"}),
+    ("log every model call and its cost", {"Helicone", "Langfuse", "Opik"}),
+    ("llm traces in opentelemetry", {"Langtrace", "OpenLLMetry"}),
+    ("inspect a dataframe in a browser", {"D-Tale", "PyGWalker"}),
+    ("one call report on a dataset", {"Data Profiling"}),
+    ("data quality checks in yaml", {"Soda Core", "Great Expectations"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.

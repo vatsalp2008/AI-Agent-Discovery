@@ -1,5 +1,19 @@
 [
   {
+    "commit": "018f98da",
+    "at": "2026-08-20T09:53:13-07:00",
+    "subject": "Add three data inspection tools",
+    "total": 334,
+    "added": [
+      "D-Tale",
+      "Data Profiling",
+      "Soda Core"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "01e90f4f",
     "at": "2026-08-20T09:51:29-07:00",
     "subject": "Add three observability tools",
