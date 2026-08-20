@@ -2034,6 +2034,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/xorbitsai/inference",
         use_case="Serving many model types from one cluster"
     ),
+    # Evaluation
+    Agent(
+        name="Helicone",
+        description="A proxy in front of the model that logs every call, its cost and its latency, without touching the application.",
+        category="Evaluation",
+        tech_stack=["TypeScript", "PostgreSQL", "ClickHouse"],
+        github_stars=6087,
+        url="https://github.com/Helicone/helicone",
+        use_case="Logging model calls through a proxy"
+    ),
+    Agent(
+        name="Weave",
+        description="Weights & Biases' toolkit for LLM apps: capture every call as a trace and score it against a saved dataset.",
+        category="Evaluation",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=1121,
+        url="https://github.com/wandb/weave",
+        use_case="Scoring traces against a dataset"
+    ),
+    Agent(
+        name="Langtrace",
+        description="OpenTelemetry-native tracing for agents and RAG, so LLM spans land in the observability stack you already run.",
+        category="Evaluation",
+        tech_stack=["TypeScript", "OpenTelemetry", "Python"],
+        github_stars=1228,
+        url="https://github.com/Scale3-Labs/langtrace",
+        use_case="LLM spans in an existing observability stack"
+    ),
 ]
 
 class CatalogueError(Exception):
