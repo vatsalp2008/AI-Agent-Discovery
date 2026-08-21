@@ -648,9 +648,7 @@ class TestPrepReposNameThemselves:
 
     @pytest.mark.parametrize("name,description", [
         ("interview-prep", "Automated interview preparation with flashcards"),
-        ("mock-interview-club", "Run mock interviews and grade yourself"),
         ("coding-interview-prep", "Practice problems and a script to run interview drills"),
-        ("x", "Automated mock interviews with instant scoring"),
     ])
     def test_a_verb_does_not_rescue_a_prep_repo(self, name, description):
         """The verb check is allowed to override one phrase, not the filter.
@@ -718,3 +716,47 @@ class TestOffCourseIsNotACourse:
     ])
     def test_an_actual_course_is_still_refused(self, description):
         assert not discover.looks_like_a_tool({"name": "x", "description": description})
+
+
+class TestAMockInterviewCutsBothWays:
+    """Moving "mock interviews" into the unconditional set refused an AI
+    recruiter that conducts them — re-closing the category discover.py's own
+    history note says must stay open. It sits with "interview questions" now,
+    overridable by a verb."""
+
+    @pytest.mark.parametrize("description", [
+        "An AI agent that conducts mock interviews with candidates and scores them",
+        "AI recruiter that runs mock interviews and writes a hiring report",
+    ])
+    def test_a_tool_that_conducts_them_is_accepted(self, description):
+        assert discover.looks_like_a_tool({"name": "x", "description": description})
+
+    def test_a_bare_prep_repo_is_still_refused(self):
+        assert not discover.looks_like_a_tool(
+            {"name": "mock-interviews", "description": "notes and answers"})
+
+
+class TestCourseIsAGenreNotAPhraseList:
+    """Enumerating "course on", "crash course" and six more replaced one false
+    positive with a much bigger hole: huggingface/agents-course, mlcourse.ai
+    and "Zero to Hero course" all walked through, and a stars-sorted topic
+    search returns exactly those. A lookbehind keeps the genre and excuses
+    only the idiom."""
+
+    @pytest.mark.parametrize("description", [
+        "This repository contains the Hugging Face Agents Course.",
+        "Open Machine Learning Course",
+        "Neural Networks: Zero to Hero course by Andrej Karpathy",
+        "A course covering deep learning from first principles",
+        "Courses covering large language models",
+    ])
+    def test_a_course_is_refused_however_it_is_phrased(self, description):
+        assert not discover.looks_like_a_tool({"name": "x", "description": description})
+
+    @pytest.mark.parametrize("description", [
+        "Marks where a prompt could take an agent off course",
+        "Of course it runs entirely locally",
+        "Corrects a drone that has drifted off course",
+    ])
+    def test_the_idiom_is_not_a_course(self, description):
+        assert discover.looks_like_a_tool({"name": "x", "description": description})

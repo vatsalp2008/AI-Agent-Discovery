@@ -229,7 +229,7 @@ list:
 | `boilerplate` | Jina Reader | "stripping navigation and **boilerplate**" |
 | `example` | ChatterBot | "learns replies from **example** conversations" |
 | `interview` | STORM | "by simulating expert **interviews**" |
-| `course` | Agentic Radar | "where a prompt could take it **off course**" |
+| `course` | Agentic Radar | "where a prompt could take it **off course**" — narrowed with a lookbehind for the idiom, not a phrase list; enumerating `course on`, `crash course` and six more let huggingface/agents-course and mlcourse.ai straight through |
 
 All six were replaced with narrower forms.
 

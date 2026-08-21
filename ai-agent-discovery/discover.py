@@ -197,12 +197,6 @@ NOT_A_TOOL = (
     "awesome", "curated list", "curated collection", "collection of awesome",
     "collection of resources", "collection of links",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
-    # "course" alone caught "take it off course" in a description of an agent
-    # security scanner — the fourth real entry a broad refusal word has
-    # refused, after "collection of", "example" and "interview". The genre
-    # names itself: a course *on* or *for* something, or the plural.
-    "courses", "course on", "course for", "crash course", "free course",
-    "online course", "video course", "course material",
     "lecture", "learning path", "study guide",
     "paper list", "reading list", "resources for", "book",
     # The plural, not the singular: "example" alone rejected ChatterBot,
@@ -271,10 +265,14 @@ NOT_A_TOOL_PATTERN = re.compile(
 _GAP = r"[\s\-_]+"
 
 # Phrasings that only ever describe studying for an interview. No verb rescues
-# these — "automated interview preparation" is still preparation.
+# these — "automated interview preparation" is still preparation. "Mock
+# interviews" is not among them: an AI recruiter conducts those too, and
+# refusing every AI interviewer costs a category nobody ever sees, so it sits
+# with the other ambiguous phrase below. "Run mock interviews and grade
+# yourself" gets through as a result — one rejection by a reviewer, against a
+# whole category never reaching one.
 INTERVIEW_PREP_PATTERN = re.compile(
-    rf"\bmock{_GAP}interviews?\b"
-    rf"|\binterviews?{_GAP}prep\w*\b"
+    rf"\binterviews?{_GAP}prep\w*\b"
     rf"|\b(?:interviews?{_GAP}practice|practice{_GAP}interviews?)\b"
     rf"|\binterview{_GAP}(?:study|cheat)\w*\b"
     rf"|\bprepar\w+{_GAP}for{_GAP}(?:\w+{_GAP}){{0,2}}interviews?\b")
@@ -285,7 +283,16 @@ INTERVIEW_PREP_PATTERN = re.compile(
 # and short-circuiting the whole filter on any verb match re-admitted
 # "automated interview preparation", "run mock interviews and grade yourself"
 # and "coding-interview-prep", every one of which the filter already refused.
-INTERVIEW_QUESTIONS_PATTERN = re.compile(rf"\binterview{_GAP}questions?\b")
+INTERVIEW_QUESTIONS_PATTERN = re.compile(
+    rf"\binterview{_GAP}questions?\b|\bmock{_GAP}interviews?\b")
+
+# "course" is a genre word spoiled by one idiom. Enumerating "course on",
+# "crash course" and six more replaced a false positive with a much larger
+# hole — huggingface/agents-course, mlcourse.ai and "Zero to Hero course" all
+# walked through, and a stars-sorted topic search returns exactly those. The
+# lookbehind keeps the whole genre and excuses only "off course" and "of
+# course", which is what refused an agent security scanner.
+COURSE_PATTERN = re.compile(r"(?<!off )(?<!of )\bcourses?\b")
 
 # A tool that *produces* interview questions is an interviewer's tool rather
 # than study material. `scor` not `score`, so it reaches "scoring" like the
@@ -373,6 +380,8 @@ def looks_like_a_tool(repo):
     """
     haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
     if NOT_A_TOOL_PATTERN.search(haystack) is not None:
+        return False
+    if COURSE_PATTERN.search(haystack) is not None:
         return False
     if INTERVIEW_PREP_PATTERN.search(haystack) is not None:
         return False
