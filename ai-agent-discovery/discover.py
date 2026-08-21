@@ -264,22 +264,28 @@ NOT_A_TOOL_PATTERN = re.compile(
 # prep repo names itself about as often as it describes itself.
 _GAP = r"[\s\-_]+"
 
+# Phrasings that only ever describe studying for an interview. No verb rescues
+# these — "automated interview preparation" is still preparation.
 INTERVIEW_PREP_PATTERN = re.compile(
     rf"\bmock{_GAP}interviews?\b"
     rf"|\binterviews?{_GAP}prep\w*\b"
     rf"|\b(?:interviews?{_GAP}practice|practice{_GAP}interviews?)\b"
     rf"|\binterview{_GAP}(?:study|cheat)\w*\b"
-    rf"|\bprepar\w+{_GAP}for{_GAP}(?:\w+{_GAP}){{0,2}}interviews?\b"
-    # "interview questions" cuts both ways — a prep repository collects them,
-    # a recruiting agent generates them — so the verb decides, in
-    # INTERVIEW_TOOL_PATTERN below, which is consulted first.
-    rf"|\binterview{_GAP}questions?\b")
+    rf"|\bprepar\w+{_GAP}for{_GAP}(?:\w+{_GAP}){{0,2}}interviews?\b")
 
-# A tool that *produces* interview questions is an interviewer's tool, not
-# study material. Checked before the pattern above, because the phrase alone
-# cannot tell them apart.
+# The one phrase that cuts both ways: a prep repository collects interview
+# questions, a recruiting agent produces them. Kept apart from the pattern
+# above because only this branch may be overridden by a verb — folding it in
+# and short-circuiting the whole filter on any verb match re-admitted
+# "automated interview preparation", "run mock interviews and grade yourself"
+# and "coding-interview-prep", every one of which the filter already refused.
+INTERVIEW_QUESTIONS_PATTERN = re.compile(rf"\binterview{_GAP}questions?\b")
+
+# A tool that *produces* interview questions is an interviewer's tool rather
+# than study material. `scor` not `score`, so it reaches "scoring" like the
+# other nine stems reach their inflections.
 INTERVIEW_TOOL_PATTERN = re.compile(
-    r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|score|transcrib)\w*"
+    r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|scor|transcrib)\w*"
     r"[\s\w]{0,20}?\binterview")
 
 # "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
@@ -362,9 +368,12 @@ def looks_like_a_tool(repo):
     haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
     if NOT_A_TOOL_PATTERN.search(haystack) is not None:
         return False
-    if INTERVIEW_TOOL_PATTERN.search(haystack) is not None:
-        return True
-    return INTERVIEW_PREP_PATTERN.search(haystack) is None
+    if INTERVIEW_PREP_PATTERN.search(haystack) is not None:
+        return False
+    # Only the ambiguous phrase defers to the verb.
+    if INTERVIEW_QUESTIONS_PATTERN.search(haystack) is not None:
+        return INTERVIEW_TOOL_PATTERN.search(haystack) is not None
+    return True
 
 
 def infer_category(repo):

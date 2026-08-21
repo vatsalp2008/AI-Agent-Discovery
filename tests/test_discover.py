@@ -646,6 +646,22 @@ class TestPrepReposNameThemselves:
     def test_a_hyphenated_prep_repo_is_refused(self, name):
         assert not discover.looks_like_a_tool({"name": name, "description": "notes"})
 
+    @pytest.mark.parametrize("name,description", [
+        ("interview-prep", "Automated interview preparation with flashcards"),
+        ("mock-interview-club", "Run mock interviews and grade yourself"),
+        ("coding-interview-prep", "Practice problems and a script to run interview drills"),
+        ("x", "Automated mock interviews with instant scoring"),
+    ])
+    def test_a_verb_does_not_rescue_a_prep_repo(self, name, description):
+        """The verb check is allowed to override one phrase, not the filter.
+
+        Written as a short-circuiting `return True`, it re-admitted every one
+        of these — "automated interview preparation" is still preparation.
+        The earlier cases all passed a bare "notes" description, so none of
+        them exercised the override.
+        """
+        assert not discover.looks_like_a_tool({"name": name, "description": description})
+
 
 class TestGeneratingQuestionsIsNotStudying:
     """"Interview questions" is the one phrase that cuts both ways: a prep
@@ -664,3 +680,17 @@ class TestGeneratingQuestionsIsNotStudying:
     def test_a_collection_of_them_is_still_refused(self):
         assert not discover.looks_like_a_tool(
             {"name": "x", "description": "A deep learning interview question bank"})
+
+
+class TestEveryVerbStemReachesItsInflection:
+    """`score` was written where the other nine alternatives are stems, so
+    "scoring interview questions" fell through to the prep filter and was
+    refused while "generates interview questions" was accepted."""
+
+    @pytest.mark.parametrize("verb", [
+        "Generates", "Creates", "Writes", "Drafts", "Asks",
+        "Conducts", "Runs", "Automates", "Scoring", "Transcribes",
+    ])
+    def test_the_inflected_form_is_recognised(self, verb):
+        assert discover.looks_like_a_tool(
+            {"name": "x", "description": f"{verb} interview questions for hiring"})
