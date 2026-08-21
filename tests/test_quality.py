@@ -686,3 +686,38 @@ class TestACategoryRunSaysWhyItCannotCompare:
         report = self._report(previous={"commit": "aaa", "limit": 10}, partial=False)
 
         assert "Moved since the last run" not in report
+
+
+class TestTheThresholdIsNotAFloatAccident:
+    """Scores are stored to three places, and binary floats put 0.800 → 0.820
+    at 0.0199999999999999. Compared raw, exactly the threshold was dropped for
+    40 of the 281 pairs in the band these scores occupy, while 0.900 → 0.880
+    came through — a boundary that depends on which side of a decimal you
+    started from."""
+
+    def test_a_move_of_exactly_the_threshold_counts(self):
+        moves = quality.movement(
+            [{"category": "A", "agents": 1, "mrr": 0.820, "unfindable": 0}],
+            {"categories": {"A": 0.800}}, limit=quality.DEFAULT_LIMIT)
+
+        assert moves and moves[0]["delta"] == 0.02
+
+    def test_it_counts_in_the_other_direction_too(self):
+        moves = quality.movement(
+            [{"category": "A", "agents": 1, "mrr": 0.880, "unfindable": 0}],
+            {"categories": {"A": 0.900}}, limit=quality.DEFAULT_LIMIT)
+
+        assert moves and moves[0]["delta"] == -0.02
+
+    def test_the_reader_agrees_with_the_cli(self):
+        import quality_data
+
+        assert quality_data.movement([
+            {"limit": 10, "categories": {"A": 0.820}},
+            {"limit": 10, "categories": {"A": 0.800}},
+        ])[0]["delta"] == 0.02
+
+    def test_just_under_the_threshold_still_does_not(self):
+        assert quality.movement(
+            [{"category": "A", "agents": 1, "mrr": 0.819, "unfindable": 0}],
+            {"categories": {"A": 0.800}}, limit=quality.DEFAULT_LIMIT) == []

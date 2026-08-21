@@ -99,7 +99,13 @@ def movement(runs, notable=NOTABLE_MOVE):
         was = before.get(category)
         if not isinstance(was, (int, float)) or not isinstance(score, (int, float)):
             continue
-        if abs(score - was) >= notable:
+        # Rounded before comparing: scores are stored to three places, and
+        # binary floats put 0.800 -> 0.820 at 0.0199999999999999, so exactly
+        # the threshold was dropped for 40 of the 281 pairs in the range these
+        # scores actually occupy — while 0.900 -> 0.880 came through. A
+        # boundary that depends on which side of a decimal you started is not
+        # a boundary.
+        if round(abs(score - was), 3) >= notable:
             moves.append({"category": category, "from": was, "to": score,
                           "delta": round(score - was, 3)})
     return sorted(moves, key=lambda move: move["delta"])

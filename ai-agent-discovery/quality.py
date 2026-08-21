@@ -274,7 +274,8 @@ def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
         if not isinstance(was, (int, float)):
             continue
         delta = row["mrr"] - was
-        if abs(delta) >= notable:
+        # Rounded for the same reason as quality_data.movement: see there.
+        if round(abs(delta), 3) >= notable:
             moves.append({"category": row["category"], "from": was,
                           "to": row["mrr"], "delta": round(delta, 3)})
     return sorted(moves, key=lambda m: m["delta"])
