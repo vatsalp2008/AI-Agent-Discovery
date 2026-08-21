@@ -269,6 +269,26 @@ topic fails — no network, expired token, GitHub down — it exits non-zero and
 says so. "Nothing new found" and "nothing was looked at" are opposite outcomes,
 and on a schedule the second one silently looks like a healthy catalogue.
 
+### The bootstrap copy drifts
+
+`SAMPLE_AGENTS` in `scraper.py` seeds a checkout that has no
+`data/agents.json`. Nothing else reads it, so it drifts silently and only
+someone starting fresh ever sees the result — which is the worst audience to
+show a stale answer to.
+
+It had drifted twenty-two fields deep before anyone looked: Cursor and Aider
+pointed at URLs that had moved, OpenInterpreter still claimed Python and GPT-4
+after the Rust rewrite, one entry kept a name the catalogue had changed, and
+fourteen carried no health status at all — so four entries whose descriptions
+read "archived, with X maintained" would have rendered with no badge and been
+served under `maintained=true`.
+
+`test_the_bootstrap_copy_agrees_with_the_catalogue` compares every shared
+entry on description, category, url, use case, stack and status. The set is
+deliberately smaller than the catalogue — it exists to make an empty checkout
+usable, not to mirror every addition — so only entries present in both are
+checked.
+
 ## Is the catalogue still findable?
 
 ```bash
