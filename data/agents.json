@@ -4090,6 +4090,7 @@
     "category": "Data Analysis",
     "tech_stack": [
       "Python",
+      "TypeScript",
       "React",
       "Flask"
     ],
