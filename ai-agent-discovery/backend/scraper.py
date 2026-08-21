@@ -84,7 +84,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Vanna AI",
-        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
+        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI and Chat2DB active.",
         category="Data Analysis",
         tech_stack=["Python", "RAG", "SQL"],
         github_stars=19000,
@@ -192,7 +192,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Verba",
-        description="Weaviate's open RAG interface for importing documents and querying them with citations.",
+        description="Weaviate's open RAG interface for importing documents and querying them with citations; archived, with RAGFlow and Onyx maintained.",
         category="Research",
         tech_stack=["Python", "Weaviate", "React"],
         github_stars=7000,
@@ -381,7 +381,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Rebuff",
-        description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
+        description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks; archived, with AgentDojo and PurpleLlama maintained.",
         category="Safety",
         tech_stack=["Python", "TypeScript"],
         github_stars=1517,
@@ -1038,7 +1038,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="AgentGPT",
-        description="Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
+        description="Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open; archived, with AutoGPT and Suna still maintained.",
         category="Autonomous Agent",
         tech_stack=["TypeScript", "Next.js", "Python"],
         github_stars=36304,

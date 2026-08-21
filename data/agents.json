@@ -328,7 +328,7 @@
   },
   {
     "name": "gpt-engineer",
-    "description": "Specify what you want it to build, and the AI asks for clarification and then writes the code.",
+    "description": "Specify what you want it to build, and the AI asks for clarification and then writes the code; archived, with Aider and OpenHands carrying the idea on.",
     "category": "Code Generation",
     "tech_stack": [
       "Python"
@@ -414,7 +414,7 @@
   },
   {
     "name": "Flowise",
-    "description": "A drag-and-drop interface for building customised LLM flows and agents without writing code.",
+    "description": "A drag-and-drop interface for building customised LLM flows and agents without writing code; archived, with Langflow and Dify covering the same ground.",
     "category": "Framework",
     "tech_stack": [
       "TypeScript",
@@ -463,7 +463,7 @@
   },
   {
     "name": "Vanna AI",
-    "description": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
+    "description": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI and Chat2DB active.",
     "category": "Data Analysis",
     "tech_stack": [
       "Python",
@@ -615,7 +615,7 @@
   },
   {
     "name": "Verba",
-    "description": "Weaviate's open RAG interface for importing documents and querying them with citations.",
+    "description": "Weaviate's open RAG interface for importing documents and querying them with citations; archived, with RAGFlow and Onyx maintained.",
     "category": "Research",
     "tech_stack": [
       "Python",
@@ -874,7 +874,7 @@
   },
   {
     "name": "Rebuff",
-    "description": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
+    "description": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks; archived, with AgentDojo and PurpleLlama maintained.",
     "category": "Safety",
     "tech_stack": [
       "Python",
@@ -1779,7 +1779,7 @@
   },
   {
     "name": "AgentGPT",
-    "description": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
+    "description": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open; archived, with AutoGPT and Suna still maintained.",
     "category": "Autonomous Agent",
     "tech_stack": [
       "TypeScript",
@@ -2164,7 +2164,7 @@
   },
   {
     "name": "LLM Guard",
-    "description": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call.",
+    "description": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call; archived, with Guardrails and NeMo Guardrails active.",
     "category": "Safety",
     "tech_stack": [
       "Python"
@@ -2515,7 +2515,7 @@
   },
   {
     "name": "TensorZero",
-    "description": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation.",
+    "description": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation; archived, with LiteLLM and Helicone in the same role.",
     "category": "Evaluation",
     "tech_stack": [
       "Rust",
