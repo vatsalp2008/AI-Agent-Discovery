@@ -1,5 +1,96 @@
 [
   {
+    "commit": "d9c6a180",
+    "at": "2026-08-21T09:02:59-07:00",
+    "subject": "Point each archived entry at a living one",
+    "total": 334,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "AgentGPT",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
+            "to": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open; archived, with AutoGPT and Suna still maintained."
+          }
+        ]
+      },
+      {
+        "name": "Flowise",
+        "fields": [
+          {
+            "field": "description",
+            "from": "A drag-and-drop interface for building customised LLM flows and agents without writing code.",
+            "to": "A drag-and-drop interface for building customised LLM flows and agents without writing code; archived, with Langflow and Dify covering the same ground."
+          }
+        ]
+      },
+      {
+        "name": "LLM Guard",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call.",
+            "to": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call; archived, with Guardrails and NeMo Guardrails active."
+          }
+        ]
+      },
+      {
+        "name": "Rebuff",
+        "fields": [
+          {
+            "field": "description",
+            "from": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
+            "to": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks; archived, with AgentDojo and PurpleLlama maintained."
+          }
+        ]
+      },
+      {
+        "name": "TensorZero",
+        "fields": [
+          {
+            "field": "description",
+            "from": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation.",
+            "to": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation; archived, with LiteLLM and Helicone in the same role."
+          }
+        ]
+      },
+      {
+        "name": "Vanna AI",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
+            "to": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI and Chat2DB active."
+          }
+        ]
+      },
+      {
+        "name": "Verba",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Weaviate's open RAG interface for importing documents and querying them with citations.",
+            "to": "Weaviate's open RAG interface for importing documents and querying them with citations; archived, with RAGFlow and Onyx maintained."
+          }
+        ]
+      },
+      {
+        "name": "gpt-engineer",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Specify what you want it to build, and the AI asks for clarification and then writes the code.",
+            "to": "Specify what you want it to build, and the AI asks for clarification and then writes the code; archived, with Aider and OpenHands carrying the idea on."
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "2bed8d44",
     "at": "2026-08-20T10:18:40-07:00",
     "subject": "Name the profiler after the project",
