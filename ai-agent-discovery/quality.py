@@ -405,24 +405,23 @@ def main(argv=None):
     # Read before recording, or the run being reported becomes its own
     # baseline and every category looks unchanged.
     history = read_history()
-    previous = comparable(history, args.limit)
-    # Only meaningful over the whole catalogue: --category measures a subset,
-    # and comparing that against a full run would report the difference
-    # between two questions as a change over time.
-    if args.category:
-        # A single-category run is not comparable with a whole-catalogue one,
-        # so there is no baseline — not an empty list of moves beside a
-        # baseline commit, which reads as "nothing moved since then". The
-        # markdown says so in words; --json must not imply the opposite.
-        moves, previous = [], None
-    else:
-        moves = movement(categories, previous, limit=args.limit)
 
-    if args.record:
-        if args.category:
+    # A single-category run measures a subset, so it has no baseline and
+    # nothing to record: comparing it against a whole-catalogue run would
+    # report the difference between two questions as a change over time.
+    # Decided once, before the history is scanned for a baseline that would
+    # only be discarded — and the same condition was being asked three times.
+    if args.category:
+        if args.record:
             print("Refusing to record a partial run; drop --category.",
                   file=sys.stderr)
             return 1
+        moves, previous = [], None
+    else:
+        previous = comparable(history, args.limit)
+        moves = movement(categories, previous, limit=args.limit)
+
+    if args.record:
         written = record(categories, guards, len(agents), args.limit)
         print(f"Recorded {written['commit'] or 'this run'} to "
               f"{quality_data.path()}", file=sys.stderr)

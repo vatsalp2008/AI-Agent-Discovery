@@ -89,6 +89,15 @@ Flowise points at Langflow and Dify, Vanna AI at WrenAI and Chat2DB, Rebuff at
 AgentDojo and PurpleLlama. `test_an_archived_entry_points_somewhere_alive`
 refuses one that does not.
 
+The suggestion is prose in the `description`, which means it is embedded
+along with everything else — a reviewer flagged that as pulling each dead
+entry toward its live competitors, and a structured `alternatives` field kept
+out of the embedded text would avoid it. Measured, the harm did not appear:
+searching "Langflow" does not surface Flowise, the archived entries that rank
+high for their own subject ranked high before the clause was added, and the
+thinnest guard margin sits at 0.0281 against a 0.02 threshold with all 147
+clear. Left as prose until there is a number saying otherwise.
+
 Dormant entries are left alone. Quiet is not dead: Bark and LLaVA have not
 been touched in two years and are still perfectly usable, and 18 months of
 silence is a prompt to check rather than a verdict.
