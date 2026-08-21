@@ -2127,6 +2127,25 @@ SAMPLE_AGENTS = [
         url="https://github.com/OpenBMB/MiniCPM-V",
         use_case="Vision-language on a phone"
     ),
+    # Safety
+    Agent(
+        name="agent-scan",
+        description="Scans the MCP servers an agent is wired to, flagging tool descriptions that try to redirect it.",
+        category="Safety",
+        tech_stack=["Python", "MCP"],
+        github_stars=2936,
+        url="https://github.com/snyk/agent-scan",
+        use_case="Auditing the tools an agent trusts"
+    ),
+    Agent(
+        name="Agentic Radar",
+        description="Maps an agent workflow into a diagram and marks where a prompt or a tool could take it off course.",
+        category="Safety",
+        tech_stack=["Python", "LangGraph", "CrewAI"],
+        github_stars=1039,
+        url="https://github.com/splx-ai/agentic-radar",
+        use_case="Mapping the risk surface of a workflow"
+    ),
 ]
 
 class CatalogueError(Exception):
