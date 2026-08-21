@@ -435,6 +435,15 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("inspect a dataframe in a browser", {"D-Tale", "PyGWalker"}),
     ("one call report on a dataset", {"fg-data-profiling"}),
     ("data quality checks in yaml", {"Soda Core", "Great Expectations"}),
+    # Added at 340, into multimodal and safety — thin, and both scoring well.
+    # The TTS cluster was already eight deep and was deliberately left alone.
+    ("segment an object and track it across video", {"SAM 2"}),
+    ("generate a video from a text prompt", {"Open-Sora"}),
+    ("speech model that can be interrupted", {"Moshi", "Ultravox"}),
+    ("vision language model that runs on a phone", {"MiniCPM-V"}),
+    ("audit the mcp servers an agent connects to", {"agent-scan"}),
+    ("map where an agent workflow could go wrong",
+     {"Agentic Radar", "AgentDojo"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
