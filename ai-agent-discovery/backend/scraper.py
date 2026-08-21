@@ -2146,6 +2146,34 @@ SAMPLE_AGENTS = [
         url="https://github.com/splx-ai/agentic-radar",
         use_case="Mapping the risk surface of a workflow"
     ),
+    # Document handling
+    Agent(
+        name="MinerU",
+        description="Converts a PDF to machine-readable text, keeping reading order, tables and formulas intact.",
+        category="Framework",
+        tech_stack=["Python", "PyTorch", "PaddleOCR"],
+        github_stars=78153,
+        url="https://github.com/opendatalab/MinerU",
+        use_case="PDF to structured text"
+    ),
+    Agent(
+        name="Marker",
+        description="Turns PDFs, EPUBs and slides into clean markdown quickly, using models only where the layout needs them.",
+        category="Framework",
+        tech_stack=["Python", "PyTorch", "Surya"],
+        github_stars=38948,
+        url="https://github.com/datalab-to/marker",
+        use_case="Documents to markdown"
+    ),
+    Agent(
+        name="Unstract",
+        description="Defines what to pull out of a document once, then runs it over every file as an API.",
+        category="Automation",
+        tech_stack=["Python", "Django", "PostgreSQL"],
+        github_stars=7156,
+        url="https://github.com/Zipstack/unstract",
+        use_case="Structured extraction as an API"
+    ),
 ]
 
 class CatalogueError(Exception):
