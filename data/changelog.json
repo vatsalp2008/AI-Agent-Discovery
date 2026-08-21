@@ -1,5 +1,18 @@
 [
   {
+    "commit": "8abb1251",
+    "at": "2026-08-21T09:08:30-07:00",
+    "subject": "Add two agent security scanners",
+    "total": 340,
+    "added": [
+      "Agentic Radar",
+      "agent-scan"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "2f1bf98a",
     "at": "2026-08-21T09:06:10-07:00",
     "subject": "Add four vision and speech models",
