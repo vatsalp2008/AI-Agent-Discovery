@@ -444,6 +444,10 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("audit the mcp servers an agent connects to", {"agent-scan"}),
     ("map where an agent workflow could go wrong",
      {"Agentic Radar", "AgentDojo"}),
+    ("pdf to structured text keeping tables",
+     {"MinerU", "Docling", "Unstructured"}),
+    ("convert documents to markdown", {"Marker", "MarkItDown", "Docling"}),
+    ("pull the same fields out of every document", {"Unstract"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
