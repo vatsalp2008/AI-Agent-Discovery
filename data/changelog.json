@@ -1,5 +1,19 @@
 [
   {
+    "commit": "8db66d03",
+    "at": "2026-08-21T09:12:21-07:00",
+    "subject": "Add three document extraction tools",
+    "total": 343,
+    "added": [
+      "Marker",
+      "MinerU",
+      "Unstract"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "8abb1251",
     "at": "2026-08-21T09:08:30-07:00",
     "subject": "Add two agent security scanners",
