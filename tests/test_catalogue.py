@@ -892,3 +892,42 @@ def test_no_technology_is_spelled_two_ways(catalogue):
 
     split = {key: sorted(names) for key, names in spellings.items() if len(names) > 1}
     assert not split, f"one technology written several ways: {split}"
+
+
+def test_the_bootstrap_copy_agrees_with_the_catalogue(catalogue):
+    """`SAMPLE_AGENTS` seeds a checkout that has no data/agents.json, so an
+    entry that has drifted there ships a wrong answer to anyone starting
+    fresh — and nothing else notices, because every other test reads the JSON.
+
+    It had drifted twenty-two times over: Cursor and Aider pointed at URLs
+    that had moved, OpenInterpreter still claimed Python and GPT-4 after the
+    Rust rewrite, and one entry kept a name that had been changed in the
+    catalogue — which quietly broke the live guard written against the new
+    one, since a fresh index would never contain it.
+
+    Only entries present in both are compared. The bootstrap set is
+    deliberately smaller: it exists to make an empty checkout usable, not to
+    mirror every addition.
+    """
+    import sys
+
+    sys.path.insert(0, str(config.PACKAGE_DIR / "backend"))
+    import scraper
+
+    live = {agent["name"]: agent for agent in catalogue}
+
+    unknown = [a.name for a in scraper.SAMPLE_AGENTS if a.name not in live]
+    assert not unknown, (
+        f"in SAMPLE_AGENTS but not the catalogue — renamed or removed "
+        f"without updating both: {unknown}")
+
+    drifted = []
+    for sample in scraper.SAMPLE_AGENTS:
+        current = live[sample.name]
+        for field in ("description", "category", "url", "use_case"):
+            if getattr(sample, field) != current.get(field):
+                drifted.append(f"{sample.name}.{field}")
+        if list(sample.tech_stack) != list(current.get("tech_stack") or []):
+            drifted.append(f"{sample.name}.tech_stack")
+
+    assert not drifted, f"SAMPLE_AGENTS is stale against the catalogue: {drifted}"

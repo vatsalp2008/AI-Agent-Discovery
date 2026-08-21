@@ -16,7 +16,7 @@ SAMPLE_AGENTS = [
         category="Code Generation",
         tech_stack=["Electron", "GPT-4", "VS Code"],
         github_stars=35000,
-        url="https://cursor.sh",
+        url="https://cursor.com",
         use_case="Code editing, refactoring, generation"
     ),
     Agent(
@@ -25,7 +25,7 @@ SAMPLE_AGENTS = [
         category="Code Generation",
         tech_stack=["Python", "GPT-4", "Git"],
         github_stars=12000,
-        url="https://github.com/paul-gauthier/aider",
+        url="https://github.com/Aider-AI/aider",
         use_case="Terminal-based pair programming"
     ),
     Agent(
@@ -41,9 +41,9 @@ SAMPLE_AGENTS = [
         name="OpenInterpreter",
         description="A natural language interface for computers. Lets LLMs run code (Python, Javascript, Shell) locally.",
         category="Code Generation",
-        tech_stack=["Python", "Llama 2", "GPT-4"],
+        tech_stack=["Rust", "Python"],
         github_stars=45000,
-        url="https://github.com/OpenInterpreter/open-interpreter",
+        url="https://github.com/openinterpreter/openinterpreter",
         use_case="Local system control, script execution"
     ),
     Agent(
@@ -52,7 +52,7 @@ SAMPLE_AGENTS = [
         category="Autonomous Agent",
         tech_stack=["Python", "GPT-4", "Pinecone"],
         github_stars=160000,
-        url="https://github.com/Significant-Gravitas/Auto-GPT",
+        url="https://github.com/Significant-Gravitas/AutoGPT",
         use_case="Goal-oriented autonomous tasks"
     ),
     Agent(
@@ -79,7 +79,7 @@ SAMPLE_AGENTS = [
         category="Data Analysis",
         tech_stack=["Python", "Pandas", "LLMs"],
         github_stars=11000,
-        url="https://github.com/gventuri/pandas-ai",
+        url="https://github.com/sinaptik-ai/pandas-ai",
         use_case="Asking a dataframe questions in English"
     ),
     Agent(
@@ -178,14 +178,14 @@ SAMPLE_AGENTS = [
         category="Code Generation",
         tech_stack=["TypeScript", "GitHub API"],
         github_stars=0,
-        url="https://coderabbit.ai",
+        url="https://www.coderabbit.ai",
         use_case="Automated pull request review"
     ),
     Agent(
         name="RAGFlow",
         description="A RAG engine built on deep document understanding, with layout-aware chunking and grounded citations.",
         category="Research",
-        tech_stack=["Python", "Elasticsearch", "Docker"],
+        tech_stack=["Python", "Go", "Elasticsearch", "Docker"],
         github_stars=32000,
         url="https://github.com/infiniflow/ragflow",
         use_case="Document-grounded question answering"
@@ -349,7 +349,7 @@ SAMPLE_AGENTS = [
         category="Evaluation",
         tech_stack=["Python", "LangChain"],
         github_stars=15201,
-        url="https://github.com/explodinggradients/ragas",
+        url="https://github.com/vibrantlabsai/ragas",
         use_case="Measuring RAG quality"
     ),
     Agent(
@@ -358,7 +358,7 @@ SAMPLE_AGENTS = [
         category="Evaluation",
         tech_stack=["Python", "ML"],
         github_stars=5741,
-        url="https://github.com/Giskard-AI/giskard",
+        url="https://github.com/Giskard-AI/giskard-oss",
         use_case="Scanning an agent for hallucination and bias"
     ),
     Agent(
@@ -376,14 +376,14 @@ SAMPLE_AGENTS = [
         category="Safety",
         tech_stack=["Python", "Colang"],
         github_stars=6895,
-        url="https://github.com/NVIDIA/NeMo-Guardrails",
+        url="https://github.com/NVIDIA-NeMo/Guardrails",
         use_case="Programmable dialogue rails in Colang"
     ),
     Agent(
         name="Rebuff",
         description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
         category="Safety",
-        tech_stack=["Python", "Vector DB"],
+        tech_stack=["Python", "TypeScript"],
         github_stars=1517,
         url="https://github.com/protectai/rebuff",
         use_case="Detecting prompt injection"
@@ -394,7 +394,7 @@ SAMPLE_AGENTS = [
         category="Safety",
         tech_stack=["Python"],
         github_stars=8739,
-        url="https://github.com/leondz/garak",
+        url="https://github.com/NVIDIA/garak",
         use_case="Scanning a model for known weaknesses"
     ),
     Agent(
@@ -403,7 +403,7 @@ SAMPLE_AGENTS = [
         category="Safety",
         tech_stack=["Python", "spaCy"],
         github_stars=10395,
-        url="https://github.com/microsoft/presidio",
+        url="https://github.com/data-privacy-stack/presidio",
         use_case="Stripping PII before it reaches a model"
     ),
     Agent(
@@ -502,7 +502,7 @@ SAMPLE_AGENTS = [
         category="Fine-tuning",
         tech_stack=["Python", "PyTorch", "LoRA"],
         github_stars=73949,
-        url="https://github.com/hiyouga/LLaMA-Factory",
+        url="https://github.com/hiyouga/LlamaFactory",
         use_case="Fine-tuning many model families from one tool"
     ),
     Agent(
@@ -592,7 +592,7 @@ SAMPLE_AGENTS = [
         category="Multimodal",
         tech_stack=["Python", "PyTorch"],
         github_stars=125727,
-        url="https://github.com/comfyanonymous/ComfyUI",
+        url="https://github.com/Comfy-Org/ComfyUI",
         use_case="Composable image generation pipelines"
     ),
     Agent(
@@ -844,7 +844,7 @@ SAMPLE_AGENTS = [
         category="Framework",
         tech_stack=["Protocol", "JSON-RPC"],
         github_stars=25275,
-        url="https://github.com/google/A2A",
+        url="https://github.com/a2aproject/A2A",
         use_case="Cross-vendor agent communication"
     ),
     Agent(
@@ -860,7 +860,7 @@ SAMPLE_AGENTS = [
         name="MuJoCo",
         description="A physics engine for contact-rich simulation, widely used to train and evaluate control policies.",
         category="Robotics",
-        tech_stack=["C", "Python"],
+        tech_stack=["C", "C++", "Python"],
         github_stars=14507,
         url="https://github.com/google-deepmind/mujoco",
         use_case="Physics simulation for control research"
@@ -1213,7 +1213,7 @@ SAMPLE_AGENTS = [
         category="Autonomous Agent",
         tech_stack=["Python", "Multi-Agent"],
         github_stars=38000,
-        url="https://github.com/geekan/MetaGPT",
+        url="https://github.com/FoundationAgents/MetaGPT",
         use_case="Multi-agent software development"
     ),
     Agent(
@@ -1231,7 +1231,7 @@ SAMPLE_AGENTS = [
         category="Framework",
         tech_stack=["Python", "Agents"],
         github_stars=15000,
-        url="https://github.com/joaomdmoura/crewAI",
+        url="https://github.com/crewAIInc/crewAI",
         use_case="Multi-agent orchestration"
     ),
     Agent(
@@ -1294,7 +1294,7 @@ SAMPLE_AGENTS = [
         category="Research",
         tech_stack=["Python", "LlamaIndex", "Local LLM"],
         github_stars=55000,
-        url="https://github.com/imartinez/privateGPT",
+        url="https://github.com/zylon-ai/private-gpt",
         use_case="Document QA, RAG"
     ),
     # Safety
@@ -2073,10 +2073,10 @@ SAMPLE_AGENTS = [
         use_case="Inspecting a dataframe in a browser"
     ),
     Agent(
-        name="Data Profiling",
-        description="Turns a dataframe into an HTML report of distributions, correlations and missing values in one call.",
+        name="fg-data-profiling",
+        description="One line turns a dataframe into an HTML report of distributions, correlations and missing values; formerly ydata-profiling.",
         category="Data Analysis",
-        tech_stack=["Python", "pandas", "Jupyter"],
+        tech_stack=["Python", "Pandas", "Jupyter"],
         github_stars=13679,
         url="https://github.com/Data-Centric-AI-Community/fg-data-profiling",
         use_case="A one-call report on a dataset"
