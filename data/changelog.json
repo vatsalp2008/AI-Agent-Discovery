@@ -1,5 +1,20 @@
 [
   {
+    "commit": "2f1bf98a",
+    "at": "2026-08-21T09:06:10-07:00",
+    "subject": "Add four vision and speech models",
+    "total": 338,
+    "added": [
+      "MiniCPM-V",
+      "Moshi",
+      "Open-Sora",
+      "SAM 2"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "d9c6a180",
     "at": "2026-08-21T09:02:59-07:00",
     "subject": "Point each archived entry at a living one",
