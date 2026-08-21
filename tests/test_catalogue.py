@@ -988,3 +988,27 @@ def test_every_name_belongs_to_its_repository(catalogue):
     assert not adrift, (
         f"named differently from the repository; add to DISPLAY_NAMES if "
         f"deliberate: {adrift}")
+
+
+def test_an_archived_entry_points_somewhere_alive(catalogue):
+    """A dead project with 55,000 stars is still what people search for.
+
+    The badge tells a reader to stop; it does not tell them where to go. Each
+    archived entry names at least one live alternative that is already in the
+    catalogue, so the suggestion is one they can act on without leaving the
+    page. Dormant entries are exempt: quiet is not dead, and Bark and LLaVA
+    are still perfectly usable.
+    """
+    live = {agent["name"] for agent in catalogue
+            if agent.get("status", "active") == "active"}
+
+    unhelpful = []
+    for agent in catalogue:
+        if agent.get("status") != "archived":
+            continue
+        described = agent.get("description") or ""
+        if not any(name in described for name in live):
+            unhelpful.append(agent["name"])
+
+    assert not unhelpful, (
+        f"archived and naming no living alternative: {unhelpful}")

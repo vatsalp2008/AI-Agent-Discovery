@@ -77,6 +77,22 @@ cleared.
 Statuses are cleared as well as set: archived repositories get unarchived, and
 a stale warning is wrong in the other direction.
 
+### What happens to a dead project
+
+Archived entries stay. A project with fifty thousand stars is still what
+people search for, and removing it means they find nothing and assume the
+catalogue is thin rather than the project finished.
+
+What they get instead is the badge **and a way forward**: every archived entry
+names at least one live alternative already in the catalogue —
+Flowise points at Langflow and Dify, Vanna AI at WrenAI and Chat2DB, Rebuff at
+AgentDojo and PurpleLlama. `test_an_archived_entry_points_somewhere_alive`
+refuses one that does not.
+
+Dormant entries are left alone. Quiet is not dead: Bark and LLaVA have not
+been touched in two years and are still perfectly usable, and 18 months of
+silence is a prompt to check rather than a verdict.
+
 ### A failed audit is not a clean one
 
 The weekly step keeps the audit's exit status rather than discarding it. It
