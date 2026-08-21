@@ -58,9 +58,6 @@ logger = logging.getLogger(__name__)
 # the one that actually broke: 0.002 was invisible until it cost a session.
 THIN_MARGIN = 0.02
 
-# Where recorded runs accumulate, one JSON object per line. Committed, so the
-# trend survives a fresh checkout and a CI runner that keeps nothing.
-HISTORY = "data/quality-history.jsonl"
 
 # Where the live suite keeps its query/expected pairs. Read rather than
 # duplicated — a second copy of the ground truth would drift from the first,
@@ -222,6 +219,11 @@ def record(categories, guards, agents, limit, path=None):
                        if g["rank"] is None or g["rank"] > 3),
     }
     where = path or history_path()
+    # Created if absent: the path follows DATA_DIR now rather than the
+    # always-present repository directory, and this append happens *after*
+    # one embedding round trip per agent — losing the measurement to a
+    # missing directory would waste the whole run.
+    where.parent.mkdir(parents=True, exist_ok=True)
     with open(where, "a") as f:
         f.write(json.dumps(run) + "\n")
     return run
@@ -297,7 +299,7 @@ def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
     out.append("")
 
     if weakest:
-        out.append("## Agents their own description does not find")
+        out.append("## Agents their own use case does not find")
         out.append("")
         for row in weakest:
             beaten = ", ".join(row["beaten_by"]) or "—"
@@ -393,7 +395,7 @@ def main(argv=None):
     parser.add_argument("--thin-margin", type=float, default=THIN_MARGIN,
                         help=f"report guards passing by less (default: {THIN_MARGIN})")
     parser.add_argument("--record", action="store_true",
-                        help=f"append this run to {HISTORY}")
+                        help="append this run to the recorded history")
     parser.add_argument("--json", action="store_true", dest="as_json")
     parser.add_argument("--out", help="write the report here instead of stdout")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -427,8 +429,14 @@ def main(argv=None):
     # Only meaningful over the whole catalogue: --category measures a subset,
     # and comparing that against a full run would report the difference
     # between two questions as a change over time.
-    moves = (movement(categories, previous, limit=args.limit)
-             if not args.category else [])
+    if args.category:
+        # A single-category run is not comparable with a whole-catalogue one,
+        # so there is no baseline — not an empty list of moves beside a
+        # baseline commit, which reads as "nothing moved since then". The
+        # markdown says so in words; --json must not imply the opposite.
+        moves, previous = [], None
+    else:
+        moves = movement(categories, previous, limit=args.limit)
 
     if args.record:
         if args.category:
@@ -436,8 +444,8 @@ def main(argv=None):
                   file=sys.stderr)
             return 1
         written = record(categories, guards, len(agents), args.limit)
-        print(f"Recorded {written['commit'] or 'this run'} to {HISTORY}",
-              file=sys.stderr)
+        print(f"Recorded {written['commit'] or 'this run'} to "
+              f"{quality_data.path()}", file=sys.stderr)
 
     if args.as_json:
         report = json.dumps({"categories": categories, "agents": rows,

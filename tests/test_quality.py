@@ -721,3 +721,18 @@ class TestTheThresholdIsNotAFloatAccident:
         assert quality.movement(
             [{"category": "A", "agents": 1, "mrr": 0.819, "unfindable": 0}],
             {"categories": {"A": 0.800}}, limit=quality.DEFAULT_LIMIT) == []
+
+
+class TestRecordingIntoAFreshDirectory:
+    def test_it_creates_the_directory_rather_than_losing_the_run(self, tmp_path):
+        """The path follows DATA_DIR now rather than the always-present
+        repository directory, and the append happens after one embedding
+        round trip per agent — a missing directory would throw away the
+        whole measurement at the last step."""
+        where = tmp_path / "nested" / "quality-history.jsonl"
+
+        quality.record([{"category": "A", "agents": 1, "mrr": 0.9, "unfindable": 0}],
+                       [], 1, 10, path=where)
+
+        assert where.exists()
+        assert quality.read_history(where)[0]["categories"] == {"A": 0.9}
