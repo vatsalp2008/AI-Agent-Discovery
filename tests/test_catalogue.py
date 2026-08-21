@@ -1008,13 +1008,24 @@ def test_an_archived_entry_points_somewhere_alive(catalogue):
     live = {agent["name"] for agent in catalogue
             if agent.get("status", "active") == "active"}
 
+    # Read only the clause after the marker, not the whole description.
+    # Matching anywhere let Verba pass on "Weaviate" — the vendor of the dead
+    # project, which appears in its opening line — so it would have satisfied
+    # this with the alternatives clause deleted. Thirty-four live entries have
+    # names of four characters or fewer (Ray, Aim, OWL, Zed, Cua), any of
+    # which turns up in prose by accident.
+    MARKER = "archived, with "
+
     unhelpful = []
     for agent in catalogue:
         if agent.get("status") != "archived":
             continue
         described = agent.get("description") or ""
-        if not any(name in described for name in live):
-            unhelpful.append(agent["name"])
+        _, _, suggestion = described.partition(MARKER)
+        if not suggestion:
+            unhelpful.append(f"{agent['name']} (no {MARKER!r} clause)")
+        elif not any(name in suggestion for name in live):
+            unhelpful.append(f"{agent['name']} (names nothing live)")
 
     assert not unhelpful, (
-        f"archived and naming no living alternative: {unhelpful}")
+        f"archived and offering no living alternative: {unhelpful}")
