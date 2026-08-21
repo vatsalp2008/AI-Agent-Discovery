@@ -175,29 +175,16 @@ def history_path():
 def read_history(path=None):
     """Previously recorded runs, oldest first.
 
-    A damaged line is skipped rather than fatal: this is a record of
-    measurements, and losing one is not worth failing the measurement that is
-    being taken now.
+    Delegates to quality_data rather than repeating its parse. The two copies
+    had already diverged on what counts as a run — quality_data required a
+    `categories` dict, this accepted any object — so `make quality` and
+    /api/quality could disagree about how many runs existed, which is the
+    drift sharing the path was meant to end.
     """
-    where = path or history_path()
-    try:
-        text = where.read_text()
-    except OSError:
-        return []
-
-    runs = []
-    for line in text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            run = json.loads(line)
-        except json.JSONDecodeError:
-            logger.warning("Skipping an unreadable line in %s", where)
-            continue
-        if isinstance(run, dict):
-            runs.append(run)
-    return runs
+    # Resolved here, not left to quality_data's own default: history_path()
+    # is what tests and callers override.
+    return quality_data.read(limit=None, path=path or history_path(),
+                             newest_first=False)
 
 
 def record(categories, guards, agents, limit, path=None):

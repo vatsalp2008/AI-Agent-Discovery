@@ -19,6 +19,10 @@ sys.path.insert(0, str(config.PACKAGE_DIR))
 
 import quality  # noqa: E402
 
+RUN_A = '{"commit": "aaa", "categories": {"A": 0.9}}'
+RUN_B = '{"commit": "bbb", "categories": {"A": 0.8}}'
+RUN_C = '{"commit": "ccc", "categories": {"A": 0.7}}'
+
 
 class FakeStore:
     """Returns a canned ranking per query."""
@@ -278,8 +282,11 @@ class TestReadingTheHistory:
         assert quality.read_history(tmp_path / "absent.jsonl") == []
 
     def test_runs_come_back_oldest_first(self, tmp_path):
+        """Oldest first here, newest first for the web reader — same parse,
+        opposite ends, because the CLI compares against the previous run and
+        the page lists the recent ones."""
         where = tmp_path / "h.jsonl"
-        where.write_text('{"commit": "aaa"}\n{"commit": "bbb"}\n')
+        where.write_text(f'{RUN_A}\n{RUN_B}\n')
 
         assert [r["commit"] for r in quality.read_history(where)] == ["aaa", "bbb"]
 
@@ -287,13 +294,17 @@ class TestReadingTheHistory:
         """This is a record of measurements. Losing one is not worth failing
         the measurement being taken now."""
         where = tmp_path / "h.jsonl"
-        where.write_text('{"commit": "aaa"}\nnot json\n\n{"commit": "ccc"}\n')
+        where.write_text(f'{RUN_A}\nnot json\n\n{RUN_C}\n')
 
         assert [r["commit"] for r in quality.read_history(where)] == ["aaa", "ccc"]
 
-    def test_a_line_that_is_not_an_object_is_skipped(self, tmp_path):
+    def test_a_line_without_scores_is_not_a_run(self, tmp_path):
+        """One rule, shared with the web reader. The two used to differ —
+        this accepted any object, quality_data required a `categories` dict —
+        so `make quality` and /api/quality could disagree about how many runs
+        existed."""
         where = tmp_path / "h.jsonl"
-        where.write_text('[1, 2]\n{"commit": "aaa"}\n')
+        where.write_text(f'[1, 2]\n{{"commit": "no-scores"}}\n{RUN_A}\n')
 
         assert [r["commit"] for r in quality.read_history(where)] == ["aaa"]
 

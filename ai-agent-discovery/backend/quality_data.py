@@ -40,14 +40,14 @@ def path():
     return config.DATA_DIR / "quality-history.jsonl"
 
 
-def read(limit=MAX_RUNS):
-    """Recorded runs, newest first.
+def read(limit=MAX_RUNS, path=None, newest_first=True):
+    """Recorded runs.
 
     A damaged line is skipped rather than fatal. This is a record of
     measurements taken over months, and one bad append should not cost the
     rest of it — the same call the CLI's own reader makes.
     """
-    where = path()
+    where = path or globals()["path"]()
     try:
         text = where.read_text()
     except OSError:
@@ -67,13 +67,21 @@ def read(limit=MAX_RUNS):
         if isinstance(run, dict) and isinstance(run.get("categories"), dict):
             runs.append(run)
 
-    runs.reverse()
+    if newest_first:
+        runs.reverse()
     return runs[:limit] if limit else runs
 
 
-def total():
-    """How many runs have been recorded, before read()'s cap applies."""
-    return len(read(limit=None))
+def read_with_total(limit=MAX_RUNS):
+    """Recent runs and how many there are in all, from one pass.
+
+    /api/quality wants both. Asking read() then total() parsed the whole file
+    twice per request — and logged "no history" twice when it was absent —
+    where /api/changelog derives its total from the single list it already
+    holds.
+    """
+    runs = read(limit=None)
+    return (runs[:limit] if limit else runs), len(runs)
 
 
 def movement(runs, notable=NOTABLE_MOVE):

@@ -1095,3 +1095,34 @@ class TestTheQualityEndpointTruncates:
 
         assert meta["count"] == quality_data.MAX_RUNS
         assert meta["total"] == quality_data.MAX_RUNS + 5
+
+
+class TestTheQualityEndpointReadsOnce:
+    def test_an_empty_history_still_reports_a_total(self, client, tmp_path, monkeypatch):
+        """`total` was on the populated branch only, so a client that renders
+        "count of total" printed "0 of undefined" before any run existed."""
+        import config
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        meta = client.get('/api/quality').get_json()["metadata"]
+
+        assert meta["count"] == 0 and meta["total"] == 0
+
+    def test_the_file_is_parsed_once_per_request(self, client, tmp_path, monkeypatch):
+        """read() then total() walked the whole file twice, and logged
+        "no history" twice when it was absent."""
+        import quality_data
+
+        import config
+        (tmp_path / "quality-history.jsonl").write_text(
+            json.dumps({"commit": "a", "limit": 10, "categories": {"A": 0.9}}) + "\n")
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        reads = []
+        original = quality_data.read
+        monkeypatch.setattr(quality_data, "read",
+                            lambda *a, **kw: (reads.append(1), original(*a, **kw))[1])
+
+        client.get('/api/quality')
+
+        assert len(reads) == 1

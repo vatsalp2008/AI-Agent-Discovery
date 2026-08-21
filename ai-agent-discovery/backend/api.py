@@ -508,11 +508,13 @@ def get_quality():
     is about the catalogue, not about the tooling. A directory that has grown
     past the point of being searchable should say so where people can see it.
     """
-    runs = quality_data.read()
+    runs, recorded = quality_data.read_with_total()
     if not runs:
         return _etag_response({
             "runs": [], "latest": None, "moved": [],
-            "metadata": {"count": 0,
+            # `total` on both branches, or a client reading it renders
+            # "0 of undefined".
+            "metadata": {"count": 0, "total": recorded,
                          "note": "No runs recorded yet; run `make quality-record`."},
         })
 
@@ -538,7 +540,7 @@ def get_quality():
         # `total` as well as `count`, like /api/changelog: read() caps at
         # MAX_RUNS, and a client should be able to tell a short history from
         # a truncated one.
-        "metadata": {"count": len(runs), "total": quality_data.total()},
+        "metadata": {"count": len(runs), "total": recorded},
     })
 
 
