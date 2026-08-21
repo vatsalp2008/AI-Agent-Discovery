@@ -1,5 +1,24 @@
 [
   {
+    "commit": "4b7f0b94",
+    "at": "2026-08-21T09:32:20-07:00",
+    "subject": "Call two projects what they call themselves",
+    "total": 343,
+    "added": [
+      "LobeHub",
+      "Qwen3-VL"
+    ],
+    "removed": [
+      "LobeChat",
+      "Qwen-VL"
+    ],
+    "edited": [],
+    "gone": [
+      "LobeChat",
+      "Qwen-VL"
+    ]
+  },
+  {
     "commit": "8db66d03",
     "at": "2026-08-21T09:12:21-07:00",
     "subject": "Add three document extraction tools",
@@ -1689,7 +1708,9 @@
     ],
     "removed": [],
     "edited": [],
-    "gone": []
+    "gone": [
+      "Qwen-VL"
+    ]
   },
   {
     "commit": "36fb76bf",
@@ -1799,7 +1820,9 @@
     ],
     "removed": [],
     "edited": [],
-    "gone": []
+    "gone": [
+      "LobeChat"
+    ]
   },
   {
     "commit": "3a3143cf",
