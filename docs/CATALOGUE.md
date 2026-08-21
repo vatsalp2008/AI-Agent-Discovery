@@ -229,8 +229,9 @@ list:
 | `boilerplate` | Jina Reader | "stripping navigation and **boilerplate**" |
 | `example` | ChatterBot | "learns replies from **example** conversations" |
 | `interview` | STORM | "by simulating expert **interviews**" |
+| `course` | Agentic Radar | "where a prompt could take it **off course**" |
 
-All five were replaced with narrower forms.
+All six were replaced with narrower forms.
 
 **`interview` does not live in the phrase list at all.** It is the one word
 where narrowing to phrases was not enough, and the record of getting it wrong

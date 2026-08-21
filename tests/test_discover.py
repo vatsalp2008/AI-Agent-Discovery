@@ -694,3 +694,27 @@ class TestEveryVerbStemReachesItsInflection:
     def test_the_inflected_form_is_recognised(self, verb):
         assert discover.looks_like_a_tool(
             {"name": "x", "description": f"{verb} interview questions for hiring"})
+
+
+class TestOffCourseIsNotACourse:
+    """`course` refused an agent security scanner for saying a prompt could
+    "take it off course" — the fourth real entry a broad refusal word has
+    caught, after `collection of`, `example` and `interview`. The genre names
+    itself: a course *on* or *for* something, or the plural."""
+
+    @pytest.mark.parametrize("description", [
+        "Marks where a prompt could take an agent off course",
+        "Of course it runs entirely locally",
+        "Corrects a drone that has drifted off course",
+    ])
+    def test_the_word_in_passing_is_allowed(self, description):
+        assert discover.looks_like_a_tool({"name": "x", "description": description})
+
+    @pytest.mark.parametrize("description", [
+        "Courses covering large language models from the ground up",
+        "A free course on machine learning",
+        "Crash course in transformers",
+        "Course materials for a deep learning class",
+    ])
+    def test_an_actual_course_is_still_refused(self, description):
+        assert not discover.looks_like_a_tool({"name": "x", "description": description})

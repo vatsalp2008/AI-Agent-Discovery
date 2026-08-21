@@ -197,7 +197,13 @@ NOT_A_TOOL = (
     "awesome", "curated list", "curated collection", "collection of awesome",
     "collection of resources", "collection of links",
     "tutorial", "roadmap", "cheatsheet", "cheat sheet", "handbook",
-    "course", "lecture", "learning path", "study guide",
+    # "course" alone caught "take it off course" in a description of an agent
+    # security scanner — the fourth real entry a broad refusal word has
+    # refused, after "collection of", "example" and "interview". The genre
+    # names itself: a course *on* or *for* something, or the plural.
+    "courses", "course on", "course for", "crash course", "free course",
+    "online course", "video course", "course material",
+    "lecture", "learning path", "study guide",
     "paper list", "reading list", "resources for", "book",
     # The plural, not the singular: "example" alone rejected ChatterBot,
     # which "learns replies from example conversations" — there the word
