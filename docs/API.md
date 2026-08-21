@@ -249,8 +249,8 @@ moved.
     "thinnest": 0.0325
   },
   "moved": [{"category": "Automation", "from": 0.895, "to": 0.946, "delta": 0.051}],
-  "runs": [{"at": "...", "commit": "...", "agents": 321, "categories": {}}],
-  "metadata": {"count": 5}
+  "runs": [{"at": "...", "commit": "...", "agents": 334}],
+  "metadata": {"count": 7, "total": 7}
 }
 ```
 
@@ -265,6 +265,17 @@ agent. `moved` compares the two most recent runs **taken at the same depth**;
 a run at `--limit 3` cannot see an agent ranked fourth, so comparing across
 depths would report the setting as a change in the catalogue. With fewer than
 two comparable runs it is an empty list.
+
+A category has to move by at least **0.02** to appear in `moved`. Scores
+wobble by a thousandth or two between runs on identical data, and this is the
+surface where that noise would be most visible; the same threshold applies to
+`make quality`, from the same constant.
+
+`runs` carries the timestamp, commit and catalogue size of each recorded run,
+newest first, capped at twenty — `metadata.total` says how many exist, so a
+short history is distinguishable from a truncated one. Per-category scores
+appear only under `latest`: repeating a fourteen-entry map for every run put a
+few hundred unread numbers through the ETag hash for no reader.
 
 ## List technologies
 

@@ -7,12 +7,20 @@ really a typo of another, or a broken link.
 
 import json
 import re
+import sys
 from collections import Counter
 
 import pytest
 
 import config
-from models import Agent
+
+# Module scope, as in test_discover, test_audit and test_quality. Done inside
+# a test body it pushes the package onto sys.path[0] partway through the run,
+# shadowing same-named modules for everything after, and appends a duplicate
+# entry on every invocation.
+sys.path.insert(0, str(config.PACKAGE_DIR))
+
+from models import Agent  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -880,9 +888,8 @@ def test_no_technology_is_spelled_two_ways(catalogue):
     # The audit's own rule, imported rather than restated: a second, looser
     # copy let "Objective-C" satisfy this guard while still producing a stack
     # finding — the false finding the audit change existed to remove.
-    import sys
     from collections import defaultdict
-    sys.path.insert(0, str(config.PACKAGE_DIR))
+
     from discover import canonical_tech as canonical
 
     spellings = defaultdict(set)
@@ -909,9 +916,6 @@ def test_the_bootstrap_copy_agrees_with_the_catalogue(catalogue):
     deliberately smaller: it exists to make an empty checkout usable, not to
     mirror every addition.
     """
-    import sys
-
-    sys.path.insert(0, str(config.PACKAGE_DIR / "backend"))
     import scraper
 
     live = {agent["name"]: agent for agent in catalogue}
