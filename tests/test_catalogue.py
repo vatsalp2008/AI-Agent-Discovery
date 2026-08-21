@@ -953,9 +953,7 @@ DISPLAY_NAMES = {
     "Nav2": "navigation2",
     "SeamlessM4T": "seamless_communication",
     "AI Fairness 360": "AIF360",
-    "LobeChat": "lobehub",
     "OpenAI Agents SDK": "openai-agents-python",
-    "Qwen-VL": "Qwen3-VL",
     "Lightpanda": "browser",
 }
 

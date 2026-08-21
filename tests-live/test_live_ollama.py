@@ -290,7 +290,7 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("fine tune a model with limited memory",
      {"Unsloth", "Axolotl", "PEFT", "XTuner"}),
     ("orchestrate data pipelines", {"Dagster", "Metaflow", "Flyte", "ZenML"}),
-    ("self hosted chat interface for local models", {"Open WebUI", "LibreChat", "LobeChat"}),
+    ("self hosted chat interface for local models", {"Open WebUI", "LibreChat", "LobeHub"}),
     ("sandbox for running generated code", {"E2B", "OpenInterpreter"}),
     ("automate a windows desktop application", {"UFO", "OpenAdapt"}),
     ("track machine learning experiments", {"MLflow", "Weights & Biases", "Metaflow"}),

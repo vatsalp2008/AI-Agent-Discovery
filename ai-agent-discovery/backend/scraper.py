@@ -1028,7 +1028,7 @@ SAMPLE_AGENTS = [
         use_case="A front end for locally-run models"
     ),
     Agent(
-        name="LobeChat",
+        name="LobeHub",
         description="A chat framework with plugins, function calling and multi-modal input across many providers.",
         category="Customer Service",
         tech_stack=["TypeScript", "Next.js"],
@@ -1158,7 +1158,7 @@ SAMPLE_AGENTS = [
         status="dormant"
     ),
     Agent(
-        name="Qwen-VL",
+        name="Qwen3-VL",
         description="Alibaba's multimodal model family, reading documents, charts and video alongside text.",
         category="Multimodal",
         tech_stack=['Python', 'PyTorch', 'Vision'],

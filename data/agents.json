@@ -1754,7 +1754,7 @@
     "use_case": "A front end for locally-run models"
   },
   {
-    "name": "LobeChat",
+    "name": "LobeHub",
     "description": "A chat framework with plugins, function calling and multi-modal input across many providers.",
     "category": "Customer Service",
     "tech_stack": [
@@ -1930,7 +1930,7 @@
     "status": "dormant"
   },
   {
-    "name": "Qwen-VL",
+    "name": "Qwen3-VL",
     "description": "Alibaba's multimodal model family, reading documents, charts and video alongside text.",
     "category": "Multimodal",
     "tech_stack": [
