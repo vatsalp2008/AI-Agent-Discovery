@@ -89,7 +89,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "RAG", "SQL"],
         github_stars=19000,
         url="https://github.com/vanna-ai/vanna",
-        use_case="Natural language querying of databases"
+        use_case="Natural language querying of databases",
+        status="archived"
     ),
     Agent(
         name="Jupyter AI",
@@ -107,7 +108,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Altair", "Matplotlib"],
         github_stars=2800,
         url="https://github.com/microsoft/lida",
-        use_case="Automatic chart and infographic generation"
+        use_case="Automatic chart and infographic generation",
+        status="dormant"
     ),
     Agent(
         name="Sketch",
@@ -116,7 +118,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Pandas"],
         github_stars=2300,
         url="https://github.com/approximatelabs/sketch",
-        use_case="Dataframe-aware code suggestions"
+        use_case="Dataframe-aware code suggestions",
+        status="dormant"
     ),
     Agent(
         name="DB-GPT",
@@ -197,7 +200,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Weaviate", "React"],
         github_stars=7000,
         url="https://github.com/weaviate/Verba",
-        use_case="Retrieval chat with citations"
+        use_case="Retrieval chat with citations",
+        status="archived"
     ),
     Agent(
         name="Khoj",
@@ -269,7 +273,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Twilio", "Speech"],
         github_stars=3783,
         url="https://github.com/vocodedev/vocode-core",
-        use_case="Voice agents and phone calls"
+        use_case="Voice agents and phone calls",
+        status="dormant"
     ),
     Agent(
         name="Chatwoot",
@@ -386,7 +391,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "TypeScript"],
         github_stars=1517,
         url="https://github.com/protectai/rebuff",
-        use_case="Detecting prompt injection"
+        use_case="Detecting prompt injection",
+        status="archived"
     ),
     Agent(
         name="Garak",
@@ -584,7 +590,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "PyTorch"],
         github_stars=45872,
         url="https://github.com/coqui-ai/TTS",
-        use_case="Training and running text-to-speech models"
+        use_case="Training and running text-to-speech models",
+        status="dormant"
     ),
     Agent(
         name="ComfyUI",
@@ -827,7 +834,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "PyTorch", "OCR"],
         github_stars=10056,
         url="https://github.com/facebookresearch/nougat",
-        use_case="Parsing scientific papers"
+        use_case="Parsing scientific papers",
+        status="dormant"
     ),
     Agent(
         name="Swarm",
@@ -953,7 +961,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Protobuf"],
         github_stars=2830,
         url="https://github.com/whylabs/whylogs",
-        use_case="Privacy-preserving data monitoring"
+        use_case="Privacy-preserving data monitoring",
+        status="dormant"
     ),
     Agent(
         name="Qwen-Agent",
@@ -1043,7 +1052,8 @@ SAMPLE_AGENTS = [
         tech_stack=["TypeScript", "Next.js", "Python"],
         github_stars=36304,
         url="https://github.com/reworkd/AgentGPT",
-        use_case="Running autonomous agents in a browser"
+        use_case="Running autonomous agents in a browser",
+        status="archived"
     ),
     Agent(
         name="E2B",
@@ -1106,7 +1116,8 @@ SAMPLE_AGENTS = [
         tech_stack=['Python', 'PyTorch'],
         github_stars=5587,
         url="https://github.com/huggingface/parler-tts",
-        use_case="Describing a voice in plain language"
+        use_case="Describing a voice in plain language",
+        status="dormant"
     ),
     Agent(
         name="WhisperX",
@@ -1124,7 +1135,8 @@ SAMPLE_AGENTS = [
         tech_stack=['Python', 'PyTorch'],
         github_stars=39236,
         url="https://github.com/suno-ai/bark",
-        use_case="Generating speech and sound from text"
+        use_case="Generating speech and sound from text",
+        status="dormant"
     ),
     Agent(
         name="SeamlessM4T",
@@ -1142,7 +1154,8 @@ SAMPLE_AGENTS = [
         tech_stack=['Python', 'PyTorch', 'Vision'],
         github_stars=24977,
         url="https://github.com/haotian-liu/LLaVA",
-        use_case="Visual question answering"
+        use_case="Visual question answering",
+        status="dormant"
     ),
     Agent(
         name="Qwen-VL",
@@ -1277,7 +1290,8 @@ SAMPLE_AGENTS = [
         tech_stack=["Python", "Docker", "PostgreSQL"],
         github_stars=14500,
         url="https://github.com/TransformerOptimus/SuperAGI",
-        use_case="Running concurrent agents from a dashboard"
+        use_case="Running concurrent agents from a dashboard",
+        status="dormant"
     ),
     Agent(
         name="ChatDev",

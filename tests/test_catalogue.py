@@ -931,6 +931,14 @@ def test_the_bootstrap_copy_agrees_with_the_catalogue(catalogue):
         for field in ("description", "category", "url", "use_case"):
             if getattr(sample, field) != current.get(field):
                 drifted.append(f"{sample.name}.{field}")
+        # Status too. Four bootstrap entries had descriptions ending
+        # "; archived, with X maintained" while carrying the default active
+        # status, so a fresh checkout rendered them with no badge and served
+        # them under `maintained=true` — an entry contradicting itself.
+        # Absent means active, which is how models.Agent and the JSON both
+        # treat it.
+        if (sample.status or "active") != (current.get("status") or "active"):
+            drifted.append(f"{sample.name}.status")
         if list(sample.tech_stack) != list(current.get("tech_stack") or []):
             drifted.append(f"{sample.name}.tech_stack")
 
