@@ -935,3 +935,56 @@ def test_the_bootstrap_copy_agrees_with_the_catalogue(catalogue):
             drifted.append(f"{sample.name}.tech_stack")
 
     assert not drifted, f"SAMPLE_AGENTS is stale against the catalogue: {drifted}"
+
+
+# Names that legitimately differ from their repository slug: a project's
+# display name is not always its directory name. Each was checked by hand.
+DISPLAY_NAMES = {
+    "Weights & Biases": "wandb",
+    "Gazebo": "gz-sim",
+    "Nav2": "navigation2",
+    "SeamlessM4T": "seamless_communication",
+    "AI Fairness 360": "AIF360",
+    "LobeChat": "lobehub",
+    "OpenAI Agents SDK": "openai-agents-python",
+    "Qwen-VL": "Qwen3-VL",
+    "Lightpanda": "browser",
+}
+
+
+def test_every_name_belongs_to_its_repository(catalogue):
+    """An entry should be called what its project is called.
+
+    A name that has drifted from the repository is usually a project that was
+    renamed and half-updated — PyRIT sat on an archived fork for weeks, and an
+    entry once carried a title invented for it rather than the project's own.
+    Anything genuinely different goes in DISPLAY_NAMES, which is a short list
+    on purpose: adding to it should be a decision, not a reflex.
+
+    This does not catch every bad name. An entry called "Data Profiling"
+    pointing at fg-data-profiling passes, because the invented title happens
+    to be a substring of the slug — and that one mattered, since an exact
+    name match is hoisted to rank 0 at score 1.0 and cannot be suppressed by
+    `min_score`, so a common phrase as a name answers a whole category's
+    question with one repository. Whether a name reads as a concept is a
+    judgement call the reviewer has to make; this guards the mechanical half.
+    """
+    import re
+
+    adrift = []
+    for agent in catalogue:
+        match = re.match(r"https?://github\.com/[^/]+/([^/#?]+)", agent.get("url") or "")
+        if not match:
+            continue
+        name, slug = agent["name"], match.group(1)
+        if DISPLAY_NAMES.get(name) == slug:
+            continue
+        flat_name = re.sub(r"[^a-z0-9]", "", name.lower())
+        flat_slug = re.sub(r"[^a-z0-9]", "", slug.lower())
+        if flat_name and (flat_name in flat_slug or flat_slug in flat_name):
+            continue
+        adrift.append(f"{name} -> {slug}")
+
+    assert not adrift, (
+        f"named differently from the repository; add to DISPLAY_NAMES if "
+        f"deliberate: {adrift}")
