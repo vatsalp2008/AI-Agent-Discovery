@@ -4122,5 +4122,56 @@
     "github_stars": 2413,
     "url": "https://github.com/sodadata/soda-core",
     "use_case": "Data checks written in plain YAML"
+  },
+  {
+    "name": "SAM 2",
+    "description": "Segments any object in an image or video from a click, and tracks it across frames.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 19737,
+    "url": "https://github.com/facebookresearch/sam2",
+    "use_case": "Segmenting and tracking objects"
+  },
+  {
+    "name": "Open-Sora",
+    "description": "Generates video from a text prompt, with the training recipe and weights published rather than held back.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Diffusers"
+    ],
+    "github_stars": 29281,
+    "url": "https://github.com/hpcaitech/Open-Sora",
+    "use_case": "Generating video from text"
+  },
+  {
+    "name": "Moshi",
+    "description": "A speech model that listens and talks at the same time, so it can be interrupted mid-sentence.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "Rust",
+      "PyTorch"
+    ],
+    "github_stars": 10915,
+    "url": "https://github.com/kyutai-labs/moshi",
+    "use_case": "Full-duplex spoken dialogue"
+  },
+  {
+    "name": "MiniCPM-V",
+    "description": "A vision-language model small enough to run on a phone while still reading documents and video.",
+    "category": "Multimodal",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "llama.cpp"
+    ],
+    "github_stars": 26210,
+    "url": "https://github.com/OpenBMB/MiniCPM-V",
+    "use_case": "Vision-language on a phone"
   }
 ]
