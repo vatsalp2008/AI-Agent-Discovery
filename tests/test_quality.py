@@ -747,3 +747,41 @@ class TestRecordingIntoAFreshDirectory:
 
         assert where.exists()
         assert quality.read_history(where)[0]["categories"] == {"A": 0.9}
+
+
+class TestAskingForNoRuns:
+    def test_a_limit_of_zero_returns_none_not_everything(self, tmp_path, monkeypatch):
+        """`runs[:limit] if limit else runs` handed the whole file to a caller
+        asking for nothing — a hundred runs into the response body and the
+        ETag hash."""
+        import quality_data
+
+        import config
+        (tmp_path / "quality-history.jsonl").write_text(
+            "".join(json.dumps({"commit": str(i), "categories": {"A": 0.9}}) + "\n"
+                    for i in range(5)))
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert quality_data.read(limit=0) == []
+        assert quality_data.read_with_total(limit=0) == ([], 5)
+        assert len(quality_data.read(limit=None)) == 5
+
+
+class TestOneThresholdRule:
+    def test_both_movement_functions_call_the_same_code(self):
+        """It was written twice, the float-rounding fix applied twice, and a
+        test kept to catch the next divergence."""
+        import inspect
+
+        import quality_data
+
+        assert "moves_between" in inspect.getsource(quality.movement)
+        assert "moves_between" in inspect.getsource(quality_data.movement)
+
+    def test_the_shared_rule_reports_both_directions(self):
+        import quality_data
+
+        moves = quality_data.moves_between({"A": 0.9, "B": 0.5}, {"A": 0.5, "B": 0.9})
+
+        assert [m["category"] for m in moves] == ["A", "B"]
+        assert moves[0]["delta"] == -0.4 and moves[1]["delta"] == 0.4

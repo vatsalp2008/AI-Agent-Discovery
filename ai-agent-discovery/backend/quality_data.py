@@ -40,14 +40,14 @@ def path():
     return config.DATA_DIR / "quality-history.jsonl"
 
 
-def read(limit=MAX_RUNS, path=None, newest_first=True):
+def read(limit=MAX_RUNS, where=None, newest_first=True):
     """Recorded runs.
 
     A damaged line is skipped rather than fatal. This is a record of
     measurements taken over months, and one bad append should not cost the
     rest of it — the same call the CLI's own reader makes.
     """
-    where = path or globals()["path"]()
+    where = where or path()
     try:
         text = where.read_text()
     except OSError:
@@ -69,7 +69,9 @@ def read(limit=MAX_RUNS, path=None, newest_first=True):
 
     if newest_first:
         runs.reverse()
-    return runs[:limit] if limit else runs
+    # `is not None`, not truthiness: limit=0 asked for none and was handed
+    # the whole file.
+    return runs[:limit] if limit is not None else runs
 
 
 def read_with_total(limit=MAX_RUNS):
@@ -81,7 +83,32 @@ def read_with_total(limit=MAX_RUNS):
     holds.
     """
     runs = read(limit=None)
-    return (runs[:limit] if limit else runs), len(runs)
+    return (runs[:limit] if limit is not None else runs), len(runs)
+
+
+def moves_between(before, after, notable=NOTABLE_MOVE):
+    """Categories that moved by at least `notable`, biggest fall first.
+
+    The one implementation. It lived in two — here and in quality.py — with
+    the float-rounding fix applied twice and a test whose only job was to
+    catch the next divergence.
+
+    Both directions are reported. A category climbing is usually somebody's
+    wording fix working, and only ever hearing bad news hides that.
+    """
+    moves = []
+    for category, score in (after or {}).items():
+        was = (before or {}).get(category)
+        if not isinstance(was, (int, float)) or not isinstance(score, (int, float)):
+            continue
+        # Rounded before comparing: scores are stored to three places, and
+        # binary floats put 0.800 -> 0.820 at 0.0199999999999999, so exactly
+        # the threshold was dropped for 40 of the 281 pairs in the range
+        # these scores occupy — while 0.900 -> 0.880 came through.
+        if round(abs(score - was), 3) >= notable:
+            moves.append({"category": category, "from": was, "to": score,
+                          "delta": round(score - was, 3)})
+    return sorted(moves, key=lambda move: move["delta"])
 
 
 def movement(runs, notable=NOTABLE_MOVE):
@@ -101,19 +128,5 @@ def movement(runs, notable=NOTABLE_MOVE):
     if earlier is None:
         return []
 
-    before = earlier.get("categories") or {}
-    moves = []
-    for category, score in (newest.get("categories") or {}).items():
-        was = before.get(category)
-        if not isinstance(was, (int, float)) or not isinstance(score, (int, float)):
-            continue
-        # Rounded before comparing: scores are stored to three places, and
-        # binary floats put 0.800 -> 0.820 at 0.0199999999999999, so exactly
-        # the threshold was dropped for 40 of the 281 pairs in the range these
-        # scores actually occupy — while 0.900 -> 0.880 came through. A
-        # boundary that depends on which side of a decimal you started is not
-        # a boundary.
-        if round(abs(score - was), 3) >= notable:
-            moves.append({"category": category, "from": was, "to": score,
-                          "delta": round(score - was, 3)})
-    return sorted(moves, key=lambda move: move["delta"])
+    return moves_between(earlier.get("categories"),
+                         newest.get("categories"), notable)

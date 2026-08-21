@@ -183,7 +183,7 @@ def read_history(path=None):
     """
     # Resolved here, not left to quality_data's own default: history_path()
     # is what tests and callers override.
-    return quality_data.read(limit=None, path=path or history_path(),
+    return quality_data.read(limit=None, where=path or history_path(),
                              newest_first=False)
 
 
@@ -256,18 +256,11 @@ def movement(current, previous, notable=NOTABLE_MOVE, limit=None):
         if previous.get("limit", DEFAULT_LIMIT) != limit:
             return []
 
-    before = (previous or {}).get("categories") or {}
-    moves = []
-    for row in current:
-        was = before.get(row["category"])
-        if not isinstance(was, (int, float)):
-            continue
-        delta = row["mrr"] - was
-        # Rounded for the same reason as quality_data.movement: see there.
-        if round(abs(delta), 3) >= notable:
-            moves.append({"category": row["category"], "from": was,
-                          "to": row["mrr"], "delta": round(delta, 3)})
-    return sorted(moves, key=lambda m: m["delta"])
+    # The shared rule, so the CLI and the page cannot answer "what moved"
+    # differently — they did, and the rounding fix had to be written twice.
+    return quality_data.moves_between((previous or {}).get("categories"),
+                                      {row["category"]: row["mrr"] for row in current},
+                                      notable)
 
 
 def render(categories, weakest, guards, thin_margin=THIN_MARGIN, moves=None,
