@@ -67,11 +67,14 @@ def read(limit=MAX_RUNS, where=None, newest_first=True):
         if isinstance(run, dict) and isinstance(run.get("categories"), dict):
             runs.append(run)
 
+    if limit is not None:
+        # Sliced from the recent end whichever way they are ordered. Taken
+        # before the reverse, `runs[:limit]` on an oldest-first read returned
+        # the runs the cap exists to drop.
+        runs = runs[-limit:] if limit else []
     if newest_first:
         runs.reverse()
-    # `is not None`, not truthiness: limit=0 asked for none and was handed
-    # the whole file.
-    return runs[:limit] if limit is not None else runs
+    return runs
 
 
 def read_with_total(limit=MAX_RUNS):

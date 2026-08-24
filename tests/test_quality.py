@@ -768,15 +768,32 @@ class TestAskingForNoRuns:
 
 
 class TestOneThresholdRule:
-    def test_both_movement_functions_call_the_same_code(self):
-        """It was written twice, the float-rounding fix applied twice, and a
-        test kept to catch the next divergence."""
-        import inspect
-
+    @pytest.mark.parametrize("before,after", [
+        ({"A": 0.800}, {"A": 0.820}),          # exactly the threshold
+        ({"A": 0.900}, {"A": 0.880}),          # exactly, downwards
+        ({"A": 0.900}, {"A": 0.899}),          # wobble
+        ({"A": 0.5, "B": 0.9}, {"A": 0.9, "B": 0.5}),
+        ({"A": "?"}, {"A": 0.9}),              # unusable stored score
+        ({}, {"A": 0.9}),                      # category with no baseline
+    ])
+    def test_both_entry_points_answer_identically(self, before, after):
+        """Behaviour, not source text. Asserting that "moves_between" appears
+        in each function's source passed on a comment mentioning it, so
+        re-inlining the loop while leaving the explanatory comment would have
+        shipped the divergence this exists to catch."""
         import quality_data
 
-        assert "moves_between" in inspect.getsource(quality.movement)
-        assert "moves_between" in inspect.getsource(quality_data.movement)
+        shared = quality_data.moves_between(before, after)
+        via_reader = quality_data.movement([
+            {"limit": quality_data.DEFAULT_LIMIT, "categories": after},
+            {"limit": quality_data.DEFAULT_LIMIT, "categories": before},
+        ])
+        via_cli = quality.movement(
+            [{"category": c, "agents": 1, "mrr": m, "unfindable": 0}
+             for c, m in after.items()],
+            {"categories": before}, limit=quality.DEFAULT_LIMIT)
+
+        assert shared == via_reader == via_cli
 
     def test_the_shared_rule_reports_both_directions(self):
         import quality_data
@@ -800,3 +817,39 @@ class TestRefusingBeforeSpending:
 
         assert quality.main(["--category", "Safety", "--record"]) == 1
         assert "Refusing to record a partial run" in capsys.readouterr().err
+
+
+class TestTruncatingFromTheRecentEnd:
+    """The cap exists to drop the oldest runs — "what a maintainer wants is
+    'is this getting worse'". Read oldest-first, `runs[:limit]` returned
+    exactly those, latent only because the one such caller passes no limit."""
+
+    def _history(self, tmp_path, count=6):
+        where = tmp_path / "h.jsonl"
+        where.write_text("".join(
+            json.dumps({"commit": str(i), "categories": {"A": 0.9}}) + "\n"
+            for i in range(count)))
+        return where
+
+    def test_newest_first_keeps_the_newest(self, tmp_path):
+        import quality_data
+
+        got = quality_data.read(limit=3, where=self._history(tmp_path))
+        assert [r["commit"] for r in got] == ["5", "4", "3"]
+
+    def test_oldest_first_also_keeps_the_newest(self, tmp_path):
+        import quality_data
+
+        got = quality_data.read(limit=3, where=self._history(tmp_path),
+                                newest_first=False)
+        assert [r["commit"] for r in got] == ["3", "4", "5"]
+
+    def test_no_limit_keeps_everything(self, tmp_path):
+        import quality_data
+
+        assert len(quality_data.read(limit=None, where=self._history(tmp_path))) == 6
+
+    def test_a_limit_of_zero_still_keeps_nothing(self, tmp_path):
+        import quality_data
+
+        assert quality_data.read(limit=0, where=self._history(tmp_path)) == []
