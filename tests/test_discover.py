@@ -712,6 +712,15 @@ class TestCourseIsAPlaceNotAWord:
     here in one table, because every previous version passed its own tests.
     """
 
+    @pytest.mark.parametrize("name", ["discourse-ai", "resources", "concourse-ci"])
+    def test_a_word_that_merely_contains_it_is_not_a_course(self, name):
+        """resource, discourse and concourse carry the same six letters, and
+        the name rule matches as a substring because "mlcourse" has no
+        boundary before it."""
+        assert discover.looks_like_a_tool(
+            {"name": name, "description": "Adds AI features to forums, with "
+                                          "summaries and moderation.", "topics": []})
+
     @pytest.mark.parametrize("name,description", [
         ("agents-course", "This repository contains the Hugging Face Agents Course."),
         ("mlcourse.ai", "Open Machine Learning Course"),
@@ -721,6 +730,8 @@ class TestCourseIsAPlaceNotAWord:
         ("x", "Courses covering large language models from the ground up"),
         ("x", "A free course on machine learning"),
         ("x", "Crash course in transformers"),
+        ("x", "Crash-course in transformers"),
+        ("x", "Course-materials for a deep learning class"),
         ("x", "Course materials for a deep learning class"),
     ])
     def test_a_course_is_refused_however_it_is_phrased(self, name, description):
@@ -728,6 +739,9 @@ class TestCourseIsAPlaceNotAWord:
             {"name": name, "description": description})
 
     @pytest.mark.parametrize("description", [
+        "Charts a course through your codebase.",
+        "Plots a flight course for a drone.",
+        "Keeps a long-running plan on the right course.",
         "Marks where a prompt could take an agent off course",
         "Marks where a prompt could take an agent off-course",
         "Of course it runs entirely locally",

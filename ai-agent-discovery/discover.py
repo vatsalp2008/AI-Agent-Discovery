@@ -315,24 +315,38 @@ INTERVIEW_QUESTIONS_PATTERN = re.compile(
 # What separates them is not the word but where it sits. A repository that
 # *is* a course usually says so in its name; in prose, the genre needs an
 # article or a learning word beside it, and the idioms never have one.
-COURSE_NAME_PATTERN = re.compile(rf"\bcourses?\b|\bcourse{_GAP}?(?:ai|io)\b")
+# A repository *named* course almost always is one, and the name is where
+# GitHub puts the genre: agents-course, llm-course, mlcourse.ai. Matched as a
+# substring rather than a word, because "mlcourse" has no boundary before it —
+# excluding "resource", which contains the same six letters.
+# The English words that contain it are excluded by name: resource, discourse
+# and concourse all carry the same six letters, and "discourse-ai" is a real
+# tool the suite already guarded against.
+COURSE_NAME_PATTERN = re.compile(r"(?<!re)(?<!dis)(?<!con)courses?")
 
-COURSE_TEXT_PATTERN = re.compile(
-    r"\bcourses\b"
-    r"|\b(?:a|free|online|video|crash|full|complete|this|introductory)\s+course\b"
-    # "the course" is a course; "the course of" is an idiom.
-    r"|\bthe\s+course\b(?!\s+of)"
-    r"|\bcourse\s+(?:on|for|covering|about|material|materials|notes|repo|by)\b"
-    # A course names itself at the end of a title — "…Agents Course." — but
-    # so does every idiom, so the prepositions are excluded by name.
-    r"|\b(?!off\b|on\b|of\b)\w+\s+course\b(?=[\s.:,]*$)")
-
-# A tool that *produces* interview questions is an interviewer's tool rather
-# than study material. `scor` not `score`, so it reaches "scoring" like the
-# other nine stems reach their inflections.
+# In prose, only the forms that cannot be anything else. This is the fourth
+# attempt and the previous three all failed in one direction or the other:
+# the bare word refused an agent security scanner, an eight-phrase list let
+# huggingface/agents-course through, lookbehinds refused "off-course" and
+# "over the course of", and a broader version of this refused "charts a
+# course through your codebase", "plots a flight course for a drone" and
+# "an obstacle course simulator".
+#
+# So "a course", "the course", "course for" and the trailing "<word> course"
+# are all gone: each of them reads as an idiom at least as often as a genre.
+# What is left cannot. The name rule and the declared topics carry the rest,
+# which is where the signal actually is.
+# A tool that *produces* interview questions or *conducts* mock interviews is
+# an interviewer's tool rather than study material. Stems, not whole words, so
+# each reaches its inflections — `scor` catches "scoring".
 INTERVIEW_TOOL_PATTERN = re.compile(
     r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|scor|transcrib)\w*"
     r"[\s\w]{0,20}?\binterview")
+
+COURSE_TEXT_PATTERN = re.compile(
+    r"\bcourses\b"
+    r"|\b(?:free|online|video|crash|introductory)\s+course\b"
+    r"|\bcourse\s+(?:on|covering|about|material|materials|notes|by)\b")
 
 # Topics a repository applies to itself when it is teaching rather than
 # shipping. Far more reliable than reading the prose for it: a course can be
@@ -447,7 +461,9 @@ def looks_like_a_tool(repo):
     # as likely to be "off course" or "course correction".
     if COURSE_NAME_PATTERN.search(name) is not None:
         return False
-    if COURSE_TEXT_PATTERN.search(described) is not None:
+    # Flattened, like NOT_A_TOOL_PATTERN: "crash-course" is the same claim as
+    # "crash course", and only the spaced form was being read.
+    if COURSE_TEXT_PATTERN.search(re.sub(r"[\-_]+", " ", described)) is not None:
         return False
     if INTERVIEW_PREP_PATTERN.search(haystack) is not None:
         return False
@@ -577,7 +593,10 @@ def is_new(record, repos, names):
     repo = parse_repo(record.get("url"))
     if repo and repo.lower() in repos:
         return False
-    return record["name"].strip().lower() not in names
+    # `.get`, not `[...]`: the near-miss path calls this with a raw search
+    # result, and a repository with a null name raised AttributeError out of
+    # the whole run — discarding every candidate already found with it.
+    return (record.get("name") or "").strip().lower() not in names
 
 
 # GitHub allows 10 search requests a minute unauthenticated, 30 with a token.
@@ -608,7 +627,7 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
     # the categoriser looked like the bottleneck and is not — over five live
     # topics the reasons were 17 descriptions too short, 3 with no category
     # and 1 with no technologies. A count of "25 unusable" hid all of that.
-    reasons = {}
+    reasons, seen_near_misses = {}, set()
     searched, failed = 0, []
     limited = None
     for index, topic in enumerate(topics):
@@ -641,11 +660,17 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
                 skipped["unusable"] += 1
                 # "Not a tool" is the filter working and needs no listing;
                 # the rest are near misses worth a maintainer's eye.
-                if reason != "not a tool" and is_new(
-                        {"name": repo.get("name"), "url": repo.get("html_url") or ""},
-                        repos, names):
+                full = repo.get("full_name") or repo.get("name") or ""
+                if (reason != "not a tool" and full not in seen_near_misses
+                        and is_new({"name": repo.get("name"),
+                                    "url": repo.get("html_url") or ""},
+                                   repos, names)):
+                    # Deduplicated like the candidates themselves: the same
+                    # repository is tagged with several of these topics, and
+                    # reporting it five times inflates every count with it.
+                    seen_near_misses.add(full)
                     reasons.setdefault(reason, []).append({
-                        "name": repo.get("full_name") or repo.get("name"),
+                        "name": full,
                         "stars": int(repo.get("stargazers_count") or 0),
                         "url": repo.get("html_url") or "",
                     })
