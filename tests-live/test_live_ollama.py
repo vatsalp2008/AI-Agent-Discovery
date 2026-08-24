@@ -448,6 +448,15 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
      {"MinerU", "Docling", "Unstructured"}),
     ("convert documents to markdown", {"Marker", "MarkItDown", "Docling"}),
     ("pull the same fields out of every document", {"Unstract"}),
+    # Added at 349, every one of them surfaced by running the crawler rather
+    # than from memory.
+    ("penetration testing by an agent", {"Strix", "PentAGI"}),
+    ("disposable sandbox for generated code", {"Daytona", "E2B"}),
+    ("knowledge graph memory for an agent", {"Graphiti", "cognee", "Mem0"}),
+    ("build llm applications in rust", {"Rig"}),
+    ("agents that argue about a trade", {"TradingAgents"}),
+    ("fail over between model providers",
+     {"Bifrost", "LiteLLM", "Portkey Gateway"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
