@@ -556,3 +556,60 @@ describe('project status survives an edit', () => {
         expect((await editWith(null)).status).toBe('active');
     });
 });
+
+describe('fields the form never shows', () => {
+    /** A PUT replaces the whole record, so anything the form does not resend
+     *  is deleted. `status` was already carried through for this reason;
+     *  `alternatives` was not, so fixing a typo in an archived agent's
+     *  description stripped its "Try instead" links — and the next CI run
+     *  failed on the guard that requires them. */
+    const archived = {
+        ...record('Flowise', 'Framework'),
+        status: 'archived',
+        alternatives: ['Langflow', 'Dify'],
+    };
+
+    it('resends the alternatives it loaded', async () => {
+        const calls = await boot(routes({
+            '/api/admin/agents': { body: { agents: [archived], total: 1 } },
+        }));
+        document.querySelector('.admin-row button').click();
+        document.getElementById('fieldDescription').value = 'Edited.';
+        submit();
+        await flush();
+
+        const put = calls.find(c => c.options && c.options.method === 'PUT');
+        const body = JSON.parse(put.options.body);
+        expect(body.alternatives).toEqual(['Langflow', 'Dify']);
+        expect(body.status).toBe('archived');
+    });
+
+    it('sends none for a fresh entry', async () => {
+        const calls = await boot(routes({
+            '/api/admin/similar-check': { body: { similar: [], checked: true } },
+        }));
+        fill({ name: 'Fresh' });
+        submit();
+        await flush();
+
+        const post = calls.find(c => c.options && c.options.method === 'POST'
+                                && c.url.includes('/api/admin/agents'));
+        expect(JSON.parse(post.options.body).alternatives).toEqual([]);
+    });
+
+    it('does not carry one edit into the next', async () => {
+        const calls = await boot(routes({
+            '/api/admin/agents': { body: { agents: [archived, record('Aider')], total: 2 } },
+        }));
+        // Load the archived one, then a live one: the second must not
+        // inherit the first's redirections.
+        document.querySelectorAll('.admin-row button')[0].click();
+        document.querySelectorAll('.admin-row button')[1].click();
+        submit();
+        await flush();
+
+        const put = calls.find(c => c.options && c.options.method === 'PUT');
+        expect(put.url).toContain('Aider');
+        expect(JSON.parse(put.options.body).alternatives).toEqual([]);
+    });
+});

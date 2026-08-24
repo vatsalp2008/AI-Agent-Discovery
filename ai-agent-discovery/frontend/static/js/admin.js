@@ -39,10 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // stops a PUT — which replaces the whole record — from resetting an
     // archived entry to active.
     let loadedStatus = 'active';
+    // Carried through the form like `status`, and for the same reason: a PUT
+    // replaces the whole record, so a field the form never saw is a field the
+    // save deletes. Editing a typo in an archived agent's description used to
+    // strip its "Try instead" links.
+    let loadedAlternatives = [];
 
     function formValues() {
         return {
             status: loadedStatus,
+            alternatives: loadedAlternatives,
             name: fields.name.value.trim(),
             category: fields.category.value.trim(),
             description: fields.description.value.trim(),
@@ -57,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.reset();
         // A new agent is active until an audit says otherwise.
         loadedStatus = 'active';
+        loadedAlternatives = [];
         editingName.value = '';
         heading.textContent = 'Add an agent';
         saveBtn.textContent = 'Add agent';
@@ -65,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startEdit(agent) {
         loadedStatus = agent.status || 'active';
+        loadedAlternatives = Array.isArray(agent.alternatives) ? agent.alternatives : [];
         editingName.value = agent.name;
         fields.name.value = agent.name;
         fields.category.value = agent.category || '';
