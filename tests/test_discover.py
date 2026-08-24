@@ -739,3 +739,65 @@ class TestCourseIsAPlaceNotAWord:
     ])
     def test_the_word_in_passing_is_allowed(self, description):
         assert discover.looks_like_a_tool({"name": "x", "description": description})
+
+
+class TestARepositoryDeclaresItself:
+    """GitHub topics are a far better signal than prose, and the filter
+    ignored them entirely.
+
+    Found by running the filter over five live topic searches: seven of the
+    twelve things that got through were learning material, and a course can
+    be described in any language — 从零开始构建智能体 was never going to match an
+    English phrase list — but it still tags itself `tutorial`.
+    """
+
+    @pytest.mark.parametrize("topic", ["tutorial", "course", "awesome", "roadmap",
+                                       "beginners", "教程", "ebook"])
+    def test_a_declared_learning_topic_is_refused(self, topic):
+        assert not discover.looks_like_a_tool(
+            {"name": "x", "description": "Build agents", "topics": ["llm", topic]})
+
+    def test_ordinary_topics_are_left_alone(self):
+        assert discover.looks_like_a_tool(
+            {"name": "graphiti", "description": "Build Real-Time Knowledge Graphs",
+             "topics": ["agents", "graph", "llms", "rag"]})
+
+    def test_no_topics_at_all_is_fine(self):
+        assert discover.looks_like_a_tool(
+            {"name": "x", "description": "Build agents", "topics": []})
+
+
+class TestSeparatorsDoNotHidePhrases:
+    """GitHub names are hyphenated, so every phrase in the list had to read
+    them too — "claude-code-best-practice" makes the same claim as "best
+    practice", and only the spaced form was being matched."""
+
+    @pytest.mark.parametrize("name", [
+        "claude-code-best-practice", "front_end_checklist", "ml-cheat-sheet",
+    ])
+    def test_a_hyphenated_claim_is_refused(self, name):
+        assert not discover.looks_like_a_tool(
+            {"name": name, "description": "notes", "topics": []})
+
+    def test_flattening_does_not_refuse_a_real_entry(self):
+        """LitGPT's "readable from-scratch implementations" is a style, not a
+        genre — which is why the phrase is "from scratch in"."""
+        assert discover.looks_like_a_tool({
+            "name": "litgpt",
+            "description": "Readable from-scratch implementations of open LLMs "
+                           "with pretraining, fine-tuning and deployment recipes.",
+            "topics": []})
+
+
+class TestPhrasesWithNoWordBoundary:
+    """`\\b` sits between a word and a non-word character, and CJK characters
+    are word characters — so a phrase in the main list can never match inside
+    a run of them."""
+
+    @pytest.mark.parametrize("description", [
+        "📚 从零开始构建大模型",
+        "《从零开始构建智能体》——从零开始的智能体原理与实践教程",
+    ])
+    def test_a_cjk_tutorial_is_refused(self, description):
+        assert not discover.looks_like_a_tool(
+            {"name": "x", "description": description, "topics": []})

@@ -205,7 +205,15 @@ NOT_A_TOOL = (
     # itself "examples", as agent-examples and openai-cookbook do.
     "examples", "example project", "example app", "cookbook",
     "demo project", "sample code",
-    "from scratch in", "build your own",
+    # Widened after running the filter over five live topic searches: these
+    # six describe teaching material and none of them appears anywhere in the
+    # catalogue, which is the test every refusal phrase has to pass.
+    # "from scratch in" missed "from scratch, step by step".
+    # "from scratch" alone refused LitGPT — "readable from-scratch
+    # implementations" is a description of a style, not a genre. The
+    # tutorial idiom carries the step-by-step framing with it.
+    "from scratch in", "build your own", "step by step", "lesson",
+    "best practice", "checklist",
 )
 
 # Configuration for *other* agents, rather than software in its own right:
@@ -233,6 +241,14 @@ CONFIG_COLLECTION = (
 # Matched on word boundaries, with an optional plural. As plain substrings
 # these rejected real tools: "book" is inside "notebook" and "facebook",
 # "course" inside "discourse", "paper" inside "wallpaper".
+# Phrases with no word boundary to anchor to. `\b` sits between a word and a
+# non-word character, and CJK characters are word characters, so `\b从零开始\b`
+# never matches inside 从零开始构建大模型 — "building a large model from scratch",
+# which is a tutorial however it is written.
+NOT_A_TOOL_UNANCHORED = re.compile("|".join(re.escape(p) for p in (
+    "从零开始", "教程", "入门",
+)))
+
 NOT_A_TOOL_PATTERN = re.compile(
     r"\b(?:" + "|".join(re.escape(phrase)
                         for phrase in NOT_A_TOOL + CONFIG_COLLECTION) + r")s?\b")
@@ -318,6 +334,20 @@ INTERVIEW_TOOL_PATTERN = re.compile(
     r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|scor|transcrib)\w*"
     r"[\s\w]{0,20}?\binterview")
 
+# Topics a repository applies to itself when it is teaching rather than
+# shipping. Far more reliable than reading the prose for it: a course can be
+# described in any language — 从零开始构建智能体 was not going to match an English
+# phrase list — but it still tags itself `tutorial`. Found by running the
+# filter over five live topic searches and looking at what got through:
+# seven of the twelve escapes were learning material, and every one declared
+# itself here.
+LEARNING_TOPICS = {
+    "tutorial", "tutorials", "course", "courses", "教程",
+    "learning", "learn", "education", "educational", "book", "ebook",
+    "awesome", "awesome-list", "curated-list", "cheatsheet", "roadmap",
+    "beginner", "beginners", "study", "handbook", "guide", "lessons",
+}
+
 # "robotics" is the topic RPA projects use — EasySpider and Wechaty are both
 # tagged it — so the word alone cannot decide the category. A repo claiming
 # robotics while describing process automation is filed by what it says.
@@ -392,13 +422,25 @@ def search_repos(query, token=None, limit=30, timeout=15):
 def looks_like_a_tool(repo):
     """Whether this is software you would run, rather than something to read.
 
-    Checked against the name and the description: a list names itself
-    ("awesome-llm-apps") about as often as it describes itself.
+    Checked against the name, the description and the repository's own
+    topics. A list names itself ("awesome-llm-apps") about as often as it
+    describes itself, and a course tags itself `tutorial` whatever language
+    it is written in.
     """
+    declared = {t.casefold() for t in repo.get("topics") or []}
+    if declared & LEARNING_TOPICS:
+        return False
+
     name = (repo.get("name") or "").lower()
     described = (repo.get("description") or "").lower()
     haystack = f"{name} {described}"
-    if NOT_A_TOOL_PATTERN.search(haystack) is not None:
+    # Separators flattened before matching, so every phrase in the list reads
+    # a hyphenated repository name too — "claude-code-best-practice" is the
+    # same claim as "best practice", and GitHub names are always hyphenated.
+    flattened = re.sub(r"[\-_]+", " ", haystack)
+    if NOT_A_TOOL_PATTERN.search(flattened) is not None:
+        return False
+    if NOT_A_TOOL_UNANCHORED.search(haystack) is not None:
         return False
     # The name and the prose are asked different questions: "course" in a
     # repository name is the genre naming itself, while in a sentence it is
