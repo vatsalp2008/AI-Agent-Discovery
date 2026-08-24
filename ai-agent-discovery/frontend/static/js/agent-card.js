@@ -81,6 +81,23 @@ const AgentCard = (() => {
                 ? 'The repository is archived on GitHub'
                 : 'No commits in over a year';
             card.appendChild(badge);
+
+            // A badge says stop; this says where to go. Only for archived
+            // entries: dormant means quiet, not finished, and a redirection
+            // would be telling someone to leave a tool that still works.
+            const instead = (meta.alternatives || '').split(',')
+                .map(name => name.trim()).filter(Boolean);
+            if (status === 'archived' && instead.length) {
+                const line = el('p', 'agent-alternatives');
+                line.append('Try instead: ');
+                instead.forEach((name, index) => {
+                    if (index) line.append(', ');
+                    const link = el('a', '', name);
+                    link.href = `/agent/${encodeURIComponent(name)}`;
+                    line.appendChild(link);
+                });
+                card.appendChild(line);
+            }
         }
 
         if (typeof agent.score === 'number') {

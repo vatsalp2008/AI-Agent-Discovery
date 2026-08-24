@@ -339,3 +339,53 @@ describe('project health', () => {
         }
     });
 });
+
+describe('where to go instead', () => {
+    function withMeta(extra) {
+        const agent = makeAgent();
+        return AgentCard.create({ ...agent, metadata: { ...agent.metadata, ...extra } });
+    }
+
+    it('links each alternative on an archived card', () => {
+        const card = withMeta({ status: 'archived', alternatives: 'Langflow,Dify' });
+        const links = [...card.querySelectorAll('.agent-alternatives a')];
+
+        expect(links.map(a => a.textContent)).toEqual(['Langflow', 'Dify']);
+        expect(links[0].getAttribute('href')).toBe('/agent/Langflow');
+    });
+
+    it('encodes a name that needs it', () => {
+        const card = withMeta({ status: 'archived', alternatives: 'Weights & Biases' });
+
+        expect(card.querySelector('.agent-alternatives a').getAttribute('href'))
+            .toBe('/agent/Weights%20%26%20Biases');
+    });
+
+    it('says nothing for a dormant project', () => {
+        /** Quiet is not finished. Telling someone to leave a tool that still
+         *  works is not the same as telling them a dead one is dead. */
+        expect(withMeta({ status: 'dormant', alternatives: 'Langflow' })
+            .querySelector('.agent-alternatives')).toBeNull();
+    });
+
+    it('says nothing for a healthy project', () => {
+        expect(withMeta({ alternatives: 'Langflow' })
+            .querySelector('.agent-alternatives')).toBeNull();
+    });
+
+    it('says nothing when an archived entry names none', () => {
+        expect(withMeta({ status: 'archived' })
+            .querySelector('.agent-alternatives')).toBeNull();
+        expect(withMeta({ status: 'archived', alternatives: '' })
+            .querySelector('.agent-alternatives')).toBeNull();
+    });
+
+    it('ignores stray separators', () => {
+        /** The field is comma-joined into FAISS metadata, which stores only
+         *  scalars, so the split has to tolerate what a hand edit leaves. */
+        const card = withMeta({ status: 'archived', alternatives: 'Langflow, ,Dify,' });
+
+        expect([...card.querySelectorAll('.agent-alternatives a')].map(a => a.textContent))
+            .toEqual(['Langflow', 'Dify']);
+    });
+});

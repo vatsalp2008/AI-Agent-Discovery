@@ -1604,3 +1604,15 @@ a.filter-tag {
         display: none;
     }
 }
+
+/* Where to go instead, under an archived badge. Quiet by design: it is a
+   footnote on a dead entry, not a second headline. */
+.agent-alternatives {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin: 0.35rem 0 0;
+}
+
+.agent-alternatives a {
+    color: var(--accent-text);
+}
