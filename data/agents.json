@@ -4343,5 +4343,108 @@
     "github_stars": 7538,
     "url": "https://github.com/maximhq/bifrost",
     "use_case": "Failing over between providers"
+  },
+  {
+    "name": "Oumi",
+    "description": "Covers the whole path from data preparation to fine-tuning to evaluation with one configuration file.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "vLLM"
+    ],
+    "github_stars": 9376,
+    "url": "https://github.com/oumi-ai/oumi",
+    "use_case": "One config from data to evaluation"
+  },
+  {
+    "name": "Kiln",
+    "description": "A desktop app for building datasets, fine-tuning and comparing the results without writing training code.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "TypeScript",
+      "Svelte"
+    ],
+    "github_stars": 5034,
+    "url": "https://github.com/Kiln-AI/Kiln",
+    "use_case": "Fine-tuning from a desktop app"
+  },
+  {
+    "name": "H2O LLM Studio",
+    "description": "A web interface for fine-tuning language models, with the hyperparameters exposed as form fields.",
+    "category": "Fine-tuning",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Wave"
+    ],
+    "github_stars": 5173,
+    "url": "https://github.com/h2oai/h2o-llmstudio",
+    "use_case": "Fine-tuning through a web form"
+  },
+  {
+    "name": "OpenCompass",
+    "description": "Runs a model against a hundred-plus benchmarks and publishes the leaderboard the numbers came from.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "PyTorch"
+    ],
+    "github_stars": 7333,
+    "url": "https://github.com/open-compass/opencompass",
+    "use_case": "Benchmarking across many datasets"
+  },
+  {
+    "name": "VLMEvalKit",
+    "description": "Evaluates vision-language models on twenty-plus multimodal benchmarks from one command.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Transformers"
+    ],
+    "github_stars": 4356,
+    "url": "https://github.com/open-compass/VLMEvalKit",
+    "use_case": "Benchmarking vision-language models"
+  },
+  {
+    "name": "ChainForge",
+    "description": "Compares prompts and models side by side on a canvas, scoring the responses as the graph runs.",
+    "category": "Evaluation",
+    "tech_stack": [
+      "TypeScript",
+      "React",
+      "Python"
+    ],
+    "github_stars": 3027,
+    "url": "https://github.com/ianarawjo/ChainForge",
+    "use_case": "Comparing prompts on a canvas"
+  },
+  {
+    "name": "LoRAX",
+    "description": "Serves hundreds of LoRA adapters from a single base model on one GPU, swapping them per request.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "Rust",
+      "CUDA"
+    ],
+    "github_stars": 3827,
+    "url": "https://github.com/predibase/lorax",
+    "use_case": "Many adapters on one GPU"
+  },
+  {
+    "name": "Semantic Router",
+    "description": "Decides which model or tool a request should go to from its embedding, before any generation happens.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Go",
+      "Rust",
+      "Envoy"
+    ],
+    "github_stars": 5258,
+    "url": "https://github.com/vllm-project/semantic-router",
+    "use_case": "Routing a request by meaning"
   }
 ]
