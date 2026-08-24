@@ -277,21 +277,18 @@ INTERVIEW_PREP_PATTERN = re.compile(
     rf"|\binterview{_GAP}(?:study|cheat)\w*\b"
     rf"|\bprepar\w+{_GAP}for{_GAP}(?:\w+{_GAP}){{0,2}}interviews?\b")
 
-# The one phrase that cuts both ways: a prep repository collects interview
-# questions, a recruiting agent produces them. Kept apart from the pattern
-# above because only this branch may be overridden by a verb — folding it in
-# and short-circuiting the whole filter on any verb match re-admitted
-# "automated interview preparation", "run mock interviews and grade yourself"
-# and "coding-interview-prep", every one of which the filter already refused.
+# The two phrases that cut both ways: a prep repository collects interview
+# questions and holds mock interviews, and a recruiting agent generates the
+# first and conducts the second. Kept apart from the pattern above because
+# only these may be overridden by a verb — an override written as a
+# short-circuit above the whole filter re-admitted "automated interview
+# preparation" and "coding-interview-prep" too.
+#
+# The cost is that "run mock interviews and grade yourself" gets through: one
+# rejection by a reviewer, against a whole category never reaching one.
 INTERVIEW_QUESTIONS_PATTERN = re.compile(
     rf"\binterview{_GAP}questions?\b|\bmock{_GAP}interviews?\b")
 
-# "course" is a genre word spoiled by one idiom. Enumerating "course on",
-# "crash course" and six more replaced a false positive with a much larger
-# hole — huggingface/agents-course, mlcourse.ai and "Zero to Hero course" all
-# walked through, and a stars-sorted topic search returns exactly those. The
-# lookbehind keeps the whole genre and excuses only "off course" and "of
-# course", which is what refused an agent security scanner.
 # "course" three ways, none of which worked alone. The bare word refused an
 # agent security scanner for "off course". Enumerating "course on", "crash
 # course" and six more let huggingface/agents-course and mlcourse.ai through.

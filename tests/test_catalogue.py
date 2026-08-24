@@ -1029,3 +1029,29 @@ def test_an_archived_entry_points_somewhere_alive(catalogue):
 
     assert not unhelpful, (
         f"archived and offering no living alternative: {unhelpful}")
+
+
+def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
+    """The same promise, kept for a checkout with no data/agents.json.
+
+    Vanna AI's bootstrap entry carried the archived badge and pointed at
+    WrenAI and Chat2DB — neither of which is in SAMPLE_AGENTS, so the only
+    catalogue that entry ever appears in offered two dead ends. The
+    catalogue-level guard could not see it, because it reads agents.json.
+    """
+    import scraper
+
+    live = {a.name for a in scraper.SAMPLE_AGENTS
+            if (a.status or "active") == "active"}
+
+    unhelpful = []
+    for sample in scraper.SAMPLE_AGENTS:
+        if sample.status != "archived":
+            continue
+        _, _, suggestion = (sample.description or "").partition("archived, with ")
+        if not any(name in suggestion for name in live):
+            unhelpful.append(sample.name)
+
+    assert not unhelpful, (
+        f"archived in the bootstrap set, naming nothing it ships with: "
+        f"{unhelpful}")

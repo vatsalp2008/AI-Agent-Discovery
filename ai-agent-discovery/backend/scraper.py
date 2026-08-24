@@ -84,7 +84,7 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Vanna AI",
-        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI and Chat2DB active.",
+        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI, Chat2DB and DB-GPT active.",
         category="Data Analysis",
         tech_stack=["Python", "RAG", "SQL"],
         github_stars=19000,
