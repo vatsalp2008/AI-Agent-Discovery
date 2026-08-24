@@ -1,5 +1,26 @@
 [
   {
+    "commit": "53b37395",
+    "at": "2026-08-24T07:22:49-07:00",
+    "subject": "Point the bootstrap copy somewhere it ships",
+    "total": 343,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Vanna AI",
+        "fields": [
+          {
+            "field": "description",
+            "from": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI and Chat2DB active.",
+            "to": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI, Chat2DB and DB-GPT active."
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "d087ef18",
     "at": "2026-08-21T09:45:16-07:00",
     "subject": "Name the language D-Tale is written in",
