@@ -457,6 +457,15 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("agents that argue about a trade", {"TradingAgents"}),
     ("fail over between model providers",
      {"Bifrost", "LiteLLM", "Portkey Gateway"}),
+    ("one config from data to evaluation", {"Oumi"}),
+    ("fine tune from a desktop app", {"Kiln", "H2O LLM Studio"}),
+    ("fine tune through a web form", {"H2O LLM Studio", "AutoTrain Advanced"}),
+    ("benchmark a model across many datasets",
+     {"OpenCompass", "HELM", "LM Evaluation Harness"}),
+    ("benchmark a vision language model", {"VLMEvalKit"}),
+    ("compare prompts side by side", {"ChainForge", "Promptfoo"}),
+    ("many lora adapters on one gpu", {"LoRAX"}),
+    ("route a request by meaning", {"Semantic Router"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
