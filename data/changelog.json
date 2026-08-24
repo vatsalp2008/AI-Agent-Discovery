@@ -1,5 +1,26 @@
 [
   {
+    "commit": "512e9660",
+    "at": "2026-08-24T07:50:45-07:00",
+    "subject": "Name what PentAGI chains together",
+    "total": 349,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "PentAGI",
+        "fields": [
+          {
+            "field": "use_case",
+            "from": "Automated security testing",
+            "to": "Chaining standard security tools"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "10376274",
     "at": "2026-08-24T07:48:08-07:00",
     "subject": "Add six tools the crawler surfaced",
