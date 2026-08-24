@@ -494,6 +494,33 @@ def infer_tech_stack(repo):
     return stack[:5]
 
 
+def why_unusable(repo):
+    """Why a repository cannot become a record, or None if it can.
+
+    Separated out because the reasons are not equivalent. "Not a tool" is the
+    filter working. "No category matched" is a real tool being dropped, and
+    dropping it silently is how sixteen of them went past in one run of five
+    topics — rig, TradingAgents, graphiti and daytona among them.
+    """
+    name = (repo.get("name") or "").strip()
+    description = (repo.get("description") or "").strip()
+
+    if not name or not description:
+        return "no description"
+    # Asked before the length check, so the truer reason wins: a tutorial with
+    # a six-word tagline is not a near miss, and reporting it as "description
+    # too short" invites someone to go and lengthen it.
+    if not looks_like_a_tool(repo):
+        return "not a tool"
+    if len(description) < MIN_DESCRIPTION:
+        return "description too short"
+    if infer_category(repo) is None:
+        return "no category matched"
+    if not infer_tech_stack(repo):
+        return "no technologies found"
+    return None
+
+
 def to_record(repo):
     """Shape a repository into a catalogue record, or None if unusable.
 
@@ -576,6 +603,12 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
         pause = PAUSE_WITH_TOKEN if token else PAUSE_ANONYMOUS
 
     found, skipped = [], {"known": 0, "unusable": 0}
+    # Why each unknown repository was dropped, so a run says what it threw
+    # away and not merely how much. Written after guessing wrong about it:
+    # the categoriser looked like the bottleneck and is not — over five live
+    # topics the reasons were 17 descriptions too short, 3 with no category
+    # and 1 with no technologies. A count of "25 unusable" hid all of that.
+    reasons = {}
     searched, failed = 0, []
     limited = None
     for index, topic in enumerate(topics):
@@ -603,10 +636,21 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
         searched += 1
 
         for repo in results:
-            record = to_record(repo)
-            if record is None:
+            reason = why_unusable(repo)
+            if reason is not None:
                 skipped["unusable"] += 1
+                # "Not a tool" is the filter working and needs no listing;
+                # the rest are near misses worth a maintainer's eye.
+                if reason != "not a tool" and is_new(
+                        {"name": repo.get("name"), "url": repo.get("html_url") or ""},
+                        repos, names):
+                    reasons.setdefault(reason, []).append({
+                        "name": repo.get("full_name") or repo.get("name"),
+                        "stars": int(repo.get("stargazers_count") or 0),
+                        "url": repo.get("html_url") or "",
+                    })
                 continue
+            record = to_record(repo)
             if not is_new(record, repos, names):
                 skipped["known"] += 1
                 continue
@@ -638,8 +682,16 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
                        len(failed), len(topics), ", ".join(failed))
 
     found.sort(key=lambda r: r["github_stars"], reverse=True)
+    for near in reasons.values():
+        near.sort(key=lambda r: r["stars"], reverse=True)
+    skipped["near_misses"] = reasons
+
     logger.info("%d candidate(s) from %d topic(s); skipped %d already known, %d unusable",
                 len(found), searched, skipped["known"], skipped["unusable"])
+    for reason, near in sorted(reasons.items(), key=lambda kv: -len(kv[1])):
+        logger.info("%d near miss(es) — %s:", len(near), reason)
+        for repo in near[:5]:
+            logger.info("  %-38s %7d", repo["name"], repo["stars"])
     return found, skipped
 
 

@@ -801,3 +801,51 @@ class TestPhrasesWithNoWordBoundary:
     def test_a_cjk_tutorial_is_refused(self, description):
         assert not discover.looks_like_a_tool(
             {"name": "x", "description": description, "topics": []})
+
+
+class TestWhyARepositoryWasDropped:
+    """A run reported "25 unusable" and nothing else, which hid what was
+    actually happening.
+
+    Measured over five live topic searches, the reasons were 22 not a tool,
+    17 descriptions too short, 3 with no category and 1 with no technologies
+    — so the categoriser, which looked like the bottleneck, was not.
+    """
+
+    def _repo(self, **extra):
+        return {"name": "thing", "html_url": "https://github.com/a/thing",
+                "description": "A tool that does a specific job, described at "
+                               "sufficient length to be embedded usefully.",
+                "topics": ["rag"], "language": "Python",
+                "stargazers_count": 100, **extra}
+
+    def test_a_usable_repository_has_no_reason(self):
+        assert discover.why_unusable(self._repo()) is None
+
+    def test_a_missing_description_is_named(self):
+        assert discover.why_unusable(self._repo(description="")) == "no description"
+
+    def test_a_short_description_is_named(self):
+        assert discover.why_unusable(
+            self._repo(description="Does things")) == "description too short"
+
+    def test_an_unmatched_category_is_named(self):
+        assert discover.why_unusable(
+            self._repo(topics=["knitting"])) == "no category matched"
+
+    def test_a_tutorial_is_not_a_short_description(self):
+        """The length check used to run first, so a course with a six-word
+        tagline was reported as "description too short" — inviting someone to
+        go and lengthen it rather than leave it alone."""
+        assert discover.why_unusable(
+            self._repo(description="18 Lessons on agents",
+                       topics=["tutorial"])) == "not a tool"
+
+    def test_the_reason_agrees_with_to_record(self):
+        """Two functions walking the same rules must not disagree about
+        whether a repository is usable."""
+        for repo in (self._repo(), self._repo(description=""),
+                     self._repo(description="Does things"),
+                     self._repo(topics=["knitting"])):
+            usable = discover.why_unusable(repo) is None
+            assert usable == (discover.to_record(repo) is not None)
