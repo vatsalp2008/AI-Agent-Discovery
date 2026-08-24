@@ -1,5 +1,24 @@
 [
   {
+    "commit": "dfc76cef",
+    "at": "2026-08-24T07:52:40-07:00",
+    "subject": "Add eight training and evaluation tools",
+    "total": 357,
+    "added": [
+      "ChainForge",
+      "H2O LLM Studio",
+      "Kiln",
+      "LoRAX",
+      "OpenCompass",
+      "Oumi",
+      "Semantic Router",
+      "VLMEvalKit"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "512e9660",
     "at": "2026-08-24T07:50:45-07:00",
     "subject": "Name what PentAGI chains together",
