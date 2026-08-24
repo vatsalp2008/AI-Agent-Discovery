@@ -84,13 +84,14 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Vanna AI",
-        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI, Chat2DB and DB-GPT active.",
+        description="Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
         category="Data Analysis",
         tech_stack=["Python", "RAG", "SQL"],
         github_stars=19000,
         url="https://github.com/vanna-ai/vanna",
         use_case="Natural language querying of databases",
-        status="archived"
+        status="archived",
+        alternatives=["WrenAI", "Chat2DB", "DB-GPT"]
     ),
     Agent(
         name="Jupyter AI",
@@ -195,13 +196,14 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Verba",
-        description="Weaviate's open RAG interface for importing documents and querying them with citations; archived, with RAGFlow and Onyx maintained.",
+        description="Weaviate's open RAG interface for importing documents and querying them with citations.",
         category="Research",
         tech_stack=["Python", "Weaviate", "React"],
         github_stars=7000,
         url="https://github.com/weaviate/Verba",
         use_case="Retrieval chat with citations",
-        status="archived"
+        status="archived",
+        alternatives=["RAGFlow", "Onyx"]
     ),
     Agent(
         name="Khoj",
@@ -386,13 +388,14 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="Rebuff",
-        description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks; archived, with AgentDojo and PurpleLlama maintained.",
+        description="A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
         category="Safety",
         tech_stack=["Python", "TypeScript"],
         github_stars=1517,
         url="https://github.com/protectai/rebuff",
         use_case="Detecting prompt injection",
-        status="archived"
+        status="archived",
+        alternatives=["AgentDojo", "PurpleLlama"]
     ),
     Agent(
         name="Garak",
@@ -1047,13 +1050,14 @@ SAMPLE_AGENTS = [
     ),
     Agent(
         name="AgentGPT",
-        description="Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open; archived, with AutoGPT and Suna still maintained.",
+        description="Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
         category="Autonomous Agent",
         tech_stack=["TypeScript", "Next.js", "Python"],
         github_stars=36304,
         url="https://github.com/reworkd/AgentGPT",
         use_case="Running autonomous agents in a browser",
-        status="archived"
+        status="archived",
+        alternatives=["AutoGPT", "Suna"]
     ),
     Agent(
         name="E2B",

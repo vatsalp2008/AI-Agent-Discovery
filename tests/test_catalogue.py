@@ -997,47 +997,55 @@ def test_every_name_belongs_to_its_repository(catalogue):
 
 
 def test_an_archived_entry_points_somewhere_alive(catalogue):
-    """A dead project with 55,000 stars is still what people search for.
+    """A dead project with fifty thousand stars is still what people search
+    for. The badge tells a reader to stop; `alternatives` tells them where to
+    go, and every name in it has to be a live entry they can click through to.
 
-    The badge tells a reader to stop; it does not tell them where to go. Each
-    archived entry names at least one live alternative that is already in the
-    catalogue, so the suggestion is one they can act on without leaving the
-    page. Dormant entries are exempt: quiet is not dead, and Bark and LLaVA
-    are still perfectly usable.
+    Read from the field rather than parsed out of the description. The first
+    version of this looked for a literal ", archived, with " in prose — a
+    phrasing documented nowhere but inside the assertion, which would have
+    failed an entry that said "archived — use Langflow instead" while naming a
+    perfectly good alternative. Putting competitor names in the description
+    also put them in the dead entry's embedded text, which is the opposite of
+    what listing them is for.
+
+    Dormant entries are exempt: quiet is not dead, and Bark and LLaVA are
+    still perfectly usable.
     """
     live = {agent["name"] for agent in catalogue
             if agent.get("status", "active") == "active"}
-
-    # Read only the clause after the marker, not the whole description.
-    # Matching anywhere let Verba pass on "Weaviate" — the vendor of the dead
-    # project, which appears in its opening line — so it would have satisfied
-    # this with the alternatives clause deleted. Thirty-four live entries have
-    # names of four characters or fewer (Ray, Aim, OWL, Zed, Cua), any of
-    # which turns up in prose by accident.
-    MARKER = "archived, with "
 
     unhelpful = []
     for agent in catalogue:
         if agent.get("status") != "archived":
             continue
-        described = agent.get("description") or ""
-        _, _, suggestion = described.partition(MARKER)
-        if not suggestion:
-            unhelpful.append(f"{agent['name']} (no {MARKER!r} clause)")
-        elif not any(name in suggestion for name in live):
-            unhelpful.append(f"{agent['name']} (names nothing live)")
+        alternatives = agent.get("alternatives") or []
+        if not alternatives:
+            unhelpful.append(f"{agent['name']} (no alternatives)")
+            continue
+        dead = [name for name in alternatives if name not in live]
+        if dead:
+            unhelpful.append(f"{agent['name']} -> {dead}")
 
     assert not unhelpful, (
         f"archived and offering no living alternative: {unhelpful}")
 
 
+def test_only_an_archived_entry_names_alternatives(catalogue):
+    """The field means "go here instead", which a live entry has no business
+    saying about itself."""
+    misplaced = [agent["name"] for agent in catalogue
+                 if agent.get("alternatives") and agent.get("status") != "archived"]
+
+    assert not misplaced, f"not archived but naming alternatives: {misplaced}"
+
+
 def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
     """The same promise, kept for a checkout with no data/agents.json.
 
-    Vanna AI's bootstrap entry carried the archived badge and pointed at
-    WrenAI and Chat2DB — neither of which is in SAMPLE_AGENTS, so the only
-    catalogue that entry ever appears in offered two dead ends. The
-    catalogue-level guard could not see it, because it reads agents.json.
+    Vanna AI's bootstrap entry carried the archived badge while pointing at
+    two agents that are not in SAMPLE_AGENTS, so the only catalogue that entry
+    ever appears in offered two dead ends.
     """
     import scraper
 
@@ -1048,8 +1056,7 @@ def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
     for sample in scraper.SAMPLE_AGENTS:
         if sample.status != "archived":
             continue
-        _, _, suggestion = (sample.description or "").partition("archived, with ")
-        if not any(name in suggestion for name in live):
+        if not any(name in live for name in sample.alternatives or []):
             unhelpful.append(sample.name)
 
     assert not unhelpful, (

@@ -328,7 +328,7 @@
   },
   {
     "name": "gpt-engineer",
-    "description": "Specify what you want it to build, and the AI asks for clarification and then writes the code; archived, with Aider and OpenHands carrying the idea on.",
+    "description": "Specify what you want it to build, and the AI asks for clarification and then writes the code.",
     "category": "Code Generation",
     "tech_stack": [
       "Python"
@@ -336,7 +336,11 @@
     "github_stars": 55123,
     "url": "https://github.com/AntonOsika/gpt-engineer",
     "use_case": "Whole-project code generation",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "Aider",
+      "OpenHands"
+    ]
   },
   {
     "name": "AutoGen",
@@ -414,7 +418,7 @@
   },
   {
     "name": "Flowise",
-    "description": "A drag-and-drop interface for building customised LLM flows and agents without writing code; archived, with Langflow and Dify covering the same ground.",
+    "description": "A drag-and-drop interface for building customised LLM flows and agents without writing code.",
     "category": "Framework",
     "tech_stack": [
       "TypeScript",
@@ -423,7 +427,11 @@
     "github_stars": 55385,
     "url": "https://github.com/FlowiseAI/Flowise",
     "use_case": "No-code agent building",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "Langflow",
+      "Dify"
+    ]
   },
   {
     "name": "AnythingLLM",
@@ -463,7 +471,7 @@
   },
   {
     "name": "Vanna AI",
-    "description": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse; archived, with WrenAI, Chat2DB and DB-GPT active.",
+    "description": "Retrieval-augmented text-to-SQL: ask questions in plain English and get SQL that runs against your warehouse.",
     "category": "Data Analysis",
     "tech_stack": [
       "Python",
@@ -473,7 +481,12 @@
     "github_stars": 23821,
     "url": "https://github.com/vanna-ai/vanna",
     "use_case": "Natural language querying of databases",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "WrenAI",
+      "Chat2DB",
+      "DB-GPT"
+    ]
   },
   {
     "name": "Jupyter AI",
@@ -615,7 +628,7 @@
   },
   {
     "name": "Verba",
-    "description": "Weaviate's open RAG interface for importing documents and querying them with citations; archived, with RAGFlow and Onyx maintained.",
+    "description": "Weaviate's open RAG interface for importing documents and querying them with citations.",
     "category": "Research",
     "tech_stack": [
       "Python",
@@ -625,7 +638,11 @@
     "github_stars": 7710,
     "url": "https://github.com/weaviate/Verba",
     "use_case": "Retrieval chat with citations",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "RAGFlow",
+      "Onyx"
+    ]
   },
   {
     "name": "Khoj",
@@ -874,7 +891,7 @@
   },
   {
     "name": "Rebuff",
-    "description": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks; archived, with AgentDojo and PurpleLlama maintained.",
+    "description": "A prompt injection detector that layers heuristics, an LLM check and a vector database of known attacks.",
     "category": "Safety",
     "tech_stack": [
       "Python",
@@ -883,7 +900,11 @@
     "github_stars": 1520,
     "url": "https://github.com/protectai/rebuff",
     "use_case": "Detecting prompt injection",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "AgentDojo",
+      "PurpleLlama"
+    ]
   },
   {
     "name": "Garak",
@@ -1779,7 +1800,7 @@
   },
   {
     "name": "AgentGPT",
-    "description": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open; archived, with AutoGPT and Suna still maintained.",
+    "description": "Assemble and deploy autonomous agents from the browser, watching them plan and execute in the open.",
     "category": "Autonomous Agent",
     "tech_stack": [
       "TypeScript",
@@ -1789,7 +1810,11 @@
     "github_stars": 36306,
     "url": "https://github.com/reworkd/AgentGPT",
     "use_case": "Running autonomous agents in a browser",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "AutoGPT",
+      "Suna"
+    ]
   },
   {
     "name": "E2B",
@@ -2164,7 +2189,7 @@
   },
   {
     "name": "LLM Guard",
-    "description": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call; archived, with Guardrails and NeMo Guardrails active.",
+    "description": "Input and output scanners for prompt injection, secrets, toxicity and PII, composable into a single gate around a model call.",
     "category": "Safety",
     "tech_stack": [
       "Python"
@@ -2172,7 +2197,11 @@
     "github_stars": 3201,
     "url": "https://github.com/protectai/llm-guard",
     "use_case": "Scanning prompts and replies for risk",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "Guardrails",
+      "NeMo Guardrails"
+    ]
   },
   {
     "name": "Detoxify",
@@ -2515,7 +2544,7 @@
   },
   {
     "name": "TensorZero",
-    "description": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation; archived, with LiteLLM and Helicone in the same role.",
+    "description": "A gateway that records every model call and feeds the outcomes back into evaluation and prompt optimisation.",
     "category": "Evaluation",
     "tech_stack": [
       "Rust",
@@ -2524,7 +2553,11 @@
     "github_stars": 11721,
     "url": "https://github.com/tensorzero/tensorzero",
     "use_case": "Closing the feedback loop",
-    "status": "archived"
+    "status": "archived",
+    "alternatives": [
+      "LiteLLM",
+      "Helicone"
+    ]
   },
   {
     "name": "Kedro",
