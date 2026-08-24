@@ -214,6 +214,38 @@ findings into the digest, and opens no issue of its own. It reports rather
 than queues because `data/submissions.jsonl` is runtime state and gitignored,
 so a queue written on an ephemeral runner would vanish with it.
 
+### What the filter actually does
+
+Measured by running it over five live topic searches — `ai-agents`, `llm`,
+`rag`, `agents`, `llmops`, 150 results — rather than reasoning about it:
+
+| Outcome | Count |
+| --- | ---: |
+| Already in the catalogue | 73 |
+| Usable, proposed to a reviewer | 34 |
+| Refused as not a tool | 22 |
+| Description under 60 characters | 17 |
+| No category matched | 3 |
+| No technologies found | 1 |
+
+Two things came out of that. Every one of the 22 refusals was correct — guides,
+awesome-lists, leaked prompt collections, skill packs — so the phrase list is
+not over-reaching. And the categoriser, which looked like the bottleneck, is
+responsible for three drops; the 60-character floor accounts for six times as
+many, and it is doing its job on taglines like "The agent that grows with you",
+which says nothing that could be embedded.
+
+A run now names its near misses by reason instead of reporting "25 unusable".
+"Not a tool" is excluded from that list — the filter working is not a near
+miss — and the tool check runs before the length check so a course with a
+six-word tagline is reported as a course rather than as something to go and
+lengthen.
+
+**Topics are read as well as prose.** A repository that is teaching rather
+than shipping usually tags itself, and that survives translation where a
+phrase list does not: 从零开始构建智能体 was never going to match an English
+phrase, but it still carries `tutorial`.
+
 ### Staying inside the API budget
 
 GitHub's search endpoint allows **10 requests a minute unauthenticated** and 30
