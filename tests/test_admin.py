@@ -647,3 +647,26 @@ class TestOneOnDiskFormat:
 
         scraper.write_agents_json([Agent.from_dict(r) for r in json.loads(after_save)])
         assert (tmp_path / "agents.json").read_text() == after_save
+
+
+class TestDefaultsStayOutOfTheFile:
+    """A default written to every record makes a re-seed rewrite the whole
+    catalogue for nothing — which is how a save-then-seed once produced a
+    204-record diff neither writer meant."""
+
+    def test_an_absent_alternatives_list_is_not_written(self):
+        assert admin.for_file({"name": "A", "alternatives": None}) == {"name": "A"}
+
+    def test_an_empty_alternatives_list_is_not_written(self):
+        """"None of these" and "no list at all" mean the same thing."""
+        assert admin.for_file({"name": "A", "alternatives": []}) == {"name": "A"}
+
+    def test_a_real_alternatives_list_is_kept(self):
+        record = {"name": "A", "status": "archived", "alternatives": ["X"]}
+        assert admin.for_file(record) == record
+
+    def test_the_default_status_is_still_dropped(self):
+        assert admin.for_file({"name": "A", "status": "active"}) == {"name": "A"}
+
+    def test_a_real_status_is_still_kept(self):
+        assert admin.for_file({"name": "A", "status": "dormant"})["status"] == "dormant"

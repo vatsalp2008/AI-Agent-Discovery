@@ -90,21 +90,36 @@ def load_catalogue():
     return records
 
 
+# Fields that carry a default worth leaving out of the file. `status` is
+# "active" on all but eighteen records and `alternatives` is empty on all but
+# eight, and writing either everywhere makes a re-seed rewrite the whole
+# catalogue for nothing.
+DEFAULTED_FIELDS = {"status": "active", "alternatives": None}
+
+
 def for_file(record):
     """One record as it belongs on disk.
 
-    `status` is omitted when it is the default. The seeder already did this
-    (scraper._for_file); the editor did not, so saving through /admin and
-    then re-seeding produced a diff neither writer meant to make.
+    A default is omitted rather than written. The seeder already did this for
+    `status` (scraper._for_file); the editor did not, so saving through
+    /admin and then re-seeding produced a diff neither writer meant to make.
     """
     # agents.json is hand-editable, so a record may be anything at all;
     # passing it through unchanged keeps save_catalogue from destroying
     # whatever a person put there.
     if not isinstance(record, dict):
         return record
-    if record.get("status", "active") == "active":
-        return {k: v for k, v in record.items() if k != "status"}
-    return record
+    def is_default(key, value):
+        if key not in DEFAULTED_FIELDS:
+            return False
+        default = DEFAULTED_FIELDS[key]
+        # An empty list and an absent one both mean "none of these", so
+        # neither earns a line in the file.
+        if default is None:
+            return not value
+        return value == default
+
+    return {k: v for k, v in record.items() if not is_default(k, v)}
 
 
 def save_catalogue(records):
