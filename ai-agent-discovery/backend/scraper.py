@@ -2320,6 +2320,44 @@ SAMPLE_AGENTS = [
         url="https://github.com/vllm-project/semantic-router",
         use_case="Routing a request by meaning"
     ),
+    # Shipped because archived entries above point at them: a bootstrap
+    # checkout that names an alternative it does not contain is a dead end.
+    Agent(
+        name="Chat2DB",
+        description="A database client that turns a question into SQL against the live schema, then explains and optimises the query it produced.",
+        category="Data Analysis",
+        tech_stack=["Java", "TypeScript"],
+        github_stars=28022,
+        url="https://github.com/OtterMind/Chat2DB",
+        use_case="Natural language SQL"
+    ),
+    Agent(
+        name="Onyx",
+        description="Connects to a team's documents and chat history and answers questions from them with citations, self-hosted end to end.",
+        category="Customer Service",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=31735,
+        url="https://github.com/onyx-dot-app/onyx",
+        use_case="Answering from company docs"
+    ),
+    Agent(
+        name="Suna",
+        description="A generalist agent with a managed browser, file and shell toolchain, packaged to self-host rather than to demo.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=20132,
+        url="https://github.com/kortix-ai/suna",
+        use_case="Self-hosted general agent"
+    ),
+    Agent(
+        name="WrenAI",
+        description="Turns a question into SQL against a semantic model of the warehouse, so the answer matches how the business defines its terms.",
+        category="Data Analysis",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=17373,
+        url="https://github.com/Canner/WrenAI",
+        use_case="Natural language business intelligence"
+    ),
 ]
 
 class CatalogueError(Exception):

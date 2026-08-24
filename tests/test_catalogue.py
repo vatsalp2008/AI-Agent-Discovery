@@ -1056,8 +1056,12 @@ def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
     for sample in scraper.SAMPLE_AGENTS:
         if sample.status != "archived":
             continue
-        if not any(name in live for name in sample.alternatives or []):
-            unhelpful.append(sample.name)
+        # Every name, not any: `any` was satisfied by a single live entry
+        # while the other two rendered as links to agents a fresh checkout
+        # does not contain — the dead ends this exists to catch.
+        dead = [name for name in sample.alternatives or [] if name not in live]
+        if not sample.alternatives or dead:
+            unhelpful.append(f"{sample.name} -> {dead or 'none named'}")
 
     assert not unhelpful, (
         f"archived in the bootstrap set, naming nothing it ships with: "
