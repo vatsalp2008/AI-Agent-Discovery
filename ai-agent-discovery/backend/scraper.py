@@ -2192,6 +2192,61 @@ SAMPLE_AGENTS = [
         url="https://github.com/Zipstack/unstract",
         use_case="Structured extraction as an API"
     ),
+    # Found by the crawler
+    Agent(
+        name="Strix",
+        description="Runs agents against your own application the way an attacker would, then reports what they got through.",
+        category="Safety",
+        tech_stack=["Python", "Docker"],
+        github_stars=57649,
+        url="https://github.com/usestrix/strix",
+        use_case="Penetration testing by agent"
+    ),
+    Agent(
+        name="Daytona",
+        description="Gives agent-written code a disposable machine to run on, started in under a second and thrown away after.",
+        category="Infrastructure",
+        tech_stack=["Go", "TypeScript", "Docker"],
+        github_stars=71891,
+        url="https://github.com/daytonaio/daytona",
+        use_case="Disposable runtimes for generated code"
+    ),
+    Agent(
+        name="Graphiti",
+        description="Builds a temporal knowledge graph from an agent's conversations, so a fact can change without the old one being lost.",
+        category="Infrastructure",
+        tech_stack=["Python", "Neo4j"],
+        github_stars=30256,
+        url="https://github.com/getzep/graphiti",
+        use_case="Knowledge graph memory over time"
+    ),
+    Agent(
+        name="Rig",
+        description="Builds LLM applications in Rust, with typed completions and vector stores behind one set of traits.",
+        category="Framework",
+        tech_stack=["Rust"],
+        github_stars=8387,
+        url="https://github.com/0xPlaygrounds/rig",
+        use_case="Typed LLM applications in Rust"
+    ),
+    Agent(
+        name="TradingAgents",
+        description="Models a trading desk as separate agents \u2014 analyst, researcher, trader, risk \u2014 that argue before a position is taken.",
+        category="Autonomous Agent",
+        tech_stack=["Python", "LangGraph"],
+        github_stars=99671,
+        url="https://github.com/TauricResearch/TradingAgents",
+        use_case="Agents debating a trade"
+    ),
+    Agent(
+        name="Bifrost",
+        description="An LLM gateway in Go that fails over between providers and keeps the same API when one goes down.",
+        category="MLOps",
+        tech_stack=["Go", "Redis"],
+        github_stars=7538,
+        url="https://github.com/maximhq/bifrost",
+        use_case="Failing over between providers"
+    ),
 ]
 
 class CatalogueError(Exception):
