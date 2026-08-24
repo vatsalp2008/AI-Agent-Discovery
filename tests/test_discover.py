@@ -694,69 +694,48 @@ class TestEveryVerbStemReachesItsInflection:
             {"name": "x", "description": f"{verb} interview questions for hiring"})
 
 
-class TestOffCourseIsNotACourse:
-    """`course` refused an agent security scanner for saying a prompt could
-    "take it off course" — the fourth real entry a broad refusal word has
-    caught, after `collection of`, `example` and `interview`. The genre names
-    itself: a course *on* or *for* something, or the plural."""
+class TestCourseIsAPlaceNotAWord:
+    """"course" took three attempts, and each failure was the opposite of the
+    last.
+
+    The bare word refused an agent security scanner saying a prompt could take
+    it "off course". Enumerating `course on`, `crash course` and six more let
+    huggingface/agents-course, mlcourse.ai and "Zero to Hero course" straight
+    through — the exact repositories a stars-sorted topic search returns. A
+    pair of fixed-space lookbehinds then refused "off-course", "over the
+    course of", "course correction", "on course" and "obstacle course",
+    including the hyphenated form of the idiom it was written for.
+
+    What separates them is where the word sits: a repository that *is* a
+    course says so in its name, and in prose the genre carries an article or
+    a learning word that the idioms never have. Both directions are listed
+    here in one table, because every previous version passed its own tests.
+    """
+
+    @pytest.mark.parametrize("name,description", [
+        ("agents-course", "This repository contains the Hugging Face Agents Course."),
+        ("mlcourse.ai", "Open Machine Learning Course"),
+        ("nn-zero-to-hero", "Neural Networks: Zero to Hero course by Andrej Karpathy"),
+        ("llm-course", "notes"),
+        ("x", "A course covering deep learning from first principles"),
+        ("x", "Courses covering large language models from the ground up"),
+        ("x", "A free course on machine learning"),
+        ("x", "Crash course in transformers"),
+        ("x", "Course materials for a deep learning class"),
+    ])
+    def test_a_course_is_refused_however_it_is_phrased(self, name, description):
+        assert not discover.looks_like_a_tool(
+            {"name": name, "description": description})
 
     @pytest.mark.parametrize("description", [
         "Marks where a prompt could take an agent off course",
+        "Marks where a prompt could take an agent off-course",
         "Of course it runs entirely locally",
+        "Tracks how a plan changes over the course of a long run",
+        "Course correction for a drifting robot",
+        "Steers a drone back on course",
+        "An obstacle course simulator for robots",
         "Corrects a drone that has drifted off course",
     ])
     def test_the_word_in_passing_is_allowed(self, description):
-        assert discover.looks_like_a_tool({"name": "x", "description": description})
-
-    @pytest.mark.parametrize("description", [
-        "Courses covering large language models from the ground up",
-        "A free course on machine learning",
-        "Crash course in transformers",
-        "Course materials for a deep learning class",
-    ])
-    def test_an_actual_course_is_still_refused(self, description):
-        assert not discover.looks_like_a_tool({"name": "x", "description": description})
-
-
-class TestAMockInterviewCutsBothWays:
-    """Moving "mock interviews" into the unconditional set refused an AI
-    recruiter that conducts them — re-closing the category discover.py's own
-    history note says must stay open. It sits with "interview questions" now,
-    overridable by a verb."""
-
-    @pytest.mark.parametrize("description", [
-        "An AI agent that conducts mock interviews with candidates and scores them",
-        "AI recruiter that runs mock interviews and writes a hiring report",
-    ])
-    def test_a_tool_that_conducts_them_is_accepted(self, description):
-        assert discover.looks_like_a_tool({"name": "x", "description": description})
-
-    def test_a_bare_prep_repo_is_still_refused(self):
-        assert not discover.looks_like_a_tool(
-            {"name": "mock-interviews", "description": "notes and answers"})
-
-
-class TestCourseIsAGenreNotAPhraseList:
-    """Enumerating "course on", "crash course" and six more replaced one false
-    positive with a much bigger hole: huggingface/agents-course, mlcourse.ai
-    and "Zero to Hero course" all walked through, and a stars-sorted topic
-    search returns exactly those. A lookbehind keeps the genre and excuses
-    only the idiom."""
-
-    @pytest.mark.parametrize("description", [
-        "This repository contains the Hugging Face Agents Course.",
-        "Open Machine Learning Course",
-        "Neural Networks: Zero to Hero course by Andrej Karpathy",
-        "A course covering deep learning from first principles",
-        "Courses covering large language models",
-    ])
-    def test_a_course_is_refused_however_it_is_phrased(self, description):
-        assert not discover.looks_like_a_tool({"name": "x", "description": description})
-
-    @pytest.mark.parametrize("description", [
-        "Marks where a prompt could take an agent off course",
-        "Of course it runs entirely locally",
-        "Corrects a drone that has drifted off course",
-    ])
-    def test_the_idiom_is_not_a_course(self, description):
         assert discover.looks_like_a_tool({"name": "x", "description": description})

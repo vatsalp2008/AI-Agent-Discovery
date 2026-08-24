@@ -292,7 +292,27 @@ INTERVIEW_QUESTIONS_PATTERN = re.compile(
 # walked through, and a stars-sorted topic search returns exactly those. The
 # lookbehind keeps the whole genre and excuses only "off course" and "of
 # course", which is what refused an agent security scanner.
-COURSE_PATTERN = re.compile(r"(?<!off )(?<!of )\bcourses?\b")
+# "course" three ways, none of which worked alone. The bare word refused an
+# agent security scanner for "off course". Enumerating "course on", "crash
+# course" and six more let huggingface/agents-course and mlcourse.ai through.
+# A pair of fixed-space lookbehinds then refused "off-course", "over the
+# course of", "course correction", "on course" and "obstacle course" — the
+# hyphenated form of the very idiom it was written for.
+#
+# What separates them is not the word but where it sits. A repository that
+# *is* a course usually says so in its name; in prose, the genre needs an
+# article or a learning word beside it, and the idioms never have one.
+COURSE_NAME_PATTERN = re.compile(rf"\bcourses?\b|\bcourse{_GAP}?(?:ai|io)\b")
+
+COURSE_TEXT_PATTERN = re.compile(
+    r"\bcourses\b"
+    r"|\b(?:a|free|online|video|crash|full|complete|this|introductory)\s+course\b"
+    # "the course" is a course; "the course of" is an idiom.
+    r"|\bthe\s+course\b(?!\s+of)"
+    r"|\bcourse\s+(?:on|for|covering|about|material|materials|notes|repo|by)\b"
+    # A course names itself at the end of a title — "…Agents Course." — but
+    # so does every idiom, so the prepositions are excluded by name.
+    r"|\b(?!off\b|on\b|of\b)\w+\s+course\b(?=[\s.:,]*$)")
 
 # A tool that *produces* interview questions is an interviewer's tool rather
 # than study material. `scor` not `score`, so it reaches "scoring" like the
@@ -378,10 +398,17 @@ def looks_like_a_tool(repo):
     Checked against the name and the description: a list names itself
     ("awesome-llm-apps") about as often as it describes itself.
     """
-    haystack = f"{repo.get('name') or ''} {repo.get('description') or ''}".lower()
+    name = (repo.get("name") or "").lower()
+    described = (repo.get("description") or "").lower()
+    haystack = f"{name} {described}"
     if NOT_A_TOOL_PATTERN.search(haystack) is not None:
         return False
-    if COURSE_PATTERN.search(haystack) is not None:
+    # The name and the prose are asked different questions: "course" in a
+    # repository name is the genre naming itself, while in a sentence it is
+    # as likely to be "off course" or "course correction".
+    if COURSE_NAME_PATTERN.search(name) is not None:
+        return False
+    if COURSE_TEXT_PATTERN.search(described) is not None:
         return False
     if INTERVIEW_PREP_PATTERN.search(haystack) is not None:
         return False

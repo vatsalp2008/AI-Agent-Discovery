@@ -238,9 +238,20 @@ list:
 | `boilerplate` | Jina Reader | "stripping navigation and **boilerplate**" |
 | `example` | ChatterBot | "learns replies from **example** conversations" |
 | `interview` | STORM | "by simulating expert **interviews**" |
-| `course` | Agentic Radar | "where a prompt could take it **off course**" — narrowed with a lookbehind for the idiom, not a phrase list; enumerating `course on`, `crash course` and six more let huggingface/agents-course and mlcourse.ai straight through |
+| `course` | Agentic Radar | "where a prompt could take it **off course**" |
 
 All six were replaced with narrower forms.
+
+**`course` took three attempts**, and each failure was the opposite of the
+last: the bare word refused an agent security scanner, enumerating eight
+phrases let huggingface/agents-course and mlcourse.ai through, and a pair of
+lookbehinds then refused "off-course", "over the course of", "course
+correction" and "obstacle course". What separates them is not the word but
+where it sits — a repository that *is* a course says so in its name, and in
+prose the genre carries an article or a learning word that the idioms never
+have. `COURSE_NAME_PATTERN` reads the name, `COURSE_TEXT_PATTERN` the
+description, and one test table checks seventeen cases in both directions,
+because every earlier version passed its own tests.
 
 **`interview` does not live in the phrase list at all.** It is the one word
 where narrowing to phrases was not enough, and the record of getting it wrong
@@ -254,9 +265,14 @@ interviews", and one that "runs customer interviews and turns the answers into
 a report". AI interviewers are a real and growing category, and the crawler
 was dropping every one of them silently.
 
-`INTERVIEW_PREP_PATTERN` in `discover.py` now matches only phrasings about
-studying *for* an interview: mock interviews, interview questions, interview
-practice, preparing for interviews. "System design interviews explained" gets
+`INTERVIEW_PREP_PATTERN` in `discover.py` matches only the phrasings that
+never mean anything else — interview prep, interview practice, preparing for
+an interview. Two phrases sit apart in `INTERVIEW_QUESTIONS_PATTERN`, where a
+verb can override them: an AI recruiter *generates* interview questions and
+*conducts* mock interviews, and refusing every one of those costs a category
+nobody ever sees. "Run mock interviews and grade yourself" gets past as a
+result — one rejection by a reviewer against a whole category never reaching
+one. "System design interviews explained" gets
 past it, and that is deliberate — catching it needs the bare-phrase branch
 that caused the false positives, and one prep repository reaching a reviewer
 is cheaper than a category that never reaches one. The same applies to the
