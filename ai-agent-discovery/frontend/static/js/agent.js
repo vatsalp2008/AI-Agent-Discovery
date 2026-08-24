@@ -42,6 +42,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         // of 236 pages is a row nobody reads.
         const health = { archived: 'Archived', dormant: 'Not updated recently' }[meta.status];
         if (health) wrapper.appendChild(field('Project health', health));
+
+        // The page a "Try instead" link lands on is the page most likely to
+        // need one of its own. Rendering it only on cards left the dead end
+        // exactly where a reader goes for more detail.
+        const instead = (meta.alternatives || '').split(',')
+            .map(name => name.trim()).filter(Boolean);
+        if (meta.status === 'archived' && instead.length) {
+            const row = document.createElement('div');
+            row.className = 'detail-row';
+            const label = document.createElement('span');
+            label.className = 'detail-label';
+            label.textContent = 'Try instead';
+            const links = document.createElement('span');
+            instead.forEach((name, index) => {
+                if (index) links.append(', ');
+                const link = document.createElement('a');
+                link.href = `/agent/${encodeURIComponent(name)}`;
+                link.textContent = name;
+                links.appendChild(link);
+            });
+            row.append(label, links);
+            wrapper.appendChild(row);
+        }
         wrapper.appendChild(field('GitHub stars', AgentCard.formatStars(meta.stars)));
 
         const stack = AgentCard.parseStack(meta.stack).map(t => String(t).trim()).filter(Boolean);

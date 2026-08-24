@@ -208,3 +208,42 @@ describe('project health on the detail page', () => {
         expect(labels).not.toContain('Project health');
     });
 });
+
+describe('where an archived project sends you', () => {
+    /** The page a card's "Try instead" link lands on is the one most likely
+     *  to need alternatives of its own — and it rendered the badge without
+     *  them, leaving the dead end exactly where a reader goes for detail. */
+    function withMeta(extra) {
+        const agent = { name: 'Flowise', description: 'A visual builder.',
+                        metadata: { name: 'Flowise', category: 'Framework',
+                                    stack: 'TypeScript', stars: 1,
+                                    description: 'A visual builder.',
+                                    url: 'https://github.com/a/b', ...extra } };
+        return routes({ '/api/agents/': { body: agent } });
+    }
+
+    it('lists them on an archived page', async () => {
+        await boot('/agent/Flowise',
+                   withMeta({ status: 'archived', alternatives: 'Langflow,Dify' }));
+        const row = [...document.querySelectorAll('.detail-row')]
+            .find(r => r.textContent.startsWith('Try instead'));
+
+        expect([...row.querySelectorAll('a')].map(a => a.textContent))
+            .toEqual(['Langflow', 'Dify']);
+        expect(row.querySelector('a').getAttribute('href')).toBe('/agent/Langflow');
+    });
+
+    it('says nothing for a live project', async () => {
+        await boot('/agent/Flowise', withMeta({ alternatives: 'Langflow' }));
+
+        expect([...document.querySelectorAll('.detail-label')]
+            .some(l => l.textContent === 'Try instead')).toBe(false);
+    });
+
+    it('says nothing when an archived page names none', async () => {
+        await boot('/agent/Flowise', withMeta({ status: 'archived' }));
+
+        expect([...document.querySelectorAll('.detail-label')]
+            .some(l => l.textContent === 'Try instead')).toBe(false);
+    });
+});

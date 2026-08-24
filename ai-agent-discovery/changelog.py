@@ -32,13 +32,17 @@ logger = logging.getLogger("changelog")
 # Fields worth reporting a change in. Star counts move constantly and are
 # refreshed weekly by a bot; including them would make every entry a wall of
 # numbers and bury the additions.
-TRACKED_FIELDS = ("description", "category", "tech_stack", "url", "use_case", "status")
+TRACKED_FIELDS = ("description", "category", "tech_stack", "url", "use_case",
+                  "status", "alternatives")
 
 # What an absent field means. Without this, the commit that introduced
 # `status` read as 204 agents edited, and the commit that stopped writing the
 # default read as 204 more — a formatting round-trip burying the real news
 # either side of it.
-FIELD_DEFAULTS = {"status": "active", "use_case": "", "url": "", "tech_stack": []}
+FIELD_DEFAULTS = {"status": "active", "use_case": "", "url": "", "tech_stack": [],
+                  # Omitted on disk when empty, so absent and [] have to read
+                  # alike or every record would look edited.
+                  "alternatives": []}
 
 
 def _value(record, field):
