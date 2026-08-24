@@ -863,3 +863,36 @@ class TestWhyARepositoryWasDropped:
                      self._repo(topics=["knitting"])):
             usable = discover.why_unusable(repo) is None
             assert usable == (discover.to_record(repo) is not None)
+
+
+class TestANamelessResultDoesNotStopTheRun:
+    def test_is_new_tolerates_a_missing_name(self):
+        """The near-miss path hands this a raw search result, and a null name
+        raised AttributeError out of the whole run — discarding every
+        candidate already found with it."""
+        assert discover.is_new({"name": None, "url": ""}, set(), set())
+        assert discover.is_new({"url": ""}, set(), set())
+
+    def test_a_nameless_result_is_skipped_not_fatal(self, monkeypatch):
+        monkeypatch.setattr(discover, "search_repos",
+                            lambda *a, **kw: [{"name": None, "description": None,
+                                               "html_url": "", "topics": []}])
+        found, skipped = discover.discover(["rag"], 1000, pause=0)
+
+        assert found == [] and skipped["unusable"] == 1
+
+
+class TestNearMissesAreReportedOnce:
+    def test_the_same_repository_is_not_listed_per_topic(self, monkeypatch):
+        """Accepted candidates are claimed so a later topic cannot re-propose
+        them; near misses were not, so a popular repository appeared in the
+        report once for every topic it carries — inflating every count."""
+        repo = {"name": "thing", "full_name": "a/thing", "description": "Short",
+                "html_url": "https://github.com/a/thing", "topics": ["rag"],
+                "language": "Python", "stargazers_count": 10}
+        monkeypatch.setattr(discover, "search_repos", lambda *a, **kw: [repo])
+
+        _, skipped = discover.discover(["rag", "llm", "agents"], 1000, pause=0)
+        near = skipped["near_misses"]["description too short"]
+
+        assert [r["name"] for r in near] == ["a/thing"]
