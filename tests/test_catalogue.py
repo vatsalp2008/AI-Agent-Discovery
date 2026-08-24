@@ -1055,3 +1055,30 @@ def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
     assert not unhelpful, (
         f"archived in the bootstrap set, naming nothing it ships with: "
         f"{unhelpful}")
+
+
+def test_every_live_guard_names_an_agent_that_exists(catalogue):
+    """The retrieval guards live in tests-live, which `make check` skips.
+
+    A rename that updates agents.json and misses that file leaves a guard
+    expecting a name no index can contain: `quality.py` reports it as
+    permanently failing, the count goes into quality-history.jsonl, and the
+    ordinary suite stays green throughout. Two renames went through by hand
+    yesterday, and only reading the diff caught the third file.
+
+    Parsed the same way quality.py parses it, so the two cannot disagree
+    about what a guard is.
+    """
+    import sys
+
+    sys.path.insert(0, str(config.PACKAGE_DIR))
+    import quality
+
+    known = {agent["name"] for agent in catalogue}
+    missing = {}
+    for query, expected in quality.read_guards():
+        gone = sorted(name for name in expected if name not in known)
+        if gone:
+            missing[query] = gone
+
+    assert not missing, f"guards expecting agents that do not exist: {missing}"
