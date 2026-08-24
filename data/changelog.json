@@ -1,5 +1,22 @@
 [
   {
+    "commit": "10376274",
+    "at": "2026-08-24T07:48:08-07:00",
+    "subject": "Add six tools the crawler surfaced",
+    "total": 349,
+    "added": [
+      "Bifrost",
+      "Daytona",
+      "Graphiti",
+      "Rig",
+      "Strix",
+      "TradingAgents"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "e01cdbdd",
     "at": "2026-08-24T07:30:56-07:00",
     "subject": "Move successors out of the embedded text",
