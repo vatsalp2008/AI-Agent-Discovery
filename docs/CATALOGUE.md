@@ -95,9 +95,13 @@ listing them is for — and the guard enforcing the practice had to parse prose
 for a literal marker that was documented nowhere but inside the assertion.
 `alternatives` is deliberately absent from `page_content`.
 
-Three rules, all enforced by `validate()`: only an archived entry may carry
-it, every name must already be in the catalogue, and at most five — more than
-a few is a reading list rather than a redirection. A public submission may not
+Five rules, all enforced by `validate()`: only an archived entry may carry
+it, every name must be in the catalogue *and not itself archived*, no entry
+may point at itself, names may not contain commas (the field is stored
+comma-joined in the index metadata, so one would split into two broken
+links), and at most five — more than a few is a reading list rather than a
+redirection. Names are matched case-insensitively and stored with the
+catalogue's own spelling, so the link resolves. A public submission may not
 set it at all, for the same reason it may not set `status`: "use my thing
 instead" is exactly what a review queue exists to filter.
 

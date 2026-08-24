@@ -683,7 +683,8 @@ class TestAlternativesAreForTheDead:
                 "description": "A description comfortably past the sixty character floor.",
                 **extra}
 
-    EXISTING = [{"name": "Langflow"}, {"name": "Dify"}]
+    EXISTING = [{"name": "Langflow", "status": "active"},
+                {"name": "Dify", "status": "active"}]
 
     def test_an_archived_entry_may_name_known_agents(self):
         cleaned = admin.validate(
@@ -698,9 +699,36 @@ class TestAlternativesAreForTheDead:
 
     def test_an_unknown_name_is_refused(self):
         """A suggestion nobody can click through to is worse than none."""
-        with pytest.raises(admin.AdminError, match="not in the catalogue"):
+        with pytest.raises(admin.AdminError, match="must name agents"):
             admin.validate(self._record(status="archived", alternatives=["Nope"]),
                            self.EXISTING)
+
+    def test_an_archived_target_is_refused(self):
+        """Pointing a dead project at another dead project is a link a reader
+        cannot use — accepted here while CI refused it."""
+        with pytest.raises(admin.AdminError, match="not themselves archived"):
+            admin.validate(self._record(status="archived", alternatives=["Flowise"]),
+                           [*self.EXISTING, {"name": "Flowise", "status": "archived"}])
+
+    def test_an_agent_cannot_point_at_itself(self):
+        with pytest.raises(admin.AdminError, match="its own alternative"):
+            admin.validate(self._record(name="Solo", status="archived",
+                                        alternatives=["Solo"]), self.EXISTING)
+
+    def test_a_comma_is_refused(self):
+        """Stored comma-joined in the index metadata, so a comma would split
+        one name into two links that resolve to nothing."""
+        with pytest.raises(admin.AdminError, match="must not contain commas"):
+            admin.validate(self._record(status="archived", alternatives=["A,B"]),
+                           self.EXISTING)
+
+    def test_the_catalogue_spelling_is_stored(self):
+        """Matched case-insensitively like the uniqueness check, but written
+        back the way the catalogue spells it, so the link resolves."""
+        cleaned = admin.validate(
+            self._record(status="archived", alternatives=["langflow"]), self.EXISTING)
+
+        assert cleaned["alternatives"] == ["Langflow"]
 
     def test_a_reading_list_is_refused(self):
         with pytest.raises(admin.AdminError, match="at most"):

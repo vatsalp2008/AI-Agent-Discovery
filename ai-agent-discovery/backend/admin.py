@@ -235,11 +235,31 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
         # The field means "go here instead", which a live entry has no
         # business saying about itself.
         raise AdminError("only an archived agent may name alternatives")
-    known = {other.get("name") for other in existing if isinstance(other, dict)}
-    unknown = [name for name in named if name not in known]
-    if unknown:
-        raise AdminError(f"'alternatives' names agents not in the catalogue: "
-                         f"{', '.join(unknown)}")
+    # Commas would split one name into two, since the field is stored
+    # comma-joined in the index metadata — the same guard tech_stack carries.
+    if any("," in name for name in named):
+        raise AdminError("'alternatives' entries must not contain commas")
+    if cleaned["name"] in named:
+        raise AdminError("an agent cannot be its own alternative")
+
+    # Matched case-insensitively, like the uniqueness check below, and only
+    # against entries that are alive: pointing a dead project at another dead
+    # project is a link a reader cannot use, and it was accepted here while
+    # being refused by the catalogue guard in CI.
+    # agents.json is hand-editable, so a record may hold anything; skip what
+    # cannot be read rather than raising a 500 out of a validation routine.
+    alive = {other["name"].casefold(): other["name"]
+             for other in existing
+             if isinstance(other, dict)
+             and isinstance(other.get("name"), str)
+             and (other.get("status") or "active") == "active"}
+    unusable = [name for name in named if name.casefold() not in alive]
+    if unusable:
+        raise AdminError(f"'alternatives' must name agents that are in the "
+                         f"catalogue and not themselves archived: "
+                         f"{', '.join(unusable)}")
+    # Stored with the catalogue's own spelling, so a link resolves.
+    named = [alive[name.casefold()] for name in named]
     if named:
         cleaned["alternatives"] = named
 
