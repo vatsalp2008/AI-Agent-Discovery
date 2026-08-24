@@ -785,3 +785,18 @@ class TestOneThresholdRule:
 
         assert [m["category"] for m in moves] == ["A", "B"]
         assert moves[0]["delta"] == -0.4 and moves[1]["delta"] == 0.4
+
+
+class TestRefusingBeforeSpending:
+    def test_recording_a_partial_run_costs_nothing(self, monkeypatch, capsys):
+        """`--category --record` was refused after the whole measurement —
+        one model round trip per agent and per guard query, then thrown away.
+        The index is never opened now, so nothing here can be embedded."""
+        def explode():
+            raise AssertionError("opened the index before refusing")
+
+        monkeypatch.setattr(quality, "VectorStore", explode)
+        monkeypatch.setattr(quality, "load_agents", explode)
+
+        assert quality.main(["--category", "Safety", "--record"]) == 1
+        assert "Refusing to record a partial run" in capsys.readouterr().err

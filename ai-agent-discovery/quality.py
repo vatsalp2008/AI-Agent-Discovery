@@ -383,6 +383,18 @@ def main(argv=None):
 
     configure("DEBUG" if args.verbose else "WARNING")
 
+    # Refused here, before the index is opened and before a single embedding
+    # is paid for. It used to be checked after the whole measurement — one
+    # model round trip per agent and per guard query — and then thrown away.
+    if args.category and args.record:
+        print("Refusing to record a partial run; drop --category.",
+              file=sys.stderr)
+        return 1
+
+    # Asked once and carried, rather than re-testing args.category at each of
+    # the three places that care.
+    partial = bool(args.category)
+
     agents = load_agents()
     if args.category:
         wanted = args.category.casefold()
@@ -411,11 +423,10 @@ def main(argv=None):
     # report the difference between two questions as a change over time.
     # Decided once, before the history is scanned for a baseline that would
     # only be discarded — and the same condition was being asked three times.
-    if args.category:
-        if args.record:
-            print("Refusing to record a partial run; drop --category.",
-                  file=sys.stderr)
-            return 1
+    if partial:
+        # A single-category run measures a subset, so it has no baseline:
+        # comparing it against a whole-catalogue run would report the
+        # difference between two questions as a change over time.
         moves, previous = [], None
     else:
         previous = comparable(history, args.limit)
@@ -435,7 +446,7 @@ def main(argv=None):
     else:
         report = render(categories, weakest, guards, args.thin_margin,
                         moves=moves, previous=previous, limit=args.limit,
-                        history=history, partial=bool(args.category))
+                        history=history, partial=partial)
 
     if args.out:
         with open(args.out, "w") as f:
