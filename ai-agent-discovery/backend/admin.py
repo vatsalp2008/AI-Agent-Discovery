@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
 EDITABLE_FIELDS = ("name", "description", "category", "tech_stack",
-                   "github_stars", "url", "use_case", "status")
+                   "github_stars", "url", "use_case", "status", "alternatives")
 
 # What an entry can say about the health of the project behind it. Set from
 # what audit.py finds on GitHub; "active" is the default and is not shown.
@@ -48,6 +48,8 @@ FIELD_LIMITS = {
     "use_case": 200,
 }
 MAX_TECH_STACK = 12
+# More than a few is a reading list, not a redirection.
+MAX_ALTERNATIVES = 5
 MAX_TECH_LENGTH = 40
 
 # Every edit is a read-modify-write of the whole catalogue. Flask's dev server
@@ -216,6 +218,31 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
         raise AdminError(f"'status' must be one of {', '.join(AGENT_STATUSES)}")
     cleaned["status"] = status.strip().casefold()
 
+    # Live entries to go to instead. Maintained alongside `status` and subject
+    # to the same rule: a public proposer may not set it, because "use my
+    # thing instead" is exactly what a submission queue is for filtering.
+    alternatives = (record.get("alternatives") if allow_status else None) or []
+    if not isinstance(alternatives, list):
+        raise AdminError("'alternatives' must be a list of agent names")
+    if len(alternatives) > MAX_ALTERNATIVES:
+        raise AdminError(f"'alternatives' may name at most {MAX_ALTERNATIVES} agents")
+    named = []
+    for name in alternatives:
+        if not isinstance(name, str) or not name.strip():
+            raise AdminError("each entry in 'alternatives' must be a name")
+        named.append(name.strip())
+    if named and cleaned["status"] != "archived":
+        # The field means "go here instead", which a live entry has no
+        # business saying about itself.
+        raise AdminError("only an archived agent may name alternatives")
+    known = {other.get("name") for other in existing if isinstance(other, dict)}
+    unknown = [name for name in named if name not in known]
+    if unknown:
+        raise AdminError(f"'alternatives' names agents not in the catalogue: "
+                         f"{', '.join(unknown)}")
+    if named:
+        cleaned["alternatives"] = named
+
     # Names identify agents everywhere else, so they have to stay unique.
     # Existing records are read from a hand-editable file, so they may be
     # malformed; use .get and skip anything unusable rather than raising a
@@ -311,7 +338,11 @@ def list_agents():
     edit would resubmit stale values and revert the first.
     """
     _require_enabled()
-    records = [{"status": "active", **record} for record in load_catalogue()]
+    # Defaults filled in for the editor's benefit. Both are omitted on disk
+    # when they carry their default, and a PUT replaces the whole record, so
+    # a form that never saw the field would blank it on the next save.
+    records = [{"status": "active", "alternatives": [], **record}
+               for record in load_catalogue()]
     return jsonify({"agents": records, "total": len(records)}), 200
 
 

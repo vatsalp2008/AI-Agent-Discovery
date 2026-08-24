@@ -670,3 +670,59 @@ class TestDefaultsStayOutOfTheFile:
 
     def test_a_real_status_is_still_kept(self):
         assert admin.for_file({"name": "A", "status": "dormant"})["status"] == "dormant"
+
+
+class TestAlternativesAreForTheDead:
+    """`alternatives` says "go here instead". It is maintained beside
+    `status`, so the same rules apply: only an archived entry may carry it,
+    and a public proposer may not set it at all."""
+
+    def _record(self, **extra):
+        return {"name": "X", "category": "Safety", "tech_stack": ["Python"],
+                "github_stars": 1, "url": "https://github.com/a/b", "use_case": "u",
+                "description": "A description comfortably past the sixty character floor.",
+                **extra}
+
+    EXISTING = [{"name": "Langflow"}, {"name": "Dify"}]
+
+    def test_an_archived_entry_may_name_known_agents(self):
+        cleaned = admin.validate(
+            self._record(status="archived", alternatives=["Langflow", "Dify"]),
+            self.EXISTING)
+
+        assert cleaned["alternatives"] == ["Langflow", "Dify"]
+
+    def test_a_live_entry_may_not(self):
+        with pytest.raises(admin.AdminError, match="only an archived agent"):
+            admin.validate(self._record(alternatives=["Langflow"]), self.EXISTING)
+
+    def test_an_unknown_name_is_refused(self):
+        """A suggestion nobody can click through to is worse than none."""
+        with pytest.raises(admin.AdminError, match="not in the catalogue"):
+            admin.validate(self._record(status="archived", alternatives=["Nope"]),
+                           self.EXISTING)
+
+    def test_a_reading_list_is_refused(self):
+        with pytest.raises(admin.AdminError, match="at most"):
+            admin.validate(
+                self._record(status="archived", alternatives=["Langflow"] * 6),
+                self.EXISTING)
+
+    def test_a_public_submission_cannot_set_it(self):
+        """"Use my thing instead" is what a submission queue exists to
+        filter."""
+        cleaned = admin.validate(
+            self._record(status="archived", alternatives=["Langflow"]),
+            self.EXISTING, allow_status=False)
+
+        assert "alternatives" not in cleaned
+
+    def test_an_empty_list_is_not_stored(self):
+        cleaned = admin.validate(self._record(alternatives=[]), self.EXISTING)
+
+        assert "alternatives" not in cleaned
+
+    def test_a_non_list_is_refused(self):
+        with pytest.raises(admin.AdminError, match="must be a list"):
+            admin.validate(self._record(status="archived", alternatives="Langflow"),
+                           self.EXISTING)
