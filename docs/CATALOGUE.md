@@ -83,20 +83,23 @@ Archived entries stay. A project with fifty thousand stars is still what
 people search for, and removing it means they find nothing and assume the
 catalogue is thin rather than the project finished.
 
-What they get instead is the badge **and a way forward**: every archived entry
-names at least one live alternative already in the catalogue —
-Flowise points at Langflow and Dify, Vanna AI at WrenAI and Chat2DB, Rebuff at
-AgentDojo and PurpleLlama. `test_an_archived_entry_points_somewhere_alive`
-refuses one that does not.
+What they get instead is the badge **and a way forward**: an `alternatives`
+field naming live entries already in the catalogue, rendered as links under
+the badge. Flowise points at Langflow and Dify, Vanna AI at WrenAI, Chat2DB
+and DB-GPT, Rebuff at AgentDojo and PurpleLlama.
 
-The suggestion is prose in the `description`, which means it is embedded
-along with everything else — a reviewer flagged that as pulling each dead
-entry toward its live competitors, and a structured `alternatives` field kept
-out of the embedded text would avoid it. Measured, the harm did not appear:
-searching "Langflow" does not surface Flowise, the archived entries that rank
-high for their own subject ranked high before the clause was added, and the
-thinnest guard margin sits at 0.0281 against a 0.02 threshold with all 147
-clear. Left as prose until there is a number saying otherwise.
+It is a field rather than a sentence appended to the description, which is
+what it replaced. The description is embedded, so naming two live competitors
+in it put them inside the dead project's own vector — the opposite of what
+listing them is for — and the guard enforcing the practice had to parse prose
+for a literal marker that was documented nowhere but inside the assertion.
+`alternatives` is deliberately absent from `page_content`.
+
+Three rules, all enforced by `validate()`: only an archived entry may carry
+it, every name must already be in the catalogue, and at most five — more than
+a few is a reading list rather than a redirection. A public submission may not
+set it at all, for the same reason it may not set `status`: "use my thing
+instead" is exactly what a review queue exists to filter.
 
 Dormant entries are left alone. Quiet is not dead: Bark and LLaVA have not
 been touched in two years and are still perfectly usable, and 18 months of

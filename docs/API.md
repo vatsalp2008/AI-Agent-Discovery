@@ -231,6 +231,21 @@ description are distinguishable. Star counts are deliberately excluded — a bot
 refreshes them weekly, and including them would bury every addition under a
 wall of numbers.
 
+## Where an archived agent points
+
+An archived entry carries `alternatives`: live catalogue entries to use
+instead, at most five, rendered as links under the badge on every card.
+
+```json
+{"name": "Flowise", "status": "archived", "alternatives": ["Langflow", "Dify"]}
+```
+
+Absent on everything else — only an archived entry may carry it, and
+`/api/search` returns it inside `metadata` as a comma-joined string, because
+index metadata values have to be scalars. It is not part of the text that gets
+embedded: naming a live competitor in searchable prose pulls the dead entry
+toward that competitor's queries.
+
 ## Retrieval quality
 
 `GET /api/quality` reports how findable the catalogue is, and how that has
