@@ -2460,7 +2460,7 @@
     ],
     "github_stars": 21990,
     "url": "https://github.com/vxcontrol/pentagi",
-    "use_case": "Automated security testing"
+    "use_case": "Chaining standard security tools"
   },
   {
     "name": "FinGPT",
