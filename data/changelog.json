@@ -1,5 +1,24 @@
 [
   {
+    "commit": "d3f19c21",
+    "at": "2026-08-25T08:43:38-07:00",
+    "subject": "Add eight context and agent building tools",
+    "total": 371,
+    "added": [
+      "CloakBrowser",
+      "Coze Studio",
+      "Headroom",
+      "Kotaemon",
+      "Repomix",
+      "Sim",
+      "claude-mem",
+      "nanobot"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "fbd78492",
     "at": "2026-08-25T08:39:33-07:00",
     "subject": "Add six agent and analysis tools",
