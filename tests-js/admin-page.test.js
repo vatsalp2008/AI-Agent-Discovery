@@ -601,10 +601,16 @@ describe('fields the form never shows', () => {
         const calls = await boot(routes({
             '/api/admin/agents': { body: { agents: [archived, record('Aider')], total: 2 } },
         }));
-        // Load the archived one, then a live one: the second must not
-        // inherit the first's redirections.
-        document.querySelectorAll('.admin-row button')[0].click();
-        document.querySelectorAll('.admin-row button')[1].click();
+        // Each row emits an Edit and a Delete button, and refresh() sorts by
+        // name — so [0] and [1] were Aider's pair and Flowise was never
+        // loaded at all. The test passed with the reset removed.
+        const editButtons = [...document.querySelectorAll('.admin-row')]
+            .map(row => ({ name: row.textContent, button: row.querySelector('button') }));
+        const flowise = editButtons.find(r => r.name.includes('Flowise'));
+        const aider = editButtons.find(r => r.name.includes('Aider'));
+
+        flowise.button.click();
+        aider.button.click();
         submit();
         await flush();
 

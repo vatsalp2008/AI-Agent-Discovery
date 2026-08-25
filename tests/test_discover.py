@@ -873,6 +873,22 @@ class TestWhyARepositoryWasDropped:
             assert usable == (discover.to_record(repo) is not None)
 
 
+@pytest.fixture
+def isolated_catalogue(tmp_path, monkeypatch):
+    """An empty catalogue and queue, so a result is judged on its own.
+
+    Without this, discover() reads all 357 live records and the developer's
+    real queue — so a test asserting a repository is a near miss passes or
+    fails depending on whether the catalogue happens to hold something by
+    that name.
+    """
+    catalogue = tmp_path / "agents.json"
+    catalogue.write_text("[]")
+    monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
+    monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "queue.jsonl")
+    return tmp_path
+
+
 class TestANamelessResultDoesNotStopTheRun:
     def test_is_new_tolerates_a_missing_name(self):
         """The near-miss path hands this a raw search result, and a null name
@@ -881,17 +897,34 @@ class TestANamelessResultDoesNotStopTheRun:
         assert discover.is_new({"name": None, "url": ""}, set(), set())
         assert discover.is_new({"url": ""}, set(), set())
 
-    def test_a_nameless_result_is_skipped_not_fatal(self, monkeypatch):
+    def test_a_nameless_result_is_skipped_not_fatal(self, monkeypatch,
+                                                    isolated_catalogue):
         monkeypatch.setattr(discover, "search_repos",
                             lambda *a, **kw: [{"name": None, "description": None,
                                                "html_url": "", "topics": []}])
         found, skipped = discover.discover(["rag"], 1000, pause=0)
 
         assert found == [] and skipped["unusable"] == 1
+        # And it is not reported as a blank near-miss row nobody can act on.
+        assert skipped["near_misses"] == {}
+
+    def test_two_nameless_results_do_not_collapse_into_one(self, monkeypatch,
+                                                           isolated_catalogue):
+        """They shared the dedup key "", so the first was reported anonymously
+        and the second was suppressed as a duplicate of it."""
+        monkeypatch.setattr(discover, "search_repos", lambda *a, **kw: [
+            {"name": None, "description": None, "html_url": "", "topics": []},
+            {"name": None, "description": None, "html_url": "", "topics": []},
+        ])
+        _, skipped = discover.discover(["rag"], 1000, pause=0)
+
+        assert skipped["unusable"] == 2
+        assert skipped["near_misses"] == {}
 
 
 class TestNearMissesAreReportedOnce:
-    def test_the_same_repository_is_not_listed_per_topic(self, monkeypatch):
+    def test_the_same_repository_is_not_listed_per_topic(self, monkeypatch,
+                                                         isolated_catalogue):
         """Accepted candidates are claimed so a later topic cannot re-propose
         them; near misses were not, so a popular repository appeared in the
         report once for every topic it carries — inflating every count."""

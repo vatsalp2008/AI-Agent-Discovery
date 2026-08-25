@@ -669,14 +669,20 @@ def discover(topics, min_stars, token=None, limit=30, pushed_since=None, pause=N
                 # "Not a tool" is the filter working and needs no listing;
                 # the rest are near misses worth a maintainer's eye.
                 full = repo.get("full_name") or repo.get("name") or ""
-                if (reason != "not a tool" and full not in seen_near_misses
+                # Nameless results are not deduplicated against each other:
+                # they would all collapse onto "", so the first was reported
+                # as a blank row a maintainer cannot act on and every later
+                # one was silently dropped. Reported by url instead.
+                key = full or repo.get("html_url") or None
+                if (reason != "not a tool" and full
+                        and key not in seen_near_misses
                         and is_new({"name": repo.get("name"),
                                     "url": repo.get("html_url") or ""},
                                    repos, names)):
                     # Deduplicated like the candidates themselves: the same
                     # repository is tagged with several of these topics, and
                     # reporting it five times inflates every count with it.
-                    seen_near_misses.add(full)
+                    seen_near_misses.add(key)
                     reasons.setdefault(reason, []).append({
                         "name": full,
                         "stars": int(repo.get("stargazers_count") or 0),
