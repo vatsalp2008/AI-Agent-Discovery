@@ -466,6 +466,13 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("compare prompts side by side", {"ChainForge", "Promptfoo"}),
     ("many lora adapters on one gpu", {"LoRAX"}),
     ("route a request by meaning", {"Semantic Router"}),
+    # Added at 363, into the two thinnest categories.
+    ("coordinate a swarm of agents", {"ruflo", "Swarm", "CAMEL"}),
+    ("identity and payments between agents", {"Bindu"}),
+    ("watch several agents work on a board", {"edict", "Rowboat"}),
+    ("analyse public opinion with agents", {"BettaFish"}),
+    ("alert me when a topic moves", {"TrendRadar"}),
+    ("question a chat export locally", {"ChatLab"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
