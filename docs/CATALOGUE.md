@@ -115,9 +115,13 @@ catalogue's own spelling, so the link resolves. A public submission may not
 set it at all, for the same reason it may not set `status`: "use my thing
 instead" is exactly what a review queue exists to filter.
 
-Dormant entries are left alone. Quiet is not dead: Bark and LLaVA have not
-been touched in two years and are still perfectly usable, and 18 months of
-silence is a prompt to check rather than a verdict.
+**Dormant entries point somewhere too, but are not required to.** All ten
+have been quiet for eighteen to thirty months — measured, not assumed — and
+whether their author happened to click "archive" is not what someone choosing
+a tool needs to know. Bark points at CosyVoice and IndexTTS, LLaVA at Qwen3-VL
+and MiniCPM-V, Vocode at LiveKit Agents and Pipecat. They keep the softer
+badge, because a dormant project usually still runs; the difference is that
+archiving without a pointer is refused, and going quiet without one is not.
 
 ### A failed audit is not a clean one
 

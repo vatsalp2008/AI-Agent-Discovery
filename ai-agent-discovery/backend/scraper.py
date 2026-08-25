@@ -110,7 +110,8 @@ SAMPLE_AGENTS = [
         github_stars=2800,
         url="https://github.com/microsoft/lida",
         use_case="Automatic chart and infographic generation",
-        status="dormant"
+        status="dormant",
+        alternatives=["Data Formulator", "PyGWalker"]
     ),
     Agent(
         name="Sketch",
@@ -120,7 +121,8 @@ SAMPLE_AGENTS = [
         github_stars=2300,
         url="https://github.com/approximatelabs/sketch",
         use_case="Dataframe-aware code suggestions",
-        status="dormant"
+        status="dormant",
+        alternatives=["PandasAI", "D-Tale"]
     ),
     Agent(
         name="DB-GPT",
@@ -276,7 +278,8 @@ SAMPLE_AGENTS = [
         github_stars=3783,
         url="https://github.com/vocodedev/vocode-core",
         use_case="Voice agents and phone calls",
-        status="dormant"
+        status="dormant",
+        alternatives=["LiveKit Agents", "Pipecat", "Ultravox"]
     ),
     Agent(
         name="Chatwoot",
@@ -594,7 +597,8 @@ SAMPLE_AGENTS = [
         github_stars=45872,
         url="https://github.com/coqui-ai/TTS",
         use_case="Training and running text-to-speech models",
-        status="dormant"
+        status="dormant",
+        alternatives=["CosyVoice", "IndexTTS"]
     ),
     Agent(
         name="ComfyUI",
@@ -838,7 +842,8 @@ SAMPLE_AGENTS = [
         github_stars=10056,
         url="https://github.com/facebookresearch/nougat",
         use_case="Parsing scientific papers",
-        status="dormant"
+        status="dormant",
+        alternatives=["MinerU", "Marker"]
     ),
     Agent(
         name="Swarm",
@@ -965,7 +970,8 @@ SAMPLE_AGENTS = [
         github_stars=2830,
         url="https://github.com/whylabs/whylogs",
         use_case="Privacy-preserving data monitoring",
-        status="dormant"
+        status="dormant",
+        alternatives=["Evidently", "Alibi Detect"]
     ),
     Agent(
         name="Qwen-Agent",
@@ -1121,7 +1127,8 @@ SAMPLE_AGENTS = [
         github_stars=5587,
         url="https://github.com/huggingface/parler-tts",
         use_case="Describing a voice in plain language",
-        status="dormant"
+        status="dormant",
+        alternatives=["CosyVoice", "VoxCPM"]
     ),
     Agent(
         name="WhisperX",
@@ -1140,7 +1147,8 @@ SAMPLE_AGENTS = [
         github_stars=39236,
         url="https://github.com/suno-ai/bark",
         use_case="Generating speech and sound from text",
-        status="dormant"
+        status="dormant",
+        alternatives=["CosyVoice", "IndexTTS", "VoxCPM"]
     ),
     Agent(
         name="SeamlessM4T",
@@ -1159,7 +1167,8 @@ SAMPLE_AGENTS = [
         github_stars=24977,
         url="https://github.com/haotian-liu/LLaVA",
         use_case="Visual question answering",
-        status="dormant"
+        status="dormant",
+        alternatives=["Qwen3-VL", "MiniCPM-V"]
     ),
     Agent(
         name="Qwen3-VL",
@@ -1295,7 +1304,8 @@ SAMPLE_AGENTS = [
         github_stars=14500,
         url="https://github.com/TransformerOptimus/SuperAGI",
         use_case="Running concurrent agents from a dashboard",
-        status="dormant"
+        status="dormant",
+        alternatives=["Suna", "OpenManus"]
     ),
     Agent(
         name="ChatDev",
