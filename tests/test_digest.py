@@ -317,3 +317,56 @@ class TestAnIncompleteAuditIsNotACleanOne:
 
         assert "Nothing outstanding" in report
         assert "did not complete" not in report
+
+
+class TestArchivedWithNowhereToGo:
+    """The one curation gap the automated pass can find and cannot close.
+
+    `audit.py` applies the badge from what GitHub reports but has no way to
+    invent a successor, so requiring one at write time would be a rule only
+    people could be held to. It is reported here instead.
+    """
+
+    def test_it_lists_them(self):
+        report = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                               unredirected=["Flowise", "Verba"])
+
+        assert "no alternative" in report
+        assert "`Flowise`" in report and "`Verba`" in report
+        assert "Nothing outstanding" not in report
+
+    def test_it_says_nothing_when_every_archive_points_somewhere(self):
+        report = digest.render({"added": [], "removed": [], "edited": []}, {}, 7,
+                               unredirected=[])
+
+        assert "no alternative" not in report
+        assert "Nothing outstanding" in report
+
+    def test_it_sits_beside_real_findings(self):
+        report = digest.render({"added": [], "removed": [], "edited": []},
+                               {"missing": [("Gone", "404 at its url")]}, 7,
+                               unredirected=["Flowise"])
+
+        assert "Gone" in report and "Flowise" in report
+        assert report.count("### Needs a decision") == 1
+
+    def test_only_archived_entries_without_one_are_counted(self):
+        records = [
+            {"name": "A", "status": "archived"},
+            {"name": "B", "status": "archived", "alternatives": ["C"]},
+            {"name": "C"},
+            {"name": "D", "status": "dormant"},
+            "not a record",
+        ]
+
+        assert digest.unredirected_archives(records) == ["A"]
+
+    def test_a_missing_catalogue_does_not_stop_the_digest(self, tmp_path, monkeypatch, capsys):
+        """A digest that reports nothing is worse than one missing a section."""
+        import config
+        monkeypatch.setattr(config, "AGENTS_JSON", tmp_path / "absent.json")
+        (tmp_path / "changelog.json").write_text("[]")
+        monkeypatch.setattr(config, "DATA_DIR", tmp_path)
+
+        assert digest.main([]) == 0
+        assert "Catalogue activity" in capsys.readouterr().out

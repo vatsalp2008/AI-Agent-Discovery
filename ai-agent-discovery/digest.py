@@ -24,6 +24,7 @@ from datetime import datetime, timedelta, timezone
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
 import changelog_data  # noqa: E402
+import config  # noqa: E402
 from logging_setup import configure  # noqa: E402
 
 logger = logging.getLogger("digest")
@@ -118,6 +119,14 @@ def _listed(names):
     return f"{', '.join(names[:MAX_NAMED])} and {len(names) - MAX_NAMED} more"
 
 
+def unredirected_archives(records):
+    """Archived entries with nowhere to send a reader, by name."""
+    return sorted(record.get("name") or "?" for record in records
+                  if isinstance(record, dict)
+                  and record.get("status") == "archived"
+                  and not record.get("alternatives"))
+
+
 def summarise_candidates(candidates):
     """Crawler proposals worth a look, best-starred first.
 
@@ -137,7 +146,7 @@ def summarise_candidates(candidates):
 
 
 def render(changes, findings, days, total=None, candidates=None,
-           audit_incomplete=False):
+           audit_incomplete=False, unredirected=None):
     """The digest as markdown."""
     lines = [f"## Catalogue activity, last {days} days", ""]
 
@@ -166,6 +175,18 @@ def render(changes, findings, days, total=None, candidates=None,
                   "bill of health — anything it would have flagged is missing "
                   "from this report. See the job log.", ""]
 
+    if unredirected:
+        # The one curation gap the automated pass can find and cannot close.
+        # audit.py applies the badge from what GitHub reports but has no way
+        # to invent a successor, so requiring one at write time would be a
+        # rule only people could be held to — it is reported here instead.
+        lines.append(f"**{NO_ALTERNATIVE}** ({len(unredirected)}) — archived "
+                     f"with nowhere to send a reader")
+        lines += [f"- `{name}`" for name in unredirected[:MAX_NAMED]]
+        if len(unredirected) > MAX_NAMED:
+            lines.append(f"- …and {len(unredirected) - MAX_NAMED} more")
+        lines.append("")
+
     if findings:
         for kind in NEEDS_A_PERSON:
             items = findings.get(kind)
@@ -176,7 +197,7 @@ def render(changes, findings, days, total=None, candidates=None,
             if len(items) > MAX_NAMED:
                 lines.append(f"- …and {len(items) - MAX_NAMED} more")
             lines.append("")
-    elif not audit_incomplete:
+    elif not audit_incomplete and not unredirected:
         # The wording differs from the warning above on purpose: the workflow
         # greps for "Nothing outstanding" to decide a week was quiet, so a
         # broken audit must not produce that phrase or the failure suppresses
@@ -244,9 +265,20 @@ def main(argv=None):
 
     window = recent(entries, args.days)
     total = next((e.get("total") for e in window if isinstance(e.get("total"), int)), None)
+    # Read from the catalogue on disk rather than the audit: GitHub has
+    # nothing to say about whether an entry names a successor.
+    try:
+        with open(config.AGENTS_JSON) as f:
+            catalogue = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        logger.warning("Could not read the catalogue (%s); "
+                       "not reporting unredirected archives.", e)
+        catalogue = []
+
     text = render(summarise_changes(window), summarise_findings(findings), args.days,
                   total, summarise_candidates(candidates),
-                  audit_incomplete=args.audit_incomplete)
+                  audit_incomplete=args.audit_incomplete,
+                  unredirected=unredirected_archives(catalogue))
 
     if args.out:
         with open(args.out, "w") as f:
