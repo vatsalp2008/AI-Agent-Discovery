@@ -346,7 +346,15 @@ INTERVIEW_TOOL_PATTERN = re.compile(
 COURSE_TEXT_PATTERN = re.compile(
     r"\bcourses\b"
     r"|\b(?:free|online|video|crash|introductory)\s+course\b"
-    r"|\bcourse\s+(?:on|covering|about|material|materials|notes|by)\b")
+    # Stems, like every other pattern in this file: "course covers" and
+    # "course covered" were missed while "course covering" was caught.
+    r"|\bcourse\s+(?:on|cover\w*|about|material\w*|note\w*|repo\w*|by)\b"
+    # "a/the/this course" reads as the genre when a learning word follows it.
+    # Narrowing to those three restores what the fourth rewrite dropped —
+    # "A course for beginners", "the course I teach" — without taking back
+    # "charts a course through your codebase", which has no such word.
+    r"|\b(?:a|the|this)\s+course\s+(?:for|on|in|about|that|i|we|which|covering)\b"
+    r"|\bcontains?\s+the\s+course\b")
 
 # Topics a repository applies to itself when it is teaching rather than
 # shipping. Far more reliable than reading the prose for it: a course can be
