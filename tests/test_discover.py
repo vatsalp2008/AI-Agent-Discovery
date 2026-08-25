@@ -955,3 +955,34 @@ class TestNearMissesAreReportedOnce:
         near = skipped["near_misses"]["description too short"]
 
         assert [r["name"] for r in near] == ["a/thing"]
+
+
+class TestThreeMoreWaysAGuideGotThrough:
+    """Each found by running the crawler and reading what it proposed, and
+    none of the three phrasings appears anywhere in the catalogue."""
+
+    @pytest.mark.parametrize("name,description", [
+        # Opens with the instruction, so no genre word ever appears.
+        ("Made-With-ML",
+         "Learn how to develop, deploy and iterate on production-grade ML applications."),
+        # A word between the adjective and the noun defeated an adjacent-words
+        # rule: "free MLOps course", not "free course".
+        ("mlops-zoomcamp",
+         "Free MLOps course from DataTalks.Club. Register here to get notified."),
+        # Hardware, not software — and "build-it-yourself" is not the
+        # "build your own" the list already held.
+        ("open-source-rover",
+         "A build-it-yourself, 6-wheel rover based on the rovers on Mars!"),
+    ])
+    def test_it_is_refused_now(self, name, description):
+        assert not discover.looks_like_a_tool(
+            {"name": name, "description": description, "topics": []})
+
+    @pytest.mark.parametrize("description", [
+        "A physics engine for robot learning, differentiable end to end.",
+        "A columnar format for machine learning data with fast random access.",
+        "Learns a policy from demonstrations without a reward function.",
+    ])
+    def test_a_tool_that_learns_is_not_a_lesson(self, description):
+        assert discover.looks_like_a_tool(
+            {"name": "x", "description": description, "topics": []})

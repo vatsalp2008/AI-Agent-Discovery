@@ -212,7 +212,12 @@ NOT_A_TOOL = (
     # "from scratch" alone refused LitGPT — "readable from-scratch
     # implementations" is a description of a style, not a genre. The
     # tutorial idiom carries the step-by-step framing with it.
-    "from scratch in", "build your own", "step by step", "lesson",
+    # "learn how to" and "build it yourself" each let a top-starred repo
+    # through: Made-With-ML opens "Learn how to develop, deploy and iterate",
+    # and NASA's open-source-rover is "a build-it-yourself, 6-wheel rover" —
+    # hardware, not software. Neither appears anywhere in the catalogue.
+    "from scratch in", "build your own", "build it yourself", "learn how to",
+    "step by step", "lesson", "zoomcamp",
     "best practice", "checklist",
 )
 
@@ -343,7 +348,10 @@ INTERVIEW_TOOL_PATTERN = re.compile(
 # carry what that leaves, which is where the signal actually is.
 COURSE_TEXT_PATTERN = re.compile(
     r"\bcourses\b"
-    r"|\b(?:free|online|video|crash|introductory)\s+course\b"
+    # A word may sit between: "Free MLOps course from DataTalks.Club" was
+    # the phrasing that got mlops-zoomcamp past an adjacent-words rule.
+    r"|\b(?:free|online|video|crash|introductory)\s+(?:\w+\s+)?course\b"
+    r"|\bcourse\s+from\b"
     # Stems, like every other pattern here: "course covers" and "course
     # covered" were missed while "course covering" was caught.
     r"|\bcourse\s+(?:on|cover\w*|about|material\w*|note\w*|repo\w*|by)\b"
