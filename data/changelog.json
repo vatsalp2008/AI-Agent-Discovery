@@ -1,5 +1,148 @@
 [
   {
+    "commit": "04734da8",
+    "at": "2026-08-25T08:36:43-07:00",
+    "subject": "Send readers on from the dormant ten",
+    "total": 357,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Bark",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "CosyVoice",
+              "IndexTTS",
+              "VoxCPM"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Coqui TTS",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "CosyVoice",
+              "IndexTTS"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "LIDA",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "Data Formulator",
+              "PyGWalker"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "LLaVA",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "Qwen3-VL",
+              "MiniCPM-V"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Nougat",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "MinerU",
+              "Marker"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Parler TTS",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "CosyVoice",
+              "VoxCPM"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Sketch",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "PandasAI",
+              "D-Tale"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SuperAGI",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "Suna",
+              "OpenManus"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Vocode",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "LiveKit Agents",
+              "Pipecat",
+              "Ultravox"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "whylogs",
+        "fields": [
+          {
+            "field": "alternatives",
+            "from": [],
+            "to": [
+              "Evidently",
+              "Alibi Detect"
+            ]
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "dfc76cef",
     "at": "2026-08-24T07:52:40-07:00",
     "subject": "Add eight training and evaluation tools",
