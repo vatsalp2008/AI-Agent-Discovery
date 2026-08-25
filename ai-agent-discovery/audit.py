@@ -214,8 +214,15 @@ def apply_statuses(records, wanted, checked=None):
     is left alone: an entry hosted outside GitHub is never examined, and one
     whose repository has been deleted is reported as `missing` rather than
     healthy — clearing either would remove a warning nobody re-verified.
+
+    Returns (changes, needs_a_person). An entry that would become archived
+    without naming a live alternative is *not* archived here: the badge is
+    only half the message, and this path cannot invent the other half. It is
+    reported instead, so a maintainer supplies one — which also keeps main
+    green, since the catalogue guard requires every archived entry to point
+    somewhere and this job commits straight to it.
     """
-    changes = []
+    changes, needs_a_person = [], []
     for record in records:
         name = record.get("name")
         if checked is not None and name not in checked:
@@ -225,12 +232,15 @@ def apply_statuses(records, wanted, checked=None):
         after = wanted.get(name, "active")
         if before == after:
             continue
+        if after == "archived" and not record.get("alternatives"):
+            needs_a_person.append(name)
+            continue
         if after == "active":
             record.pop("status", None)
         else:
             record["status"] = after
         changes.append((record.get("name"), before, after))
-    return changes
+    return changes, needs_a_person
 
 
 def follow_moves(records, findings, checked=None):
@@ -368,7 +378,8 @@ def main(argv=None):
                          len(skipped))
             return 1
 
-        changes = apply_statuses(records, statuses_for(findings, records), checked=checked)
+        changes, needs_a_person = apply_statuses(
+            records, statuses_for(findings, records), checked=checked)
         if changes:
             _write_catalogue(records)
             say(f"\nUpdated {len(changes)} entr{'y' if len(changes) == 1 else 'ies'}:")
@@ -376,6 +387,14 @@ def main(argv=None):
                 say(f"  {name:<24} {before} -> {after}")
         else:
             say("\nNo status changes.")
+
+        if needs_a_person:
+            # Left un-archived on purpose: the badge without a redirection is
+            # half a message, and this cannot supply the other half.
+            say(f"\n{len(needs_a_person)} archived on GitHub but naming no "
+                f"alternative — add one, then re-run:")
+            for name in needs_a_person:
+                say(f"  {name}")
 
     return 1 if (findings and args.fail_on_findings) else 0
 

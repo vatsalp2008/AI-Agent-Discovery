@@ -572,11 +572,17 @@ class TestAgentStatus:
         """223 records predate the field; none of them should need editing."""
         assert admin.validate(self.record(), [])["status"] == "active"
 
+    # Archiving now requires naming somewhere live to send a reader, so these
+    # supply one; the rule itself is covered in TestAlternativesAreForTheDead.
+    LIVE = [{"name": "Langflow", "status": "active"}]
+
     def test_an_explicit_status_is_kept(self):
-        assert admin.validate(self.record(status="archived"), [])["status"] == "archived"
+        record = self.record(status="archived", alternatives=["Langflow"])
+        assert admin.validate(record, self.LIVE)["status"] == "archived"
 
     def test_it_is_normalised(self):
-        assert admin.validate(self.record(status="  ARCHIVED "), [])["status"] == "archived"
+        record = self.record(status="  ARCHIVED ", alternatives=["Langflow"])
+        assert admin.validate(record, self.LIVE)["status"] == "archived"
 
     @pytest.mark.parametrize("bad", ["retired", "", 7, None, ["archived"]])
     def test_an_unknown_status_is_refused(self, bad):
@@ -754,3 +760,60 @@ class TestAlternativesAreForTheDead:
         with pytest.raises(admin.AdminError, match="must be a list"):
             admin.validate(self._record(status="archived", alternatives="Langflow"),
                            self.EXISTING)
+
+
+class TestAlternativesEdgeCases:
+    """Four ways the field could be stored wrong, each found by review."""
+
+    BASE = {"description": "A description comfortably past the sixty character floor.",
+            "category": "Safety", "tech_stack": ["Python"], "github_stars": 1,
+            "url": "https://github.com/a/b", "use_case": "u", "status": "archived"}
+    EXISTING = [{"name": "Langflow", "status": "active"},
+                {"name": "Dormy", "status": "dormant"},
+                {"name": "Dead", "status": "archived"},
+                {"name": "Solo", "status": "active"}]
+
+    def test_an_agent_cannot_name_itself_in_another_case(self):
+        """The self-check compared exactly while the catalogue match was
+        case-insensitive, so "solo" slipped past and was then rewritten to
+        "Solo" — an entry listed as its own replacement."""
+        with pytest.raises(admin.AdminError, match="its own alternative"):
+            admin.validate({**self.BASE, "name": "Solo", "alternatives": ["solo"]},
+                           self.EXISTING, original_name="Solo")
+
+    def test_two_spellings_of_one_agent_collapse(self):
+        """Normalising to the catalogue's spelling turned these into the same
+        name twice — two links to one page, and two of the five slots."""
+        cleaned = admin.validate(
+            {**self.BASE, "name": "X", "alternatives": ["Langflow", "langflow"]},
+            self.EXISTING)
+
+        assert cleaned["alternatives"] == ["Langflow"]
+
+    def test_a_dormant_agent_is_a_fine_alternative(self):
+        """Quiet is not dead. docs/CATALOGUE.md calls Bark and LLaVA "still
+        perfectly usable", and the check was excluding them."""
+        cleaned = admin.validate(
+            {**self.BASE, "name": "X", "alternatives": ["Dormy"]}, self.EXISTING)
+
+        assert cleaned["alternatives"] == ["Dormy"]
+
+    def test_an_archived_agent_is_not(self):
+        with pytest.raises(admin.AdminError, match="not themselves archived"):
+            admin.validate({**self.BASE, "name": "X", "alternatives": ["Dead"]},
+                           self.EXISTING)
+
+    def test_archiving_requires_naming_somewhere(self):
+        """Refused here rather than only in CI: a save that validates and then
+        turns the build red is a gap in the wrong direction."""
+        with pytest.raises(admin.AdminError, match="must name at least one"):
+            admin.validate({**self.BASE, "name": "X"}, self.EXISTING)
+
+    def test_a_hand_capitalised_status_still_reads(self):
+        """agents.json is hand-editable, and validate casefolds status on the
+        way in — the alternatives check was comparing it raw."""
+        existing = [{"name": "Langflow", "status": "Active"}]
+        cleaned = admin.validate(
+            {**self.BASE, "name": "X", "alternatives": ["Langflow"]}, existing)
+
+        assert cleaned["alternatives"] == ["Langflow"]

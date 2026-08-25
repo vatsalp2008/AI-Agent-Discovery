@@ -226,11 +226,13 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
         raise AdminError("'alternatives' must be a list of agent names")
     if len(alternatives) > MAX_ALTERNATIVES:
         raise AdminError(f"'alternatives' may name at most {MAX_ALTERNATIVES} agents")
+
     named = []
     for name in alternatives:
         if not isinstance(name, str) or not name.strip():
             raise AdminError("each entry in 'alternatives' must be a name")
         named.append(name.strip())
+
     if named and cleaned["status"] != "archived":
         # The field means "go here instead", which a live entry has no
         # business saying about itself.
@@ -239,29 +241,50 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
     # comma-joined in the index metadata — the same guard tech_stack carries.
     if any("," in name for name in named):
         raise AdminError("'alternatives' entries must not contain commas")
-    if cleaned["name"] in named:
+    # Case-insensitively, like every other name comparison here: "solo" got
+    # past a `!=` check and was then rewritten to the catalogue's spelling,
+    # so an agent ended up listed as its own replacement.
+    if any(name.casefold() == cleaned["name"].casefold() for name in named):
         raise AdminError("an agent cannot be its own alternative")
 
-    # Matched case-insensitively, like the uniqueness check below, and only
-    # against entries that are alive: pointing a dead project at another dead
-    # project is a link a reader cannot use, and it was accepted here while
-    # being refused by the catalogue guard in CI.
+    # Anything a reader can actually follow — which is everything except an
+    # archived entry. Dormant is deliberately allowed: quiet is not dead, and
+    # docs/CATALOGUE.md calls Bark and LLaVA "still perfectly usable".
+    #
     # agents.json is hand-editable, so a record may hold anything; skip what
-    # cannot be read rather than raising a 500 out of a validation routine.
-    alive = {other["name"].casefold(): other["name"]
-             for other in existing
-             if isinstance(other, dict)
-             and isinstance(other.get("name"), str)
-             and (other.get("status") or "active") == "active"}
-    unusable = [name for name in named if name.casefold() not in alive]
+    # cannot be read rather than raising a 500 out of a validation routine,
+    # and casefold the status because a hand edit may capitalise it.
+    followable = {other["name"].casefold(): other["name"]
+                  for other in existing
+                  if isinstance(other, dict)
+                  and isinstance(other.get("name"), str)
+                  and str(other.get("status") or "active").strip().casefold() != "archived"}
+    unusable = [name for name in named if name.casefold() not in followable]
     if unusable:
         raise AdminError(f"'alternatives' must name agents that are in the "
                          f"catalogue and not themselves archived: "
                          f"{', '.join(unusable)}")
-    # Stored with the catalogue's own spelling, so a link resolves.
-    named = [alive[name.casefold()] for name in named]
-    if named:
-        cleaned["alternatives"] = named
+
+    # Stored with the catalogue's own spelling so the link resolves, and
+    # de-duplicated after: ["Langflow", "langflow"] normalised to the same
+    # name twice, rendering two links to one page and spending two of the
+    # five slots.
+    seen, unique = set(), []
+    for name in named:
+        canonical = followable[name.casefold()]
+        if canonical not in seen:
+            seen.add(canonical)
+            unique.append(canonical)
+
+    if cleaned["status"] == "archived" and not unique:
+        # Refused here rather than only in CI. An archived entry with nowhere
+        # to send a reader is the thing the field exists to prevent, and a
+        # save that passes validation only to turn the build red later is a
+        # gap in the wrong direction.
+        raise AdminError("an archived agent must name at least one live "
+                         "alternative")
+    if unique:
+        cleaned["alternatives"] = unique
 
     # Names identify agents everywhere else, so they have to stay unique.
     # Existing records are read from a hand-editable file, so they may be

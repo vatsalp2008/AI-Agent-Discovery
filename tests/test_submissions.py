@@ -434,5 +434,7 @@ class TestStatusIsNotPublic:
         """A maintainer correcting a wrong badge is exactly who should."""
         record = {"name": "X", "description": "A description long enough to pass the floor.",
                   "category": "Automation", "tech_stack": ["Python"], "github_stars": 0,
-                  "url": "", "use_case": "x", "status": "archived"}
-        assert admin.validate(record, [])["status"] == "archived"
+                  "url": "", "use_case": "x", "status": "archived",
+                  # Archiving requires naming somewhere live to send a reader.
+                  "alternatives": ["Langflow"]}
+        assert admin.validate(record, [{"name": "Langflow"}])["status"] == "archived"

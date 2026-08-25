@@ -246,28 +246,49 @@ class TestApplyingStatus:
         """Entries hosted outside GitHub are never examined; defaulting them
         to active would clear a warning nobody re-verified."""
         records = [entry(name="Elsewhere", status="archived")]
-        assert audit.apply_statuses(records, {}, checked=set()) == []
+        assert audit.apply_statuses(records, {}, checked=set())[0] == []
         assert records[0]["status"] == "archived"
 
     def test_it_sets_the_status(self):
-        records = [entry(name="A")]
-        changes = audit.apply_statuses(records, {"A": "archived"})
+        records = [entry(name="A", alternatives=["B"])]
+        changes, _ = audit.apply_statuses(records, {"A": "archived"})
 
         assert records[0]["status"] == "archived"
         assert changes == [("A", "active", "archived")]
+
+    def test_it_will_not_archive_an_entry_pointing_nowhere(self):
+        """The badge is half the message and this path cannot invent the
+        other half. It also commits straight to main, where the catalogue
+        guard requires every archived entry to point somewhere — archiving
+        here would turn the build red on a robot's decision."""
+        records = [entry(name="A")]
+        changes, needs_a_person = audit.apply_statuses(records, {"A": "archived"})
+
+        assert changes == []
+        assert needs_a_person == ["A"]
+        assert "status" not in records[0]
+
+    def test_dormant_still_applies_without_alternatives(self):
+        """Quiet is not dead: a dormant entry is still usable, so it carries
+        no obligation to redirect anyone."""
+        records = [entry(name="A")]
+        changes, needs_a_person = audit.apply_statuses(records, {"A": "dormant"})
+
+        assert changes == [("A", "active", "dormant")]
+        assert needs_a_person == []
 
     def test_it_clears_a_status_that_no_longer_applies(self):
         """Archived repositories get unarchived. Leaving the warning would
         make the catalogue wrong in the other direction."""
         records = [entry(name="A", status="archived")]
-        changes = audit.apply_statuses(records, {})
+        changes, _ = audit.apply_statuses(records, {})
 
         assert "status" not in records[0]
         assert changes == [("A", "archived", "active")]
 
     def test_an_unchanged_entry_is_left_alone(self):
         records = [entry(name="A", status="archived")]
-        assert audit.apply_statuses(records, {"A": "archived"}) == []
+        assert audit.apply_statuses(records, {"A": "archived"})[0] == []
 
     def test_it_refuses_to_write_when_something_could_not_be_checked(self, monkeypatch):
         """An unchecked entry looks "not flagged", so writing would clear a
@@ -289,7 +310,9 @@ class TestApplyingStatus:
 def test_applying_statuses_writes_atomically(monkeypatch, tmp_path):
     """An interrupted CI step must not leave a truncated catalogue. Every
     other writer of this file uses tmp + replace."""
-    records = [entry(name="A", url="https://github.com/acme/a")]
+    # An alternative, or the archive is refused and nothing is written at all
+    # — which would make this pass for the wrong reason.
+    records = [entry(name="A", url="https://github.com/acme/a", alternatives=["B"])]
     path = _write(records)
     monkeypatch.setattr(config, "AGENTS_JSON", path)
     monkeypatch.setattr(audit, "fetch_repo",
@@ -386,7 +409,10 @@ class TestJsonOutputStaysParsable:
     def setup_catalogue(self, monkeypatch, archived=True):
         monkeypatch.setattr(audit, "fetch_repo",
                             lambda repo, **kw: payload(full_name="acme/a", archived=archived))
-        path = _write([entry(name="A", url="https://github.com/acme/a")])
+        # With an alternative, so the archive is actually applied — without
+        # one it is refused, and "Updated" would never be printed.
+        path = _write([entry(name="A", url="https://github.com/acme/a",
+                             alternatives=["B"])])
         monkeypatch.setattr(config, "AGENTS_JSON", path)
         return path
 
