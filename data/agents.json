@@ -4488,5 +4488,79 @@
     "github_stars": 5258,
     "url": "https://github.com/vllm-project/semantic-router",
     "use_case": "Routing a request by meaning"
+  },
+  {
+    "name": "ruflo",
+    "description": "Coordinates a swarm of agents across a shared workflow, with the topology chosen per task rather than fixed.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js",
+      "MCP"
+    ],
+    "github_stars": 69374,
+    "url": "https://github.com/ruvnet/ruflo",
+    "use_case": "Coordinating a swarm of agents"
+  },
+  {
+    "name": "Bindu",
+    "description": "Gives an agent an identity other agents can verify, so two of them can transact without a human vouching for either.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python",
+      "A2A"
+    ],
+    "github_stars": 8938,
+    "url": "https://github.com/GetBindu/Bindu",
+    "use_case": "Identity and payments between agents"
+  },
+  {
+    "name": "edict",
+    "description": "Runs nine specialised agents against one task and shows each of them working on a live board.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python",
+      "FastAPI"
+    ],
+    "github_stars": 16410,
+    "url": "https://github.com/cft0808/edict",
+    "use_case": "Watching specialised agents work"
+  },
+  {
+    "name": "BettaFish",
+    "description": "A multi-agent opinion analyst that gathers what is being said across platforms and argues its way to a summary.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "LLM"
+    ],
+    "github_stars": 42078,
+    "url": "https://github.com/666ghj/BettaFish",
+    "use_case": "Analysing public opinion with agents"
+  },
+  {
+    "name": "TrendRadar",
+    "description": "Watches news and social feeds for a topic and alerts when the volume or tone shifts, filtered by a model.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "Docker",
+      "RSS"
+    ],
+    "github_stars": 61825,
+    "url": "https://github.com/sansan0/TrendRadar",
+    "use_case": "Alerting when a topic moves"
+  },
+  {
+    "name": "ChatLab",
+    "description": "Reads an exported chat history on your own machine and answers questions about it without uploading anything.",
+    "category": "Data Analysis",
+    "tech_stack": [
+      "TypeScript",
+      "SQLite"
+    ],
+    "github_stars": 7239,
+    "url": "https://github.com/ChatLab/ChatLab",
+    "use_case": "Questioning a chat export locally"
   }
 ]
