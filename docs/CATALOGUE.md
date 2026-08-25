@@ -36,6 +36,20 @@ the check runs twice before failing so one flaky host does not turn the job red.
 Renames are worth acting on: following them caught that Windsurf now ships as
 Devin Desktop, which had left that entry stale in name, description and URL.
 
+### A timeout is not a dead link
+
+The weekly job fails on a broken link, so a false positive costs a red build
+for a page that works. Three consecutive runs over the same 371 URLs reported
+**5 broken, then 0, then 1**, with the API rate limit untouched — eight
+parallel workers against that many hosts will occasionally time out or have a
+connection reset, and every one of those was being counted as a dead page.
+
+A transport error is now retried once before it counts. HTTP statuses are
+not: those the host meant, and asking a second time does not make a 404
+truer. The retry reduces the noise rather than removing it, so a single
+broken result on a job that has been clean for weeks is worth re-running
+before acting on.
+
 ## Auditing what is already here
 
 ```bash
