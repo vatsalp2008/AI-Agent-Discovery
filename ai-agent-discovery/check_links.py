@@ -88,7 +88,25 @@ def check_url(url, timeout=10):
                 return BROKEN, f"{e.code}, and GET failed: {inner}"
         return BROKEN, f"HTTP {e.code}"
     except Exception as e:
-        return BROKEN, str(e)
+        # A transport error is the absence of an answer, not a dead page, and
+        # 371 URLs across eight workers will occasionally time out or have a
+        # connection reset. Three consecutive runs of the same catalogue
+        # reported 5 broken, then 0, then 1, with the rate limit untouched —
+        # and the weekly job fails the build on a broken link, so every one
+        # of those was a false alarm waiting to happen.
+        #
+        # HTTP codes are not retried here: those the host meant.
+        try:
+            with opener.open(request, timeout=timeout) as response:
+                return OK, f"{response.status} (retried)"
+        except _Redirected as redirect:
+            return REDIRECT, f"-> {redirect.location}"
+        except urllib.error.HTTPError as retry:
+            if retry.code == 429:
+                return THROTTLED, "HTTP 429 on retry (rate limited, not necessarily broken)"
+            return BROKEN, f"{e}, and the retry failed: HTTP {retry.code}"
+        except Exception as retry:
+            return BROKEN, f"{e}, and the retry failed: {retry}"
 
 
 def check_catalogue(records, workers=8, timeout=10):

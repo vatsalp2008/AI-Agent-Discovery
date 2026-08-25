@@ -235,3 +235,57 @@ class TestThrottling:
 
         monkeypatch.setattr(links.urllib.request, "build_opener", build)
         assert links.check_url("https://example.com")[0] == links.BROKEN
+
+
+class TestATransportErrorIsRetried:
+    """A timeout or a connection reset is the absence of an answer, not a
+    dead page.
+
+    Three consecutive runs of the same 371-URL catalogue reported 5 broken,
+    then 0, then 1, with the rate limit untouched — and the weekly job fails
+    the build on a broken link, so each of those was a false alarm. HTTP
+    codes are not retried: those the host meant.
+    """
+
+    def _opener(self, links, monkeypatch, outcomes):
+        calls = []
+
+        class Fake:
+            def open(self, request, timeout=0):
+                calls.append(1)
+                result = outcomes.pop(0)
+                if isinstance(result, Exception):
+                    raise result
+                return result
+
+        monkeypatch.setattr(links.urllib.request, "build_opener", lambda *a: Fake())
+        return calls
+
+    def test_a_timeout_that_clears_is_not_broken(self, links, monkeypatch):
+        calls = self._opener(links, monkeypatch,
+                             [TimeoutError("timed out"), FakeResponse()])
+
+        status, detail = links.check_url("https://example.com/x")
+
+        assert status == links.OK
+        assert "retried" in detail
+        assert len(calls) == 2
+
+    def test_a_timeout_that_persists_is_broken(self, links, monkeypatch):
+        self._opener(links, monkeypatch,
+                     [TimeoutError("timed out"), TimeoutError("again")])
+
+        status, detail = links.check_url("https://example.com/x")
+
+        assert status == links.BROKEN
+        assert "retry failed" in detail
+
+    def test_a_404_is_not_retried(self, links, monkeypatch):
+        """The host answered. Asking twice does not make it truer."""
+        calls = self._opener(links, monkeypatch, [
+            urllib.error.HTTPError("u", 404, "gone", {}, None)])
+
+        status, _ = links.check_url("https://example.com/x")
+
+        assert status == links.BROKEN
+        assert len(calls) == 1
