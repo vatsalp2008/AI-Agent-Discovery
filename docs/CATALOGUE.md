@@ -96,21 +96,25 @@ listing them is for — and the guard enforcing the practice had to parse prose
 for a literal marker that was documented nowhere but inside the assertion.
 `alternatives` is deliberately absent from `page_content`.
 
-The obligation runs both ways. `audit.py` **will not archive** an entry that
-names no alternative — the badge is half the message and an automated pass
-cannot supply the other half, so it reports the entry as needing a person
-instead. That also keeps main green: the weekly job commits straight to it,
-and the catalogue guard requires every archived entry to point somewhere.
-Deleting, renaming or archiving an agent that something points at is refused
-too, because write-side validation used to guard only the record being
-written and left the referrer dangling.
+`audit.py` applies the badge either way. An archived repository rendering as
+healthy is wrong data, and withholding the badge to keep a build green was
+the wrong trade — it also meant every weekly run silently repeated the
+decision. It archives, names the entries it could not redirect, and a project
+that comes back has both its badge and its pointer cleared.
 
-Five rules, all enforced by `validate()`: only an archived entry may carry
-it, every name must be in the catalogue *and not itself archived*, no entry
-may point at itself, names may not contain commas (the field is stored
-comma-joined in the index metadata, so one would split into two broken
-links), and at most five — more than a few is a reading list rather than a
-redirection. Names are matched case-insensitively and stored with the
+Five rules, all enforced by `validate()`: only an archived or dormant entry
+may carry it, every name must be in the catalogue *and still active* — a link
+to another badged project is one a reader cannot use — no entry may point at
+itself or at the name it is being renamed from, names may not contain commas
+(the field is stored comma-joined in the index metadata, so one would split
+into two broken links), and at most five, because more than a few is a
+reading list rather than a redirection.
+
+Naming one is **not** required. `audit.py` archives from what GitHub reports
+and cannot invent a successor, so a rule the automated pass could never
+satisfy would only ever be enforced against people; the weekly digest reports
+the gap instead. What *is* refused is deleting, renaming or badging an agent
+that something already points at. Names are matched case-insensitively and stored with the
 catalogue's own spelling, so the link resolves. A public submission may not
 set it at all, for the same reason it may not set `status`: "use my thing
 instead" is exactly what a review queue exists to filter.

@@ -917,15 +917,30 @@ class TestANamelessResultDoesNotStopTheRun:
     def test_two_nameless_results_do_not_collapse_into_one(self, monkeypatch,
                                                            isolated_catalogue):
         """They shared the dedup key "", so the first was reported anonymously
-        and the second was suppressed as a duplicate of it."""
+        and the second was suppressed as a duplicate of it. Keyed by url when
+        there is no name — and reported by it, so the row is actionable."""
         monkeypatch.setattr(discover, "search_repos", lambda *a, **kw: [
-            {"name": None, "description": None, "html_url": "", "topics": []},
-            {"name": None, "description": None, "html_url": "", "topics": []},
+            {"name": None, "description": None, "topics": [],
+             "html_url": "https://github.com/a/one"},
+            {"name": None, "description": None, "topics": [],
+             "html_url": "https://github.com/a/two"},
         ])
         _, skipped = discover.discover(["rag"], 1000, pause=0)
 
         assert skipped["unusable"] == 2
-        assert skipped["near_misses"] == {}
+        reported = [r["name"] for r in skipped["near_misses"]["no description"]]
+        assert sorted(reported) == ["https://github.com/a/one",
+                                    "https://github.com/a/two"]
+
+    def test_a_result_with_no_name_and_no_url_is_dropped(self, monkeypatch,
+                                                         isolated_catalogue):
+        """Nothing to key on and nothing to act on."""
+        monkeypatch.setattr(discover, "search_repos", lambda *a, **kw: [
+            {"name": None, "description": None, "html_url": "", "topics": []},
+        ])
+        _, skipped = discover.discover(["rag"], 1000, pause=0)
+
+        assert skipped["unusable"] == 1 and skipped["near_misses"] == {}
 
 
 class TestNearMissesAreReportedOnce:

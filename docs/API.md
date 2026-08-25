@@ -242,7 +242,7 @@ most likely to need alternatives of its own.
 {"name": "Flowise", "status": "archived", "alternatives": ["Langflow", "Dify"]}
 ```
 
-Absent on everything else — only an archived entry may carry it, and
+Absent on live entries — an archived or dormant one may carry it, and
 `/api/search` returns it inside `metadata` as a comma-joined string, because
 index metadata values have to be scalars. It is not part of the text that gets
 embedded: naming a live competitor in searchable prose pulls the dead entry

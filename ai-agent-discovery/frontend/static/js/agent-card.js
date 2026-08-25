@@ -86,8 +86,11 @@ const AgentCard = (() => {
             // dormant entries too — the ten of them have been quiet for
             // eighteen to thirty months, and only entries with a badge reach
             // this branch at all, so a healthy project never shows one.
-            const instead = (meta.alternatives || '').split(',')
-                .map(name => name.trim()).filter(Boolean);
+            // parseStack, not a hand-rolled split: models.py holds this as a
+            // list and only the index metadata comma-joins it, so .split
+            // would throw on an array and take the whole grid with it.
+            const instead = parseStack(meta.alternatives)
+                .map(name => String(name).trim()).filter(Boolean);
             if (instead.length) {
                 const line = el('p', 'agent-alternatives');
                 line.append('Try instead: ');
