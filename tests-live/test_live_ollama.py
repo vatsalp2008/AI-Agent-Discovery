@@ -482,6 +482,10 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
      {"Kotaemon", "AnythingLLM", "Onyx"}),
     ("build a bot from visual blocks", {"Coze Studio", "Botpress", "Typebot"}),
     ("browse without being fingerprinted", {"CloakBrowser"}),
+    ("differentiable physics for robot learning", {"Newton", "MuJoCo"}),
+    ("photorealistic indoor simulation", {"Habitat-Sim", "Habitat Lab"}),
+    ("random access over training data", {"Lance"}),
+    ("tune an agent from production traces", {"CozeLoop", "Langfuse", "Opik"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.

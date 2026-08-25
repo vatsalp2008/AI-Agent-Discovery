@@ -1,5 +1,21 @@
 [
   {
+    "commit": "bee2cf01",
+    "at": "2026-08-25T09:25:12-07:00",
+    "subject": "Add five simulation and data tools",
+    "total": 376,
+    "added": [
+      "CozeLoop",
+      "Habitat-Sim",
+      "Lance",
+      "Newton",
+      "WeKnora"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "d3f19c21",
     "at": "2026-08-25T08:43:38-07:00",
     "subject": "Add eight context and agent building tools",
