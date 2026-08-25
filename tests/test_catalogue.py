@@ -1031,13 +1031,33 @@ def test_an_archived_entry_points_somewhere_alive(catalogue):
         f"archived and offering no living alternative: {unhelpful}")
 
 
-def test_only_an_archived_entry_names_alternatives(catalogue):
+def test_only_a_dead_entry_names_alternatives(catalogue):
     """The field means "go here instead", which a live entry has no business
-    saying about itself."""
-    misplaced = [agent["name"] for agent in catalogue
-                 if agent.get("alternatives") and agent.get("status") != "archived"]
+    saying about itself.
 
-    assert not misplaced, f"not archived but naming alternatives: {misplaced}"
+    Dormant may carry it as well as archived. The ten dormant entries have
+    been quiet for eighteen to thirty months, and whether their author
+    clicked "archive" is not what a reader choosing a tool needs to know —
+    only archived is *required* to point somewhere.
+    """
+    misplaced = [agent["name"] for agent in catalogue
+                 if agent.get("alternatives")
+                 and agent.get("status", "active") == "active"]
+
+    assert not misplaced, f"live but naming alternatives: {misplaced}"
+
+
+def test_every_alternative_names_a_live_agent(catalogue):
+    """Whoever names them, the target has to be one a reader can follow."""
+    live = {agent["name"] for agent in catalogue
+            if agent.get("status", "active") == "active"}
+
+    dangling = {agent["name"]: [n for n in agent.get("alternatives") or []
+                                if n not in live]
+                for agent in catalogue if agent.get("alternatives")}
+    dangling = {k: v for k, v in dangling.items() if v}
+
+    assert not dangling, f"pointing at agents that are not live: {dangling}"
 
 
 def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):

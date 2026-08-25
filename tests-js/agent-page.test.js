@@ -233,7 +233,18 @@ describe('where an archived project sends you', () => {
         expect(row.querySelector('a').getAttribute('href')).toBe('/agent/Langflow');
     });
 
+    it('lists them for a dormant project too', async () => {
+        await boot('/agent/Flowise',
+                   withMeta({ status: 'dormant', alternatives: 'Langflow' }));
+        const row = [...document.querySelectorAll('.detail-row')]
+            .find(r => r.textContent.startsWith('Try instead'));
+
+        expect([...row.querySelectorAll('a')].map(a => a.textContent)).toEqual(['Langflow']);
+    });
+
     it('says nothing for a live project', async () => {
+        /** A healthy entry cannot carry the field at all — validate refuses
+         *  it — but the renderer should not depend on that. */
         await boot('/agent/Flowise', withMeta({ alternatives: 'Langflow' }));
 
         expect([...document.querySelectorAll('.detail-label')]

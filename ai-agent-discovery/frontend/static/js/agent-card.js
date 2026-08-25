@@ -82,12 +82,13 @@ const AgentCard = (() => {
                 : 'No commits in over a year';
             card.appendChild(badge);
 
-            // A badge says stop; this says where to go. Only for archived
-            // entries: dormant means quiet, not finished, and a redirection
-            // would be telling someone to leave a tool that still works.
+            // A badge says stop; this says where to go. Rendered for
+            // dormant entries too — the ten of them have been quiet for
+            // eighteen to thirty months, and only entries with a badge reach
+            // this branch at all, so a healthy project never shows one.
             const instead = (meta.alternatives || '').split(',')
                 .map(name => name.trim()).filter(Boolean);
-            if (status === 'archived' && instead.length) {
+            if (instead.length) {
                 const line = el('p', 'agent-alternatives');
                 line.append('Try instead: ');
                 instead.forEach((name, index) => {

@@ -700,8 +700,22 @@ class TestAlternativesAreForTheDead:
         assert cleaned["alternatives"] == ["Langflow", "Dify"]
 
     def test_a_live_entry_may_not(self):
-        with pytest.raises(admin.AdminError, match="only an archived agent"):
+        with pytest.raises(admin.AdminError, match="archived or dormant"):
             admin.validate(self._record(alternatives=["Langflow"]), self.EXISTING)
+
+    def test_a_dormant_entry_may(self):
+        """The ten dormant entries have been quiet for eighteen to thirty
+        months. Whether their author clicked "archive" is not what a reader
+        needs to know."""
+        cleaned = admin.validate(
+            self._record(status="dormant", alternatives=["Langflow"]), self.EXISTING)
+
+        assert cleaned["alternatives"] == ["Langflow"]
+
+    def test_a_dormant_entry_need_not(self):
+        """Only archived is *required* to point somewhere."""
+        assert "alternatives" not in admin.validate(
+            self._record(status="dormant"), self.EXISTING)
 
     def test_an_unknown_name_is_refused(self):
         """A suggestion nobody can click through to is worse than none."""

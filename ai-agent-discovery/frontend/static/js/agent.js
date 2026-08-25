@@ -56,7 +56,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // left this as the one row without a detail-value class.
         const instead = AgentCard.parseStack(meta.alternatives)
             .map(name => String(name).trim()).filter(Boolean);
-        if (meta.status === 'archived' && instead.length) {
+        // Gated on the badge, not on the field: the card's version sits
+        // inside the health block and so cannot reach a healthy project,
+        // while this one stands alone. validate() refuses the combination
+        // anyway, but a renderer should not lean on that.
+        if (health && instead.length) {
             const links = document.createElement('span');
             instead.forEach((name, index) => {
                 if (index) links.append(', ');

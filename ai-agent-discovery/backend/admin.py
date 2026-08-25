@@ -233,10 +233,13 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
             raise AdminError("each entry in 'alternatives' must be a name")
         named.append(name.strip())
 
-    if named and cleaned["status"] != "archived":
+    if named and cleaned["status"] == "active":
         # The field means "go here instead", which a live entry has no
-        # business saying about itself.
-        raise AdminError("only an archived agent may name alternatives")
+        # business saying about itself. Dormant may carry it as well as
+        # archived: the ten dormant entries have been quiet for eighteen to
+        # thirty months, and whether their author clicked "archive" is not
+        # what a reader needs to know. Only archived is *required* to.
+        raise AdminError("only an archived or dormant agent may name alternatives")
     # Commas would split one name into two, since the field is stored
     # comma-joined in the index metadata — the same guard tech_stack carries.
     if any("," in name for name in named):

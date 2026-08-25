@@ -361,11 +361,14 @@ describe('where to go instead', () => {
             .toBe('/agent/Weights%20%26%20Biases');
     });
 
-    it('says nothing for a dormant project', () => {
-        /** Quiet is not finished. Telling someone to leave a tool that still
-         *  works is not the same as telling them a dead one is dead. */
-        expect(withMeta({ status: 'dormant', alternatives: 'Langflow' })
-            .querySelector('.agent-alternatives')).toBeNull();
+    it('lists them for a dormant project too', () => {
+        /** The ten dormant entries have been quiet for eighteen to thirty
+         *  months. Whether their author clicked "archive" is not what a
+         *  reader choosing a tool needs to know. */
+        const card = withMeta({ status: 'dormant', alternatives: 'Langflow' });
+
+        expect([...card.querySelectorAll('.agent-alternatives a')]
+            .map(a => a.textContent)).toEqual(['Langflow']);
     });
 
     it('says nothing for a healthy project', () => {
