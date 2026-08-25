@@ -234,7 +234,9 @@ wall of numbers.
 ## Where an archived agent points
 
 An archived entry carries `alternatives`: live catalogue entries to use
-instead, at most five, rendered as links under the badge on every card.
+instead, at most five, rendered as links under the badge on every card, and as a **Try
+instead** row on `/agent/<name>` — the page those links land on is the one
+most likely to need alternatives of its own.
 
 ```json
 {"name": "Flowise", "status": "archived", "alternatives": ["Langflow", "Dify"]}

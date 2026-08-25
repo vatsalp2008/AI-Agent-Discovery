@@ -317,25 +317,12 @@ INTERVIEW_QUESTIONS_PATTERN = re.compile(
 # article or a learning word beside it, and the idioms never have one.
 # A repository *named* course almost always is one, and the name is where
 # GitHub puts the genre: agents-course, llm-course, mlcourse.ai. Matched as a
-# substring rather than a word, because "mlcourse" has no boundary before it —
-# excluding "resource", which contains the same six letters.
-# The English words that contain it are excluded by name: resource, discourse
-# and concourse all carry the same six letters, and "discourse-ai" is a real
-# tool the suite already guarded against.
+# substring rather than a word, because "mlcourse" has no boundary before it.
+# The English words that carry the same six letters are excluded by name:
+# discourse, recourse and concourse — "discourse-ai" is a real tool the suite
+# already guarded against.
 COURSE_NAME_PATTERN = re.compile(r"(?<!re)(?<!dis)(?<!con)courses?")
 
-# In prose, only the forms that cannot be anything else. This is the fourth
-# attempt and the previous three all failed in one direction or the other:
-# the bare word refused an agent security scanner, an eight-phrase list let
-# huggingface/agents-course through, lookbehinds refused "off-course" and
-# "over the course of", and a broader version of this refused "charts a
-# course through your codebase", "plots a flight course for a drone" and
-# "an obstacle course simulator".
-#
-# So "a course", "the course", "course for" and the trailing "<word> course"
-# are all gone: each of them reads as an idiom at least as often as a genre.
-# What is left cannot. The name rule and the declared topics carry the rest,
-# which is where the signal actually is.
 # A tool that *produces* interview questions or *conducts* mock interviews is
 # an interviewer's tool rather than study material. Stems, not whole words, so
 # each reaches its inflections — `scor` catches "scoring".
@@ -343,16 +330,26 @@ INTERVIEW_TOOL_PATTERN = re.compile(
     r"\b(?:generat|creat|writ|draft|ask|conduct|run|automat|scor|transcrib)\w*"
     r"[\s\w]{0,20}?\binterview")
 
+# In prose, only the forms that cannot be anything else. This took four
+# attempts and each failure was the opposite of the last: the bare word
+# refused an agent security scanner, an eight-phrase list let
+# huggingface/agents-course through, a pair of lookbehinds refused
+# "off-course" and "over the course of", and narrowing further dropped "a
+# course for beginners" and "course repo" entirely.
+#
+# What survives is the genre with a learning word beside it. The bare "a
+# course" and the trailing "<word> course" stay out — each reads as an idiom
+# at least as often as a genre — and the name rule and the declared topics
+# carry what that leaves, which is where the signal actually is.
 COURSE_TEXT_PATTERN = re.compile(
     r"\bcourses\b"
     r"|\b(?:free|online|video|crash|introductory)\s+course\b"
-    # Stems, like every other pattern in this file: "course covers" and
-    # "course covered" were missed while "course covering" was caught.
+    # Stems, like every other pattern here: "course covers" and "course
+    # covered" were missed while "course covering" was caught.
     r"|\bcourse\s+(?:on|cover\w*|about|material\w*|note\w*|repo\w*|by)\b"
-    # "a/the/this course" reads as the genre when a learning word follows it.
-    # Narrowing to those three restores what the fourth rewrite dropped —
-    # "A course for beginners", "the course I teach" — without taking back
-    # "charts a course through your codebase", which has no such word.
+    # "a/the/this course" is the genre when a learning word follows it, and
+    # an idiom when nothing does — which is why "charts a course through your
+    # codebase" is left alone.
     r"|\b(?:a|the|this)\s+course\s+(?:for|on|in|about|that|i|we|which|covering)\b"
     r"|\bcontains?\s+the\s+course\b")
 
@@ -441,6 +438,11 @@ def search_repos(query, token=None, limit=30, timeout=15):
         raise SearchFailed(str(e)) from e
 
 
+def _flatten(text):
+    """Separators as spaces, so a phrase reads a hyphenated repository name."""
+    return re.sub(r"[\-_]+", " ", text)
+
+
 def looks_like_a_tool(repo):
     """Whether this is software you would run, rather than something to read.
 
@@ -459,7 +461,7 @@ def looks_like_a_tool(repo):
     # Separators flattened before matching, so every phrase in the list reads
     # a hyphenated repository name too — "claude-code-best-practice" is the
     # same claim as "best practice", and GitHub names are always hyphenated.
-    flattened = re.sub(r"[\-_]+", " ", haystack)
+    flattened = _flatten(haystack)
     if NOT_A_TOOL_PATTERN.search(flattened) is not None:
         return False
     if NOT_A_TOOL_UNANCHORED.search(haystack) is not None:
@@ -471,7 +473,7 @@ def looks_like_a_tool(repo):
         return False
     # Flattened, like NOT_A_TOOL_PATTERN: "crash-course" is the same claim as
     # "crash course", and only the spaced form was being read.
-    if COURSE_TEXT_PATTERN.search(re.sub(r"[\-_]+", " ", described)) is not None:
+    if COURSE_TEXT_PATTERN.search(_flatten(described)) is not None:
         return False
     if INTERVIEW_PREP_PATTERN.search(haystack) is not None:
         return False

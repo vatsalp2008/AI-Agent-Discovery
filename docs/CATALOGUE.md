@@ -85,7 +85,8 @@ catalogue is thin rather than the project finished.
 
 What they get instead is the badge **and a way forward**: an `alternatives`
 field naming live entries already in the catalogue, rendered as links under
-the badge. Flowise points at Langflow and Dify, Vanna AI at WrenAI, Chat2DB
+the badge on cards and as a row on the agent's own page — the page those
+links land on is the one most likely to need alternatives of its own. Flowise points at Langflow and Dify, Vanna AI at WrenAI, Chat2DB
 and DB-GPT, Rebuff at AgentDojo and PurpleLlama.
 
 It is a field rather than a sentence appended to the description, which is
@@ -94,6 +95,15 @@ in it put them inside the dead project's own vector — the opposite of what
 listing them is for — and the guard enforcing the practice had to parse prose
 for a literal marker that was documented nowhere but inside the assertion.
 `alternatives` is deliberately absent from `page_content`.
+
+The obligation runs both ways. `audit.py` **will not archive** an entry that
+names no alternative — the badge is half the message and an automated pass
+cannot supply the other half, so it reports the entry as needing a person
+instead. That also keeps main green: the weekly job commits straight to it,
+and the catalogue guard requires every archived entry to point somewhere.
+Deleting, renaming or archiving an agent that something points at is refused
+too, because write-side validation used to guard only the record being
+written and left the referrer dangling.
 
 Five rules, all enforced by `validate()`: only an archived entry may carry
 it, every name must be in the catalogue *and not itself archived*, no entry

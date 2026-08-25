@@ -18,7 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         dt.textContent = label;
         const dd = document.createElement('span');
         dd.className = 'detail-value';
-        dd.textContent = value;
+        // A node as well as a string: the "Try instead" row is a list of
+        // links, and it was hand-rolling its own row to get them — which
+        // made it the one row without a detail-value class.
+        if (value instanceof window.Node) dd.appendChild(value);
+        else dd.textContent = value;
         row.append(dt, dd);
         return row;
     }
@@ -46,14 +50,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         // The page a "Try instead" link lands on is the page most likely to
         // need one of its own. Rendering it only on cards left the dead end
         // exactly where a reader goes for more detail.
-        const instead = (meta.alternatives || '').split(',')
-            .map(name => name.trim()).filter(Boolean);
+        //
+        // parseStack is the shared comma-or-array parser, and field() builds
+        // the same labelled row as every other line here — hand-rolling both
+        // left this as the one row without a detail-value class.
+        const instead = AgentCard.parseStack(meta.alternatives)
+            .map(name => String(name).trim()).filter(Boolean);
         if (meta.status === 'archived' && instead.length) {
-            const row = document.createElement('div');
-            row.className = 'detail-row';
-            const label = document.createElement('span');
-            label.className = 'detail-label';
-            label.textContent = 'Try instead';
             const links = document.createElement('span');
             instead.forEach((name, index) => {
                 if (index) links.append(', ');
@@ -62,8 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 link.textContent = name;
                 links.appendChild(link);
             });
-            row.append(label, links);
-            wrapper.appendChild(row);
+            wrapper.appendChild(field('Try instead', links));
         }
         wrapper.appendChild(field('GitHub stars', AgentCard.formatStars(meta.stars)));
 
