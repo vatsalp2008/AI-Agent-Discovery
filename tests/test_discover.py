@@ -19,6 +19,23 @@ sys.path.insert(0, str(config.PACKAGE_DIR))
 import discover  # noqa: E402
 
 
+@pytest.fixture
+def isolated_catalogue(tmp_path, monkeypatch):
+    """An empty catalogue and queue, so a result is judged on its own.
+
+    Without it, discover() reads the live catalogue and the developer's real
+    submission queue — so a test asserting a repository is a near miss passes
+    or fails depending on what the catalogue happens to hold. Four copies of
+    this had accumulated; a change to the isolation strategy needed four
+    edits.
+    """
+    catalogue = tmp_path / "agents.json"
+    catalogue.write_text("[]")
+    monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
+    monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "queue.jsonl")
+    return tmp_path
+
+
 def repo(**overrides):
     """A GitHub search result that would be accepted."""
     base = {
@@ -316,13 +333,9 @@ class TestTheDiscoveryRun:
     """The orchestration: what gets searched, deduplicated and reported."""
 
     @pytest.fixture
-    def isolated(self, tmp_path, monkeypatch):
-        """An empty catalogue and queue, so results are the crawler's alone."""
-        catalogue = tmp_path / "agents.json"
-        catalogue.write_text("[]")
-        monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
-        monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "queue.jsonl")
-        return tmp_path
+    def isolated(self, tmp_path, monkeypatch, isolated_catalogue):
+        """Kept as an alias so the existing cases read unchanged."""
+        return isolated_catalogue
 
     def stub_search(self, monkeypatch, by_topic):
         """Replace the network call; `by_topic` maps a topic to results or an
@@ -877,22 +890,6 @@ class TestWhyARepositoryWasDropped:
                      self._repo(topics=["knitting"])):
             usable = discover.why_unusable(repo) is None
             assert usable == (discover.to_record(repo) is not None)
-
-
-@pytest.fixture
-def isolated_catalogue(tmp_path, monkeypatch):
-    """An empty catalogue and queue, so a result is judged on its own.
-
-    Without this, discover() reads all 357 live records and the developer's
-    real queue — so a test asserting a repository is a near miss passes or
-    fails depending on whether the catalogue happens to hold something by
-    that name.
-    """
-    catalogue = tmp_path / "agents.json"
-    catalogue.write_text("[]")
-    monkeypatch.setattr(config, "AGENTS_JSON", catalogue)
-    monkeypatch.setattr(config, "SUBMISSIONS_PATH", tmp_path / "queue.jsonl")
-    return tmp_path
 
 
 class TestANamelessResultDoesNotStopTheRun:
