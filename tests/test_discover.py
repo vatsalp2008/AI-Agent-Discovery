@@ -750,6 +750,12 @@ class TestCourseIsAPlaceNotAWord:
         "Charts a course through your codebase.",
         "Plots a flight course for a drone.",
         "Keeps a long-running plan on the right course.",
+        # "a course for" and "the course in" were briefly in the pattern and
+        # took all four of these with them.
+        "Plots a course for a drone.",
+        "Charts a course for your migration.",
+        "Stay the course in production.",
+        "Steer the course in the right direction.",
         "Marks where a prompt could take an agent off course",
         "Marks where a prompt could take an agent off-course",
         "Of course it runs entirely locally",

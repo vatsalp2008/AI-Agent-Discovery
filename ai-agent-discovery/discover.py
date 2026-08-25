@@ -347,10 +347,13 @@ COURSE_TEXT_PATTERN = re.compile(
     # Stems, like every other pattern here: "course covers" and "course
     # covered" were missed while "course covering" was caught.
     r"|\bcourse\s+(?:on|cover\w*|about|material\w*|note\w*|repo\w*|by)\b"
-    # "a/the/this course" is the genre when a learning word follows it, and
-    # an idiom when nothing does — which is why "charts a course through your
-    # codebase" is left alone.
-    r"|\b(?:a|the|this)\s+course\s+(?:for|on|in|about|that|i|we|which|covering)\b"
+    # "a/the/this course" needs a word that only a taught course takes.
+    # "for" and "in" were in this list and put back the idioms the previous
+    # iteration deleted — "plots a course for a drone", "stay the course in
+    # production". What is left cannot be steered or held.
+    r"|\b(?:a|the|this)\s+course\s+(?:covering|about|that\s+teaches|i\s+teach|we\s+teach)\b"
+    r"|\b(?:a|the|this)\s+course\s+(?:for|on)\s+"
+    r"(?:beginners?|students?|newcomers?|anyone)\b"
     r"|\bcontains?\s+the\s+course\b")
 
 # Topics a repository applies to itself when it is teaching rather than
