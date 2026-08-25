@@ -2496,6 +2496,63 @@ SAMPLE_AGENTS = [
         url="https://github.com/CloakHQ/CloakBrowser",
         use_case="Browsing without being fingerprinted"
     ),
+    # Shipped because dormant entries above point at them: a
+    # bootstrap checkout naming an alternative it does not contain
+    # is the dead end ad02610 fixed for archived entries.
+    Agent(
+        name="CosyVoice",
+        description="Multilingual speech generation with control over emotion and accent, and streaming output for conversational latency.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=22880,
+        url="https://github.com/QwenAudio/CosyVoice",
+        use_case="Expressive speech synthesis"
+    ),
+    Agent(
+        name="Data Formulator",
+        description="Describe the chart you want and iterate on it; the AI writes the reshaping code, so exploration is not gated on remembering pandas.",
+        category="Data Analysis",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=16933,
+        url="https://github.com/microsoft/data-formulator",
+        use_case="Conversational charting"
+    ),
+    Agent(
+        name="IndexTTS",
+        description="Zero-shot text to speech that controls timbre and emotion separately, so a cloned voice can be directed rather than just copied.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=23406,
+        url="https://github.com/index-tts/index-tts",
+        use_case="Directable voice cloning"
+    ),
+    Agent(
+        name="OpenManus",
+        description="An open reimplementation of a general-purpose agent that plans, browses and runs code, with no invite list or API key required.",
+        category="Autonomous Agent",
+        tech_stack=["Python"],
+        github_stars=58053,
+        url="https://github.com/FoundationAgents/OpenManus",
+        use_case="Running a task end to end"
+    ),
+    Agent(
+        name="PyGWalker",
+        description="Turns a dataframe into a drag-and-drop exploration UI inside a notebook, closing the gap between pandas and a BI tool.",
+        category="Data Analysis",
+        tech_stack=["Python", "TypeScript"],
+        github_stars=15944,
+        url="https://github.com/Kanaries/pygwalker",
+        use_case="Visual dataframe exploration"
+    ),
+    Agent(
+        name="VoxCPM",
+        description="Tokeniser-free speech synthesis that clones a voice from a short sample and keeps prosody natural across long passages.",
+        category="Multimodal",
+        tech_stack=["Python", "PyTorch"],
+        github_stars=36004,
+        url="https://github.com/OpenBMB/VoxCPM",
+        use_case="Natural speech synthesis"
+    ),
 ]
 
 class CatalogueError(Exception):

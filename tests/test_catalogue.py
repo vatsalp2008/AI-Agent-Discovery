@@ -1053,32 +1053,27 @@ def test_every_alternative_names_a_live_agent(catalogue):
     assert not dangling, f"pointing at agents that are not live: {dangling}"
 
 
-def test_an_archived_bootstrap_entry_points_somewhere_it_ships(catalogue):
-    """The same promise, kept for a checkout with no data/agents.json.
+def test_every_bootstrap_alternative_ships_with_it(catalogue):
+    """A checkout with no data/agents.json seeds from SAMPLE_AGENTS, so an
+    alternative that is not in that set is a link to nothing.
 
-    Vanna AI's bootstrap entry carried the archived badge while pointing at
-    two agents that are not in SAMPLE_AGENTS, so the only catalogue that entry
-    ever appears in offered two dead ends.
+    Checked for every sample carrying the field, not only archived ones. The
+    first version tested `status != "archived"` and skipped straight past ten
+    dangling links the moment dormant entries started carrying alternatives —
+    reintroducing, for dormant, exactly the defect it had fixed for archived.
     """
     import scraper
 
     live = {a.name for a in scraper.SAMPLE_AGENTS
             if (a.status or "active") == "active"}
 
-    unhelpful = []
-    for sample in scraper.SAMPLE_AGENTS:
-        if sample.status != "archived":
-            continue
-        # Every name, not any: `any` was satisfied by a single live entry
-        # while the other two rendered as links to agents a fresh checkout
-        # does not contain — the dead ends this exists to catch.
-        dead = [name for name in sample.alternatives or [] if name not in live]
-        if not sample.alternatives or dead:
-            unhelpful.append(f"{sample.name} -> {dead or 'none named'}")
+    dangling = {a.name: [n for n in a.alternatives or [] if n not in live]
+                for a in scraper.SAMPLE_AGENTS if a.alternatives}
+    dangling = {k: v for k, v in dangling.items() if v}
 
-    assert not unhelpful, (
-        f"archived in the bootstrap set, naming nothing it ships with: "
-        f"{unhelpful}")
+    assert not dangling, (
+        f"bootstrap entries naming agents the bootstrap set does not ship: "
+        f"{dangling}")
 
 
 def test_every_live_guard_names_an_agent_that_exists(catalogue):
