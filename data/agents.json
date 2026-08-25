@@ -4562,5 +4562,105 @@
     "github_stars": 7239,
     "url": "https://github.com/ChatLab/ChatLab",
     "use_case": "Questioning a chat export locally"
+  },
+  {
+    "name": "claude-mem",
+    "description": "Captures what an agent did in one session and hands it back at the start of the next, so context survives a restart.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "JavaScript",
+      "MCP",
+      "SQLite"
+    ],
+    "github_stars": 91798,
+    "url": "https://github.com/thedotmack/claude-mem",
+    "use_case": "Carrying context between sessions"
+  },
+  {
+    "name": "Headroom",
+    "description": "Compresses tool output, logs and retrieved chunks before they reach the model, trading detail for context budget.",
+    "category": "Infrastructure",
+    "tech_stack": [
+      "Python",
+      "MCP"
+    ],
+    "github_stars": 67540,
+    "url": "https://github.com/headroomlabs-ai/headroom",
+    "use_case": "Shrinking what reaches the model"
+  },
+  {
+    "name": "nanobot",
+    "description": "A personal agent you host yourself, small enough to read end to end, with a web UI, tools and memory included.",
+    "category": "Autonomous Agent",
+    "tech_stack": [
+      "Python",
+      "FastAPI"
+    ],
+    "github_stars": 47379,
+    "url": "https://github.com/HKUDS/nanobot",
+    "use_case": "A personal agent you can read"
+  },
+  {
+    "name": "Sim",
+    "description": "A shared canvas where a team builds, deploys and then watches its agents run, rather than one person scripting them.",
+    "category": "Framework",
+    "tech_stack": [
+      "TypeScript",
+      "Next.js",
+      "PostgreSQL"
+    ],
+    "github_stars": 29472,
+    "url": "https://github.com/simstudioai/sim",
+    "use_case": "Building agents as a team"
+  },
+  {
+    "name": "Repomix",
+    "description": "Packs a whole repository into one file shaped for a model, respecting gitignore and counting the tokens first.",
+    "category": "Code Generation",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "github_stars": 28057,
+    "url": "https://github.com/yamadashy/repomix",
+    "use_case": "A repository as one prompt"
+  },
+  {
+    "name": "Kotaemon",
+    "description": "A ready-made interface for chatting with your own documents, with the retrieval pipeline swappable underneath.",
+    "category": "Research",
+    "tech_stack": [
+      "Python",
+      "Gradio"
+    ],
+    "github_stars": 25715,
+    "url": "https://github.com/Cinnamon/kotaemon",
+    "use_case": "A ready-made document chat UI"
+  },
+  {
+    "name": "Coze Studio",
+    "description": "Builds an agent from visual blocks \u2014 prompts, knowledge, workflows \u2014 and keeps the debugging in the same place.",
+    "category": "Customer Service",
+    "tech_stack": [
+      "TypeScript",
+      "Go",
+      "React"
+    ],
+    "github_stars": 21502,
+    "url": "https://github.com/coze-dev/coze-studio",
+    "use_case": "Building a bot from visual blocks"
+  },
+  {
+    "name": "CloakBrowser",
+    "description": "A Chromium build that browser fingerprinting does not flag, offered as a drop-in replacement for Playwright.",
+    "category": "Automation",
+    "tech_stack": [
+      "Python",
+      "Chromium",
+      "Playwright"
+    ],
+    "github_stars": 30800,
+    "url": "https://github.com/CloakHQ/CloakBrowser",
+    "use_case": "Browsing without being fingerprinted"
   }
 ]
