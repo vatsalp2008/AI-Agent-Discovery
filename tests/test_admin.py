@@ -726,7 +726,7 @@ class TestAlternativesAreForTheDead:
     def test_an_archived_target_is_refused(self):
         """Pointing a dead project at another dead project is a link a reader
         cannot use — accepted here while CI refused it."""
-        with pytest.raises(admin.AdminError, match="not themselves archived"):
+        with pytest.raises(admin.AdminError, match="still active"):
             admin.validate(self._record(status="archived", alternatives=["Flowise"]),
                            [*self.EXISTING, {"name": "Flowise", "status": "archived"}])
 
@@ -804,24 +804,24 @@ class TestAlternativesEdgeCases:
 
         assert cleaned["alternatives"] == ["Langflow"]
 
-    def test_a_dormant_agent_is_a_fine_alternative(self):
-        """Quiet is not dead. docs/CATALOGUE.md calls Bark and LLaVA "still
-        perfectly usable", and the check was excluding them."""
-        cleaned = admin.validate(
-            {**self.BASE, "name": "X", "alternatives": ["Dormy"]}, self.EXISTING)
-
-        assert cleaned["alternatives"] == ["Dormy"]
-
-    def test_an_archived_agent_is_not(self):
-        with pytest.raises(admin.AdminError, match="not themselves archived"):
-            admin.validate({**self.BASE, "name": "X", "alternatives": ["Dead"]},
+    @pytest.mark.parametrize("target", ["Dormy", "Dead"])
+    def test_only_a_live_agent_is_a_usable_alternative(self, target):
+        """Sending a reader from one badged project to another is a
+        redirection they cannot use. Accepting dormant targets here while the
+        catalogue guard required live ones meant admin took saves that turned
+        the build red."""
+        with pytest.raises(admin.AdminError, match="still active"):
+            admin.validate({**self.BASE, "name": "X", "alternatives": [target]},
                            self.EXISTING)
 
-    def test_archiving_requires_naming_somewhere(self):
-        """Refused here rather than only in CI: a save that validates and then
-        turns the build red is a gap in the wrong direction."""
-        with pytest.raises(admin.AdminError, match="must name at least one"):
-            admin.validate({**self.BASE, "name": "X"}, self.EXISTING)
+    def test_archiving_without_naming_anywhere_is_allowed(self):
+        """`audit.py` archives from what GitHub reports and cannot invent a
+        successor, so a rule it could never satisfy would only be enforced
+        against people. The weekly digest reports the gap instead."""
+        cleaned = admin.validate({**self.BASE, "name": "X"}, self.EXISTING)
+
+        assert cleaned["status"] == "archived"
+        assert "alternatives" not in cleaned
 
     def test_a_hand_capitalised_status_still_reads(self):
         """agents.json is hand-editable, and validate casefolds status on the

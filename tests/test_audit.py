@@ -256,17 +256,32 @@ class TestApplyingStatus:
         assert records[0]["status"] == "archived"
         assert changes == [("A", "active", "archived")]
 
-    def test_it_will_not_archive_an_entry_pointing_nowhere(self):
-        """The badge is half the message and this path cannot invent the
-        other half. It also commits straight to main, where the catalogue
-        guard requires every archived entry to point somewhere — archiving
-        here would turn the build red on a robot's decision."""
+    def test_it_archives_and_reports_the_missing_pointer(self):
+        """The badge is applied regardless: an archived repository rendering
+        as healthy is wrong data, and withholding it to keep a build green
+        was the wrong trade. The gap is reported for the digest instead."""
         records = [entry(name="A")]
         changes, needs_a_person = audit.apply_statuses(records, {"A": "archived"})
 
-        assert changes == []
+        assert records[0]["status"] == "archived"
+        assert changes == [("A", "active", "archived")]
         assert needs_a_person == ["A"]
+
+    def test_it_says_nothing_when_the_pointer_is_already_there(self):
+        records = [entry(name="A", alternatives=["B"])]
+        _, needs_a_person = audit.apply_statuses(records, {"A": "archived"})
+
+        assert needs_a_person == []
+
+    def test_coming_back_clears_the_pointer_too(self):
+        """A project that recovered has no business telling anyone to go
+        elsewhere — and a live entry naming alternatives is refused by the
+        catalogue guard."""
+        records = [entry(name="A", status="archived", alternatives=["B"])]
+        audit.apply_statuses(records, {})
+
         assert "status" not in records[0]
+        assert "alternatives" not in records[0]
 
     def test_dormant_still_applies_without_alternatives(self):
         """Quiet is not dead: a dormant entry is still usable, so it carries

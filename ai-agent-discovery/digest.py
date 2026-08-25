@@ -32,6 +32,11 @@ logger = logging.getLogger("digest")
 # already acted on by writing a status.
 NEEDS_A_PERSON = ("missing", "moved", "stack")
 
+# Archived entries with nowhere to send a reader. Not an audit "finding" —
+# GitHub has nothing to say about it — but the one curation gap the automated
+# pass can identify and cannot close, so it belongs in the same report.
+NO_ALTERNATIVE = "no alternative"
+
 # Names to spell out before falling back to a count. A busy week added 115
 # agents; a digest that lists all of them is the thing it was meant to
 # replace.

@@ -997,38 +997,31 @@ def test_every_name_belongs_to_its_repository(catalogue):
 
 
 def test_an_archived_entry_points_somewhere_alive(catalogue):
-    """A dead project with fifty thousand stars is still what people search
-    for. The badge tells a reader to stop; `alternatives` tells them where to
-    go, and every name in it has to be a live entry they can click through to.
+    """Every archived entry in the catalogue today names a live alternative.
 
-    Read from the field rather than parsed out of the description. The first
-    version of this looked for a literal ", archived, with " in prose — a
-    phrasing documented nowhere but inside the assertion, which would have
-    failed an entry that said "archived — use Langflow instead" while naming a
-    perfectly good alternative. Putting competitor names in the description
-    also put them in the dead entry's embedded text, which is the opposite of
-    what listing them is for.
-
-    Dormant entries are exempt: quiet is not dead, and Bark and LLaVA are
-    still perfectly usable.
+    Held as a fact about the current data rather than an invariant on writes:
+    `audit.py` archives from what GitHub reports and cannot invent a
+    successor, so requiring one at write time would be a rule only people
+    could be held to. When the weekly job archives something new, it says so
+    and the digest lists it; this records that the backlog is currently
+    empty, and fails loudly if it stops being.
     """
     live = {agent["name"] for agent in catalogue
             if agent.get("status", "active") == "active"}
 
-    unhelpful = []
-    for agent in catalogue:
-        if agent.get("status") != "archived":
-            continue
-        alternatives = agent.get("alternatives") or []
-        if not alternatives:
-            unhelpful.append(f"{agent['name']} (no alternatives)")
-            continue
-        dead = [name for name in alternatives if name not in live]
-        if dead:
-            unhelpful.append(f"{agent['name']} -> {dead}")
+    unhelpful = [agent["name"] for agent in catalogue
+                 if agent.get("status") == "archived"
+                 and not agent.get("alternatives")]
 
     assert not unhelpful, (
-        f"archived and offering no living alternative: {unhelpful}")
+        f"archived with nowhere to send a reader — add an alternative, or "
+        f"note here why there is none: {unhelpful}")
+
+    dead = {agent["name"]: [n for n in agent.get("alternatives") or []
+                            if n not in live]
+            for agent in catalogue if agent.get("status") == "archived"}
+    dead = {k: v for k, v in dead.items() if v}
+    assert not dead, f"archived and pointing at something not live: {dead}"
 
 
 def test_only_a_dead_entry_names_alternatives(catalogue):

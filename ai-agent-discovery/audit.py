@@ -215,12 +215,11 @@ def apply_statuses(records, wanted, checked=None):
     whose repository has been deleted is reported as `missing` rather than
     healthy — clearing either would remove a warning nobody re-verified.
 
-    Returns (changes, needs_a_person). An entry that would become archived
-    without naming a live alternative is *not* archived here: the badge is
-    only half the message, and this path cannot invent the other half. It is
-    reported instead, so a maintainer supplies one — which also keeps main
-    green, since the catalogue guard requires every archived entry to point
-    somewhere and this job commits straight to it.
+    Returns (changes, needs_a_person). The badge is always applied — an
+    archived repository rendering as healthy is wrong data, and withholding
+    it to keep a build green was the wrong trade. `needs_a_person` names the
+    entries now archived with nowhere to send a reader, which is a curation
+    gap for the digest to report rather than something to suppress.
     """
     changes, needs_a_person = [], []
     for record in records:
@@ -232,13 +231,16 @@ def apply_statuses(records, wanted, checked=None):
         after = wanted.get(name, "active")
         if before == after:
             continue
-        if after == "archived" and not record.get("alternatives"):
-            needs_a_person.append(name)
-            continue
         if after == "active":
             record.pop("status", None)
+            # A project that came back has no business telling anyone to go
+            # elsewhere, and leaving the field made it a live entry naming
+            # alternatives — which the catalogue guard refuses.
+            record.pop("alternatives", None)
         else:
             record["status"] = after
+            if after == "archived" and not record.get("alternatives"):
+                needs_a_person.append(name)
         changes.append((record.get("name"), before, after))
     return changes, needs_a_person
 
@@ -391,8 +393,8 @@ def main(argv=None):
         if needs_a_person:
             # Left un-archived on purpose: the badge without a redirection is
             # half a message, and this cannot supply the other half.
-            say(f"\n{len(needs_a_person)} archived on GitHub but naming no "
-                f"alternative — add one, then re-run:")
+            say(f"\n{len(needs_a_person)} newly archived with nowhere to send "
+                f"a reader — add an alternative to each:")
             for name in needs_a_person:
                 say(f"  {name}")
 

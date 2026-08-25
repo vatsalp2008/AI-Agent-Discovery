@@ -250,9 +250,10 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
     if any(name.casefold() == cleaned["name"].casefold() for name in named):
         raise AdminError("an agent cannot be its own alternative")
 
-    # Anything a reader can actually follow — which is everything except an
-    # archived entry. Dormant is deliberately allowed: quiet is not dead, and
-    # docs/CATALOGUE.md calls Bark and LLaVA "still perfectly usable".
+    # Only live entries. Sending a reader from one badged project to another
+    # is a redirection they cannot use, and allowing dormant targets here
+    # while the catalogue guard required active ones meant admin accepted
+    # saves that turned the build red.
     #
     # agents.json is hand-editable, so a record may hold anything; skip what
     # cannot be read rather than raising a 500 out of a validation routine,
@@ -261,11 +262,11 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
                   for other in existing
                   if isinstance(other, dict)
                   and isinstance(other.get("name"), str)
-                  and str(other.get("status") or "active").strip().casefold() != "archived"}
+                  and str(other.get("status") or "active").strip().casefold() == "active"}
     unusable = [name for name in named if name.casefold() not in followable]
     if unusable:
         raise AdminError(f"'alternatives' must name agents that are in the "
-                         f"catalogue and not themselves archived: "
+                         f"catalogue and still active: "
                          f"{', '.join(unusable)}")
 
     # Stored with the catalogue's own spelling so the link resolves, and
@@ -279,13 +280,10 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
             seen.add(canonical)
             unique.append(canonical)
 
-    if cleaned["status"] == "archived" and not unique:
-        # Refused here rather than only in CI. An archived entry with nowhere
-        # to send a reader is the thing the field exists to prevent, and a
-        # save that passes validation only to turn the build red later is a
-        # gap in the wrong direction.
-        raise AdminError("an archived agent must name at least one live "
-                         "alternative")
+    # Deliberately *not* required: audit.py archives from what GitHub reports
+    # and cannot invent a successor, so a rule the automated path could never
+    # satisfy would only be enforced against people. The gap is reported in
+    # the weekly digest instead.
     if unique:
         cleaned["alternatives"] = unique
 
