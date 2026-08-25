@@ -1,5 +1,22 @@
 [
   {
+    "commit": "fbd78492",
+    "at": "2026-08-25T08:39:33-07:00",
+    "subject": "Add six agent and analysis tools",
+    "total": 363,
+    "added": [
+      "BettaFish",
+      "Bindu",
+      "ChatLab",
+      "TrendRadar",
+      "edict",
+      "ruflo"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": []
+  },
+  {
     "commit": "04734da8",
     "at": "2026-08-25T08:36:43-07:00",
     "subject": "Send readers on from the dormant ten",
