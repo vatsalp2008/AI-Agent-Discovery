@@ -733,6 +733,14 @@ class TestCourseIsAPlaceNotAWord:
         ("x", "Crash-course in transformers"),
         ("x", "Course-materials for a deep learning class"),
         ("x", "Course materials for a deep learning class"),
+        # Dropped by the fourth rewrite and restored here: each of these is a
+        # course, and each passed silently until the table caught it.
+        ("cs231n-notes", "Course repo for the Stanford deep learning class."),
+        ("x", "A course for beginners on building LLM agents."),
+        ("x", "This repository contains the course I teach at university."),
+        ("x", "This course covers transformers end to end."),
+        ("x", "This course covered transformers end to end."),
+        ("x", "Course notes for a deep learning class."),
     ])
     def test_a_course_is_refused_however_it_is_phrased(self, name, description):
         assert not discover.looks_like_a_tool(
