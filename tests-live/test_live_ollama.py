@@ -473,6 +473,15 @@ def test_overview_stays_grounded_in_the_prompt(live_store, query):
     ("analyse public opinion with agents", {"BettaFish"}),
     ("alert me when a topic moves", {"TrendRadar"}),
     ("question a chat export locally", {"ChatLab"}),
+    ("carry context between agent sessions", {"claude-mem", "Mem0", "Letta"}),
+    ("shrink tool output before the model sees it", {"Headroom"}),
+    ("a personal agent i can host myself", {"nanobot", "Suna", "AgenticSeek"}),
+    ("build agents as a team on one canvas", {"Sim", "Langflow", "Flowise"}),
+    ("pack a repository into one prompt", {"Repomix", "Claude Context"}),
+    ("ready made document chat interface",
+     {"Kotaemon", "AnythingLLM", "Onyx"}),
+    ("build a bot from visual blocks", {"Coze Studio", "Botpress", "Typebot"}),
+    ("browse without being fingerprinted", {"CloakBrowser"}),
 ])
 def test_known_queries_still_surface_the_right_agents(live_store, query, expected):
     """Retrieval quality as the catalogue grows.
