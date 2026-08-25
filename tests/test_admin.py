@@ -871,7 +871,7 @@ class TestAReferencedAgentCannotVanish:
                                        alternatives=["Dify"]))
 
         assert response.status_code == 409
-        assert "dead project" in response.get_json()["error"]
+        assert "badged project" in response.get_json()["error"]
 
     def test_an_unreferenced_agent_deletes_normally(self, pair):
         pair.post("/api/admin/agents", json=valid(name="Lonely"))
@@ -888,3 +888,35 @@ class TestAReferencedAgentCannotVanish:
 
     def test_the_referrer_itself_can_still_be_deleted(self, pair):
         assert pair.delete("/api/admin/agents/Flowise").status_code == 200
+
+
+class TestAReferenceCannotBeQuietlyBroken:
+    """Two ways a link survived validation and then dangled."""
+
+    @pytest.fixture
+    def pair(self, admin_client):
+        admin_client.post("/api/admin/agents", json=valid(name="Langflow"))
+        admin_client.post("/api/admin/agents", json=valid(
+            name="Flowise", status="archived", alternatives=["Langflow"]))
+        return admin_client
+
+    def test_marking_the_target_dormant_is_refused(self, pair):
+        """The guard tested for "archived" while the invariant is "still
+        active" — a dormant badge makes a link a reader cannot use."""
+        response = pair.put("/api/admin/agents/Langflow",
+                            json=valid(name="Langflow", status="dormant"))
+
+        assert response.status_code == 409
+        assert "badged project" in response.get_json()["error"]
+
+    def test_renaming_yourself_and_pointing_at_the_old_name_is_refused(self, admin_client):
+        """The self-check compared the *new* name, and the old one was still
+        in the catalogue during validation, so this left a link to an agent
+        that no longer existed anywhere."""
+        admin_client.post("/api/admin/agents", json=valid(name="Lonely"))
+
+        response = admin_client.put("/api/admin/agents/Lonely", json=valid(
+            name="Lonely2", status="archived", alternatives=["Lonely"]))
+
+        assert response.status_code == 400
+        assert "its own alternative" in response.get_json()["error"]

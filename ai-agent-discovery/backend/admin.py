@@ -247,7 +247,15 @@ def validate(record, existing, original_name=None, min_description=0, allow_stat
     # Case-insensitively, like every other name comparison here: "solo" got
     # past a `!=` check and was then rewritten to the catalogue's spelling,
     # so an agent ended up listed as its own replacement.
-    if any(name.casefold() == cleaned["name"].casefold() for name in named):
+    against = {cleaned["name"].casefold()}
+    if original_name:
+        # The name being replaced, too. Renaming Lonely to Lonely2 while
+        # naming "Lonely" as its alternative passed every check — the
+        # self-test compared the new name, and the old one was still in
+        # `existing` so it looked followable — leaving a link to an agent
+        # that no longer exists anywhere.
+        against.add(original_name.casefold())
+    if any(name.casefold() in against for name in named):
         raise AdminError("an agent cannot be its own alternative")
 
     # Only live entries. Sending a reader from one badged project to another
@@ -447,7 +455,7 @@ def create_agent():
 
 
 def _referrers(records, name, ignoring=None):
-    """Archived entries whose `alternatives` name this agent.
+    """Every entry whose `alternatives` name this agent, live or not.
 
     Write-side validation only ever guarded the record being written, so
     deleting, renaming or archiving a target left every entry pointing at it
@@ -484,11 +492,14 @@ def update_agent(name):
                     f"{previous.get('name')!r} is named as an alternative by "
                     f"{', '.join(pointing)}; rename those first",
                     status=409)
-            if cleaned["status"] == "archived":
+            # Any move away from active, not archiving alone: an alternative
+            # has to be something a reader can use, and a dormant badge makes
+            # it one they cannot — which the catalogue guard then refuses.
+            if cleaned["status"] != "active":
                 raise AdminError(
                     f"{previous.get('name')!r} is named as an alternative by "
-                    f"{', '.join(pointing)}; archiving it would leave them "
-                    f"pointing at a dead project",
+                    f"{', '.join(pointing)}; marking it {cleaned['status']} "
+                    f"would leave them pointing at a badged project",
                     status=409)
 
         records[index] = cleaned
