@@ -445,6 +445,22 @@ def create_agent():
     return jsonify({"agent": cleaned, "total": len(records)}), 201
 
 
+def _referrers(records, name, ignoring=None):
+    """Archived entries whose `alternatives` name this agent.
+
+    Write-side validation only ever guarded the record being written, so
+    deleting, renaming or archiving a target left every entry pointing at it
+    with a link that resolves to nothing — and the catalogue guard then
+    turned the build red, after the change had been saved and served.
+    """
+    wanted = (name or "").casefold()
+    return [record.get("name") for record in records
+            if isinstance(record, dict)
+            and record.get("name") != ignoring
+            and any(isinstance(alt, str) and alt.casefold() == wanted
+                    for alt in record.get("alternatives") or [])]
+
+
 @admin_bp.route('/agents/<path:name>', methods=['PUT'])
 def update_agent(name):
     _require_enabled()
@@ -457,6 +473,23 @@ def update_agent(name):
 
         previous = records[index]
         cleaned = validate(payload, records, original_name=previous.get("name"))
+
+        # Renaming or archiving a target breaks every entry pointing at it.
+        pointing = _referrers(records, previous.get("name"),
+                              ignoring=previous.get("name"))
+        if pointing:
+            if cleaned["name"] != previous.get("name"):
+                raise AdminError(
+                    f"{previous.get('name')!r} is named as an alternative by "
+                    f"{', '.join(pointing)}; rename those first",
+                    status=409)
+            if cleaned["status"] == "archived":
+                raise AdminError(
+                    f"{previous.get('name')!r} is named as an alternative by "
+                    f"{', '.join(pointing)}; archiving it would leave them "
+                    f"pointing at a dead project",
+                    status=409)
+
         records[index] = cleaned
         save_catalogue(records)
         _append_audit("update", cleaned["name"], before=previous, after=cleaned)
@@ -472,6 +505,14 @@ def delete_agent(name):
         index = _find(records, name)
         if index is None:
             raise AdminError(f"No agent named {name!r}", status=404)
+
+        pointing = _referrers(records, records[index].get("name"),
+                              ignoring=records[index].get("name"))
+        if pointing:
+            raise AdminError(
+                f"{records[index].get('name')!r} is named as an alternative by "
+                f"{', '.join(pointing)}; remove it from those first",
+                status=409)
 
         removed = records.pop(index)
         save_catalogue(records)

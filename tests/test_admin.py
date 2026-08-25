@@ -817,3 +817,60 @@ class TestAlternativesEdgeCases:
             {**self.BASE, "name": "X", "alternatives": ["Langflow"]}, existing)
 
         assert cleaned["alternatives"] == ["Langflow"]
+
+
+class TestAReferencedAgentCannotVanish:
+    """Write-side validation only ever guarded the record being written.
+
+    Deleting, renaming or archiving an agent that an archived entry points at
+    left a link resolving to nothing — and the catalogue guard then turned the
+    build red, after the change had been saved and served.
+    """
+
+    @pytest.fixture
+    def pair(self, admin_client):
+        """Flowise (archived) pointing at Langflow (live)."""
+        admin_client.post("/api/admin/agents", json=valid(name="Langflow"))
+        admin_client.post("/api/admin/agents", json=valid(
+            name="Flowise", status="archived", alternatives=["Langflow"]))
+        return admin_client
+
+    def test_deleting_the_target_is_refused(self, pair):
+        response = pair.delete("/api/admin/agents/Langflow")
+
+        assert response.status_code == 409
+        assert "Flowise" in response.get_json()["error"]
+
+    def test_renaming_the_target_is_refused(self, pair):
+        response = pair.put("/api/admin/agents/Langflow",
+                            json=valid(name="Langflow 2"))
+
+        assert response.status_code == 409
+        assert "rename those first" in response.get_json()["error"]
+
+    def test_archiving_the_target_is_refused(self, pair):
+        # Pointed at a live third agent, so the archive itself is valid and
+        # the referrer check is what refuses it.
+        pair.post("/api/admin/agents", json=valid(name="Dify"))
+        response = pair.put("/api/admin/agents/Langflow",
+                            json=valid(name="Langflow", status="archived",
+                                       alternatives=["Dify"]))
+
+        assert response.status_code == 409
+        assert "dead project" in response.get_json()["error"]
+
+    def test_an_unreferenced_agent_deletes_normally(self, pair):
+        pair.post("/api/admin/agents", json=valid(name="Lonely"))
+
+        assert pair.delete("/api/admin/agents/Lonely").status_code == 200
+
+    def test_editing_the_target_without_moving_it_is_fine(self, pair):
+        response = pair.put("/api/admin/agents/Langflow",
+                            json=valid(name="Langflow",
+                                       description="A rewritten description, "
+                                                   "comfortably past the floor."))
+
+        assert response.status_code == 200
+
+    def test_the_referrer_itself_can_still_be_deleted(self, pair):
+        assert pair.delete("/api/admin/agents/Flowise").status_code == 200
