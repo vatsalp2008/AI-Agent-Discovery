@@ -2553,6 +2553,52 @@ SAMPLE_AGENTS = [
         url="https://github.com/OpenBMB/VoxCPM",
         use_case="Natural speech synthesis"
     ),
+    # Found by the crawler
+    Agent(
+        name="Newton",
+        description="A GPU physics engine built for robot learning, differentiable so a policy can be trained through the simulation.",
+        category="Robotics",
+        tech_stack=["Python", "CUDA", "NVIDIA Warp"],
+        github_stars=5528,
+        url="https://github.com/newton-physics/newton",
+        use_case="Differentiable physics for robot learning"
+    ),
+    Agent(
+        name="Habitat-Sim",
+        description="The simulator under Habitat Lab, rendering photorealistic indoor scenes fast enough to train in.",
+        category="Robotics",
+        tech_stack=["C++", "Python", "Magnum"],
+        github_stars=3798,
+        url="https://github.com/facebookresearch/habitat-sim",
+        use_case="Photorealistic indoor simulation"
+    ),
+    Agent(
+        name="Lance",
+        description="A columnar format for multimodal data with fast random access, so training reads a single row without a full scan.",
+        category="Infrastructure",
+        tech_stack=["Rust", "Python", "Arrow"],
+        github_stars=6970,
+        url="https://github.com/lance-format/lance",
+        use_case="Random access over training data"
+    ),
+    Agent(
+        name="CozeLoop",
+        description="Watches an agent in production and feeds what it finds back into the prompts and evaluations behind it.",
+        category="Evaluation",
+        tech_stack=["Go", "TypeScript"],
+        github_stars=5705,
+        url="https://github.com/coze-dev/coze-loop",
+        use_case="Tuning an agent from production traces"
+    ),
+    Agent(
+        name="WeKnora",
+        description="Turns a pile of documents into something queryable, with the retrieval and the reading model both swappable.",
+        category="Research",
+        tech_stack=["Go", "Python", "Docker"],
+        github_stars=20604,
+        url="https://github.com/Tencent/WeKnora",
+        use_case="A queryable pile of documents"
+    ),
 ]
 
 class CatalogueError(Exception):
