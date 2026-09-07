@@ -1,5 +1,26 @@
 [
   {
+    "commit": "6a3e6cb5",
+    "at": "2026-09-07T11:18:31Z",
+    "subject": "Follow renamed repository URLs",
+    "total": 376,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Quivr",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/QuivrHQ/quivr",
+            "to": "https://github.com/The-Vibe-Company/quivr"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "bee2cf01",
     "at": "2026-08-25T09:25:12-07:00",
     "subject": "Add five simulation and data tools",
