@@ -1,5 +1,26 @@
 [
   {
+    "commit": "d577f43f",
+    "at": "2026-09-28T12:38:39Z",
+    "subject": "Follow renamed repository URLs",
+    "total": 376,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "LibreChat",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/danny-avila/LibreChat",
+            "to": "https://github.com/LibreChat-AI/LibreChat"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "6a3e6cb5",
     "at": "2026-09-07T11:18:31Z",
     "subject": "Follow renamed repository URLs",
