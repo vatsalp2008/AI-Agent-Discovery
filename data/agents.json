@@ -4337,7 +4337,8 @@
     ],
     "github_stars": 71656,
     "url": "https://github.com/daytonaio/daytona",
-    "use_case": "Disposable runtimes for generated code"
+    "use_case": "Disposable runtimes for generated code",
+    "status": "archived"
   },
   {
     "name": "Graphiti",
