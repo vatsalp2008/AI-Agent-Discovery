@@ -4475,7 +4475,8 @@
     ],
     "github_stars": 3836,
     "url": "https://github.com/predibase/lorax",
-    "use_case": "Many adapters on one GPU"
+    "use_case": "Many adapters on one GPU",
+    "status": "archived"
   },
   {
     "name": "Semantic Router",
