@@ -3752,7 +3752,8 @@
     ],
     "github_stars": 5508,
     "url": "https://github.com/mosaicml/composer",
-    "use_case": "Faster training through algorithms"
+    "use_case": "Faster training through algorithms",
+    "status": "archived"
   },
   {
     "name": "SWE-bench",
