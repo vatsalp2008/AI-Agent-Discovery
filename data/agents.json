@@ -4729,5 +4729,17 @@
     "github_stars": 35503,
     "url": "https://github.com/Tencent/WeKnora",
     "use_case": "A queryable pile of documents"
+  },
+  {
+    "name": "agent-qa",
+    "description": "Self-improving QA for web, Android and iOS, with advanced memidex memory, natural-language tests, CLI, dashboard and MCP. FSL-1.1-ALv2; provider costs may apply.",
+    "category": "Automation",
+    "tech_stack": [
+      "TypeScript",
+      "Node.js 24+"
+    ],
+    "github_stars": 912,
+    "url": "https://github.com/vostride/agent-qa",
+    "use_case": "Run application regression tests and retain validated lessons as reviewable memory."
   }
 ]
