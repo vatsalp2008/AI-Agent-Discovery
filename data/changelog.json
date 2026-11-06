@@ -31,6 +31,34 @@
     "gone": []
   },
   {
+    "commit": "fcd69f13",
+    "at": "2026-11-02T14:29:14Z",
+    "subject": "Refresh GitHub star counts",
+    "total": 376,
+    "added": [],
+    "removed": [
+      "agent-qa"
+    ],
+    "edited": [],
+    "gone": [
+      "agent-qa"
+    ]
+  },
+  {
+    "commit": "83b1f49d",
+    "at": "2026-10-31T16:00:50+05:30",
+    "subject": "Add agent-qa to the current catalogue",
+    "total": 377,
+    "added": [
+      "agent-qa"
+    ],
+    "removed": [],
+    "edited": [],
+    "gone": [
+      "agent-qa"
+    ]
+  },
+  {
     "commit": "65cbf624",
     "at": "2026-10-26T12:09:06Z",
     "subject": "Update project health statuses",
