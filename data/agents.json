@@ -3422,7 +3422,8 @@
     ],
     "github_stars": 39587,
     "url": "https://github.com/bytedance/UI-TARS-desktop",
-    "use_case": "GUI automation from plain instructions"
+    "use_case": "GUI automation from plain instructions",
+    "status": "archived"
   },
   {
     "name": "Agent-S",
