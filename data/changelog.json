@@ -1,5 +1,47 @@
 [
   {
+    "commit": "5246a97d",
+    "at": "2026-11-09T14:58:34Z",
+    "subject": "Update project health statuses",
+    "total": 376,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "UI-TARS Desktop",
+        "fields": [
+          {
+            "field": "status",
+            "from": "active",
+            "to": "archived"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
+    "commit": "51088931",
+    "at": "2026-11-09T14:56:25Z",
+    "subject": "Follow renamed repository URLs",
+    "total": 376,
+    "added": [],
+    "removed": [],
+    "edited": [
+      {
+        "name": "Suna",
+        "fields": [
+          {
+            "field": "url",
+            "from": "https://github.com/kortix-ai/suna",
+            "to": "https://github.com/kortix-ai/CompanyOS"
+          }
+        ]
+      }
+    ],
+    "gone": []
+  },
+  {
     "commit": "de905b76",
     "at": "2026-11-02T14:34:46Z",
     "subject": "Update project health statuses",
