@@ -356,7 +356,8 @@
     ],
     "github_stars": 61965,
     "url": "https://github.com/microsoft/autogen",
-    "use_case": "Multi-agent conversation"
+    "use_case": "Multi-agent conversation",
+    "status": "archived"
   },
   {
     "name": "LangGraph",
